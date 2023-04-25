@@ -1,0 +1,11 @@
+{
+    "dictionaries": ["custom-dict"],
+    "dictionaryDefinitions": [
+        {
+            "name": "custom-dict",
+            "path": "~/.config/nvim/lua/user/lsp/cspell-custom-dict.txt",
+            "addWords": true
+        }
+    ],
+    "enableCompoundWords": true
+}

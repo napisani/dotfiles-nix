@@ -1,0 +1,105 @@
+--return {
+--  filetypes = {
+--    'sh',
+--    'python',
+--  },
+--  init_options = {
+--      filetypes = {
+--          sh = 'shellcheck',
+--          python = { 'flake8', 'mypy' },
+--      },
+--      linters = {
+--          shellcheck = {
+--              sourceName = 'shellcheck',
+--              command = 'shellcheck',
+--              debounce = 100,
+--              args = { '--format', 'json1', '-' },
+--              parseJson = {
+--                  errorsRoot = 'comments',
+--                  sourceName = 'file',
+--                  line = 'line',
+--                  endLine = 'endLine',
+--                  column = 'column',
+--                  endColumn = 'endColumn',
+--                  security = 'level',
+--                  message = '${message} [${code}] [${fix}]'
+--              },
+--              securities = {
+--                  error = 'error',
+--                  warning = 'warning',
+--                  note = 'info',
+--                  style = 'hint',
+--              }
+--          },
+--
+--          mypy = {
+--              sourceName = 'mypy',
+--              command = 'mypy',
+--              debounce = 100,
+--              args = {
+--                  '--show-error-context',
+--                  '--show-column-numbers',
+--                  '--show-error-codes',
+--                  '--no-color-output',
+--                  '--no-error-summary',
+--                  '%file',
+--              },
+--              rootPatterns = {
+--                  'mypy.ini',
+--                  '.mypy.ini',
+--                  'pyproject.toml',
+--                  'setup.cfg'
+--              },
+--              offsetLine = 0,
+--              offsetColumn = 0,
+--              formatLines = 1,
+--              formatPattern = {
+--                  [[.*:(\d+):(\d+): (\w*): (.*)(\r|\n)*$]],
+--                  {
+--                      line = 1,
+--                      column = 2,
+--                      security = 3,
+--                      message = {
+--                          '[mypy] ',
+--                          4
+--                      }
+--                  },
+--              },
+--          },
+--
+--          flake8 = {
+--              sourceName = 'flake8',
+--              command = 'flake8',
+--              debounce = 100,
+--              args = {
+--                  '--format=%(row)d,%(col)d,%(code).1s,%(code)s: %(text)s',
+--                  '-',
+--              },
+--              rootPatterns = {
+--                  '.flake8',
+--                  'setup.cfg',
+--                  'tox.ini'
+--              },
+--              offsetLine = 0,
+--              offsetColumn = 0,
+--              formatLines = 1,
+--              formatPattern = {
+--                  '(\\d+),(\\d+),([A-Z]),(.*)(\\r|\\n)*$',
+--                  {
+--                      line = 1,
+--                      column = 2,
+--                      security = 3,
+--                      message = 4,
+--                  },
+--              },
+--              securities = {
+--                  W = 'warning',
+--                  E = 'error',
+--                  F = 'error',
+--                  C = 'error',
+--                  N = 'error',
+--              }
+--          },
+--      }
+--  }
+--}

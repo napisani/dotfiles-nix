@@ -1,0 +1,142 @@
+[[snippets]]
+  description = "cypress test"
+  command = "$(npm bin)/cypress run"
+  tag = ["cypress", "frontend", "test"]
+  output = ""
+
+[[snippets]]
+  description = "deploy web staging"
+  command = "gcloud app deploy web/app-staging.yaml"
+  tag = ["deploy", "web", "gcloud", "staging"]
+  output = ""
+
+[[snippets]]
+  description = "deploy api staging"
+  command = "gcloud app deploy api/app-staging.yaml"
+  tag = ["deploy", "api", "staging", "gcloud"]
+  output = ""
+
+[[snippets]]
+  description = "clubhouse sprint work list"
+  command = "club search  --iteration \"Sprint <sprint:5>\" --state \"Ready for Development\""
+  tag = ["clubhouse", "sprint", "work", "list"]
+  output = ""
+
+[[snippets]]
+  description = "run flake8 in docker container"
+  command = "docker exec `docker ps | grep -i _api | awk '{print $1}'` flake8"
+  tag = ["fake8", "docker", "exec"]
+  output = ""
+
+[[snippets]]
+  description = "run yapf in docker api container"
+  command = "docker exec `docker ps | grep -i _api | awk '{print $1}'` yapf -i --exclude app/migrations --recursive ."
+  tag = ["yapf", "docker", "python", "formatter"]
+  output = ""
+
+[[snippets]]
+  description = "docker kill all"
+  command = "docker kill `docker ps -q`"
+  tag = ["docker", "kill", "all"]
+  output = ""
+
+[[snippets]]
+  description = "alembic flask generate sql migraiton revision"
+  command = "docker exec `docker ps | grep -i _api | awk '{print $1}'`  flask db revision '<msg>'"
+  tag = ["alembic", "flask", "generate", "sql", "migration", "revision"]
+  output = ""
+
+[[snippets]]
+  description = "cypress run single file"
+  command = "$(npm bin)/cypress run --headed --no-exit  --spec '**/<filename>'"
+  tag = ["cypress", "single", "headed"]
+  output = ""
+
+[[snippets]]
+  description = "jest test one file"
+  command = "$(npm bin)/vue-cli-service test:unit  --testPathPattern=<test_name>"
+  tag = ["jest", "unit", "test", "single", "one"]
+  output = ""
+
+[[snippets]]
+  description = "ngrok public tunnel"
+  command = "ngrok http https://localhost:8080 -host-header=\"localhost:8080\""
+  tag = ["ngrok", "public", "tunnel", "https"]
+  output = ""
+
+[[snippets]]
+  description = "tail api log in staging"
+  command = "gcloud app logs tail -f api"
+  tag = ["tail", "api", "logs", "staging", "log"]
+  output = ""
+
+[[snippets]]
+  description = "build staging until it works"
+  command = "while ! `npm run build-staging` ; do echo 'trying again' ; done ;"
+  tag = ["build", "web", "staging", "until", "works", "forever"]
+  output = ""
+
+[[snippets]]
+  description = "staging cloud sql proxy"
+  command = "cloud_sql_proxy -instances=clearing-test:us-east1:clearing-staging-db=tcp:0.0.0.0:3307"
+  tag = ["stagig", "cloud", "sql", "proxy"]
+  output = ""
+
+[[snippets]]
+  description = "start jupyter notebook in current api container"
+  command = "docker exec `docker ps | grep -i _api | awk '{print $1}'` jupyter notebook --ip.0.0.0 --no-browser --allow-root"
+  tag = ["jupter", "notbooke", "api", "container"]
+  output = ""
+
+[[snippets]]
+  description = "kill all chrome pids"
+  command = "ps -ef | grep -i [c]hrom | awk '{print $2}' | xargs kill -9"
+  tag = ["kill", "chrome", "chromium", "prerender", "all"]
+  output = ""
+
+[[snippets]]
+  description = "list vue webpack plugins"
+  command = "$(npm bin)/vue-cli-service inspect --plugins"
+  tag = ["list", "vuew", "webpack", "plugins"]
+  output = ""
+
+[[snippets]]
+  description = "sample terminal colors"
+  command = "msgcat --color=test"
+  output = ""
+
+[[snippets]]
+  description = "clean old app engine builds"
+  command = "gcloud app versions list | awk '{print$1}' | uniq  | grep -v SERVICE| grep -v default | xargs -I {} ~/scripts/clean-old-builds.sh {} 10 -q"
+  tag = ["clean", "remove", "app", "engine", "builds", "gcloud"]
+  output = ""
+
+[[snippets]]
+  description = "create global npm links for js-packages"
+  command = "cd ~/code/clearing-app2/js-packages && find ./ -maxdepth 1 -mindepth 1 -exec sh -c \"cd {} ; npm link ; cd ..\" \\;"
+  tag = ["npm", "link", "js-packages", "global"]
+  output = ""
+
+[[snippets]]
+  description = "clearing cli authenticated raw GET request"
+  command = "python  app/clearing_cli.py  request \"<endpoint=/onboarding/relief-coach-availability/>\" --method 'GET' --output_format \"JSON\" --access_token \"$CLEARING_TOKEN\""
+  tag = ["clearing", "cli", "authenticated", "raw", "GET", "request"]
+  output = ""
+
+[[snippets]]
+  description = "mobile browser logs in terminal/docker"
+  command = "docker logs `docker ps | grep -i api_ | awk '{print$1}'` -f 2>&1 | grep \"PATIENT_MOBILE_APP:\""
+  tag = ["mobile", "browser", "logs", "terminal", "docker"]
+  output = ""
+
+[[snippets]]
+  description = "sentry explain troubleshoot sourcemaps"
+  command = "sentry-cli sourcemaps explain --org clearing --project patient-app 56bd90d2acec4c3ea7a71c1d30f530ff"
+  tag = ["sentry", "explain", "troubleshoot", "sourcemaps"]
+  output = ""
+
+[[snippets]]
+  description = "rerun kube job"
+  command = "kubectl get job \"<job-name>\" -o json | jq 'del(.spec.selector)' | jq 'del(.spec.template.metadata.labels)' | kubectl replace --force -f -"
+  tag = ["kube", "job", "rerun"]
+  output = ""
