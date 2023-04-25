@@ -1,0 +1,207 @@
+env:
+  TERM: xterm-256color
+schemes:
+  # Tokyo Night theme, based on both:
+  #   https://github.com/ghifarit53/tokyonight-vim
+  #   https://github.com/enkia/tokyo-night-vscode-theme
+  tokyo-night: &tokyo-night
+    # Default colors
+    primary:
+      background: '0x1a1b26'
+      foreground: '0xa9b1d6'
+
+    # Normal colors
+    normal:
+      black:   '0x32344a'
+      red:     '0xf7768e'
+      green:   '0x9ece6a'
+      yellow:  '0xe0af68'
+      blue:    '0x7aa2f7'
+      magenta: '0xad8ee6'
+      cyan:    '0x449dab'
+      white:   '0x787c99'
+
+    # Bright colors
+    bright:
+      black:   '0x444b6a'
+      red:     '0xff7a93'
+      green:   '0xb9f27c'
+      yellow:  '0xff9e64'
+      blue:    '0x7da6ff'
+      magenta: '0xbb9af7'
+      cyan:    '0x0db9d7'
+      white:   '0xacb0d0'
+
+  tokyo-night-storm: &tokyo-night-storm
+    # Default colors
+    primary:
+      background: '0x24283b'
+      foreground: '0xa9b1d6'
+
+    # Normal colors
+    normal:
+      black:   '0x32344a'
+      red:     '0xf7768e'
+      green:   '0x9ece6a'
+      yellow:  '0xe0af68'
+      blue:    '0x7aa2f7'
+      magenta: '0xad8ee6'
+      cyan:    '0x449dab'
+      white:   '0x9699a8'
+
+    # Bright colors
+    bright:
+      black:   '0x444b6a'
+      red:     '0xff7a93'
+      green:   '0xb9f27c'
+      yellow:  '0xff9e64'
+      blue:    '0x7da6ff'
+      magenta: '0xbb9af7'
+      cyan:    '0x0db9d7'
+      white:   '0xacb0d0'
+  # Colors (Dracula)
+  dracula: &dracula
+    # Default colors
+    primary:
+      background: '0x282a36'
+      foreground: '0xf8f8f2'
+   
+    # Normal colors
+    normal:
+      black:   '0x000000'
+      red:     '0xff5555'
+      green:   '0x50fa7b'
+      yellow:  '0xf1fa8c'
+      blue:    '0xbd93f9'
+      magenta: '0xff79c6'
+      cyan:    '0x8be9fd'
+      white:   '0xbbbbbb'
+   
+    # Bright colors
+    bright:
+      black:   '0x555555'
+      red:     '0xff5555'
+      green:   '0x50fa7b'
+      yellow:  '0xf1fa8c'
+      blue:    '0xcaa9fa'
+      magenta: '0xff79c6'
+      cyan:    '0x8be9fd'
+      white:   '0xffffff'
+  gruvbox-dark: &gruvbox-dark
+    primary:
+      background: '0x282828'
+      foreground: '0xdfbf8e'
+
+    normal:
+      black:   '0x665c54'
+      red:     '0xea6962'
+      green:   '0xa9b665'
+      yellow:  '0xe78a4e'
+      blue:    '0x7daea3'
+      magenta: '0xd3869b'
+      cyan:    '0x89b482'
+      white:   '0xdfbf8e'
+
+    bright:
+      black:   '0x928374'
+      red:     '0xea6962'
+      green:   '0xa9b665'
+      yellow:  '0xe3a84e'
+      blue:    '0x7daea3'
+      magenta: '0xd3869b'
+      cyan:    '0x89b482'
+      white:   '0xdfbf8e'
+  wombat: &wombat
+    # Default colors
+    primary:
+      background: '0x1f1f1f'
+      foreground: '0xe5e1d8'
+
+    # Normal colors
+    normal:
+      black:   '0x000000'
+      red:     '0xf7786d'
+      green:   '0xbde97c'
+      yellow:  '0xefdfac'
+      blue:    '0x6ebaf8'
+      magenta: '0xef88ff'
+      cyan:    '0x90fdf8'
+      white:   '0xe5e1d8'
+
+    # Bright colors
+    bright:
+      black:   '0xb4b4b4'
+      red:     '0xf99f92'
+      green:   '0xe3f7a1'
+      yellow:  '0xf2e9bf'
+      blue:    '0xb3d2ff'
+      magenta: '0xe5bdff'
+      cyan:    '0xc2fefa'
+      white:   '0xffffff'
+dark-pastel: &dark-pastel
+  # Default colors
+  primary:
+    background: '0x2C2C2C'
+    foreground: '0xDCDCCC'
+
+  # Normal colors
+  normal:
+    black:   '0x3F3F3F'
+    red:     '0x705050'
+    green:   '0x60B48A'
+    yellow:  '0xDFAF8F'
+    blue:    '0x9AB8D7'
+    magenta: '0xDC8CC3'
+    cyan:    '0x8CD0D3'
+    white:   '0xDCDCCC'
+
+  # Bright colors
+  bright:
+    black:   '0x709080'
+    red:     '0xDCA3A3'
+    green:   '0x72D5A3'
+    yellow:  '0xF0DFAF'
+    blue:    '0x94BFF3'
+    magenta: '0xEC93D3'
+    cyan:    '0x93E0E3'
+    white:   '0xFFFFFF'
+colors: *tokyo-night
+  
+font:
+  normal:
+    family: MesloLGSDZ Nerd Font Mono
+    style: Regular
+
+  bold:
+    family: MesloLGSDZ Nerd Font Mono
+    style: Bold
+
+  italic:
+    family: MesloLGSDZ Nerd Font Mono
+    style: Italic
+
+  bold_italic:
+    family: MesloLGSDZ Nerd Font Mono
+    style: Bold Italic
+
+  size: 12
+  # 1: https://en.wikipedia.org/wiki/List_of_Unicode_characters
+  # 2: http://www.leonerd.org.uk/hacks/fixterms/  
+  # chars format: "\x1b[X;Yu" 
+  # X = the unicode character code from reference 1
+  # X = the modifier code from reference 2
+
+
+key_bindings:
+  - { key: B, mods: Control, action: ReceiveChar }
+  - { key: V, mods: Control|Shift, action: Paste }
+  - { key: V, mods: Control, action: Paste }
+  - { key: C, mods: Control|Shift, action: Copy }
+  - { key: Slash, mods: Control, chars: "\x1f" }
+  - { key: Q, mods: Control, chars: "\x1b[81;5u" }
+  - { key: P, mods: Control|Shift, chars: "\x1b[80;6u" }
+  - { key: R, mods: Control|Shift, chars: "\x1b[82;6u" }
+  - { key: E, mods: Control|Shift, chars: "\x1b[69;6u" }
+  - { key: F, mods: Control|Shift, chars: "\x1b[70;6u" }
+  - { key: T, mods: Control|Shift, chars: "\x1b[84;6u" }
+  - { key: H, mods: Control|Shift, chars: "\x1b[72;6u" }
