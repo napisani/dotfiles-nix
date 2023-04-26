@@ -10,13 +10,14 @@
     # You can also split up your configuration and import pieces of it here:
     # ./nvim.nix
     /* ../mods/darwin.nix */
-    ../mods/packages.nix
+    ../mods/base-packages.nix
     ../mods/shell.nix
     ../mods/git.nix
     ../mods/neovim.nix
     ../mods/secret_inject.nix
     ../mods/alacritty.nix
     ../mods/karabiner.nix
+    ../mods/docker.nix
   ];
 
   nixpkgs = {
