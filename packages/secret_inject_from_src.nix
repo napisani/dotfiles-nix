@@ -16,6 +16,7 @@ stdenv.mkDerivation {
     cargo build --release
   '';
   installPhase = ''
+    mkdir -p $out/bin
     cp target/release/secret_inject $out/bin/secret_inject
     chmod +x $out/bin/secret_inject
     rm -rf target 
