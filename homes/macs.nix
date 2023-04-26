@@ -62,6 +62,13 @@
   programs.home-manager.enable = true;
   /* programs.git.enable = true; */
 
+  programs.bash = {
+    shellAliases = { 
+      nixswitch = "darwin-rebuild switch --flake ~/src/system-config/.#";
+      nixup = "pushd ~/src/system-config; nix flake update; nixswitch; popd";
+    };
+  };
+
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
 
