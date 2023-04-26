@@ -45,6 +45,7 @@
     finder._FXShowPosixPathInTitle = true;
     NSGlobalDomain.AppleShowAllExtensions = true;
     NSGlobalDomain."com.apple.swipescrolldirection" = false;
+    NSGlobalDomain."com.apple.finder.ShowExternalHardDrivesOnDesktop" = true;
   };
   nix = {
     package = pkgs.nixFlakes;
