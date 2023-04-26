@@ -7,9 +7,14 @@ stdenv.mkDerivation {
     repo = "secret_inject";
     rev = "13a1f3fcd2ca1a773c62d1ffa74f7b02bb419479";
   });
-
-  buildCommand = ''
+  buildInputs = with pkgs; [ 
+      rustc 
+      cargo 
+  ];
+  buildPhase = ''
     cargo build --release
+  '';
+  installPhase = ''
     cp target/release/secret_inject $out/bin/secret_inject
     chmod +x $out/bin/secret_inject
     rm -rf target 
