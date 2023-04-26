@@ -5,23 +5,6 @@
   };
   programs.bash = {
     enable = true;
-    enableCompletion = true;
-    profileExtra = builtins.readFile ./dotfiles/.bash_profile;
-    historyControl = [ "erasedups" "ignoredups" ];
-    historySize = 100000;
-    historyFileSize = 100000;
-    sessionVariables = {
-      EDITOR = "vi";
-      TERM="screen-256color";
-      SHELL="/run/current-system/sw/bin/bash";
-      /* SHELL = "${pkgs.bashInteractive}/bin/bash"; */
-      CLICOLOR = "1";
-      MANPAGER = "vi +Man!";
-      PAGER = "less";
-      BASH_SILENCE_DEPRECATION_WARNING = "1";
-    };
-    shellOptions = [
-      "histappend"
     ];
     shellAliases = { 
       vim = "nvim";
@@ -44,6 +27,7 @@
     secureSocket = false;
     extraConfig = builtins.readFile ./dotfiles/.tmux.conf;
   };
+  home.file.".tmux/tokyonight.tmuxtheme".source = ./dotfiles/tokyonight.tmuxtheme;
   programs.direnv = {
     enable = true;
     enableBashIntegration = true;
