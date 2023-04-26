@@ -3,7 +3,7 @@
     # Configure your nixpkgs instance
     config = {
       packageOverrides = pkgs: rec {
-        secret_inject = pkgs.callPackage ../packages/secret_inject.nix { };
+        secret_inject = pkgs.callPackage ../packages/secret_inject_from_src.nix { };
       };
     };
   };
