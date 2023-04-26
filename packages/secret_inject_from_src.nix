@@ -2,7 +2,7 @@
 stdenv.mkDerivation {
   name = "secret_inject";
   version = "0.1.1";
-  src = pkgs.fetchFromGithub({
+  src = pkgs.fetchFromGitHub({
     owner = "napisani";
     repo = "secret_inject";
     rev = "13a1f3fcd2ca1a773c62d1ffa74f7b02bb419479";
