@@ -64,8 +64,8 @@
 
   programs.bash = {
     shellAliases = { 
-      nixswitch = "darwin-rebuild switch --flake ~/src/system-config/.#";
-      nixup = "pushd ~/src/system-config; nix flake update; nixswitch; popd";
+      nixswitch = "darwin-rebuild switch --flake ~/.config/home-manager/.#";
+      nixup = "pushd ~/.config/home-manager; nix flake update; nixswitch; popd";
     };
   };
 
