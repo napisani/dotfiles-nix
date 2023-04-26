@@ -1,7 +1,7 @@
 { pkgs, ... }: {
   programs.neovim = {
     enable = true;
-    viAlias = true;
+    viAlias = false;
     vimAlias = true;
     withNodeJs = false;
     withPython3 = true;
