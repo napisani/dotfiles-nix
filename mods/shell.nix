@@ -13,7 +13,8 @@
     sessionVariables = {
       EDITOR = "vi";
       TERM="screen-256color";
-      SHELL = "${pkgs.bashInteractive}/bin/bash";
+      SHELL="/run/current-system/sw/bin/bash";
+      /* SHELL = "${pkgs.bashInteractive}/bin/bash"; */
       CLICOLOR = "1";
       MANPAGER = "vi +Man!";
       PAGER = "less";

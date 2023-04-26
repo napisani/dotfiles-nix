@@ -32,6 +32,19 @@
         black
         python3Packages.flake8
         mypy
+
+        #rust
+        rustc 
+        cargo 
+        rustfmt 
+        rustPackages.clippy
+        rust-analyzer 
+
+        # Nix
+        deadnix
+        statix
+        nil
+        nixpkgs-fmt
       ];
   };
   home.file.".config/nvim".source = ./dotfiles/nvim;

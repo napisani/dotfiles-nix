@@ -10,15 +10,3 @@ do
 done
 # [[ -r ~/.bashrc ]] && . ~/.bashrc
 
-
-
-
-
-
-
-
-
-
-# Added by Toolbox App
-export PATH="$PATH:/Users/nick/Library/Application Support/JetBrains/Toolbox/scripts"
-. "$HOME/.cargo/env"
