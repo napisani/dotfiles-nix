@@ -4,7 +4,6 @@
     bash = {
       enable = true;
       enableCompletion = true;
-      /* enableSyntaxHighlighting = true; */
     };
   };
 
@@ -37,7 +36,10 @@
       ];
   };
   fonts.fontDir.enable = true; # DANGER
-  fonts.fonts = [ (pkgs.nerdfonts.override { fonts = [ "Meslo" ]; }) ];
+  fonts.fonts = [ 
+  (pkgs.nerdfonts.override { fonts = [ 
+    "Meslo" 
+  ]; }) ];
   system.defaults = {
     finder.AppleShowAllExtensions = true;
     finder._FXShowPosixPathInTitle = true;
