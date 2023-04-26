@@ -23,7 +23,10 @@
        /* "Apple Configurator" = 1037126344; */
     };
     # anything installed with brew cask
-    casks = [];
+    casks = [
+      "bitwarden"
+      "caffeine"
+    ];
     # anything installed with brew (non-casks)
     brews = [];
     # any custom taps / repos
