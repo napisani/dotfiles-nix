@@ -28,4 +28,7 @@ nix build  --extra-experimental-features "nix-command flakes" .#darwinConfigurat
 ```bash
 ./result/sw/bin/darwin-rebuild switch --flake ./.#
 ```
-
+5. set the shell 
+```bash
+chsh -s /run/current-system/sw/bin/bash
+```

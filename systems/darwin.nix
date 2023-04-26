@@ -1,9 +1,13 @@
 { config, pkgs, lib, ... }:
 {
-
   programs = {
-    bash.enable = true;
+    bash = {
+      enable = true;
+      enableCompletion = true;
+      /* enableSyntaxHighlighting = true; */
+    };
   };
+
   services = {
     nix-daemon.enable = true;
     karabiner-elements.enable = true;
@@ -23,10 +27,11 @@
     taps = [];
   };
   environment = {
-    shells = [ pkgs.bashInteractive ];
-    loginShell = pkgs.bashInteractive;
+    shells = [ pkgs.bash ];
+    loginShell = pkgs.bash;
     systemPackages =
       with pkgs; [
+      	bashInteractive
         coreutils 
         gnugrep
       ];
@@ -36,10 +41,9 @@
   system.defaults = {
     finder.AppleShowAllExtensions = true;
     finder._FXShowPosixPathInTitle = true;
-    dock.autohide = false;
     NSGlobalDomain.AppleShowAllExtensions = true;
+    NSGlobalDomain."com.apple.swipescrolldirection" = false;
   };
-
   nix = {
     package = pkgs.nixFlakes;
     extraOptions = lib.optionalString (config.nix.package == pkgs.nixFlakes) ''
