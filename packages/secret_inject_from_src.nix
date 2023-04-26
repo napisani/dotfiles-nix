@@ -6,6 +6,7 @@ stdenv.mkDerivation {
     owner = "napisani";
     repo = "secret_inject";
     rev = "13a1f3fcd2ca1a773c62d1ffa74f7b02bb419479";
+    hash = "sha256-Uerv3Dg84jAHhySh86OZi7mgOaS3SWwWzNQcatymvqc=";
   });
   buildInputs = with pkgs; [ 
       rustc 
