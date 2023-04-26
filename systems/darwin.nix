@@ -17,7 +17,11 @@
     caskArgs.no_quarantine = true;
     global.brewfile = true;
     # app store apps
-    masApps = { };
+    masApps = {
+       Xcode = "497799835";
+       magnet = "441258766";
+       "Apple Configurator" = "1037126344";
+    };
     # anything installed with brew cask
     casks = [];
     # anything installed with brew (non-casks)
