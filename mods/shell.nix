@@ -6,8 +6,8 @@
   programs.bash = {
     enable = true;
     shellAliases = { 
-      vim = "nvim";
-      vi = "nvim";
+      /* vim = "nvim"; */
+      /* vi = "nvim"; */
       grep = "grep --color=auto";
       fgrep = "fgrep --color=auto";
       egrep ="egrep --color=auto";

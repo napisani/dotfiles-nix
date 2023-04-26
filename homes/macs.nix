@@ -14,7 +14,7 @@
     ../mods/shell.nix
     ../mods/git.nix
     ../mods/neovim.nix
-    ../mods/secret_inject.nix
+    ../mods/secret_inject_from_src.nix
     ../mods/alacritty.nix
     ../mods/karabiner.nix
   ];
