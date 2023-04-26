@@ -15,5 +15,6 @@
     pkgs.bitwarden-cli
     pkgs.pet
     pkgs.tree-sitter
+    pkgs.gh
   ];
 }
