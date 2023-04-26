@@ -5,7 +5,6 @@
   };
   programs.bash = {
     enable = true;
-    ];
     shellAliases = { 
       vim = "nvim";
       vi = "nvim";
