@@ -45,7 +45,11 @@
     finder._FXShowPosixPathInTitle = true;
     NSGlobalDomain.AppleShowAllExtensions = true;
     NSGlobalDomain."com.apple.swipescrolldirection" = false;
-    NSGlobalDomain."com.apple.finder.ShowExternalHardDrivesOnDesktop" = true;
+    finder.ShowPathbar = true;
+    finder.QuitMenuItem = true;
+    finder.ShowStatusBar = true;
+    trackpad.Clicking = true;
+    /* NSGlobalDomain."com.apple.finder.ShowExternalHardDrivesOnDesktop" = true; */
   };
   nix = {
     package = pkgs.nixFlakes;
