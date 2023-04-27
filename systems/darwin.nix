@@ -24,12 +24,17 @@
     };
     # anything installed with brew cask
     casks = [
-      "chrome"
+      "google-chrome"
+      "bitwarden"
     ];
     # anything installed with brew (non-casks)
-    brews = [];
+    brews = [
+      "procmux"
+    ];
     # any custom taps / repos
-    taps = [];
+    taps = [
+        "napisani/procmux"
+    ];
   };
   environment = {
     shells = [ pkgs.bash ];

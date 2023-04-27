@@ -178,7 +178,7 @@ local function define_plugins(use)
   use { "github/copilot.vim" , commit = "9e869d29e62e36b7eb6fb238a4ca6a6237e7d78b"}
   
   use {'karb94/neoscroll.nvim', commit = "d7601c26c8a183fa8994ed339e70c2d841253e93"}
-  use {'hkupty/iron.nvim', commit="b1ecaf92cde22d1c65e11167170d6c37885d0489" }
+  use {'hkupty/iron.nvim', commit = "792dd11752c4699ea52c737b5e932d6f21b25834" }
   -- use 'direnv/direnv.vim'
   -- use('/Users/nick/code/monoscope')
   -- Automatically set up your configuration after cloning packer.nvim

@@ -47,6 +47,10 @@
         nixpkgs-fmt
       ];
   };
-  home.file.".config/nvim".source = ./dotfiles/nvim;
+  /* home.file.".config/nvim".source = ./dotfiles/nvim; */
+  xdg.configFile.nvim = {
+    source = ./dotfiles/nvim;
+    recursive = true;
+  };
 }
 
