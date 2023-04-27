@@ -6,7 +6,7 @@
   programs.bash = {
     enable = true;
     shellAliases = { 
-      /* vim = "nvim"; */
+      vim = "nvim";
       /* vi = "nvim"; */
       grep = "grep --color=auto";
       fgrep = "fgrep --color=auto";
