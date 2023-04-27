@@ -13,12 +13,12 @@
     pkgs.wget
     pkgs-unstable.doppler
     pkgs.bitwarden-cli
-    pkgs.pet
+    /* pkgs.pet */
     pkgs.tree-sitter
     pkgs.gh
     pkgs.ncdu
-    (pkgs.python310.withPackages (p: [
-      p.ipython # interactive shell
-    ]))
+    /* (pkgs.python310.withPackages (p: [ */
+    /*   p.ipython # interactive shell */
+    /* ])) */
   ];
 }
