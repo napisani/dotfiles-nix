@@ -17,5 +17,8 @@
     pkgs.tree-sitter
     pkgs.gh
     pkgs.ncdu
+    (pkgs.python310.withPackages (p: [
+      p.ipython # interactive shell
+    ]))
   ];
 }
