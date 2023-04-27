@@ -18,6 +18,7 @@
     ../mods/alacritty.nix
     ../mods/karabiner.nix
     ../mods/docker.nix
+    ../mods/ui-packages.nix
   ];
 
   nixpkgs = {
@@ -65,7 +66,7 @@
 
   programs.bash = {
     shellAliases = { 
-      nixswitch = "darwin-rebuild switch --flake ~/.config/home-manager/.#";
+      nixswitch = "pushd ~/.config/home-manager; darwin-rebuild switch --flake ~/.config/home-manager/.# ; popd";
       nixup = "pushd ~/.config/home-manager; nix flake update; nixswitch; popd";
     };
   };

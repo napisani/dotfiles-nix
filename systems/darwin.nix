@@ -23,7 +23,9 @@
        /* "Apple Configurator" = 1037126344; */
     };
     # anything installed with brew cask
-    casks = [];
+    casks = [
+      "chrome"
+    ];
     # anything installed with brew (non-casks)
     brews = [];
     # any custom taps / repos
@@ -53,7 +55,6 @@
     finder.QuitMenuItem = true;
     finder.ShowStatusBar = true;
     trackpad.Clicking = true;
-    /* NSGlobalDomain."com.apple.finder.ShowExternalHardDrivesOnDesktop" = true; */
   };
   nix = {
     package = pkgs.nixFlakes;
