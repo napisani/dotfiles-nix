@@ -31,6 +31,7 @@
     # anything installed with brew (non-casks)
     brews = [
       /* "procmux" */
+      "mkcert"
     ];
     # any custom taps / repos
     taps = [

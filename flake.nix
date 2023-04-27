@@ -16,15 +16,12 @@
       url = "github:nixos/nixpkgs/nixpkgs-unstable";
     };
 
-    # for python package builds 
-    mach-nix.url = "github:davhau/mach-nix";
-
     # Controls system level software and settings including fonts
     darwin.url = "github:lnl7/nix-darwin";
     darwin.inputs.nixpkgs.follows = "nixpkgs";
 
   };
- outputs = { nixpkgs, nixpkgs-unstable, mach-nix,  home-manager, darwin,  ... }@inputs: {
+ outputs = { nixpkgs, nixpkgs-unstable,  home-manager, darwin,  ... }@inputs: {
     darwinConfigurations = {
       "nick-macbook-small" = inputs.darwin.lib.darwinSystem {
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;

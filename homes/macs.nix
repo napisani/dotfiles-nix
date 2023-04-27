@@ -15,7 +15,7 @@
     ../mods/git.nix
     ../mods/neovim.nix
     ../mods/secret_inject.nix
-    ../mods/procmux.nix
+    /* ../mods/procmux.nix */
     ../mods/alacritty.nix
     ../mods/karabiner.nix
     ../mods/docker.nix
