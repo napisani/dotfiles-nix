@@ -26,6 +26,7 @@
     casks = [
       "google-chrome"
       "bitwarden"
+      "caffeine"
     ];
     # anything installed with brew (non-casks)
     brews = [
