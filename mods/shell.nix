@@ -31,7 +31,7 @@
   home.file.".inputrc".source = ./dotfiles/.inputrc;
   programs.tmux = {
     enable = true;
-    terminal = "screen-256color";
+    terminal = "xterm-256color";
     secureSocket = false;
     extraConfig = builtins.readFile ./dotfiles/.tmux.conf;
   };
