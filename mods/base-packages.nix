@@ -13,7 +13,7 @@
     pkgs.wget
     pkgs-unstable.doppler
     pkgs.bitwarden-cli
-    /* pkgs.pet */
+    pkgs.pet
     pkgs.tree-sitter
     pkgs.gh
     pkgs.ncdu
