@@ -30,7 +30,7 @@
     ];
     # anything installed with brew (non-casks)
     brews = [
-      "procmux"
+      /* "procmux" */
     ];
     # any custom taps / repos
     taps = [
