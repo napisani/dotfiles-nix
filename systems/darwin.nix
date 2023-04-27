@@ -16,6 +16,11 @@
     enable = true;
     caskArgs.no_quarantine = true;
     global.brewfile = true;
+    onActivation = {
+      upgrade = true;
+      cleanup = "zap";
+      autoUpdate = true;
+    };
     # app store apps
     masApps = {
        Xcode = 497799835;
@@ -31,7 +36,7 @@
     # anything installed with brew (non-casks)
     brews = [
       /* "procmux" */
-      "mkcert"
+      /* "mkcert" */
     ];
     # any custom taps / repos
     taps = [
