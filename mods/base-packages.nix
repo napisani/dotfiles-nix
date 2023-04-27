@@ -16,5 +16,6 @@
     pkgs.pet
     pkgs.tree-sitter
     pkgs.gh
+    pkgs.ncdu
   ];
 }
