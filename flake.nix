@@ -19,8 +19,11 @@
     darwin.url = "github:lnl7/nix-darwin";
     darwin.inputs.nixpkgs.follows = "nixpkgs";
 
+    procmux.url = "github:napisani/procmux";
+    procmux.inputs.nixpkgs.follows = "nixpkgs";
+
   };
- outputs = { nixpkgs, nixpkgs-unstable,  home-manager, darwin,  ... }@inputs: {
+ outputs = { nixpkgs, nixpkgs-unstable,  home-manager, darwin, procmux,  ... }@inputs: {
     darwinConfigurations = {
       "nick-macbook-small" = inputs.darwin.lib.darwinSystem {
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;
@@ -35,6 +38,7 @@
                 extraSpecialArgs = { 
                   inherit inputs; 
                   pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
+                  procmux = procmux;
                 };
                 users.nick.imports = [ ./homes/macs.nix ];
               };
