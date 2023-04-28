@@ -1,4 +1,4 @@
-{ pkgs, pkgs-unstable, ... }:
+{ pkgs, pkgs-unstable, procmux, ... }:
 {
   home.packages = [
     pkgs.bashInteractive
@@ -17,8 +17,11 @@
     pkgs.tree-sitter
     pkgs.gh
     pkgs.ncdu
-    /* (pkgs.python310.withPackages (p: [ */
-    /*   p.ipython # interactive shell */
-    /* ])) */
+    procmux.packages.${pkgs.system}.default
+
+    (pkgs.python310.withPackages (p: [
+      p.ipython # interactive shell
+      p.pipx
+    ]))
   ];
 }
