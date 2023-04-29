@@ -13,6 +13,7 @@
     ../mods/base-packages.nix
     ../mods/shell.nix
     ../mods/git.nix
+    ../mods/rust.nix
     ../mods/neovim.nix
     ../mods/secret_inject.nix
     /* ../mods/procmux.nix */

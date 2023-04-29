@@ -33,12 +33,6 @@
         python3Packages.flake8
         mypy
 
-        #rust
-        rustc 
-        cargo 
-        rustfmt 
-        rustPackages.clippy
-        rust-analyzer 
 
         # Nix
         deadnix
