@@ -1,7 +1,7 @@
 
 { pkgs, pkgs-unstable, ... }:
 {
-  home.packages = [
+  home.packages = with pkgs; [
     #rust
     rustc 
     cargo 
