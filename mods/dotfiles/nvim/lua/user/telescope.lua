@@ -111,11 +111,12 @@ telescope.load_extension('luasnip')
 local builtin = require("telescope.builtin")
 
 local root_dir = require("user.nvim-rooter").get_root_dir()
-local ignore_globs = require("nvim-search-rules").get_ignore_globs_as_rg_args({
-	ignore_from_files = { ".gitignore", ".nvimignore" },
-  additional_ignore_globs = { "node_modules", ".git", "dist", ".idea", ".vscode" },
-	root_dir = root_dir
-})
+local ignore_globs = {}
+-- local ignore_globs = require("nvim-search-rules").get_ignore_globs_as_rg_args({
+-- 	ignore_from_files = { ".gitignore", ".nvimignore" },
+--   additional_ignore_globs = { "node_modules", ".git", "dist", ".idea", ".vscode" },
+-- 	root_dir = root_dir
+-- })
 -- local ignore_globs = {
 -- 	"--iglob",
 -- 	"!.git",
@@ -212,7 +213,7 @@ function M.find_files_from_root(opts)
 			-- '--iglob', 'config.local.json',
 			-- '--iglob', '.env.*',
 			"--hidden",
-			"--no-ignore", -- **This is the added flag**
+			-- "--no-ignore", -- **This is the added flag**
 		}, ignore_globs),
 		cmd_opts
 	)
@@ -244,7 +245,7 @@ function M.live_grep_from_root(opts)
 			"--line-number",
 			"--column",
 			"--smart-case",
-			"--no-ignore", -- **This is the added flag**
+			-- "--no-ignore", -- **This is the added flag**
 			"--hidden", -- **Also this flag. The combination of the two is the same as `-uu`**
 		}, ignore_globs),
 		cmd_opts
