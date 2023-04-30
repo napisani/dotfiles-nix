@@ -8,18 +8,15 @@
     # inputs.nix-colors.homeManagerModule
 
     # You can also split up your configuration and import pieces of it here:
-    # ./nvim.nix
-    /* ../mods/darwin.nix */
     ../mods/base-packages.nix
     ../mods/shell.nix
     ../mods/git.nix
     ../mods/rust.nix
     ../mods/neovim.nix
     ../mods/secret_inject.nix
-    /* ../mods/procmux.nix */
+    ../mods/packer_plugin_manager.nix
     ../mods/alacritty.nix
     ../mods/karabiner.nix
-    ../mods/docker.nix
     ../mods/ui-packages.nix
   ];
 
