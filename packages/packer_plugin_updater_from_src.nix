@@ -2,16 +2,21 @@
 stdenv.mkDerivation {
   name = "packer_plugin_updater";
   version = "0.1.0";
-  src = pkgs.fetchFromGitHub({
+  src = pkgs.fetchFromGitHub ({
     owner = "napisani";
-    repo = "packer_plugin_updater";
-    rev = "13a1f3fcd2ca1a773c62d1ffa74f7b02bb419479";
-    hash = "sha256-Uerv3Dg84jAHhySh86OZi7mgOaS3SWwWzNQcatymvqc=";
+    repo = "packer-plugin-updater";
+    rev = "186059a2a709cb06bc429ce2fc3888bd2f9cc642";
+    hash = "sha256-C0fcESjysX7MvzVPKsPxNfBTrFNRIRzpejn3OfYBf34=";
   });
-  buildInputs = with pkgs; [ 
-      rustc 
-      cargo 
-  ];
+  buildInputs = with pkgs; [
+    rustc
+    cargo
+    openssl.dev
+    pkg-config
+    libiconv
+  ] ++ (if pkgs.system == "x86_64-darwin" || pkgs.system == "aarch64-darwin" then [
+    darwin.apple_sdk.frameworks.Security
+  ] else [ ]);
   buildPhase = ''
     cargo build --release
   '';
