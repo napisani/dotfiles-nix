@@ -6,7 +6,7 @@
       enableCompletion = true;
     };
   };
-
+  security.pam.enableSudoTouchIdAuth = true;
   services = {
     nix-daemon.enable = true;
     karabiner-elements.enable = true;
@@ -32,6 +32,7 @@
       "google-chrome"
       "bitwarden"
       "caffeine"
+      "docker"
     ];
     # anything installed with brew (non-casks)
     brews = [
