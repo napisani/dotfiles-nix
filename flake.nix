@@ -24,12 +24,19 @@
 
   };
   outputs = { nixpkgs, nixpkgs-unstable, home-manager, darwin, procmux, ... }@inputs: {
+    let
+    commonInherits = {
+      inherit (nixpkgs) lib;
+      inherit inputs nixpkgs nixpkgs-unstable home-manager darwin procmux;
+    };
+    in
+    {
     darwinConfigurations = {
       "nick-macbook-small" = inputs.darwin.lib.darwinSystem {
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;
         system = "aarch64-darwin";
         modules = [
-          ./systems/darwin.nix 
+          ./systems/darwin.nix
           home-manager.darwinModules.home-manager
           {
             home-manager = {
@@ -41,9 +48,12 @@
                 procmux = procmux;
               };
               users.nick.imports = [
-                (import ./homes/macs.nix {
-                  user = "nick";
-                })
+                (import
+                  ./homes/macs.nix
+                  (commonInherits //
+                    {
+                      user = "nick";
+                    }))
               ];
             };
           }
@@ -64,11 +74,14 @@
                 pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
                 procmux = procmux;
               };
-              users.nickpisani.imports = [ 
-                (import ./homes/macs.nix {
-                  user = "nickpisani";
-                })
-];
+              users.nickpisani.imports = [
+                (import
+                  ./homes/macs.nix
+                  (commonInherits //
+                    {
+                      user = "nickpisani";
+                    }))
+              ];
             };
           }
         ];
@@ -79,56 +92,6 @@
       aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;
       /* aarch64-linux = home-manager.defaultPackage.aarch64-linux; */
     };
-    /* homeConfigurations = { */
-    /*   "nick@nick-macbook-small.local" = home-manager.lib.homeManagerConfiguration { */
-    /*     pkgs = nixpkgs.legacyPackages.aarch64-darwin; # Home-manager requires 'pkgs' instance */
-    /*     extraSpecialArgs = { */
-    /*       inherit inputs; */
-    /*       pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin; */
-    /*     }; # Pass flake inputs to our config */
-    /*     # > Our main home-manager configuration file < */
-    /*     modules = [ */
-    /*       # ./systems/darwin.nix */
-    /*       ./systems/macs.nix */
-    /*     ]; */
-    /*   }; */
-    /* }; */
   };
 
 }
-/* defaultPackage = { */
-/*   "x86_64-darwin" =  home-manager.defaultPackage.x86_64-darwin; */
-/*   "aarch64-darwin" = home-manager.defaultPackage.aarch64-darwin; */
-/* }; */
-/* darwinConfigurations."nick@nick-macbook-small.local" = darwin.lib.darwinSystem { */
-/*    system = "aarch64-darwin"; */
-/*    modules = [ ./mods/darwin.nix ]; */
-/*    specialArgs = { inherit home-manager; }; */
-/*  }; */
-/* darwinConfiguration."nick@nick-macbook-small.local" = darwin.lib.darwinSystem { */
-/*   system = "aarch64-darwin"; # "x86_64-darwin" if you're using a pre M1 mac */
-/*   pkgs = nixpkgs.legacyPackages.aarch64-darwin; # Home-manager requires 'pkgs' instance */
-/*   extraSpecialArgs = { */
-/*     inherit inputs; */
-/*     pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin; */
-/*   }; # Pass flake inputs to our config */
-/*   modules = [ */
-/*     home-manager.darwinModules.home-manager */
-/*     ./systems/macs.nix */
-/*   ]; # will be important later */
-/* }; */
-/* homeConfigurations."nick@MacBook-Pro.local" = home-manager.lib.homeManagerConfiguration { */
-/*     pkgs = nixpkgs.legacyPackages.aarch64-darwin; # Home-manager requires 'pkgs' instance */
-/*     extraSpecialArgs = { */
-/*       inherit inputs; */
-/*         pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin; */
-/*     }; # Pass flake inputs to our config */
-/*     # > Our main home-manager configuration file < */
-/*     modules = [ */
-/*       # ./systems/darwin.nix */
-/*       ./systems/macs.nix */
-/*       home-manager.darwinModules.home-manager */
-/*     ]; */
-/*   }; */
-/* }; */
-/* } */
