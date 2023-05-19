@@ -47,7 +47,7 @@
 
   
   home = {
-    username = ${user};
+    username = user;
     /* homeDirectory = "/Users/nick"; */
   };
 
