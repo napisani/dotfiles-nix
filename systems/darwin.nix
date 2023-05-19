@@ -82,10 +82,10 @@
     stateVersion = 4;
   };
 
-  users = {
-    users.${user} = {
-      home = /Users/${user};
-    };
-  };
+  /* users = { */
+  /*   users.${user} = { */
+  /*     home = /Users/${user}; */
+  /*   }; */
+  /* }; */
 
 }
