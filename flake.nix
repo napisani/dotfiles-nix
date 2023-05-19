@@ -45,7 +45,7 @@
           }
         ];
       };
-      "Nicks-MacBook-Pro" = inputs.darwin.lib.darwinSystem {
+      "NicksCTMMacbook" = inputs.darwin.lib.darwinSystem {
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;
         system = "aarch64-darwin";
         modules = [
