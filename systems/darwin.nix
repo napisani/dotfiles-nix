@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, user, ... }:
 {
   programs = {
     bash = {
@@ -82,10 +82,10 @@
     stateVersion = 4;
   };
 
-  /* users = { */
-  /*   users.${user} = { */
-  /*     home = /Users/${user}; */
-  /*   }; */
-  /* }; */
+  users = {
+    users.${user} = {
+      home = /Users/${user};
+    };
+  };
 
 }
