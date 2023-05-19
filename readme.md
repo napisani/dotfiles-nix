@@ -38,3 +38,8 @@ nix build  --extra-experimental-features "nix-command flakes" .#darwinConfigurat
 echo /run/current-system/sw/bin/bash | sudo tee -a /etc/shells
  -s /run/current-system/sw/bin/bash
 ```
+
+Helpful github issue thread for diagnosing any initial Karabiner problems:
+```
+https://github.com/LnL7/nix-darwin/issues/564
+```
