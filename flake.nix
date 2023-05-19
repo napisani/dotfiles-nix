@@ -28,7 +28,7 @@
       commonInherits = {
         inherit (nixpkgs) lib;
         inherit (nixpkgs) pkgs;
-        inherit inputs nixpkgs nixpkgs-unstable home-manager darwin procmux;
+        inherit inputs nixpkgs nixpkgs-unstable home-manager darwin procmux config;
       };
     in
     {
