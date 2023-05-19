@@ -23,12 +23,13 @@
     procmux.inputs.nixpkgs.follows = "nixpkgs";
 
   };
-  outputs = { nixpkgs, nixpkgs-unstable, home-manager, darwin, procmux, config, ... }@inputs:
+  outputs = { nixpkgs, nixpkgs-unstable, home-manager, darwin, procmux, ... }@inputs:
     let
       commonInherits = {
         inherit (nixpkgs) lib;
         inherit (nixpkgs) pkgs;
-        inherit inputs nixpkgs nixpkgs-unstable home-manager darwin procmux config;
+        inherit (home-manager) config;
+        inherit inputs nixpkgs nixpkgs-unstable home-manager darwin procmux;
       };
     in
     {
