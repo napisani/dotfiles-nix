@@ -28,7 +28,6 @@
       commonInherits = {
         inherit (nixpkgs) lib;
         inherit (nixpkgs) pkgs;
-        inherit (home-manager) config;
         inherit inputs nixpkgs nixpkgs-unstable home-manager darwin procmux;
       };
     in
@@ -48,14 +47,10 @@
                   inherit inputs;
                   pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
                   procmux = procmux;
+                  user = "nick";
                 };
                 users.nick.imports = [
-                  (import
-                    ./homes/macs.nix
-                    (commonInherits //
-                      {
-                        user = "nick";
-                      }))
+                  ./homes/macs.nix
                 ];
               };
             }
@@ -75,14 +70,10 @@
                   inherit inputs;
                   pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
                   procmux = procmux;
+                  user = "nickpisani";
                 };
                 users.nickpisani.imports = [
-                  (import
-                    ./homes/macs.nix
-                    (commonInherits //
-                      {
-                        user = "nickpisani";
-                      }))
+                  ./homes/macs.nix
                 ];
               };
             }
