@@ -30,5 +30,7 @@ nix build  --extra-experimental-features "nix-command flakes" .#darwinConfigurat
 ```
 5. set the shell 
 ```bash
-chsh -s /run/current-system/sw/bin/bash
+# make this bash shell considered a "standard shell" 
+echo /run/current-system/sw/bin/bash | sudo tee -a /etc/shells
+ -s /run/current-system/sw/bin/bash
 ```
