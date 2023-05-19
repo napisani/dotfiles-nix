@@ -26,6 +26,7 @@
   outputs = { nixpkgs, nixpkgs-unstable, home-manager, darwin, procmux, ... }@inputs:
     let
       commonInherits = {
+        inherit (nixpkgs) lib;
         inherit (nixpkgs) pkgs;
         inherit inputs nixpkgs nixpkgs-unstable home-manager darwin procmux;
       };
