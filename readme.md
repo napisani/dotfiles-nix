@@ -13,7 +13,11 @@ nix-channel --add https://github.com/nix-community/home-manager/archive/master.t
 nix-channel --update
 
 nix-shell '<home-manager>' -A install
+
+# install homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
+
 2. Go inside your `~/.config` directory and clone this repo:
 ```bash
 mkdir ~/.config && cd ~/.config && \

@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:dar
 {
   programs = {
     bash = {
@@ -63,6 +63,7 @@
     finder.AppleShowAllExtensions = true;
     finder._FXShowPosixPathInTitle = true;
     NSGlobalDomain.AppleShowAllExtensions = true;
+    NSGlobalDomain.AppleInterfaceStyle = "Dark";
     NSGlobalDomain."com.apple.swipescrolldirection" = false;
     finder.ShowPathbar = true;
     finder.QuitMenuItem = true;
