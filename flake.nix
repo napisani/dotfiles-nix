@@ -37,7 +37,14 @@
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           system = "aarch64-darwin";
           modules = [
-            ./systems/darwin.nix (commonInherits // { user = "nick"; })
+            ({ config, pkgs, lib, user, ... }:{
+              users = {
+                users.nick = {
+                  home = /Users/nick;
+                };
+              };
+            })
+            ./systems/darwin.nix 
             home-manager.darwinModules.home-manager
             {
               home-manager = {
@@ -60,7 +67,14 @@
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           system = "aarch64-darwin";
           modules = [
-            ./systems/darwin.nix (commonInherits // { user = "nickpisani"; })
+            ({ config, pkgs, lib, user, ... }:{
+              users = {
+                users.nickpisani = {
+                  home = /Users/nickpisani;
+                };
+              };
+            })
+            ./systems/darwin.nix 
             home-manager.darwinModules.home-manager
             {
               home-manager = {
