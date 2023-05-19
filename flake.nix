@@ -29,10 +29,7 @@
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;
         system = "aarch64-darwin";
         modules = [
-          (import ./systems/darwin.nix {
-            inherit inputs;
-            user = "nick";
-          })
+          ./systems/darwin.nix 
           home-manager.darwinModules.home-manager
           {
             home-manager = {
@@ -56,10 +53,7 @@
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;
         system = "aarch64-darwin";
         modules = [
-          (import ./systems/darwin.nix {
-            inherit inputs;
-            user = "nickpisani";
-          })
+          ./systems/darwin.nix
           home-manager.darwinModules.home-manager
           {
             home-manager = {
