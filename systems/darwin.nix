@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:dar
+{ config, pkgs, lib, ... }:
 {
   programs = {
     bash = {
