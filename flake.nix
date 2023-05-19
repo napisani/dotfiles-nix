@@ -23,75 +23,75 @@
     procmux.inputs.nixpkgs.follows = "nixpkgs";
 
   };
-  outputs = { nixpkgs, nixpkgs-unstable, home-manager, darwin, procmux, ... }@inputs: {
+  outputs = { nixpkgs, nixpkgs-unstable, home-manager, darwin, procmux, ... }@inputs:
     let
-    commonInherits = {
-      inherit (nixpkgs) lib;
-      inherit inputs nixpkgs nixpkgs-unstable home-manager darwin procmux;
-    };
+      commonInherits = {
+        inherit (nixpkgs) lib;
+        inherit inputs nixpkgs nixpkgs-unstable home-manager darwin procmux;
+      };
     in
     {
-    darwinConfigurations = {
-      "nick-macbook-small" = inputs.darwin.lib.darwinSystem {
-        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-        system = "aarch64-darwin";
-        modules = [
-          ./systems/darwin.nix
-          home-manager.darwinModules.home-manager
-          {
-            home-manager = {
-              useGlobalPkgs = false;
-              useUserPackages = true;
-              extraSpecialArgs = {
-                inherit inputs;
-                pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
-                procmux = procmux;
+      darwinConfigurations = {
+        "nick-macbook-small" = inputs.darwin.lib.darwinSystem {
+          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+          system = "aarch64-darwin";
+          modules = [
+            ./systems/darwin.nix
+            home-manager.darwinModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = false;
+                useUserPackages = true;
+                extraSpecialArgs = {
+                  inherit inputs;
+                  pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
+                  procmux = procmux;
+                };
+                users.nick.imports = [
+                  (import
+                    ./homes/macs.nix
+                    (commonInherits //
+                      {
+                        user = "nick";
+                      }))
+                ];
               };
-              users.nick.imports = [
-                (import
-                  ./homes/macs.nix
-                  (commonInherits //
-                    {
-                      user = "nick";
-                    }))
-              ];
-            };
-          }
-        ];
+            }
+          ];
+        };
+        "NicksCTMMacbook" = inputs.darwin.lib.darwinSystem {
+          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+          system = "aarch64-darwin";
+          modules = [
+            ./systems/darwin.nix
+            home-manager.darwinModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = false;
+                useUserPackages = true;
+                extraSpecialArgs = {
+                  inherit inputs;
+                  pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
+                  procmux = procmux;
+                };
+                users.nickpisani.imports = [
+                  (import
+                    ./homes/macs.nix
+                    (commonInherits //
+                      {
+                        user = "nickpisani";
+                      }))
+                ];
+              };
+            }
+          ];
+        };
       };
-      "NicksCTMMacbook" = inputs.darwin.lib.darwinSystem {
-        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-        system = "aarch64-darwin";
-        modules = [
-          ./systems/darwin.nix
-          home-manager.darwinModules.home-manager
-          {
-            home-manager = {
-              useGlobalPkgs = false;
-              useUserPackages = true;
-              extraSpecialArgs = {
-                inherit inputs;
-                pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
-                procmux = procmux;
-              };
-              users.nickpisani.imports = [
-                (import
-                  ./homes/macs.nix
-                  (commonInherits //
-                    {
-                      user = "nickpisani";
-                    }))
-              ];
-            };
-          }
-        ];
+      defaultPackage = {
+        /* x86_64-darwin = home-manager.defaultPackage.x86_64-darwin; */
+        aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;
+        /* aarch64-linux = home-manager.defaultPackage.aarch64-linux; */
       };
     };
-    defaultPackage = {
-      /* x86_64-darwin = home-manager.defaultPackage.x86_64-darwin; */
-      aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;
-      /* aarch64-linux = home-manager.defaultPackage.aarch64-linux; */
-    };
-  };
 
 }
