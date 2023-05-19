@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, user, ... }:
 {
   programs = {
     bash = {
@@ -83,10 +83,9 @@
   };
 
   users = {
-    users.nick = {
-      home = /Users/nick;
+    users.${user} = {
+      home = /Users/${user};
     };
   };
-
 
 }

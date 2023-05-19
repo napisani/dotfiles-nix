@@ -29,7 +29,10 @@
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;
         system = "aarch64-darwin";
         modules = [
-          ./systems/darwin.nix
+          (import ./systems/darwin.nix {
+            inherit inputs;
+            user = "nick";
+          })
           home-manager.darwinModules.home-manager
           {
             home-manager = {
@@ -40,7 +43,11 @@
                 pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
                 procmux = procmux;
               };
-              users.nick.imports = [ ./homes/macs.nix ];
+              users.nick.imports = [
+                (import ./homes/macs.nix {
+                  user = "nick";
+                })
+              ];
             };
           }
         ];
@@ -49,7 +56,10 @@
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;
         system = "aarch64-darwin";
         modules = [
-          ./systems/darwin.nix
+          (import ./systems/darwin.nix {
+            inherit inputs;
+            user = "nickpisani";
+          })
           home-manager.darwinModules.home-manager
           {
             home-manager = {
@@ -60,7 +70,11 @@
                 pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
                 procmux = procmux;
               };
-              users.nick.imports = [ ./homes/macs.nix ];
+              users.nickpisani.imports = [ 
+                (import ./homes/macs.nix {
+                  user = "nickpisani";
+                })
+];
             };
           }
         ];
