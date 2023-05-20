@@ -1,6 +1,5 @@
 local fn = vim.fn
-
-
+-- test  
 -- Automatically install packer
 local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
 if fn.empty(fn.glob(install_path)) > 0 then
@@ -116,7 +115,7 @@ local function define_plugins(use)
     "nvim-treesitter/nvim-treesitter",commit = "dad1b7cd6606ffaa5c283ba73d707b4741a5f445" }
 
   -- Git
-  use { "lewis6991/gitsigns.nvim",commit = "fc68586dbed6f98add38e02ce3fda233e7382096" }
+  use { "lewis6991/gitsigns.nvim"  }
   use { "tpope/vim-fugitive",commit = "5f0d280b517cacb16f59316659966c7ca5e2bea2" }
   -- use { 'idanarye/vim-merginal' }
   use {
@@ -170,7 +169,7 @@ local function define_plugins(use)
   -- use { "napisani/neoscopes" }
   -- use('/Users/nick/code/neoscopes')
   -- use('/Users/nick/code/nvim-github-codesearch')
-  use { 'napisani/nvim-github-codesearch', run = 'make' }
+  use { 'napisani/nvim-github-codesearch', run = 'nix-shell make' }
   -- use {'napisani/nvim-search-rules' }
 
   -- use { '/Users/nick/code/nvim-search-rules' }
