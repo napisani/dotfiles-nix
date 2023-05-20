@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, config, ... }: {
   programs.neovim = {
     enable = true;
     viAlias = false;
@@ -41,10 +41,20 @@
         nixpkgs-fmt
       ];
   };
-  /* home.file.".config/nvim".source = ./dotfiles/nvim; */
-  xdg.configFile.nvim = {
-    source = ./dotfiles/nvim;
-    recursive = true;
+  /* home.file.".config/nvim".source = config.lib.file.mkOutOfStoreSymlink ./dotfiles/nvim; */
+
+  /* xdg.configFile.nvim = { */
+  /*   source = ./dotfiles/nvim; */
+  /*   recursive = true; */
+  /* }; */
+  xdg.configFile = {
+    "nvim/lua" = {
+      source = config.lib.file.mkOutOfStoreSymlink ./dotfiles/nvim/lua;
+      recursive = true;
+    };
+    "nvim/init.vim" = {
+      source = config.lib.file.mkOutOfStoreSymlink ./dotfiles/nvim/init.vim;
+    };
   };
 }
 
