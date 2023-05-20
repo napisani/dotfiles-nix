@@ -29,6 +29,7 @@
   home.file.".config/pet".source = ./dotfiles/pet;
   home.file.".bashrc.d".source = ./dotfiles/.bashrc.d;
   home.file.".inputrc".source = ./dotfiles/.inputrc;
+  home.file.".ideavimrc".source = ./dotfiles/.ideavimrc;
   programs.tmux = {
     enable = true;
     terminal = "xterm-256color";
