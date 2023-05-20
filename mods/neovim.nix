@@ -48,12 +48,9 @@
   /*   recursive = true; */
   /* }; */
   xdg.configFile = {
-    "nvim/lua" = {
-      source = config.lib.file.mkOutOfStoreSymlink ./dotfiles/nvim/lua;
+    "nvim" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/nvim";
       recursive = true;
-    };
-    "nvim/init.vim" = {
-      source = config.lib.file.mkOutOfStoreSymlink ./dotfiles/nvim/init.vim;
     };
   };
 }
