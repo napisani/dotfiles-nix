@@ -1,3 +1,8 @@
+local vim = vim
+local validate = vim.validate
+local api = vim.api
+local lsp = vim.lsp
+local uv = vim.loop
 local M = {}
 function M.table_merge(t1, t2)
 	for _, v in ipairs(t2) do
@@ -6,23 +11,32 @@ function M.table_merge(t1, t2)
 
 	return t1
 end
+
 function M.home_directory()
-  return os.getenv('HOME')
+	return os.getenv("HOME")
 end
+
 function M.temp_directory()
-  return os.getenv('TMPDIR') or os.getenv("TEMP")  or os.getenv("TMP") or '/tmp'
+	return os.getenv("TMPDIR") or os.getenv("TEMP") or os.getenv("TMP") or "/tmp"
+end
+
+function M.file_exists(name)
+	local f = io.open(name, "r")
+	return f ~= nil and io.close(f)
 end
 
 function M.read_json_file(filename)
-	local path = Path:new(filename)
-	if not path:exists() then
+	if not M.file_exists(filename) then
 		return nil
 	end
+	local path = io.open(filename, "r")
+	if path ~= nil then
+		local json_contents = path:read("*a")
+		local json = vim.fn.json_decode(json_contents)
+		return json
+	end
 
-	local json_contents = path:read()
-	local json = vim.fn.json_decode(json_contents)
-
-	return json
+	return nil
 end
 
 function M.read_package_json()
@@ -90,23 +104,25 @@ function _G.compare_to_clipboard_other()
 		ftype
 	))
 end
+
 function M.git_dir_path()
-    local handle = io.popen('git rev-parse --show-toplevel 2> /dev/null')
-    if handle ~= nil then
-      local result = handle:read("*a")
-      for line in result:gmatch("[^\r\n]+") do
-        return line
-      end
-      handle:close()
-    end
-    -- Change the current dir in neovim.
-    -- Run `git pull`, etc.
+	local handle = io.popen("git rev-parse --show-toplevel 2> /dev/null")
+	if handle ~= nil then
+		local result = handle:read("*a")
+		for line in result:gmatch("[^\r\n]+") do
+			return line
+		end
+		handle:close()
+	end
+	-- Change the current dir in neovim.
+	-- Run `git pull`, etc.
 end
+
 -- function M.reload_nvim_conf()
 --   for name,_ in pairs(package.loaded) do
 --     if name:match('^dap') or name:match('^user.nvim-dap') or name:match('.*nvim-dap.*') then
 --       print("Reloading", name)
-      
+
 --       package.loaded[name] = nil
 --     end
 --   end
@@ -124,9 +140,10 @@ function M.global_node_modules()
 			node_modules_dir = line
 		end
 	end
-  -- print("python_bin", python_bin)
+	-- print("python_bin", python_bin)
 	return node_modules_dir
 end
+
 function M.python_path()
 	if os.getenv("VIRTUAL_ENV") ~= nil then
 		return os.getenv("VIRTUAL_ENV") .. "/bin/python"
@@ -139,8 +156,47 @@ function M.python_path()
 	-- 		python_bin = line
 	-- 	end
 	-- end
-  -- print("python_bin", python_bin)
+	-- print("python_bin", python_bin)
 	return python_bin
 end
--- vim.keymap.set("x", "<Space>d", compare_to_clipboard)
+
+function M.get_db_connections()
+	local sql_rc = M.get_root_dir() .. "/.sqllsrc.json"
+	local json_file = M.read_json_file(sql_rc)
+	if json_file == nil then
+		return {}
+	end
+	local conns = {}
+	if json_file["connections"] ~= nil then
+		conns = json_file["connections"]
+	end
+	if json_file["host"] ~= nil then
+		table.insert(conns, json_file)
+	end
+	return conns
+end
+function M.connection_to_golang_string(conn)
+  if conn['adapter'] ~= "mysql" then
+    vim.fn.notify("Only mysql is supported", vim.log.levels.ERROR)
+    return nil
+  end
+  local user = conn['user']
+  local password= conn['password']
+  local database= conn['database']
+  local host= conn['host']
+  local port= conn['port'] or 3306
+  local conn_string =  user .. ":" .. password .. "@tcp(" .. host .. ":" .. port .. ")/" .. database
+  return conn_string
+
+end
+
+function M.get_root_dir()
+	local root_dir = vim.fn.getcwd()
+	local git_dir = require("lspconfig.util").root_pattern(".git")(root_dir)
+	if git_dir ~= nil and git_dir ~= "" then
+		root_dir = git_dir
+	end
+	return root_dir
+end
+
 return M

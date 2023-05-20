@@ -1,4 +1,4 @@
--- vim.cmd "let g:vimspector_enable_mappings = 'HUMAN'"
+
 
 -- Vimspector
 -- vim.cmd "let g:vimspector_enable_mappings = 'HUMAN'"

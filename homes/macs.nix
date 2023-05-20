@@ -12,6 +12,7 @@
     ../mods/shell.nix
     ../mods/git.nix
     ../mods/rust.nix
+    ../mods/golang.nix
     ../mods/neovim.nix
     ../mods/secret_inject.nix
     ../mods/packer_plugin_manager.nix

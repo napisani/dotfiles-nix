@@ -32,5 +32,6 @@ require "user.neoscroll"
 require "user.github-search"
 
 require "user.search-rules"
--- require "user.leap"
--- require "user.vimspector"
+require "user.chatgpt"
+require "user.dbee"
+
