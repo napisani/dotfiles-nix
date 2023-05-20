@@ -16,6 +16,7 @@ local servers = {
 	bashls = {},
 	cssls = {},
 	denols = {},
+  gopls = {},
 	docker_compose_language_service = {},
 	dockerls = {},
 	html = {},
@@ -24,7 +25,8 @@ local servers = {
 	pyright = { npm = "pyright" },
 	rnix = {},
 	ruff_lsp = { pipx = "ruff-lsp" },
-	sqlls = {}, -- https://github.com/lighttiger2505/sqls/releases
+	-- sqlls = {}, -- https://github.com/lighttiger2505/sqls/releases
+	sqls = {},
 	tailwindcss = {},
 	taplo = {},
 	tsserver = { npm = "typescript-language-server" }, -- npm install -g typescript typescript-language-server

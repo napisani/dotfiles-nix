@@ -86,6 +86,11 @@ null_ls.setup({
     formatting.isort,
     formatting.ruff,
     diagnostics.eslint_d,
+    -- golang fix imports
+    formatting.goimports,
+    -- golang stricter format than gofmt - with backwards compatibility
+    formatting.gofumpt
+
     -- diagnostics.cspell,
     -- diagnostics.flake8,
     -- pipx install codespell

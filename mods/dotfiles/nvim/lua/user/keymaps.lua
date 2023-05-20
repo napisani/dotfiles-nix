@@ -85,12 +85,3 @@ keymap("n", "s", "<cmd>HopWord<CR>", opts)
 
 
 
--- keymap("n", "<leader>dc", "<Cmd>lua require'dap'.continue()<CR>", opts)
--- keymap("n", "<leader>dj", "<Cmd>lua require'dap'.step_over()<CR>", opts)
--- keymap("n", "<leader>dh", "<Cmd>lua require'dap'.step_into()<CR>", opts)
--- keymap("n", "<leader>dk", "<Cmd>lua require'dap'.step_out()<CR>", opts)
--- keymap("n", "<leader>db", "<Cmd>lua require'dap'.toggle_breakpoint()<CR>", opts)
--- keymap("n", "<leader>dB", "<Cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>", opts)
--- keymap("n", "<leader>dp", "<Cmd>lua require'dap'.set_breakpoint(vim.fn.input(nil, nil, vim.fn.input('Log point message: ')))<CR>", opts)
--- keymap("n", "<leader>dr", "<Cmd>lua require'dap'.repl.open()<CR>", opts)
--- keymap("n", "<leader>dl", "<Cmd>lua require'dap'.run_last()<CR>", opts)

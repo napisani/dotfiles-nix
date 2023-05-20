@@ -1,6 +1,6 @@
 { pkgs, pkgs-unstable, procmux, ... }:
 {
-  home.packages = [
+  home.packages = [base
     pkgs.bashInteractive
     pkgs.bat
     pkgs.coreutils

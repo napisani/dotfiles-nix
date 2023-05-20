@@ -1,5 +1,5 @@
 [General]
-  snippetfile = "/Users/nick/.config/pet/snippet.toml"
+  snippetfile = "~/.config/pet/snippet.toml"
   editor = "vim"
   column = 40
   selectcmd = "fzf"

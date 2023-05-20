@@ -43,38 +43,38 @@ local function define_plugins(use)
   use { "wbthomason/packer.nvim", commit = "1d0cf98a561f7fd654c970c49f917d74fafe1530" }
 
   -- Useful lua functions used by lots of plugins
-  use { "nvim-lua/plenary.nvim", commit = "253d34830709d690f013daf2853a9d21ad7accab" }
+  use { "nvim-lua/plenary.nvim",commit = "9ac3e9541bbabd9d73663d757e4fe48a675bb054" }
 
   -- Autopairs, integrates with both cmp and treesitter
-  use { "windwp/nvim-autopairs", commit = "e755f366721bc9e189ddecd39554559045ac0a18" }
+  use { "windwp/nvim-autopairs",commit = "7747bbae60074acf0b9e3a4c13950be7a2dff444" }
 
   use { "tpope/vim-commentary", commit = "e87cd90dc09c2a203e13af9704bd0ef79303d755" }
-  use { "JoosepAlviste/nvim-ts-context-commentstring", commit = "729d83ecb990dc2b30272833c213cc6d49ed5214" }
-  use { "kyazdani42/nvim-web-devicons", commit = "95b1e300699be8eb6b5be1758a9d4d69fe93cc7f" }
-  use { "kyazdani42/nvim-tree.lua", commit = "aa9971768a08caa4f10f94ab84e48d2ceb30b1c0" }
-  use { "akinsho/bufferline.nvim", commit = "3677aceb9a72630b0613e56516c8f7151b86f95c" }
+  use { "JoosepAlviste/nvim-ts-context-commentstring",commit = "0bf8fbc2ca8f8cdb6efbd0a9e32740d7a991e4c3" }
+  use { "kyazdani42/nvim-web-devicons",commit = "986875b7364095d6535e28bd4aac3a9357e91bbe" }
+  use { "kyazdani42/nvim-tree.lua",commit = "736c7ff59065275f0483af4b7f07a9bc41449ad0" }
+  use { "akinsho/bufferline.nvim",commit = "1952c33e425ede785d26aa9e250addfe304a8510" }
   use { "moll/vim-bbye", commit = "25ef93ac5a87526111f43e5110675032dbcacf56" }
-  use { "nvim-lualine/lualine.nvim", commit = "e99d733e0213ceb8f548ae6551b04ae32e590c80" }
+  use { "nvim-lualine/lualine.nvim",commit = "05d78e9fd0cdfb4545974a5aa14b1be95a86e9c9" }
 
-  use { "ahmedkhalf/project.nvim", commit = "1c2e9c93c7c85126c2197f5e770054f53b1926fb" }
-  use { "lewis6991/impatient.nvim", commit = "c90e273f7b8c50a02f956c24ce4804a47f18162e" }
+  use { "ahmedkhalf/project.nvim",commit = "8c6bad7d22eef1b71144b401c9f74ed01526a4fb" }
+  use { "lewis6991/impatient.nvim",commit = "47302af74be7b79f002773011f0d8e85679a7618" }
   use { "lukas-reineke/indent-blankline.nvim", commit = "018bd04d80c9a73d399c1061fa0c3b14a7614399" }
-  use { "goolord/alpha-nvim", commit = "dafa11a6218c2296df044e00f88d9187222ba6b0" }
+  use { "goolord/alpha-nvim",commit = "1838ae926e8d49fe5330d1498ee8289ae2c340bc" }
   use { "folke/which-key.nvim" }
 
   -- Colorschemes
-  use { "folke/tokyonight.nvim", commit = "edffa82026914be54c8220973b0385f61d3392f0" }
-  use { "lunarvim/darkplus.nvim", commit = "1826879d9cb14e5d93cd142d19f02b23840408a6" }
+  use { "folke/tokyonight.nvim",commit = "df13e3268a44f142999fa166572fe95a650a0b37" }
+  use { "lunarvim/darkplus.nvim",commit = "7c236649f0617809db05cd30fb10fed7fb01b83b" }
   use { "morhetz/gruvbox", commit = "bf2885a95efdad7bd5e4794dd0213917770d79b7" }
-  use { "shaunsingh/nord.nvim", commit = "be318c83a233cb877ba08faa15380a54241272b1" }
+  use { "shaunsingh/nord.nvim",commit = "fab04b2dd4b64f4b1763b9250a8824d0b5194b8f" }
   -- " intellj idea darcula-solid
   use { "doums/darcula", commit = "faf8dbab27bee0f27e4f1c3ca7e9695af9b1242b" }
   use { "briones-gabriel/darcula-solid.nvim", commit = "d950b9ca20096313c435a93e57af7815766f3d3d" }
-  use { "rebelot/kanagawa.nvim", commit = "d8800c36a7f3bcec953288926b00381c028ed97f" }
+  use { "rebelot/kanagawa.nvim",commit = "42c33239b0460cbbcdb67bc9c7f0c420a95208e6" }
 
   -- Cmp
   -- The completion plugin
-  use { "hrsh7th/nvim-cmp", commit = "777450fd0ae289463a14481673e26246b5e38bf2" }
+  use { "hrsh7th/nvim-cmp",commit = "3ac8d6cd29c74ff482d8ea47d45e5081bfc3f5ad" }
   -- buffer completions
   use { "hrsh7th/cmp-buffer", commit = "3022dbc9166796b644a841a02de8dd1cc1d311fa" }
   -- path completions
@@ -82,30 +82,30 @@ local function define_plugins(use)
   -- snippet completions
   use { "saadparwaiz1/cmp_luasnip", commit = "18095520391186d634a0045dacaa346291096566" }
   use { "hrsh7th/cmp-nvim-lsp", commit = "0e6b2ed705ddcff9738ec4ea838141654f12eeef" }
-  use { "hrsh7th/cmp-nvim-lua", commit = "f3491638d123cfd2c8048aefaf66d246ff250ca6" }
+  use { "hrsh7th/cmp-nvim-lua",commit = "f12408bdb54c39c23e67cab726264c10db33ada8" }
   --use { "hrsh7th/cmp-nvim-lsp-signature-help" }
   use { "erhickey/sig-window-nvim", commit = "e2984f7c95ebc38fe43635d3951f40a29a79b069" }
 
   -- Snippets
   --snippet engine
-  use { "L3MON4D3/LuaSnip", commit = "025886915e7a1442019f467e0ae2847a7cf6bf1a" }
+  use { "L3MON4D3/LuaSnip",commit = "ec7fba1d119fb5090a901eb616145450ffb95e31" }
   -- a bunch of snippets to use
-  use { "rafamadriz/friendly-snippets", commit = "25ddcd96540a2ce41d714bd7fea2e7f75fea8ead" }
+  use { "rafamadriz/friendly-snippets",commit = "f674dae71b9daf5ba4a4daf0734f7780417237b1" }
 
   -- LSP
-  use { "neovim/nvim-lspconfig", commit = "0f94c5fded29c0024254259f3d8a0284bfb507ea" }
+  use { "neovim/nvim-lspconfig",commit = "6f1d124bbcf03c4c410c093143a86415f46d16a0" }
   -- simple to use language server installer
   use { "williamboman/mason.nvim",
     run = ":MasonUpdate" -- :MasonUpdate updates registry contents
   }
-  use { "williamboman/mason-lspconfig.nvim", commit = "2b811031febe5f743e07305738181ff367e1e452" }
+  use { "williamboman/mason-lspconfig.nvim",commit = "c55d18f3947562e699d34d89681edbf9f0e250d3" }
   -- for formatters and linters
-  use { "jose-elias-alvarez/null-ls.nvim", commit = "13dd1fc13063681ca7e039436c88f6eca7e3e937" }
+  use { "jose-elias-alvarez/null-ls.nvim",commit = "77e53bc3bac34cc273be8ed9eb9ab78bcf67fa48" }
   use { "RRethy/vim-illuminate", commit = "a2907275a6899c570d16e95b9db5fd921c167502" }
 
   -- Telescope
-  use { "nvim-telescope/telescope.nvim", commit = "942fe5faef47b21241e970551eba407bc10d9547" }
-  use { "nvim-telescope/telescope-file-browser.nvim", commit = "61b3769065131129716974f7fb63f82ee409bd80" }
+  use { "nvim-telescope/telescope.nvim",commit = "40c31fdde93bcd85aeb3447bb3e2a3208395a868" }
+  use { "nvim-telescope/telescope-file-browser.nvim",commit = "1aa7f12ce797bb5b548c96f38b2c93911e97c543" }
   use {
     "benfowler/telescope-luasnip.nvim",
     commit = "849c4ee1951f34041a26744d2a88284545564ff0"
@@ -113,17 +113,17 @@ local function define_plugins(use)
 
   -- Treesitter
   use {
-    "nvim-treesitter/nvim-treesitter", commit = "87cf2abeb6077ac19a1249d0b06f223aa398a0a0" }
+    "nvim-treesitter/nvim-treesitter",commit = "dad1b7cd6606ffaa5c283ba73d707b4741a5f445" }
 
   -- Git
-  use { "lewis6991/gitsigns.nvim", commit = "ca473e28382f1524aa3d2b6f04bcf54f2e6a64cb" }
-  use { "tpope/vim-fugitive", commit = "8ad2b96cdfda11070645f71b2d804466b750041d" }
+  use { "lewis6991/gitsigns.nvim",commit = "fc68586dbed6f98add38e02ce3fda233e7382096" }
+  use { "tpope/vim-fugitive",commit = "5f0d280b517cacb16f59316659966c7ca5e2bea2" }
   -- use { 'idanarye/vim-merginal' }
   use {
-    "sindrets/diffview.nvim", requires = "nvim-lua/plenary.nvim", commit = "58035354fc79c6ec42fa7b218dab90bd3968615f" }
+    "sindrets/diffview.nvim",requires = "nvim-lua/plenary.nvim",commit = "15861892ce62d8f4ab6e72bc4ff5b829f994430a" }
 
   -- vim.notify notifications
-  use { "rcarriga/nvim-notify", commit = "50d037041ada0895aeba4c0215cde6d11b7729c4" }
+  use { "rcarriga/nvim-notify",commit = "f3024b912073774111202f5fa6518b0cd2a74432" }
 
   -- Rust tools
   use { "simrat39/rust-tools.nvim", commit = "71d2cf67b5ed120a0e31b2c8adb210dd2834242f" }
@@ -143,21 +143,20 @@ local function define_plugins(use)
   -- use{ "ggandor/leap.nvim", commit = "f7391b5fe9771d788816383ee3c75e0be92022af" }
 
   -- debugging
-  use { "mfussenegger/nvim-dap", commit = "7e81998e31277c7a33b6c34423640900c5c2c776" }
+  use { "mfussenegger/nvim-dap",commit = "56118cee6af15cb9ddba9d080880949d8eeb0c9f" }
   use {
-    "rcarriga/nvim-dap-ui", requires = { "mfussenegger/nvim-dap" }, commit = "bdb94e3853d11b5ce98ec182e5a3719d5c0ef6fd" }
-  use { "jayp0521/mason-nvim-dap.nvim", commit = "8c5d0212bb385ce363ac3a00aa2e16d88ac44ba7" }
+    "rcarriga/nvim-dap-ui",requires = { "mfussenegger/nvim-dap" },commit = "4ce7b97dd8f50b4f672948a34bf8f3a56214fdb8" }
+  use { "jayp0521/mason-nvim-dap.nvim",commit = "c836e511e796d2b6a25ad9f164f5b25d8b9ff705" }
   use {
-    "nvim-neotest/neotest", requires = {
+    "nvim-neotest/neotest",requires = {
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
     "antoinemadec/FixCursorHold.nvim",
-  }, commit = "bbbfa55d850f1aaa6707ea85fb5230ac866459c6" }
+  },commit = "6435a367a57f267039c4c69a723cec09ae61b17e" }
   use { "nvim-neotest/neotest-python", commit = "6c06041cfb45f45e276068020baa06c06fe20d5c" }
-  use { "rouge8/neotest-rust", commit = "11ae2469d2a43436b81577c5ad3137ee3c75ff6c" }
+  use { "rouge8/neotest-rust",commit = "eaaf57c2124067167b6f7dcab6feedfcabd27fbb" }
   -- use 'mfussenegger/nvim-dap-python'
   -- use 'ChristianChiarulli/neovim-codicons'
-  -- use 'puremourning/vimspector'
 
   -- helm syntax highlighting
   use { "towolf/vim-helm", commit = "c2e7b85711d410e1d73e64eb5df7b70b1c4c10eb" }
@@ -167,7 +166,7 @@ local function define_plugins(use)
   use { "norcalli/nvim-colorizer.lua", commit = "36c610a9717cc9ec426a07c8e6bf3b3abcb139d6" }
 
   -- Install neoscopes.
-  use { "smartpde/neoscopes", commit = "c05157d47231d0a44798526758f26729a19a5bfd" }
+  use { "smartpde/neoscopes",commit = "88ca15efcc20b267789d74ca483cc8bac85b3083" }
   -- use { "napisani/neoscopes" }
   -- use('/Users/nick/code/neoscopes')
   -- use('/Users/nick/code/nvim-github-codesearch')
@@ -177,10 +176,31 @@ local function define_plugins(use)
   -- use { '/Users/nick/code/nvim-search-rules' }
 
   -- copilot
-  use { "github/copilot.vim", commit = "9e869d29e62e36b7eb6fb238a4ca6a6237e7d78b" }
+  use { "github/copilot.vim",commit = "1358e8e45ecedc53daf971924a0541ddf6224faf" }
 
   use { 'karb94/neoscroll.nvim', commit = "d7601c26c8a183fa8994ed339e70c2d841253e93" }
   use { 'hkupty/iron.nvim', commit = "792dd11752c4699ea52c737b5e932d6f21b25834" }
+  use({
+      "jackMort/ChatGPT.nvim",
+      requires = {
+        "MunifTanjim/nui.nvim", 
+        "nvim-lua/plenary.nvim",
+        "nvim-telescope/telescope.nvim"
+      }
+  })
+  use ({
+  "kndndrj/nvim-dbee",
+    -- "/Users/nick/code/nvim-dbee",
+  requires = {
+    "MunifTanjim/nui.nvim",
+  },
+  run = function()
+    -- Install tries to automatically detect the install method.
+    -- if it fails, try calling it with one of these parameters:
+    --    "curl", "wget", "bitsadmin", "go"
+    require("dbee").install()
+  end,
+})
   -- use 'direnv/direnv.vim'
   -- use('/Users/nick/code/monoscope')
   -- Automatically set up your configuration after cloning packer.nvim
