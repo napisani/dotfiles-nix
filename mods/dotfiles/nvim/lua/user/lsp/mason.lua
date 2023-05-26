@@ -15,7 +15,7 @@ local servers = {
 	angularls = { npm = "@angular/language-server" },
 	bashls = {},
 	cssls = {},
-	denols = {},
+	-- denols = {},
   gopls = {},
 	docker_compose_language_service = {},
 	dockerls = {},

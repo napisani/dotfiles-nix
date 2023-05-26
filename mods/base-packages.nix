@@ -11,6 +11,7 @@
     pkgs.tree
     pkgs.watch
     pkgs.wget
+    pkgs.postman
     pkgs-unstable.doppler
     pkgs.bitwarden-cli
     pkgs.pet
