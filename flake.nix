@@ -33,7 +33,7 @@
     in
     {
       darwinConfigurations = {
-        "nick-macbook-small" = inputs.darwin.lib.darwinSystem {
+        "nicks-mbp" = inputs.darwin.lib.darwinSystem {
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           system = "aarch64-darwin";
           modules = [
@@ -45,6 +45,7 @@
               };
             })
             ./systems/darwin.nix 
+            ./systems/system-nicks-mbp.nix
             home-manager.darwinModules.home-manager
             {
               home-manager = {
@@ -58,6 +59,7 @@
                 };
                 users.nick.imports = [
                   ./homes/macs.nix
+                  ./homes/home-nicks-mbp.nix
                 ];
               };
             }
@@ -75,6 +77,7 @@
               };
             })
             ./systems/darwin.nix 
+            ./systems/system-NickCTMMackbook.nix
             home-manager.darwinModules.home-manager
             {
               home-manager = {
@@ -88,6 +91,7 @@
                 };
                 users.nickpisani.imports = [
                   ./homes/macs.nix
+                  ./homes/home-NicksCTMMacbook.nix
                 ];
               };
             }
