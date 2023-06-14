@@ -22,9 +22,14 @@
     procmux.url = "github:napisani/procmux";
     procmux.inputs.nixpkgs.follows = "nixpkgs";
 
+    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+
   };
   outputs = { nixpkgs, nixpkgs-unstable, home-manager, darwin, procmux, ... }@inputs:
     let
+      overlays = [
+          # inputs.neovim-nightly-overlay.overlay
+      ];
       commonInherits = {
         inherit (nixpkgs) lib;
         inherit (nixpkgs) pkgs;
@@ -55,6 +60,7 @@
                   inherit inputs;
                   pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
                   procmux = procmux;
+                  overlays = overlays;
                   user = "nick";
                 };
                 users.nick.imports = [
@@ -87,6 +93,7 @@
                   inherit inputs;
                   pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
                   procmux = procmux;
+                  overlays = overlays;
                   user = "nickpisani";
                 };
                 users.nickpisani.imports = [
