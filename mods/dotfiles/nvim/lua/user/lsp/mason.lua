@@ -26,7 +26,8 @@ local servers = {
 	rnix = {},
 	ruff_lsp = { pipx = "ruff-lsp" },
 	-- sqlls = {}, -- https://github.com/lighttiger2505/sqls/releases
-	sqls = {},
+  -- this one is old but it works great
+	-- sqls = {},
 	tailwindcss = {},
 	taplo = {},
 	tsserver = { npm = "typescript-language-server" }, -- npm install -g typescript typescript-language-server

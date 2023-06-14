@@ -1,6 +1,9 @@
-{ pkgs, config, ... }: {
+{ pkgs, pkgs-unstable, config, ... }: {
   programs.neovim = {
     enable = true;
+    /*package = pkgs.neovim.unwrapped;*/
+    /*package = pkgs.neovim-nightly;*/
+    /*package = pkgs-unstable.neovim-unwrapped;*/
     viAlias = false;
     vimAlias = true;
     withNodeJs = false;
