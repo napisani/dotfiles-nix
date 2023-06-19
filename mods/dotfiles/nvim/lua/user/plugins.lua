@@ -200,6 +200,11 @@ local function define_plugins(use)
     require("dbee").install()
   end,
 })
+  use ({
+      'glacambre/firenvim',
+      commit = "e2d5a0f97d1f41e03c8d2a3c71ee60b1a4a6bb83",
+      run = function() vim.fn['firenvim#install'](0) end
+  })
   -- use 'direnv/direnv.vim'
   -- use('/Users/nick/code/monoscope')
   -- Automatically set up your configuration after cloning packer.nvim
