@@ -34,4 +34,5 @@ require "user.github-search"
 require "user.search-rules"
 require "user.chatgpt"
 require "user.dbee"
+require "user.firenvim"
 

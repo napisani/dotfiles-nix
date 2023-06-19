@@ -84,4 +84,3 @@ keymap("n", "<leader>vr", ":source $MYVIMRC<CR>", opts)
 keymap("n", "s", "<cmd>HopWord<CR>", opts)
 
 
-
