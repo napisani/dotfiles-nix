@@ -33,6 +33,7 @@
       "bitwarden"
       "caffeine"
       "docker"
+      "github"
     ];
     # anything installed with brew (non-casks)
     brews = [
