@@ -197,8 +197,8 @@ local mappings = {
     b = { ":%s/<c-r>0//g<left><left>", "(b)uffer" },
     B = { ":%s/<c-r>0//gc<left><left><left>", "(B)uffer ask" },
     ["*"] = {":%s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(*)word"},
-    q = { ":cdo %s/<c-r>//g<left><left>", "(q)uicklist" },
-    Q = { ":cdo %s/<c-r>//gc<left><left><left>", "(Q)uicklist ask" },
+    q = { ":cdo %s/<c-r>0//g<left><left>", "(q)uicklist" },
+    Q = { ":cdo %s/<c-r>0//gc<left><left><left>", "(Q)uicklist ask" },
   },
   R = {
     name = "REPL",
@@ -260,11 +260,36 @@ local mappings = {
   },
   ["*"] = {
     name = "CWord Under Cursor",
-    h = {"<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.expand('<cword>')})<CR>", "grep w(h)ole project"}
+    f = { 
+      name="Find" ,
+      r = {"<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.expand('<cword>')})<CR>", "(f)ile by name"},
+      h = {"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.expand('<cword>')})<CR>", "grep w(h)ole project"}
+    },
+    r = {
+      name = "Replace",
+      b = { ":%s/<C-R>=expand('<cword>')<CR>//g<left><left>", "(b)uffer" },
+      B = { ":%s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(B)uffer ask" },
+      q = { ":cdo %s/<C-R>=expand('<cword>')<CR>//g<left><left>", "(q)uicklist" },
+      Q = { ":cdo %s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(Q)uicklist ask" },
+    }
   },
   p = {
     name = "Paste to",
-    h = {"<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.getreg('*')})<CR>", "grep w(h)ole project"}
+    ['/'] = {
+      "/<c-r>0<cr>", "search in buffer",
+    },
+    f = {
+      name = "Find",
+      r = { "<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.getreg('*')})<CR>", "(f)ile by name"},
+      h = {"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.getreg('*')})<CR>", "grep w(h)ole project"}
+    },
+    r = {
+      name = "Replace",
+      b = { ":%s/<c-r>0//g<left><left>", "(b)uffer" },
+      B = { ":%s/<c-r>0//gc<left><left><left>", "(B)uffer ask" },
+      q = { ":cdo %s/<c-r>0//g<left><left>", "(q)uicklist" },
+      Q = { ":cdo %s/<c-r>0//gc<left><left><left>", "(Q)uicklist ask" },
+    }
   },
   f = {
     name = "Find",

@@ -87,6 +87,7 @@ telescope.setup({
 	},
 	extensions = {
 		file_browser = {
+      hidden = true,
 			theme = "dropdown",
 			layout_config = {
 				width = 0.98,
