@@ -1,6 +1,7 @@
 { pkgs, pkgs-unstable, config, ... }: {
   programs.neovim = {
     enable = true;
+    defaultEditor = true;
     /*package = pkgs.neovim.unwrapped;*/
     /*package = pkgs.neovim-nightly;*/
     /*package = pkgs-unstable.neovim-unwrapped;*/
