@@ -135,7 +135,7 @@ end tell
 set the clipboard to prev'`),
     map('y').toPaste('\\"'),
     map('g').toPaste(','), 
-    map('h').toPaste('.'),
+    map('h').toPaste('.')
   ]),
 
 ])
