@@ -379,7 +379,7 @@
             ]
           },
           {
-            "description": "Simlayer - delimiters layer",
+            "description": "Simlayer - ielimiters layer",
             "manipulators": [
               {
                 "type": "basic",
@@ -393,13 +393,16 @@
                 },
                 "to": [
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"(\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "9",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "delimiters layer",
+                    "name": "ielimiters layer",
                     "value": 1
                   }
                 ]
@@ -416,13 +419,16 @@
                 },
                 "to": [
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \")\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "0",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "delimiters layer",
+                    "name": "ielimiters layer",
                     "value": 1
                   }
                 ]
@@ -439,13 +445,16 @@
                 },
                 "to": [
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"{\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "open_bracket",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "delimiters layer",
+                    "name": "ielimiters layer",
                     "value": 1
                   }
                 ]
@@ -462,13 +471,16 @@
                 },
                 "to": [
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"}\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "close_bracket",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "delimiters layer",
+                    "name": "ielimiters layer",
                     "value": 1
                   }
                 ]
@@ -485,13 +497,13 @@
                 },
                 "to": [
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"[\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "open_bracket"
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "delimiters layer",
+                    "name": "ielimiters layer",
                     "value": 1
                   }
                 ]
@@ -508,13 +520,13 @@
                 },
                 "to": [
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"]\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "close_bracket"
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "delimiters layer",
+                    "name": "ielimiters layer",
                     "value": 1
                   }
                 ]
@@ -531,13 +543,16 @@
                 },
                 "to": [
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"<\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "comma",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "delimiters layer",
+                    "name": "ielimiters layer",
                     "value": 1
                   }
                 ]
@@ -554,13 +569,16 @@
                 },
                 "to": [
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \">\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "period",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "delimiters layer",
+                    "name": "ielimiters layer",
                     "value": 1
                   }
                 ]
@@ -577,13 +595,13 @@
                 },
                 "to": [
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to ASCII character 39 \ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "quote"
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "delimiters layer",
+                    "name": "ielimiters layer",
                     "value": 1
                   }
                 ]
@@ -600,13 +618,16 @@
                 },
                 "to": [
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"\\\"\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "quote",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "delimiters layer",
+                    "name": "ielimiters layer",
                     "value": 1
                   }
                 ]
@@ -623,13 +644,13 @@
                 },
                 "to": [
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \",\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "comma"
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "delimiters layer",
+                    "name": "ielimiters layer",
                     "value": 1
                   }
                 ]
@@ -646,13 +667,13 @@
                 },
                 "to": [
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \".\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "period"
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "delimiters layer",
+                    "name": "ielimiters layer",
                     "value": 1
                   }
                 ]
@@ -665,12 +686,15 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "delimiters layer",
+                      "name": "ielimiters layer",
                       "value": 1
                     }
                   },
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"(\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "9",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "from": {
@@ -690,7 +714,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "delimiters layer",
+                          "name": "ielimiters layer",
                           "value": 0
                         }
                       }
@@ -711,12 +735,15 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "delimiters layer",
+                      "name": "ielimiters layer",
                       "value": 1
                     }
                   },
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \")\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "0",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "from": {
@@ -736,7 +763,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "delimiters layer",
+                          "name": "ielimiters layer",
                           "value": 0
                         }
                       }
@@ -757,12 +784,15 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "delimiters layer",
+                      "name": "ielimiters layer",
                       "value": 1
                     }
                   },
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"{\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "open_bracket",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "from": {
@@ -782,7 +812,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "delimiters layer",
+                          "name": "ielimiters layer",
                           "value": 0
                         }
                       }
@@ -803,12 +833,15 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "delimiters layer",
+                      "name": "ielimiters layer",
                       "value": 1
                     }
                   },
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"}\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "close_bracket",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "from": {
@@ -828,7 +861,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "delimiters layer",
+                          "name": "ielimiters layer",
                           "value": 0
                         }
                       }
@@ -849,12 +882,12 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "delimiters layer",
+                      "name": "ielimiters layer",
                       "value": 1
                     }
                   },
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"[\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "open_bracket"
                   }
                 ],
                 "from": {
@@ -874,7 +907,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "delimiters layer",
+                          "name": "ielimiters layer",
                           "value": 0
                         }
                       }
@@ -895,12 +928,12 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "delimiters layer",
+                      "name": "ielimiters layer",
                       "value": 1
                     }
                   },
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"]\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "close_bracket"
                   }
                 ],
                 "from": {
@@ -920,7 +953,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "delimiters layer",
+                          "name": "ielimiters layer",
                           "value": 0
                         }
                       }
@@ -941,12 +974,15 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "delimiters layer",
+                      "name": "ielimiters layer",
                       "value": 1
                     }
                   },
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"<\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "comma",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "from": {
@@ -966,7 +1002,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "delimiters layer",
+                          "name": "ielimiters layer",
                           "value": 0
                         }
                       }
@@ -987,12 +1023,15 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "delimiters layer",
+                      "name": "ielimiters layer",
                       "value": 1
                     }
                   },
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \">\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "period",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "from": {
@@ -1012,7 +1051,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "delimiters layer",
+                          "name": "ielimiters layer",
                           "value": 0
                         }
                       }
@@ -1033,12 +1072,12 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "delimiters layer",
+                      "name": "ielimiters layer",
                       "value": 1
                     }
                   },
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to ASCII character 39 \ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "quote"
                   }
                 ],
                 "from": {
@@ -1058,7 +1097,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "delimiters layer",
+                          "name": "ielimiters layer",
                           "value": 0
                         }
                       }
@@ -1079,12 +1118,15 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "delimiters layer",
+                      "name": "ielimiters layer",
                       "value": 1
                     }
                   },
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \"\\\"\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "quote",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ],
                 "from": {
@@ -1104,7 +1146,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "delimiters layer",
+                          "name": "ielimiters layer",
                           "value": 0
                         }
                       }
@@ -1125,12 +1167,12 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "delimiters layer",
+                      "name": "ielimiters layer",
                       "value": 1
                     }
                   },
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \",\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "comma"
                   }
                 ],
                 "from": {
@@ -1150,7 +1192,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "delimiters layer",
+                          "name": "ielimiters layer",
                           "value": 0
                         }
                       }
@@ -1171,12 +1213,12 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "delimiters layer",
+                      "name": "ielimiters layer",
                       "value": 1
                     }
                   },
                   {
-                    "shell_command": "osascript -e '\nset prev to the clipboard\nset the clipboard to \".\"\ntell application \"System Events\"\n  keystroke \"v\" using command down\n  delay 0.1\nend tell\nset the clipboard to prev'"
+                    "key_code": "period"
                   }
                 ],
                 "from": {
@@ -1196,7 +1238,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "delimiters layer",
+                          "name": "ielimiters layer",
                           "value": 0
                         }
                       }
