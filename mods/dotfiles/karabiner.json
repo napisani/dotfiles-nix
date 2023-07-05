@@ -362,24 +362,7 @@
             ]
           },
           {
-            "description": "escape -> grave_accent_and_tilde",
-            "manipulators": [
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "escape"
-                },
-                "to": [
-                  {
-                    "key_code": "grave_accent_and_tilde"
-                  }
-                ],
-                "description": "escape -> grave_accent_and_tilde"
-              }
-            ]
-          },
-          {
-            "description": "Simlayer - ielimiters layer",
+            "description": "Simlayer - delimiters layer",
             "manipulators": [
               {
                 "type": "basic",
@@ -402,7 +385,7 @@
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "ielimiters layer",
+                    "name": "delimiters layer",
                     "value": 1
                   }
                 ]
@@ -428,7 +411,7 @@
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "ielimiters layer",
+                    "name": "delimiters layer",
                     "value": 1
                   }
                 ]
@@ -454,7 +437,7 @@
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "ielimiters layer",
+                    "name": "delimiters layer",
                     "value": 1
                   }
                 ]
@@ -480,7 +463,7 @@
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "ielimiters layer",
+                    "name": "delimiters layer",
                     "value": 1
                   }
                 ]
@@ -503,7 +486,7 @@
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "ielimiters layer",
+                    "name": "delimiters layer",
                     "value": 1
                   }
                 ]
@@ -526,59 +509,7 @@
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "ielimiters layer",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "v",
-                  "modifiers": {
-                    "optional": [
-                      "any"
-                    ]
-                  }
-                },
-                "to": [
-                  {
-                    "key_code": "comma",
-                    "modifiers": [
-                      "left_shift"
-                    ]
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "ielimiters layer",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "n",
-                  "modifiers": {
-                    "optional": [
-                      "any"
-                    ]
-                  }
-                },
-                "to": [
-                  {
-                    "key_code": "period",
-                    "modifiers": [
-                      "left_shift"
-                    ]
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "ielimiters layer",
+                    "name": "delimiters layer",
                     "value": 1
                   }
                 ]
@@ -601,7 +532,7 @@
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "ielimiters layer",
+                    "name": "delimiters layer",
                     "value": 1
                   }
                 ]
@@ -627,7 +558,7 @@
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "ielimiters layer",
+                    "name": "delimiters layer",
                     "value": 1
                   }
                 ]
@@ -650,7 +581,7 @@
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "ielimiters layer",
+                    "name": "delimiters layer",
                     "value": 1
                   }
                 ]
@@ -673,7 +604,111 @@
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "ielimiters layer",
+                    "name": "delimiters layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "v",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "comma",
+                    "modifiers": [
+                      "left_shift"
+                    ]
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "delimiters layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "n",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "period",
+                    "modifiers": [
+                      "left_shift"
+                    ]
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "delimiters layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "c",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "7",
+                    "modifiers": [
+                      "left_shift"
+                    ]
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "delimiters layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "m",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "8",
+                    "modifiers": [
+                      "left_shift"
+                    ]
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "delimiters layer",
                     "value": 1
                   }
                 ]
@@ -686,7 +721,7 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "ielimiters layer",
+                      "name": "delimiters layer",
                       "value": 1
                     }
                   },
@@ -714,7 +749,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "ielimiters layer",
+                          "name": "delimiters layer",
                           "value": 0
                         }
                       }
@@ -735,7 +770,7 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "ielimiters layer",
+                      "name": "delimiters layer",
                       "value": 1
                     }
                   },
@@ -763,7 +798,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "ielimiters layer",
+                          "name": "delimiters layer",
                           "value": 0
                         }
                       }
@@ -784,7 +819,7 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "ielimiters layer",
+                      "name": "delimiters layer",
                       "value": 1
                     }
                   },
@@ -812,7 +847,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "ielimiters layer",
+                          "name": "delimiters layer",
                           "value": 0
                         }
                       }
@@ -833,7 +868,7 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "ielimiters layer",
+                      "name": "delimiters layer",
                       "value": 1
                     }
                   },
@@ -861,7 +896,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "ielimiters layer",
+                          "name": "delimiters layer",
                           "value": 0
                         }
                       }
@@ -882,7 +917,7 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "ielimiters layer",
+                      "name": "delimiters layer",
                       "value": 1
                     }
                   },
@@ -907,7 +942,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "ielimiters layer",
+                          "name": "delimiters layer",
                           "value": 0
                         }
                       }
@@ -928,7 +963,7 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "ielimiters layer",
+                      "name": "delimiters layer",
                       "value": 1
                     }
                   },
@@ -953,7 +988,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "ielimiters layer",
+                          "name": "delimiters layer",
                           "value": 0
                         }
                       }
@@ -974,105 +1009,7 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "ielimiters layer",
-                      "value": 1
-                    }
-                  },
-                  {
-                    "key_code": "comma",
-                    "modifiers": [
-                      "left_shift"
-                    ]
-                  }
-                ],
-                "from": {
-                  "simultaneous": [
-                    {
-                      "key_code": "a"
-                    },
-                    {
-                      "key_code": "v"
-                    }
-                  ],
-                  "simultaneous_options": {
-                    "detect_key_down_uninterruptedly": true,
-                    "key_down_order": "strict",
-                    "key_up_order": "strict_inverse",
-                    "key_up_when": "any",
-                    "to_after_key_up": [
-                      {
-                        "set_variable": {
-                          "name": "ielimiters layer",
-                          "value": 0
-                        }
-                      }
-                    ]
-                  },
-                  "modifiers": {
-                    "optional": [
-                      "any"
-                    ]
-                  }
-                }
-              },
-              {
-                "type": "basic",
-                "parameters": {
-                  "basic.simultaneous_threshold_milliseconds": 200
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "ielimiters layer",
-                      "value": 1
-                    }
-                  },
-                  {
-                    "key_code": "period",
-                    "modifiers": [
-                      "left_shift"
-                    ]
-                  }
-                ],
-                "from": {
-                  "simultaneous": [
-                    {
-                      "key_code": "a"
-                    },
-                    {
-                      "key_code": "n"
-                    }
-                  ],
-                  "simultaneous_options": {
-                    "detect_key_down_uninterruptedly": true,
-                    "key_down_order": "strict",
-                    "key_up_order": "strict_inverse",
-                    "key_up_when": "any",
-                    "to_after_key_up": [
-                      {
-                        "set_variable": {
-                          "name": "ielimiters layer",
-                          "value": 0
-                        }
-                      }
-                    ]
-                  },
-                  "modifiers": {
-                    "optional": [
-                      "any"
-                    ]
-                  }
-                }
-              },
-              {
-                "type": "basic",
-                "parameters": {
-                  "basic.simultaneous_threshold_milliseconds": 200
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "ielimiters layer",
+                      "name": "delimiters layer",
                       "value": 1
                     }
                   },
@@ -1097,7 +1034,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "ielimiters layer",
+                          "name": "delimiters layer",
                           "value": 0
                         }
                       }
@@ -1118,7 +1055,7 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "ielimiters layer",
+                      "name": "delimiters layer",
                       "value": 1
                     }
                   },
@@ -1146,7 +1083,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "ielimiters layer",
+                          "name": "delimiters layer",
                           "value": 0
                         }
                       }
@@ -1167,7 +1104,7 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "ielimiters layer",
+                      "name": "delimiters layer",
                       "value": 1
                     }
                   },
@@ -1192,7 +1129,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "ielimiters layer",
+                          "name": "delimiters layer",
                           "value": 0
                         }
                       }
@@ -1213,7 +1150,7 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "ielimiters layer",
+                      "name": "delimiters layer",
                       "value": 1
                     }
                   },
@@ -1238,7 +1175,7 @@
                     "to_after_key_up": [
                       {
                         "set_variable": {
-                          "name": "ielimiters layer",
+                          "name": "delimiters layer",
                           "value": 0
                         }
                       }
@@ -1250,6 +1187,914 @@
                     ]
                   }
                 }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "delimiters layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "comma",
+                    "modifiers": [
+                      "left_shift"
+                    ]
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "a"
+                    },
+                    {
+                      "key_code": "v"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "delimiters layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "delimiters layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "period",
+                    "modifiers": [
+                      "left_shift"
+                    ]
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "a"
+                    },
+                    {
+                      "key_code": "n"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "delimiters layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "delimiters layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "7",
+                    "modifiers": [
+                      "left_shift"
+                    ]
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "a"
+                    },
+                    {
+                      "key_code": "c"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "delimiters layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "delimiters layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "8",
+                    "modifiers": [
+                      "left_shift"
+                    ]
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "a"
+                    },
+                    {
+                      "key_code": "m"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "delimiters layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "description": "Simlayer - number layer",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "s",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "0"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "number layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "d",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "1"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "number layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "2"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "number layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "g",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "3"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "number layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "e",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "4"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "number layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "r",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "5"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "number layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "t",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "6"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "number layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "c",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "7"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "number layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "v",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "8"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "number layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "b",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "9"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "number layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "number layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "0"
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "n"
+                    },
+                    {
+                      "key_code": "s"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "number layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "number layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "1"
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "n"
+                    },
+                    {
+                      "key_code": "d"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "number layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "number layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "2"
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "n"
+                    },
+                    {
+                      "key_code": "f"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "number layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "number layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "3"
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "n"
+                    },
+                    {
+                      "key_code": "g"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "number layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "number layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "4"
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "n"
+                    },
+                    {
+                      "key_code": "e"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "number layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "number layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "5"
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "n"
+                    },
+                    {
+                      "key_code": "r"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "number layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "number layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "6"
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "n"
+                    },
+                    {
+                      "key_code": "t"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "number layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "number layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "7"
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "n"
+                    },
+                    {
+                      "key_code": "c"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "number layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "number layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "8"
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "n"
+                    },
+                    {
+                      "key_code": "v"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "number layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "number layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "9"
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "n"
+                    },
+                    {
+                      "key_code": "b"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "number layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "description": "escape -> grave_accent_and_tilde",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "escape"
+                },
+                "to": [
+                  {
+                    "key_code": "grave_accent_and_tilde"
+                  }
+                ],
+                "description": "escape -> grave_accent_and_tilde"
               }
             ]
           }
