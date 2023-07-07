@@ -27,4 +27,5 @@ alias chrome_insecure='open -n -a /Applications/Google\ Chrome.app/Contents/MacO
 alias LockScreen='open -a /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app'
 alias serve-directory='python3 -m http.server'
 alias password-lookup='pushd $(pwd) ; cd ~/scripts/password-lookup3; python password-lookup.py; popd'
-alias restart-karabiner='killall Karabiner-Elements && launchctl stop org.pqrs.karabiner.karabiner_console_user_server && sleep 3 && launchctl start org.pqrs.karabiner.karabiner_console_user_server && open -a karabiner-elements'
+alias restart-karabiner='killall Karabiner-Elements ; launchctl stop org.pqrs.karabiner.karabiner_console_user_server && sleep 3 && launchctl start org.pqrs.karabiner.karabiner_console_user_server && open -a karabiner-elements'
+
