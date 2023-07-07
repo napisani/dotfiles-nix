@@ -5,7 +5,7 @@ export const layerRules = [
   // Delimiter layer - special characters that are hard-ish to reach / remember
   //     ('")
   //   a  [{,.}]
-  //      &<  >*
+  //      <&  *>
   //
   simlayer('a', 'delimiters layer').manipulators([
     map('r').to({ key_code: '9', modifiers: ['left_shift']}), // (
@@ -18,10 +18,10 @@ export const layerRules = [
     map('y').to({key_code: 'quote', modifiers: ['left_shift']}), // "
     map('g').to(','), // ,
     map('h').to('.'), // .
-    map('v').to({ key_code: 'comma', modifiers: ['left_shift']}), // <
-    map('n').to({ key_code: 'period', modifiers: ['left_shift']}), // >
-    map('c').to({ key_code: '7', modifiers: ['left_shift']}), // &
-    map('m').to({ key_code: '8', modifiers: ['left_shift']}), // *
+    map('c').to({ key_code: 'comma', modifiers: ['left_shift']}), // <
+    map('m').to({ key_code: 'period', modifiers: ['left_shift']}), // >
+    map('v').to({ key_code: '7', modifiers: ['left_shift']}), // &
+    map('n').to({ key_code: '8', modifiers: ['left_shift']}), // *
   ]),
   
 
