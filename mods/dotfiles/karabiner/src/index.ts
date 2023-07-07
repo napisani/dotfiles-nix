@@ -1,14 +1,19 @@
 import {
   map,
+  writeToProfile,
   rule,
 } from 'karabiner.ts'
-import { writeToProfileInDotfiles } from './output'
+import { writeContext } from './output'
 import { hyperRules } from './hyper'
 import { modifierSwapRules } from './modifierSwap'
 import { mehRules } from './meh'
 import { layerRules } from './layers'
 
-writeToProfileInDotfiles('default', [
+writeToProfile({
+  name: 'default', 
+  dryRun: false, 
+  karabinerJsonPath: writeContext.karabinerConfigFile(),
+}, [
   ...hyperRules,
   ...modifierSwapRules,
   ...mehRules,
