@@ -74,4 +74,22 @@ export const hyperRules = [
       "modifiers": ["left_command"]
     }).description("Hyper + shift + n = switch to next tab"),
   ]),
+  rule('Hyper + 4 = select screenshot').manipulators([
+    map({
+      key_code: "4",
+      modifiers: {mandatory: [...hyperModifiers]}
+        }).to({
+          "key_code": "4",
+          "modifiers": ["left_command", "left_shift"]
+    }).description("Hyper + 4 = select screenshot")
+  ]),
+  rule('Hyper + 5 = select screen record').manipulators([
+    map({
+      key_code: "5",
+      modifiers: {mandatory: [...hyperModifiers]}
+        }).to({
+          "key_code": "5",
+          "modifiers": ["left_command", "left_shift"]
+    }).description("Hyper + 5 = select screen record")
+  ])
 ]
