@@ -14,3 +14,5 @@ require "user.lsp.null-ls"
 -- any LSP plugins not configured through mason
 require "user.lsp.standalone.rust_tools"
 -- require "user.lsp.standalone.ruff"
+
+require "user.lsp.standalone.typescript_tools"

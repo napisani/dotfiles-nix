@@ -10,12 +10,9 @@ const allStandardApps :string[] = [
 const ifAnyStandardApp = ifApp(allStandardApps, "any standard app").unless()
 const ifAnyDevApps = ifApp(allStandardApps, "dev app")
 export const modifierSwapRules = [
-  rule('Swap left_command -> left_control', ifAnyStandardApp).manipulators([
+  rule('Swap left_command <-> left_control', ifAnyStandardApp).manipulators([
     map("left_command").to("left_control")
     .description("left_command -> left_control for standard apps"),
-  ]),
-
-  rule('Swap left_command <- left_control', ifAnyStandardApp).manipulators([
     map("left_control").to("left_command")
     .description("left_control -> left_command for standard apps"),
   ]),

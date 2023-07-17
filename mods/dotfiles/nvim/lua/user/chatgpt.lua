@@ -4,7 +4,7 @@ if not status_ok then
 	return
 end
 chatgpt.setup({
-	api_key_cmd = 'echo "$OPENAI_KEY"',
+	-- api_key_cmd = 'echo "$OPENAI_KEY"',
 	chat = {
 		keymaps = {
 			close = { "<leader>tq" },

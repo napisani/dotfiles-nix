@@ -41,6 +41,9 @@ export const layerRules = [
     map('c').to('7'),
     map('v').to('8'),
     map('b').to('9'),
-  ])
+  ]),
 
+  // simlayer('e', 'emoji layer').manipulators([
+  //   map(';').to({key_code: 'spacebar', modifiers: ['left_command', 'left_control']}),
+  // ])
 ]

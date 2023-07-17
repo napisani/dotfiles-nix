@@ -30,7 +30,7 @@ local servers = {
 	-- sqls = {},
 	tailwindcss = {},
 	taplo = {},
-	tsserver = { npm = "typescript-language-server" }, -- npm install -g typescript typescript-language-server
+	tsserver = { npm = "typescript-language-server" , skip = false}, -- npm install -g typescript typescript-language-server
 	vls = { npm = "vls" }, -- npm install -g @volar/vue-language-server
 	yamlls = {},
   -- nil_ls = {},
@@ -49,7 +49,6 @@ mason_lspconfig.setup({
 for server, server_config in pairs(servers) do
 	local opts = {
 		on_attach = require("user.lsp.handlers").on_attach,
-		capabilities = require("user.lsp.handlers").capabilities,
 		lsp_flags = require("user.lsp.handlers").lsp_flags,
 	}
 	local has_custom_opts, server_custom_opts = pcall(require, "user.lsp.settings." .. server)
@@ -68,7 +67,9 @@ for server, server_config in pairs(servers) do
 	end
 	-- require('user.utils').print(opts['init_opts'])
 	-- require('user.utils').print(server)
-	lspconfig[server].setup(opts)
+  if  server_config.skip  ~= true then
+    lspconfig[server].setup(opts)
+  end
 end
 
 function M.install()
