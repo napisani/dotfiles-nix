@@ -146,6 +146,7 @@ local mappings = {
 
     h = { "<Cmd>:DiffviewOpen HEAD<CR>", "HEAD" },
     q = { "<Cmd>:DiffviewClose<CR>", "DiffviewClose" },
+
     f = {
       name = "(F)ile",
       m = { "<Cmd>:DiffviewOpen main -- %<CR>", "(m)ain" },
@@ -159,6 +160,8 @@ local mappings = {
 
       h = { "<Cmd>:DiffviewOpen HEAD -- %<CR>", "HEAD" },
       H = { "<Cmd>:DiffviewFileHistory<CR>", "File (H)istory" },
+
+      f = { "<cmd>lua require('user.telescope').find_file_from_root_to_compare_to()<CR>", "(f)ile" },
     },
     B = { "<Cmd>:G blame<CR>", "Blame" },
     o = "Choose OURS",

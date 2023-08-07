@@ -29,3 +29,21 @@ alias serve-directory='python3 -m http.server'
 alias password-lookup='pushd $(pwd) ; cd ~/scripts/password-lookup3; python password-lookup.py; popd'
 alias restart-karabiner='killall Karabiner-Elements ; launchctl stop org.pqrs.karabiner.karabiner_console_user_server && sleep 3 && launchctl start org.pqrs.karabiner.karabiner_console_user_server && open -a karabiner-elements'
 
+
+# capture the output of a command so it can be retrieved with ret
+cap() { 
+  tee /tmp/cmd_cap.out;
+}
+
+# return the output of the most recent command that was captured by cap
+ret() { 
+  cat /tmp/cmd_cap.out;
+}
+
+# edit the output catpured from the most recent command that was captured by cap
+eret() { 
+  nvim /tmp/cmd_cap.out;
+}
+
+
+

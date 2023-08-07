@@ -5,5 +5,7 @@
     nodePackages_latest.typescript
     nodePackages_latest.eslint_d
     nodePackages.cspell
+    nodePackages_latest.pnpm
+
   ];
 }
