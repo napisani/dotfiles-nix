@@ -198,25 +198,25 @@ local function constrain_to_scope()
   return find_command_opts, search_dir_opts
 end
 
--- TODO this is still broken
 function M.find_file_from_root_to_compare_to()
   M.find_file_from_root_and_callback(function(prompt_bufnr)
+    actions.close(prompt_bufnr)
     local selected_entry = action_state.get_selected_entry()
     if selected_entry ~= nil and selected_entry[1] ~= nil then
       local file_name = selected_entry[1]
       vim.cmd('vertical diffsplit ' .. file_name)
     end
-    actions.close(prompt_bufnr)
   end)
 end
 
 function M.find_file_from_root_and_callback(callback_fn)
   M.find_files_from_root({
-    attach_mappings = function(_, map)
-      map("n", "<cr>", callback_fn)
-      map("i", "<cr>", callback_fn)
-      return true
-    end,
+      attach_mappings = function(prompt_bufnr)
+        actions.select_default:replace(function()
+          callback_fn(prompt_bufnr)
+        end)
+        return true
+      end,
   })
 end
 

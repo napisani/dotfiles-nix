@@ -339,6 +339,8 @@ local mappings = {
 
     }
   },
+  w = "(w)rite" ,
+  W = { "<cmd>:wa<cr>", "(w)rite all" },
 }
 
 which_key.setup(setup)
