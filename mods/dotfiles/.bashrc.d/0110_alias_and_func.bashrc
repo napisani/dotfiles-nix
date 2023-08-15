@@ -46,4 +46,11 @@ eret() {
 }
 
 
-
+function kill-all() {
+  WHAT="$1"
+  if [ -z "$WHAT" ]; then
+    echo "Usage: kill-all <process name>"
+    return 1
+  fi
+  ps aux | grep "$WHAT" | grep -v grep | awk '{print $2}' | xargs kill -9
+}
