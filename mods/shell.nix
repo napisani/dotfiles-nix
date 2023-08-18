@@ -37,6 +37,12 @@
     extraConfig = builtins.readFile ./dotfiles/.tmux.conf;
   };
   home.file.".tmux/tokyonight.tmuxtheme".source = ./dotfiles/tokyonight.tmuxtheme;
+  home.file.".tmux/plugins/tpm".source = pkgs.fetchFromGitHub {
+     owner = "tmux-plugins";
+     repo = "tpm";
+     rev = "99469c4a9b1ccf77fade25842dc7bafbc8ce9946";
+     sha256 = "hW8mfwB8F9ZkTQ72WQp/1fy8KL1IIYMZBtZYIwZdMQc=";
+  };
   programs.direnv = {
     enable = true;
     enableBashIntegration = true;

@@ -214,6 +214,11 @@ local function define_plugins(use)
     --   require("typescript-tools").setup {}
     -- end,
   }
+
+  use { 
+    "alexghergh/nvim-tmux-navigation",
+    commit = "543f090a45cef28156162883d2412fffecb6b750",
+  }
   -- use 'direnv/direnv.vim'
   -- use('/Users/nick/code/monoscope')
   -- Automatically set up your configuration after cloning packer.nvim
