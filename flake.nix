@@ -22,7 +22,7 @@
     procmux.url = "github:napisani/procmux";
     procmux.inputs.nixpkgs.follows = "nixpkgs";
 
-    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+    # neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
   };
   outputs = { nixpkgs, nixpkgs-unstable, home-manager, darwin, procmux, ... }@inputs:
