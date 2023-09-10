@@ -18,6 +18,7 @@
     pkgs.tree-sitter
     pkgs.gh
     pkgs.ncdu
+    pkgs.git-lfs
     procmux.packages.${pkgs.system}.default
 
     (pkgs.python310.withPackages (p: [
