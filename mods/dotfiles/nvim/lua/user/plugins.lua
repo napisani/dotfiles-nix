@@ -179,14 +179,28 @@ local function define_plugins(use)
 
   use { 'karb94/neoscroll.nvim',commit = "4bc0212e9f2a7bc7fe7a6bceb15b33e39f0f41fb" }
   use { 'hkupty/iron.nvim',commit = "7f876ee3e1f4ea1e5284b1b697cdad5b256e8046" }
-  use({
-      "jackMort/ChatGPT.nvim",
-      requires = {
-        "MunifTanjim/nui.nvim", 
-        "nvim-lua/plenary.nvim",
-        "nvim-telescope/telescope.nvim"
-      }
-  })
+
+  -- use({
+  --     "jackMort/ChatGPT.nvim",
+  --     requires = {
+  --       "MunifTanjim/nui.nvim", 
+  --       "nvim-lua/plenary.nvim",
+  --       "nvim-telescope/telescope.nvim"
+  --     }
+  -- })
+
+  use({ "robitx/gp.nvim", commit="5ec4ff704838ea214c53b0269d31f82b4ea0bee4" })
+
+  -- use({
+  --    "dpayne/CodeGPT.nvim",
+  --    requires = {
+  --       "MunifTanjim/nui.nvim",
+  --       "nvim-lua/plenary.nvim",
+  --    },
+  --    config = function()
+  --       require("codegpt.config")
+  --    end
+  -- })
   use ({
   "kndndrj/nvim-dbee",
     -- "/Users/nick/code/nvim-dbee",
