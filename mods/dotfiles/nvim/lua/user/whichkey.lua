@@ -2,6 +2,7 @@ local status_ok, which_key = pcall(require, "which-key")
 if not status_ok then
   return
 end
+local utils = require("user.utils")
 
 local setup = {
   plugins = {
@@ -322,28 +323,68 @@ local mappings = {
     s = { "<cmd>Telescope luasnip<cr>", "(s)nippet" },
     G = { "<cmd>lua require('nvim-github-codesearch').prompt()<cr>", "(G)ithub Code Search" },
   },
+
   t = {
     name = "ChatGPT",
-    o = { "<cmd>:ChatGPT<cr>", "(o)pen ChatGPT" },
-    e = { "<cmd>:ChatGPTEditWithInstructions<cr>", "(e)dit with instructions" },
-    q = "(q)uit prompt",
+    c = { "<cmd>:GpChatNew<cr>", "(c)reate new chat" },
+    o = { "<cmd>:GpChatToggle<cr>", "(o)pen existing chat" },
+    q = { "<cmd>:GpChatToggle<cr>", "(q)uit chat" },
+    a = { "<cmd>:GpAppend<cr>", "(a)ppend results" },
+    i = { "<cmd>:GpPrepend<cr>", "(i)nsert/prepend results" },
+    n = { "<cmd>:GpEnew<cr>", "(n)ew buffer with results" },
+    p = { "<cmd>:GpPopup<cr>", "(p)opupresults" },
+    s = { "<cmd>:GpStop<cr>", "(s)stop streaming results" },
     r = {
       name = "(r)run",
-      t = { "<cmd>:ChatGPTRun add_tests<cr>", "add (t)ests" },
-      g = { "<cmd>:ChatGPTRun grammar_correction<cr>", "(g)ammer correction" },
-      d = { "<cmd>:ChatGPTRun docstring<cr>", "(d)ocstring" },
-      o = { "<cmd>:ChatGPTRun optimize_code<cr>", "(o)ptimize code" },
-      s = { "<cmd>:ChatGPTRun summarize<cr>", "(s)summarize" },
-      x = { "<cmd>:ChatGPTRun explain code<cr>", "e(x)plain code" },
-      b = { "<cmd>:ChatGPTRun fix_bugs<cr>", "fix (b)ugs" },
-
+      t = { "<cmd>:GpUnitTests<cr>", "add (t)ests" },
+      e = { "<cmd>:GpExplain<cr>", "(e)xplian" },
+      i = { "<cmd>:GpImplement<cr>", "(i)mplement" },
     }
   },
+  -- t = {
+  --   name = "ChatGPT",
+  --   o = { "<cmd>:ChatGPT<cr>", "(o)pen ChatGPT" },
+  --   e = { "<cmd>:ChatGPTEditWithInstructions<cr>", "(e)dit with instructions" },
+  --   q = "(q)uit prompt",
+  --   r = {
+  --     name = "(r)run",
+  --     t = { "<cmd>:ChatGPTRun add_tests<cr>", "add (t)ests" },
+  --     g = { "<cmd>:ChatGPTRun grammar_correction<cr>", "(g)ammer correction" },
+  --     d = { "<cmd>:ChatGPTRun docstring<cr>", "(d)ocstring" },
+  --     o = { "<cmd>:ChatGPTRun optimize_code<cr>", "(o)ptimize code" },
+  --     s = { "<cmd>:ChatGPTRun summarize<cr>", "(s)summarize" },
+  --     x = { "<cmd>:ChatGPTRun explain code<cr>", "e(x)plain code" },
+  --     b = { "<cmd>:ChatGPTRun fix_bugs<cr>", "fix (b)ugs" },
+
+  --   }
+  -- },
   w = "(w)rite" ,
   W = { "<cmd>:wa<cr>", "(w)rite all" },
 }
 
+local mappings_spreader = utils.spread(mappings)
+local mappings_v = mappings_spreader({
+  t = {
+    name = "ChatGPT",
+    c = { ":<C-u>'<,'>GpChatNew<cr>", "(c)reate new chat" },
+    o = { ":<C-u>'<,'>GpChatToggle<cr>", "(o)pen existing chat" },
+    q = { ":<C-u>'<,'>GpChatToggle<cr>", "(q)uit chat" },
+    a = { ":<C-u>'<,'>GpAppend<cr>", "(a)ppend results" },
+    i = { ":<C-u>'<,'>GpPrepend<cr>", "(i)nsert/prepend results" },
+    n = { ":<C-u>'<,'>GpEnew<cr>", "(n)ew buffer with results" },
+    p = { ":<C-u>'<,'>GpPopup<cr>", "(p)opupresults" },
+    s = { "<cmd>:GpStop<cr>", "(s)stop streaming results" },
+
+    r = {
+      name = "(r)run",
+      t = { ":<C-u>'<,'>GpUnitTests<cr>", "add (t)ests" },
+      e = { ":<C-u>'<,'>GpExplain<cr>", "(e)xplian" },
+      i = { ":<C-u>'<,'>GpImplement<cr>", "(i)mplement" },
+    }
+  },
+})
+
 which_key.setup(setup)
 -- register mappings for both normal and visual mode
 which_key.register(mappings, opts)
-which_key.register(mappings, opts_v)
+which_key.register(mappings_v, opts_v)

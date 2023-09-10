@@ -20,10 +20,11 @@
     pkgs.ncdu
     pkgs.git-lfs
     procmux.packages.${pkgs.system}.default
-
-    (pkgs.python310.withPackages (p: [
+    (pkgs-unstable.python310.withPackages (p: [
       p.ipython # interactive shell
       p.pipx
+      # p.tiktoken
     ]))
+    #pkgs-unstable.python310Packages.tiktoken
   ];
 }
