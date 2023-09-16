@@ -199,10 +199,10 @@ function M.get_db_connections()
 	return conns
 end
 function M.connection_to_golang_string(conn)
-  if conn['adapter'] ~= "mysql" then
-    vim.fn.notify("Only mysql is supported", vim.log.levels.ERROR)
-    return nil
-  end
+  -- if conn['adapter'] ~= "mysql" then
+  --   vim.notify("Only mysql is supported", vim.log.levels.ERROR)
+  --   return nil
+  -- end
   local user = conn['user']
   local password= conn['password']
   local database= conn['database']

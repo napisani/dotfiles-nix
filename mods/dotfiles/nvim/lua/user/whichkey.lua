@@ -196,6 +196,11 @@ local mappings = {
     O = { "<Cmd>lua require'dapui'.open()<CR>", "open debugger" },
     q = { "<Cmd>lua require'dapui'.close()<CR>", "close debugger" },
   },
+  D = {
+    name = "Database",
+    o = { "<Cmd>DBUI<CR>", "(o)pen" },
+    q = { "<Cmd>DBUIClose<CR>", "(q)uit" },
+  },
   r = {
     name = "Replace",
     b = { ":%s/<c-r>0//g<left><left>", "(b)uffer" },

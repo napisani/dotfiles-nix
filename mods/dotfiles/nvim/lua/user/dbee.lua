@@ -34,6 +34,7 @@ dbee.setup({
 			collapse = { key = "zc", mode = "n" },
 			expand = { key = "zo", mode = "n" },
 			toggle = { key = "o", mode = "n" },
+      -- BB - is used to execute a highlighed query
 		},
   result = {
     mappings = {

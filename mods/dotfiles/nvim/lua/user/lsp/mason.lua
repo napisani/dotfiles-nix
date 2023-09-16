@@ -25,6 +25,7 @@ local servers = {
 	pyright = { npm = "pyright" },
 	rnix = {},
 	ruff_lsp = { pipx = "ruff-lsp" },
+  -- vim_dadbod_completion = {},
 	-- sqlls = {}, -- https://github.com/lighttiger2505/sqls/releases
   -- this one is old but it works great
 	-- sqls = {},
