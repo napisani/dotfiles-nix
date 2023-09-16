@@ -2,5 +2,6 @@
   home.packages = [
     pkgs-unstable.azure-cli
     pkgs.kubelogin
+    pkgs-unstable.sqlcmd
   ];
 }

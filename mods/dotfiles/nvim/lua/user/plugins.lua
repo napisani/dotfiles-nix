@@ -62,13 +62,13 @@ local function define_plugins(use)
   use { "folke/which-key.nvim" }
 
   -- Colorschemes
-  use { "folke/tokyonight.nvim",commit = "9a01eada39558dc3243278e6805d90e8dff45dc0" }
-  use { "lunarvim/darkplus.nvim",commit = "7c236649f0617809db05cd30fb10fed7fb01b83b" }
-  use { "morhetz/gruvbox",commit = "f1ecde848f0cdba877acb0c740320568252cc482" }
-  use { "shaunsingh/nord.nvim",commit = "15fbfc38a83980b93e169b32a1bf64757f1e2bf4" }
+  -- use { "folke/tokyonight.nvim",commit = "9a01eada39558dc3243278e6805d90e8dff45dc0" }
+  -- use { "lunarvim/darkplus.nvim",commit = "7c236649f0617809db05cd30fb10fed7fb01b83b" }
+  -- use { "morhetz/gruvbox",commit = "f1ecde848f0cdba877acb0c740320568252cc482" }
+  -- use { "shaunsingh/nord.nvim",commit = "15fbfc38a83980b93e169b32a1bf64757f1e2bf4" }
   -- " intellj idea darcula-solid
-  use { "doums/darcula", commit = "faf8dbab27bee0f27e4f1c3ca7e9695af9b1242b" }
-  use { "briones-gabriel/darcula-solid.nvim", commit = "d950b9ca20096313c435a93e57af7815766f3d3d" }
+  -- use { "doums/darcula", commit = "faf8dbab27bee0f27e4f1c3ca7e9695af9b1242b" }
+  -- use { "briones-gabriel/darcula-solid.nvim", commit = "d950b9ca20096313c435a93e57af7815766f3d3d" }
   use { "rebelot/kanagawa.nvim",commit = "0a24e504a3a278849ad0aef31cd6dd24c73ca3db" }
 
   -- Cmp
@@ -201,19 +201,19 @@ local function define_plugins(use)
   --       require("codegpt.config")
   --    end
   -- })
-  use ({
-  "kndndrj/nvim-dbee",
-    -- "/Users/nick/code/nvim-dbee",
-  requires = {
-    "MunifTanjim/nui.nvim",
-  },
-  run = function()
-    -- Install tries to automatically detect the install method.
-    -- if it fails, try calling it with one of these parameters:
-    --    "curl", "wget", "bitsadmin", "go"
-    require("dbee").install()
-  end,
-})
+  -- use ({
+  -- "kndndrj/nvim-dbee",
+  --   -- "/Users/nick/code/nvim-dbee",
+  -- requires = {
+  --   "MunifTanjim/nui.nvim",
+  -- },
+  -- run = function()
+  --   -- Install tries to automatically detect the install method.
+  --   -- if it fails, try calling it with one of these parameters:
+  --   --    "curl", "wget", "bitsadmin", "go"
+  --   require("dbee").install()
+  -- end,
+-- })
   use {
       'glacambre/firenvim',      run = function() vim.fn['firenvim#install'](0) end
 ,      commit = "138424db463e6c0e862a05166a4ccc781cd7c19d"  }
@@ -224,6 +224,17 @@ local function define_plugins(use)
     --   require("typescript-tools").setup {}
     -- end,
   }
+
+    use {
+      "tpope/vim-dadbod",
+      opt = true,
+      requires = {
+        "kristijanhusak/vim-dadbod-ui",
+        "kristijanhusak/vim-dadbod-completion",
+        --[[ "abenz1267/nvim-databasehelper", ]]
+      },
+      cmd = { "DBUIToggle", "DBUI", "DBUIAddConnection", "DBUIFindBuffer", "DBUIRenameBuffer", "DBUILastQueryInfo" },
+    }
 
   use { 
     "alexghergh/nvim-tmux-navigation",
