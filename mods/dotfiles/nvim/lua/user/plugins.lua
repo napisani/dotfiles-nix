@@ -42,23 +42,23 @@ local function define_plugins(use)
   use { "wbthomason/packer.nvim",commit = "ea0cc3c59f67c440c5ff0bbe4fb9420f4350b9a3" }
 
   -- Useful lua functions used by lots of plugins
-  use { "nvim-lua/plenary.nvim",commit = "0dbe561ae023f02c2fb772b879e905055b939ce3" }
+  use { "nvim-lua/plenary.nvim",commit = "9ce85b0f7dcfe5358c0be937ad23e456907d410b" }
 
   -- Autopairs, integrates with both cmp and treesitter
-  use { "windwp/nvim-autopairs",commit = "35493556b895f54c129918aca43ae9a63af42a1f" }
+  use { "windwp/nvim-autopairs",commit = "de4f7138a68d5d5063170f2182fd27faf06b0b54" }
 
   use { "tpope/vim-commentary", commit = "e87cd90dc09c2a203e13af9704bd0ef79303d755" }
-  use { "JoosepAlviste/nvim-ts-context-commentstring",commit = "9bff161dfece6ecf3459e6e46ca42e49f9ed939f" }
-  use { "kyazdani42/nvim-web-devicons",commit = "bc11ee2498de2310de5776477dd9dce65d03b464" }
-  use { "kyazdani42/nvim-tree.lua",commit = "ec33d4befa74205e09baf8bb4f90be5be754e6ab" }
-  use { "akinsho/bufferline.nvim",commit = "9961d87bb3ec008213c46ba14b3f384a5f520eb5" }
+  use { "JoosepAlviste/nvim-ts-context-commentstring",commit = "95e9ba9de4289d221666b66fd930d157c7ca08c6" }
+  use { "kyazdani42/nvim-web-devicons",commit = "45d0237c427baba8cd05e0ab26d30e2ee58c2c82" }
+  use { "kyazdani42/nvim-tree.lua",commit = "934469b9b6df369e198fb3016969e56393b0dc07" }
+  use { "akinsho/bufferline.nvim",commit = "6ecd37e0fa8b156099daedd2191130e083fb1490" }
   use { "moll/vim-bbye", commit = "25ef93ac5a87526111f43e5110675032dbcacf56" }
   use { "nvim-lualine/lualine.nvim",commit = "45e27ca739c7be6c49e5496d14fcf45a303c3a63" }
 
   use { "ahmedkhalf/project.nvim",commit = "8c6bad7d22eef1b71144b401c9f74ed01526a4fb" }
   use { "lewis6991/impatient.nvim",commit = "47302af74be7b79f002773011f0d8e85679a7618" }
   use { "lukas-reineke/indent-blankline.nvim",commit = "9637670896b68805430e2f72cf5d16be5b97a22a" }
-  use { "goolord/alpha-nvim",commit = "5f211a1597b06be24b1600d72a62b94cab1e2df9" }
+  use { "goolord/alpha-nvim",commit = "234822140b265ec4ba3203e3e0be0e0bb826dff5" }
   use { "folke/which-key.nvim" }
 
   -- Colorschemes
@@ -69,7 +69,7 @@ local function define_plugins(use)
   -- " intellj idea darcula-solid
   -- use { "doums/darcula", commit = "faf8dbab27bee0f27e4f1c3ca7e9695af9b1242b" }
   -- use { "briones-gabriel/darcula-solid.nvim", commit = "d950b9ca20096313c435a93e57af7815766f3d3d" }
-  use { "rebelot/kanagawa.nvim",commit = "0a24e504a3a278849ad0aef31cd6dd24c73ca3db" }
+  use { "rebelot/kanagawa.nvim",commit = "a4e99f089110c6d00bc33f5497709200e914e763" }
 
   -- Cmp
   -- The completion plugin
@@ -87,24 +87,24 @@ local function define_plugins(use)
 
   -- Snippets
   --snippet engine
-  use { "L3MON4D3/LuaSnip",commit = "ea7d7ea510c641c4f15042becd27f35b3e5b3c2b" }
+  use { "L3MON4D3/LuaSnip",commit = "480b032f6708573334f4437d3f83307d143f1a72" }
   -- a bunch of snippets to use
   use { "rafamadriz/friendly-snippets",commit = "ebf6d6e83494cdd88a54a429340256f4dbb6a052" }
 
   -- LSP
-  use { "neovim/nvim-lspconfig",commit = "499314f76fa6e8f82f7cfd116578906d61ba2560" }
+  use { "neovim/nvim-lspconfig",commit = "bfdf2e91e7297a54bcc09d3e092a12bff69a1cf4" }
   -- simple to use language server installer
   use { "williamboman/mason.nvim",
     run = ":MasonUpdate" -- :MasonUpdate updates registry contents
   }
-  use { "williamboman/mason-lspconfig.nvim",commit = "dfdd771b792fbb4bad8e057d72558255695aa1a7" }
+  use { "williamboman/mason-lspconfig.nvim",commit = "2451adb9bdb0fd32140bf3aa8dbc17ff60050db3" }
   -- for formatters and linters
   use { "jose-elias-alvarez/null-ls.nvim",commit = "0010ea927ab7c09ef0ce9bf28c2b573fc302f5a7" }
-  use { "RRethy/vim-illuminate",commit = "76f28e858f1caae87bfa45fb4fd09e4b053fc45b" }
+  use { "RRethy/vim-illuminate",commit = "1b5d70332a51a1de05f281069851865a2bb1e6d7" }
 
   -- Telescope
-  use { "nvim-telescope/telescope.nvim",commit = "20a37e43bb43c74c6091f9fea6551af0964ad45a" }
-  use { "nvim-telescope/telescope-file-browser.nvim",commit = "ad7b637c72549713b9aaed7c4f9c79c62bcbdff0" }
+  use { "nvim-telescope/telescope.nvim",commit = "ed9574dd6dde143d009b2528ea6d79bd34bbe6c8" }
+  use { "nvim-telescope/telescope-file-browser.nvim",commit = "6e51d0cd6447cf2525412220ff0a2885eef9039c" }
   use {
     "benfowler/telescope-luasnip.nvim",
     commit = "849c4ee1951f34041a26744d2a88284545564ff0"
@@ -112,17 +112,17 @@ local function define_plugins(use)
 
   -- Treesitter
   use {
-    "nvim-treesitter/nvim-treesitter",commit = "95d02cdafe704fa5b86eac81f2eb1de3d8f52330" }
+    "nvim-treesitter/nvim-treesitter",commit = "b5873bacb4ce44e0aac313abb28bb72e67fc9a53" }
 
   -- Git
   use { "lewis6991/gitsigns.nvim"  }
-  use { "tpope/vim-fugitive",commit = "572c8510123cbde02e8a1dafcd376c98e1e13f43" }
+  use { "tpope/vim-fugitive",commit = "99db68d9b3304580bd383da7aaee05c7a954a344" }
   -- use { 'idanarye/vim-merginal' }
   use {
-    "sindrets/diffview.nvim",requires = "nvim-lua/plenary.nvim",commit = "7e5a85c186027cab1e825d018f07c350177077fc" }
+    "sindrets/diffview.nvim",requires = "nvim-lua/plenary.nvim",commit = "a111d19ccceac6530448d329c63f998f77b5626e" }
 
   -- vim.notify notifications
-  use { "rcarriga/nvim-notify",commit = "ea9c8ce7a37f2238f934e087c255758659948e0f" }
+  use { "rcarriga/nvim-notify",commit = "94859430020f5cf32a1b97ddd9e596fed9db7981" }
 
   -- Rust tools
   use { "simrat39/rust-tools.nvim",commit = "0cc8adab23117783a0292a0c8a2fbed1005dc645" }
@@ -142,18 +142,18 @@ local function define_plugins(use)
   -- use{ "ggandor/leap.nvim", commit = "f7391b5fe9771d788816383ee3c75e0be92022af" }
 
   -- debugging
-  use { "mfussenegger/nvim-dap",commit = "31e1ece773e10448dcb616d5144290946a6264b7" }
+  use { "mfussenegger/nvim-dap",commit = "b3d4408e29d924fe130c9397a7c3b3630b3ea671" }
   use {
-    "rcarriga/nvim-dap-ui",requires = { "mfussenegger/nvim-dap" },commit = "85b16ac2309d85c88577cd8ee1733ce52be8227e" }
+    "rcarriga/nvim-dap-ui",requires = { "mfussenegger/nvim-dap" },commit = "34160a7ce6072ef332f350ae1d4a6a501daf0159" }
   use { "jayp0521/mason-nvim-dap.nvim",commit = "6148b51db945b55b3b725da39eaea6441e59dff8" }
   use {
     "nvim-neotest/neotest",requires = {
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
     "antoinemadec/FixCursorHold.nvim",
-  },commit = "bec7be0f13ee19c85561943fc5f7b8daa4f4d465" }
+  },commit = "1e67a504d03def3a6a1125d934cb511680f72555" }
   use { "nvim-neotest/neotest-python",commit = "81d2265efac717bb567bc15cc652ae10801286b3" }
-  use { "rouge8/neotest-rust",commit = "dd49d0de3a4ccde0c8ce99dbae9e7b04bcdbfc85" }
+  use { "rouge8/neotest-rust",commit = "139cff7c85598ec591b5ed7d71ce8ed3b5313b97" }
   -- use 'mfussenegger/nvim-dap-python'
   -- use 'ChristianChiarulli/neovim-codicons'
 
@@ -165,7 +165,7 @@ local function define_plugins(use)
   use { "norcalli/nvim-colorizer.lua", commit = "36c610a9717cc9ec426a07c8e6bf3b3abcb139d6" }
 
   -- Install neoscopes.
-  use { "smartpde/neoscopes",commit = "88ca15efcc20b267789d74ca483cc8bac85b3083" }
+  use { "smartpde/neoscopes",commit = "d3f92e9360da7b7ab4eb6c5811d5ebaf7135239f" }
   -- use { "napisani/neoscopes" }
   -- use('/Users/nick/code/neoscopes')
   -- use('/Users/nick/code/nvim-github-codesearch')
@@ -175,7 +175,7 @@ local function define_plugins(use)
   -- use { '/Users/nick/code/nvim-search-rules' }
 
   -- copilot
-  use { "github/copilot.vim",commit = "719dd8d0beab993dbad47a9e86ecb0dbd4a99da5" }
+  use { "github/copilot.vim",commit = "998cf5ab1b85e844c7e8edb864a997e590df7182" }
 
   use { 'karb94/neoscroll.nvim',commit = "4bc0212e9f2a7bc7fe7a6bceb15b33e39f0f41fb" }
   use { 'hkupty/iron.nvim',commit = "7f876ee3e1f4ea1e5284b1b697cdad5b256e8046" }
@@ -219,7 +219,7 @@ local function define_plugins(use)
 ,      commit = "138424db463e6c0e862a05166a4ccc781cd7c19d"  }
 
   use {
-    "pmizio/typescript-tools.nvim",    requires = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },    commit = "98165e3cd9d8b1cd0aa7635f1d81a337ae780b55"
+    "pmizio/typescript-tools.nvim",requires = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },commit = "f7c45763fe1513e257ebf45bedfc5e6dd1aade78"
     -- config = function()
     --   require("typescript-tools").setup {}
     -- end,
