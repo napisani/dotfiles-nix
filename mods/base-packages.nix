@@ -19,6 +19,11 @@
     pkgs.gh
     pkgs.ncdu
     pkgs.git-lfs
+
+
+    # for doing pretty diffs
+    pkgs.delta
+
     procmux.packages.${pkgs.system}.default
     (pkgs-unstable.python310.withPackages (p: [
       p.ipython # interactive shell

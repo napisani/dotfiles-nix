@@ -3,5 +3,6 @@
     pkgs-unstable.azure-cli
     pkgs.kubelogin
     pkgs-unstable.sqlcmd
+    pkgs-unstable.mongosh
   ];
 }

@@ -15,7 +15,7 @@ local cspell = {
   name = "cspell",
   method = null_ls.methods.DIAGNOSTICS,
   -- filetypes = { "python" },
-  filetypes = {},
+  filetypes = { "markdown", "text", "latex", "tex", "rst", "org" },
   -- null_ls.generator creates an async source
   -- that spawns the command with the given arguments and options
   generator = null_ls.generator({
@@ -73,7 +73,7 @@ local cspell = {
   }),
 }
 
-null_ls.register(cspell)
+-- null_ls.register(cspell)
 utils = require("user.utils")
 null_ls.setup({
   debug = false,
@@ -89,9 +89,11 @@ null_ls.setup({
     -- golang fix imports
     formatting.goimports,
     -- golang stricter format than gofmt - with backwards compatibility
-    formatting.gofumpt
-
-    -- diagnostics.cspell,
+    formatting.gofumpt,
+    -- cspell,
+    diagnostics.cspell.with {
+      filetypes = { "markdown", "text", "latex", "tex", "rst", "org" },
+    },
     -- diagnostics.flake8,
     -- pipx install codespell
     -- diagnostics.codespell,
