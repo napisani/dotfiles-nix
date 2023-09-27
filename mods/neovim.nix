@@ -10,7 +10,7 @@
     withNodeJs = false;
     withPython3 = true;
     extraPackages = with pkgs; [
-        nodejs-16_x
+        pkgs-unstable.nodejs_20
         # js
         nodePackages.typescript
         nodePackages.typescript-language-server
