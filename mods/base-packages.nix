@@ -19,10 +19,15 @@
     pkgs.gh
     pkgs.ncdu
     pkgs.git-lfs
+    pkgs.pscale
+    pkgs.mysql80
 
 
     # for doing pretty diffs
     pkgs.delta
+
+    # for personal dashboards
+    # pkgs.wtf
 
     procmux.packages.${pkgs.system}.default
     (pkgs-unstable.python310.withPackages (p: [
