@@ -248,7 +248,8 @@ local mappings = {
       "(w)orkspace diagnostics",
     },
     f = { "<cmd>lua vim.lsp.buf.format{async=true}<cr>", "(f)ormat" },
-    i = { "<cmd>OrganizeImports<cr>", "organize (i)mports" },
+    i = { "organize (i)mports" },
+    -- i = { "<cmd>OrganizeImports<cr>", "organize (i)mports" },
     -- i = { "<cmd>LspInfo<cr>", "(i)nfo" },
     -- I = { "<cmd>LspInstallInfo<cr>", "(I)nstaller Info" },
     j = {

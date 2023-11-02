@@ -31,10 +31,10 @@ local servers = {
 	-- sqls = {},
 	tailwindcss = {},
 	taplo = {},
-	tsserver = { npm = "typescript-language-server" , skip = false}, -- npm install -g typescript typescript-language-server
+	tsserver = { npm = "typescript-language-server" , skip = true}, -- npm install -g typescript typescript-language-server
 	vls = { npm = "vls" }, -- npm install -g @volar/vue-language-server
 	yamlls = {},
-  -- nil_ls = {},
+  -- nil_ls = {},false
 }
 local servers_only = {}
 for server, _ in pairs(servers) do

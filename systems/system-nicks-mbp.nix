@@ -8,6 +8,7 @@
     casks = [
       "slack"
       "discord"
+      "skype"
     ];
     # anything installed with brew (non-casks)
     brews = [

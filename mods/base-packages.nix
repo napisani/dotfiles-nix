@@ -19,8 +19,9 @@
     pkgs.gh
     pkgs.ncdu
     pkgs.git-lfs
-    pkgs.pscale
-    pkgs.mysql80
+    #pkgs.pscale
+    #pkgs.mysql80
+    #pkgs.pulumi
 
 
     # for doing pretty diffs
