@@ -72,10 +72,9 @@
     trackpad.Clicking = true;
   };
   nix = {
-    package = pkgs.nixFlakes;
-    extraOptions = lib.optionalString (config.nix.package == pkgs.nixFlakes) ''
-      experimental-features = nix-command flakes
-    '';
+   package = pkgs.nixFlakes;
+   extraOptions = lib.optionalString (config.nix.package == pkgs.nixFlakes)
+     "experimental-features = nix-command flakes";
   };
   system = {
     /* dock = { */
