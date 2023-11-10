@@ -27,6 +27,8 @@ git clone https://github.com/napisani/dotfiles-nix.git home-manager && cd home-m
 ```bash
 export MY_HOST=nick-mb
 nix build  --extra-experimental-features "nix-command flakes" .#darwinConfigurations.$MY_HOST.system
+# or this
+nix build  --extra-experimental-features "nix-command flakes" .#${MY_HOST}.system
 ```
 4. Then apply the nix flake:
 ```bash
