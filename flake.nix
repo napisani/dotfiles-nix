@@ -28,7 +28,7 @@
   outputs = { nixpkgs, nixpkgs-unstable, home-manager, darwin, procmux, ... }@inputs:
     let
       overlays = [
-        # inputs.neovim-nightly-overlay.overlay
+          # inputs.neovim-nightly-overlay.overlay
       ];
       commonInherits = {
         inherit (nixpkgs) lib;
@@ -42,14 +42,14 @@
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           system = "aarch64-darwin";
           modules = [
-            ({ config, pkgs, lib, user, ... }: {
+            ({ config, pkgs, lib, user, ... }:{
               users = {
                 users.nick = {
                   home = /Users/nick;
                 };
               };
             })
-            ./systems/darwin.nix
+            ./systems/darwin.nix 
             ./systems/system-nicks-mbp.nix
             home-manager.darwinModules.home-manager
             {
@@ -72,18 +72,52 @@
           ];
         };
 
+        "nicks-axion-ray-mbp" = inputs.darwin.lib.darwinSystem {
+          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+          system = "aarch64-darwin";
+          modules = [
+            ({ config, pkgs, lib, user, ... }:{
+              users = {
+                users.nick = {
+                  home = /Users/nick;
+                };
+              };
+            })
+            ./systems/darwin.nix 
+            ./systems/system-nicks-axion-ray-mbp.nix
+            home-manager.darwinModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = false;
+                useUserPackages = true;
+                extraSpecialArgs = {
+                  inherit inputs;
+                  pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
+                  procmux = procmux;
+                  overlays = overlays;
+                  user = "nick";
+                };
+                users.nickpisani.imports = [
+                  ./homes/macs.nix
+                  ./homes/home-nicks-axion-ray-mbp.nix
+                ];
+              };
+            }
+          ];
+        };
+
         "NicksCTMMacbook" = inputs.darwin.lib.darwinSystem {
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           system = "aarch64-darwin";
           modules = [
-            ({ config, pkgs, lib, user, ... }: {
+            ({ config, pkgs, lib, user, ... }:{
               users = {
                 users.nickpisani = {
                   home = /Users/nickpisani;
                 };
               };
             })
-            ./systems/darwin.nix
+            ./systems/darwin.nix 
             ./systems/system-NickCTMMackbook.nix
             home-manager.darwinModules.home-manager
             {
@@ -105,43 +139,7 @@
             }
           ];
         };
-
-        "nicks-axion-ray-mbp" = inputs.darwin.lib.darwinSystem {
-          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-          system = "aarch64-darwin";
-          modules = [
-            ({ config, pkgs, lib, user, ... }: {
-              users = {
-                users.nick = {
-                  home = /Users/nick;
-                };
-              };
-            })
-            ./systems/darwin.nix
-            ./systems/system-nicks-axion-ray-mbp.nix
-            home-manager.darwinModules.home-manager
-            {
-              home-manager = {
-                useGlobalPkgs = false;
-                useUserPackages = true;
-                extraSpecialArgs = {
-                  inherit inputs;
-                  pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
-                  procmux = procmux;
-                  overlays = overlays;
-                  user = "nick";
-                };
-                users.nick.imports = [
-                  ./homes/macs.nix
-                  ./homes/home-nicks-axion-ray-mbp.nix
-                ];
-              };
-            }
-          ];
-        };
-
       };
-
       defaultPackage = {
         /* x86_64-darwin = home-manager.defaultPackage.x86_64-darwin; */
         aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;
