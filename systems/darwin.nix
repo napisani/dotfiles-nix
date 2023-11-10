@@ -39,7 +39,7 @@
     brews = [
       /* "procmux" */
       /* "mkcert" */
-      "mongodb-atlas-cli"
+      /* "mongodb-atlas-cli" */
     ];
     # any custom taps / repos
     taps = [
