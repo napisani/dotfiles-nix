@@ -105,40 +105,41 @@
             }
           ];
         };
-      };
 
-      "nicks-axion-ray-mbp" = inputs.darwin.lib.darwinSystem {
-        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-        system = "aarch64-darwin";
-        modules = [
-          ({ config, pkgs, lib, user, ... }: {
-            users = {
-              users.nick = {
-                home = /Users/nick;
+        "nicks-axion-ray-mbp" = inputs.darwin.lib.darwinSystem {
+          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+          system = "aarch64-darwin";
+          modules = [
+            ({ config, pkgs, lib, user, ... }: {
+              users = {
+                users.nick = {
+                  home = /Users/nick;
+                };
               };
-            };
-          })
-          ./systems/darwin.nix
-          ./systems/system-nicks-axion-ray-mbp.nix
-          home-manager.darwinModules.home-manager
-          {
-            home-manager = {
-              useGlobalPkgs = false;
-              useUserPackages = true;
-              extraSpecialArgs = {
-                inherit inputs;
-                pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
-                procmux = procmux;
-                overlays = overlays;
-                user = "nick";
+            })
+            ./systems/darwin.nix
+            ./systems/system-nicks-axion-ray-mbp.nix
+            home-manager.darwinModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = false;
+                useUserPackages = true;
+                extraSpecialArgs = {
+                  inherit inputs;
+                  pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
+                  procmux = procmux;
+                  overlays = overlays;
+                  user = "nick";
+                };
+                users.nick.imports = [
+                  ./homes/macs.nix
+                  ./homes/home-nicks-axion-ray-mbp.nix
+                ];
               };
-              users.nick.imports = [
-                ./homes/macs.nix
-                ./homes/home-nicks-axion-ray-mbp.nix
-              ];
-            };
-          }
-        ];
+            }
+          ];
+        };
+
       };
 
       defaultPackage = {
