@@ -97,7 +97,7 @@
                   overlays = overlays;
                   user = "nick";
                 };
-                users.nickpisani.imports = [
+                users.nick.imports = [
                   ./homes/macs.nix
                   ./homes/home-nicks-axion-ray-mbp.nix
                 ];
