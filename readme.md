@@ -55,6 +55,14 @@ make build
 # try to open neovim again
 vim
 ```
+11. doppler auth and gh auth
+```bash
+# allow doppler to install a new version - then follow the instructions to login
+sudo doppler login
+
+# follow the instructions to login
+gh auth login
+```
 
 Helpful github issue thread for diagnosing any initial Karabiner problems:
 ```
