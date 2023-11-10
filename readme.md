@@ -33,10 +33,26 @@ nix build  --extra-experimental-features "nix-command flakes" .#darwinConfigurat
 ./result/sw/bin/darwin-rebuild switch --flake ./.#
 ```
 5. set the shell 
+go to the 'settings' app -> then go to 'users and groups' -> right click on your user and click "advanced settings".
+finally, set the shell to the last `bash` option
+
+6. Open tmux with `tmux` and install plugins using `<leader> + I`
+7. Open new vim with command `nvim`. Let the plugins install, ignore all of the errors.
+8. Reopen neovim and run the following commands:
+```
+:PackerSync
+:TSUpdate
+:MasonUpdate
+```
+
+9. if nvim-github-codesearch does not install correctly do the following
 ```bash
-# make this bash shell considered a "standard shell" 
-echo /run/current-system/sw/bin/bash | sudo tee -a /etc/shells
- -s /run/current-system/sw/bin/bash
+cd ~/.local/share/nvim/site/pack/packer/start/nvim-github-codesearch/
+direnv allow
+make build
+
+# try to open neovim again
+vim
 ```
 
 Helpful github issue thread for diagnosing any initial Karabiner problems:
