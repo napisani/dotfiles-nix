@@ -44,6 +44,7 @@ finally, set the shell to the last `bash` option
 :PackerSync
 :TSUpdate
 :MasonUpdate
+:Copilot
 ```
 
 10. if nvim-github-codesearch does not install correctly do the following
