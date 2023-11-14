@@ -57,6 +57,8 @@ telescope.setup({
         ["<M-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
         ["j"] = actions.move_selection_next,
         ["k"] = actions.move_selection_previous,
+        ["n"] = actions.cycle_history_next,
+        ["p"] = actions.cycle_history_prev,
         ["H"] = actions.move_to_top,
         ["M"] = actions.move_to_middle,
         ["L"] = actions.move_to_bottom,
