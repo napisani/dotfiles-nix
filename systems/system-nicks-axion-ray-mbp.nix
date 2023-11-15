@@ -1,14 +1,15 @@
-{ config, pkgs, lib, ... }:{
+{ config, pkgs, lib, ... }: {
 
   homebrew = {
     masApps = {
-       /* "Apple Configurator" = 1037126344; */
+      /* "Apple Configurator" = 1037126344; */
     };
     # anything installed with brew cask
     casks = [
       "slack"
       "discord"
       "skype"
+      "mongodb-compass"
     ];
     # anything installed with brew (non-casks)
     brews = [

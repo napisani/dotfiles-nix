@@ -37,15 +37,17 @@ go to the 'settings' app -> then go to 'users and groups' -> right click on your
 finally, set the shell to the last `bash` option
 
 6. Open tmux with `tmux` and install plugins using `<leader> + I`
-7. Open new vim with command `nvim`. Let the plugins install, ignore all of the errors.
-8. Reopen neovim and run the following commands:
+7. Open tmux with `tmux` and install finger/thumbs using `<leader>+space` - choose 'compile'
+8. Open new vim with command `nvim`. Let the plugins install, ignore all of the errors.
+9. Reopen neovim and run the following commands:
 ```
 :PackerSync
 :TSUpdate
 :MasonUpdate
+:Copilot
 ```
 
-9. if nvim-github-codesearch does not install correctly do the following
+10. if nvim-github-codesearch does not install correctly do the following
 ```bash
 cd ~/.local/share/nvim/site/pack/packer/start/nvim-github-codesearch/
 direnv allow
@@ -53,6 +55,14 @@ make build
 
 # try to open neovim again
 vim
+```
+11. doppler auth and gh auth
+```bash
+# allow doppler to install a new version - then follow the instructions to login
+sudo doppler login
+
+# follow the instructions to login
+gh auth login
 ```
 
 Helpful github issue thread for diagnosing any initial Karabiner problems:
