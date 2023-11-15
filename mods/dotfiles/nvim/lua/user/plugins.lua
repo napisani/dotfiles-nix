@@ -63,12 +63,8 @@ local function define_plugins(use)
 
   -- Colorschemes
   -- use { "folke/tokyonight.nvim",commit = "9a01eada39558dc3243278e6805d90e8dff45dc0" }
-  -- use { "lunarvim/darkplus.nvim",commit = "7c236649f0617809db05cd30fb10fed7fb01b83b" }
   -- use { "morhetz/gruvbox",commit = "f1ecde848f0cdba877acb0c740320568252cc482" }
   -- use { "shaunsingh/nord.nvim",commit = "15fbfc38a83980b93e169b32a1bf64757f1e2bf4" }
-  -- " intellj idea darcula-solid
-  -- use { "doums/darcula", commit = "faf8dbab27bee0f27e4f1c3ca7e9695af9b1242b" }
-  -- use { "briones-gabriel/darcula-solid.nvim", commit = "d950b9ca20096313c435a93e57af7815766f3d3d" }
   use { "rebelot/kanagawa.nvim",commit = "c19b9023842697ec92caf72cd3599f7dd7be4456" }
 
   -- Cmp
@@ -116,7 +112,6 @@ local function define_plugins(use)
   -- Git
   use { "lewis6991/gitsigns.nvim"  }
   use { "tpope/vim-fugitive",commit = "46eaf8918b347906789df296143117774e827616" }
-  -- use { 'idanarye/vim-merginal' }
   use {
     "sindrets/diffview.nvim",requires = "nvim-lua/plenary.nvim",commit = "d38c1b5266850f77f75e006bcc26213684e1e141" }
 
@@ -165,12 +160,13 @@ local function define_plugins(use)
 
   -- Install neoscopes.
   use { "smartpde/neoscopes",commit = "d3f92e9360da7b7ab4eb6c5811d5ebaf7135239f" }
+
   -- use { "napisani/neoscopes" }
   -- use('/Users/nick/code/neoscopes')
   -- use('/Users/nick/code/nvim-github-codesearch')
   use { 'napisani/nvim-github-codesearch', run = 'nix-shell make' }
-  -- use {'napisani/nvim-search-rules' }
 
+  -- use {'napisani/nvim-search-rules' }
   -- use { '/Users/nick/code/nvim-search-rules' }
 
   -- copilot
@@ -179,27 +175,8 @@ local function define_plugins(use)
   use { 'karb94/neoscroll.nvim',commit = "4bc0212e9f2a7bc7fe7a6bceb15b33e39f0f41fb" }
   use { 'hkupty/iron.nvim',commit = "7f876ee3e1f4ea1e5284b1b697cdad5b256e8046" }
 
-  -- use({
-  --     "jackMort/ChatGPT.nvim",
-  --     requires = {
-  --       "MunifTanjim/nui.nvim", 
-  --       "nvim-lua/plenary.nvim",
-  --       "nvim-telescope/telescope.nvim"
-  --     }
-  -- })
-
   use({ "robitx/gp.nvim", commit="5ec4ff704838ea214c53b0269d31f82b4ea0bee4" })
 
-  -- use({
-  --    "dpayne/CodeGPT.nvim",
-  --    requires = {
-  --       "MunifTanjim/nui.nvim",
-  --       "nvim-lua/plenary.nvim",
-  --    },
-  --    config = function()
-  --       require("codegpt.config")
-  --    end
-  -- })
   -- use ({
   -- "kndndrj/nvim-dbee",
   --   -- "/Users/nick/code/nvim-dbee",
@@ -219,9 +196,6 @@ local function define_plugins(use)
 
   use {
     "pmizio/typescript-tools.nvim",requires = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },commit = "102ba313f87e1f9f9864f681dd7779cac8f6d3ea"
-    -- config = function()
-    --   require("typescript-tools").setup {}
-    -- end,
   }
 
     use {
@@ -239,7 +213,12 @@ local function define_plugins(use)
     "alexghergh/nvim-tmux-navigation",
     commit = "543f090a45cef28156162883d2412fffecb6b750",
   }
-  -- use 'direnv/direnv.vim'
+
+  use {
+    "stevearc/oil.nvim",
+    commit = "3727410e4875ad8ba339c585859a9391d643b9ed",
+  }
+
   -- use('/Users/nick/code/monoscope')
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins

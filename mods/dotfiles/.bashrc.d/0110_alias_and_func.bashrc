@@ -45,6 +45,23 @@ eret() {
   nvim /tmp/cmd_cap.out;
 }
 
+function ls-on-port() {
+  PORT="$1"
+  if [ -z "$PORT" ]; then
+    echo "Usage: ls-on-port <port_number>"
+    return 1
+  fi
+  lsof -n -i :"$PORT"
+}
+
+function kill-on-port() {
+  PORT="$1"
+  if [ -z "$PORT" ]; then
+    echo "Usage: kill-on-port <port_number>"
+    return 1
+  fi
+  ls-on-port "$PORT" | grep -v ^COMMAND | awk '{print $2}' | xargs kill -9
+}
 
 function kill-all() {
   WHAT="$1"

@@ -23,11 +23,11 @@ export const layerRules = [
     map('v').to({ key_code: '7', modifiers: ['left_shift']}), // &
     map('n').to({ key_code: '8', modifiers: ['left_shift']}), // *
   ]),
-  
+ 
   // Delimiter layer - special characters that are hard-ish to reach / remember
-  //   $ +   -_
+  //   ^$+   -_
   //      :/?= l
-  //     \ ^  |
+  //     \  %|
   // 
   simlayer('l', 'delimiters layer 2').manipulators([
     map('r').to({ key_code: 'equal_sign', modifiers: ['left_shift']}), // +
@@ -39,8 +39,9 @@ export const layerRules = [
     map('h').to({ key_code: 'slash', modifiers: ['left_shift']}), // ?
     map('c').to({ key_code: 'backslash'}), // \
     map('m').to({ key_code: 'backslash', modifiers: ['left_shift']}), //  |
+    map('n').to({ key_code: '5', modifiers: ['left_shift']}), //  %
     map('e').to({ key_code: '4', modifiers: ['left_shift']}), // $
-    map('b').to({ key_code: '6', modifiers: ['left_shift']}), // ^
+    map('w').to({ key_code: '6', modifiers: ['left_shift']}), // ^
   ]),
 
   // Number layer 

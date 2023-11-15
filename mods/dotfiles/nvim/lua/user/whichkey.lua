@@ -235,6 +235,12 @@ local mappings = {
     u = { "<cmd>PackerUpdate<cr>", "Update" },
   },
 
+  
+  O = {
+    name = "oil",
+    O = { "<cmd>:Oil<cr>", "(o)pen oil" },
+  },
+
   l = {
     name = "LSP",
     a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code (a)ction" },
@@ -349,6 +355,7 @@ local mappings = {
       i = { "<cmd>:GpImplement<cr>", "(i)mplement" },
     }
   },
+
   -- t = {
   --   name = "ChatGPT",
   --   o = { "<cmd>:ChatGPT<cr>", "(o)pen ChatGPT" },
@@ -363,9 +370,9 @@ local mappings = {
   --     s = { "<cmd>:ChatGPTRun summarize<cr>", "(s)summarize" },
   --     x = { "<cmd>:ChatGPTRun explain code<cr>", "e(x)plain code" },
   --     b = { "<cmd>:ChatGPTRun fix_bugs<cr>", "fix (b)ugs" },
-
   --   }
   -- },
+
   w = "(w)rite" ,
   W = { "<cmd>:wa<cr>", "(w)rite all" },
 }

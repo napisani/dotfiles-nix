@@ -1724,6 +1724,32 @@
               {
                 "type": "basic",
                 "from": {
+                  "key_code": "n",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "5",
+                    "modifiers": [
+                      "left_shift"
+                    ]
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "delimiters layer 2",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
                   "key_code": "e",
                   "modifiers": {
                     "optional": [
@@ -1750,7 +1776,7 @@
               {
                 "type": "basic",
                 "from": {
-                  "key_code": "b",
+                  "key_code": "w",
                   "modifiers": {
                     "optional": [
                       "any"
@@ -2215,6 +2241,55 @@
                     }
                   },
                   {
+                    "key_code": "5",
+                    "modifiers": [
+                      "left_shift"
+                    ]
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "l"
+                    },
+                    {
+                      "key_code": "n"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "delimiters layer 2",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "delimiters layer 2",
+                      "value": 1
+                    }
+                  },
+                  {
                     "key_code": "4",
                     "modifiers": [
                       "left_shift"
@@ -2276,7 +2351,7 @@
                       "key_code": "l"
                     },
                     {
-                      "key_code": "b"
+                      "key_code": "w"
                     }
                   ],
                   "simultaneous_options": {
