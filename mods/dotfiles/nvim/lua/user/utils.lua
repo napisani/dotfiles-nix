@@ -222,4 +222,16 @@ function M.get_root_dir()
 	return root_dir
 end
 
+function M.get_primary_git_branch(default_branch)
+	local handle = io.popen("git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'")
+	if handle ~= nil then
+		local result = handle:read("*a")
+    if result == nil or result:match("fatal") or result == '' then
+      return default_branch
+    end
+    return result:gsub("\n", "")
+	end
+	return default_branch
+end
+
 return M

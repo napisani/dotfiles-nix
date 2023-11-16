@@ -99,11 +99,15 @@ local function define_plugins(use)
   use { "RRethy/vim-illuminate",commit = "3bd2ab64b5d63b29e05691e624927e5ebbf0fb86" }
 
   -- Telescope
-  use { "nvim-telescope/telescope.nvim",commit = "4522d7e3ea75ffddabdc39957168a8a7060b5df0" }
-  use { "nvim-telescope/telescope-file-browser.nvim",commit = "6e51d0cd6447cf2525412220ff0a2885eef9039c" }
+  use { "nvim-telescope/telescope.nvim", commit = "4522d7e3ea75ffddabdc39957168a8a7060b5df0" }
+  use { "nvim-telescope/telescope-file-browser.nvim", commit = "6e51d0cd6447cf2525412220ff0a2885eef9039c" }
   use {
     "benfowler/telescope-luasnip.nvim",    commit = "2ef7da3a363890686dbaad18ddbf59177cfe4f78"
   }
+  use {
+    'axkirillov/easypick.nvim',
+    commit = "6ea5aef3eceba46a26091e2339c9b51d7e104648",
+    requires = 'nvim-telescope/telescope.nvim'}
 
   -- Treesitter
   use {
