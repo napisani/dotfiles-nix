@@ -21,6 +21,15 @@ export const mehRules = [
       "key_code": "tab",
       "modifiers": ["left_command"]
     }).description("Meh + Tab = switch to next tab"),
+    map({
+      key_code: "a",
+      modifiers: {mandatory: [
+        ...mehModifiers
+      ]}
+    }).to({
+      "key_code": "a",
+      "modifiers": ["left_command", "left_shift"]
+    }).description("Meh + a = left command + shift + a (bitwarden auto fill)"),
   ]),
 
   rule('meh + e = emoji picker').manipulators([

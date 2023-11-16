@@ -441,6 +441,29 @@
                   }
                 ],
                 "description": "Meh + Tab = switch to next tab"
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "a",
+                  "modifiers": {
+                    "mandatory": [
+                      "right_option",
+                      "right_control",
+                      "right_shift"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "a",
+                    "modifiers": [
+                      "left_command",
+                      "left_shift"
+                    ]
+                  }
+                ],
+                "description": "Meh + a = left command + shift + a (bitwarden auto fill)"
               }
             ]
           },
