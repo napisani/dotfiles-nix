@@ -235,11 +235,7 @@ local mappings = {
     u = { "<cmd>PackerUpdate<cr>", "Update" },
   },
 
-  
-  O = {
-    name = "oil",
-    O = { "<cmd>:Oil<cr>", "(o)pen oil" },
-  },
+  O = { "<cmd>:Oil<cr>", "(O)il" },
 
   l = {
     name = "LSP",
