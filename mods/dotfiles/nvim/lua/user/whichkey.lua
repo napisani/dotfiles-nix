@@ -145,7 +145,7 @@ local mappings = {
     p = { "<Cmd>:DiffviewOpen prod<CR>", "(p)rod" },
     P = { "<Cmd>:DiffviewOpen origin/prod<CR>", "origin/(P)rod" },
 
-    h = { "<Cmd>:DiffviewOpen HEAD<CR>", "HEAD" },
+    H = { "<Cmd>:DiffviewOpen HEAD<CR>", "diff (H)ead" },
     q = { "<Cmd>:DiffviewClose<CR>", "DiffviewClose" },
 
     f = {
@@ -159,8 +159,8 @@ local mappings = {
       p = { "<Cmd>:DiffviewOpen prod -- %<CR>", "(p)rod" },
       P = { "<Cmd>:DiffviewOpen origin/prod -- %<CR>", "origin/(P)rod" },
 
-      h = { "<Cmd>:DiffviewOpen HEAD -- %<CR>", "HEAD" },
-      H = { "<Cmd>:DiffviewFileHistory<CR>", "File (H)istory" },
+      h = { "<Cmd>:DiffviewFileHistory %<CR>", "File (H)istory" },
+      H = { "<Cmd>:DiffviewOpen HEAD -- %<CR>", "diff (H)ead" },
 
       f = { "<cmd>lua require('user.telescope').find_file_from_root_to_compare_to()<CR>", "(f)ile" },
     },
@@ -373,6 +373,7 @@ local mappings = {
 
   w = "(w)rite" ,
   W = { "<cmd>:wa<cr>", "(w)rite all" },
+  Q = { "<Cmd>:q<CR>", "(Q)uit" },
 }
 
 local mappings_spreader = utils.spread(mappings)
