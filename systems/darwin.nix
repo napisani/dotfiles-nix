@@ -34,6 +34,8 @@
       "caffeine"
       "docker"
       "github"
+      "lulu"
+
     ];
     # anything installed with brew (non-casks)
     brews = [

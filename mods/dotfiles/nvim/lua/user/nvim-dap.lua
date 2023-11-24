@@ -11,6 +11,12 @@ if not dap_ui_status_ok then
   return
 end
 
+local dap_utils_status_ok, dap_utils = pcall(require, "dap.utils")
+if not dap_utils_status_ok then
+  vim.notify("dap utils not found")
+  return
+end
+
 dapui.setup({
   icons = { expanded = "", collapsed = "", current_frame = "" },
   mappings = {
@@ -164,6 +170,122 @@ end
 dap.listeners.before.event_exited["dapui_config"] = function()
   dapui.close({})
 end
+-- TS DAP
+require("dap-vscode-js").setup({
+  debugger_path = vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter",
+  debugger_cmd = { "js-debug-adapter" },
+  adapters = { "pwa-node", "pwa-chrome", "pwa-msedge", "node-terminal", "pwa-extensionHost" },
+})
+
+local js_exts = {
+  "javascript",
+  "typescript",
+  "javascriptreact",
+  "typescriptreact",
+  "vue",
+  "svelte",
+}
+
+for _idx, ext in ipairs(js_exts) do
+  dap.configurations[ext] = {
+    {
+      type = "pwa-chrome",
+      request = "launch",
+      name = "Launch Chrome with \"localhost\"",
+      url = "http://localhost:3000",
+      webRoot = "${workspaceFolder}",
+    },
+    {
+      type = "pwa-node",
+      request = "launch",
+      name = "Launch Current File (pwa-node)",
+      cwd = vim.fn.getcwd(),
+      args = { "${file}" },
+      sourceMaps = true,
+      protocol = "inspector",
+    },
+    {
+      type = "pwa-node",
+      request = "launch",
+      name = "Launch Current File (pwa-node with ts-node)",
+      cwd = vim.fn.getcwd(),
+      runtimeArgs = { "--loader", "ts-node/esm" },
+      runtimeExecutable = "node",
+      args = { "${file}" },
+      sourceMaps = true,
+      protocol = "inspector",
+      skipFiles = { "<node_internals>/**", "node_modules/**" },
+      resolveSourceMapLocations = {
+        "${workspaceFolder}/**",
+        "!**/node_modules/**",
+      },
+    },
+    {
+      type = "pwa-node",
+      request = "launch",
+      name = "Launch Current File (pwa-node with deno)",
+      cwd = vim.fn.getcwd(),
+      runtimeArgs = { "run", "--inspect-brk", "--allow-all", "${file}" },
+      runtimeExecutable = "deno",
+      attachSimplePort = 9229,
+    },
+    {
+      type = "pwa-node",
+      request = "launch",
+      name = "Launch Test Current File (pwa-node with jest)",
+      cwd = vim.fn.getcwd(),
+      runtimeArgs = { "${workspaceFolder}/node_modules/.bin/jest" },
+      runtimeExecutable = "node",
+      args = { "${file}", "--coverage", "false" },
+      rootPath = "${workspaceFolder}",
+      sourceMaps = true,
+      console = "integratedTerminal",
+      internalConsoleOptions = "neverOpen",
+      skipFiles = { "<node_internals>/**", "node_modules/**" },
+    },
+    {
+      type = "pwa-node",
+      request = "launch",
+      name = "Launch Test Current File (pwa-node with vitest)",
+      cwd = vim.fn.getcwd(),
+      program = "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      args = { "--inspect-brk", "--threads", "false", "run", "${file}" },
+      autoAttachChildProcesses = true,
+      smartStep = true,
+      console = "integratedTerminal",
+      skipFiles = { "<node_internals>/**", "node_modules/**" },
+    },
+    {
+      type = "pwa-node",
+      request = "launch",
+      name = "Launch Test Current File (pwa-node with deno)",
+      cwd = vim.fn.getcwd(),
+      runtimeArgs = { "test", "--inspect-brk", "--allow-all", "${file}" },
+      runtimeExecutable = "deno",
+      attachSimplePort = 9229,
+    },
+    {
+      type = "pwa-chrome",
+      request = "attach",
+      name = "Attach Program (pwa-chrome, select port)",
+      program = "${file}",
+      cwd = vim.fn.getcwd(),
+      sourceMaps = true,
+      port = function()
+        return vim.fn.input("Select port: ", 9222)
+      end,
+      webRoot = "${workspaceFolder}",
+    },
+    {
+      type = "pwa-node",
+      request = "attach",
+      name = "Attach Program (pwa-node, select pid)",
+      cwd = vim.fn.getcwd(),
+      processId = dap_utils.pick_process,
+      skipFiles = { "<node_internals>/**" },
+    },
+  }
+end
 
 -- RUST DAP
 local M = {}
@@ -234,6 +356,7 @@ dap.adapters.generic_remote = function(callback, config)
 
   print(string.format("Connected to: %s:%d", dap_host, dap_port))
 end
+
 
 dap.configurations.python = {
   {
@@ -308,42 +431,3 @@ neotest.setup({
     }),
   },
 })
---dap.configurations.cpp = {
---  {
---    name = 'Launch',
---    type = 'lldb',
---    request = 'launch',
---    program = function()
---      return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
---    end,
---    cwd = '${workspaceFolder}',
---    stopOnEntry = false,
---    args = {},
-
---    -- 💀
---    -- if you change `runInTerminal` to true, you might need to change the yama/ptrace_scope setting:
---    --
---    --    echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
---    --
---    -- Otherwise you might get the following error:
---    --
---    --    Error on launch: Failed to attach to the target process
---    --
---    -- But you should be aware of the implications:
---    -- https://www.kernel.org/doc/html/latest/admin-guide/LSM/Yama.html
---    -- runInTerminal = false,
---  },
---}
-
----- If you want to use this for Rust and C, add something like this:
-
---dap.configurations.c = dap.configurations.cpp
---dap.configurations.rust = dap.configurations.cpp
--- local codicons = require('codicons')
--- codicons.setup({
---   -- -- Override by mapping name to icon
---   -- ['account'] = '',
---   -- -- Or by name to hexadecimal/decimal value
---   -- ['comment'] = 0xEA6B, -- hexadecimal
---   -- ['archive'] = 60056, -- decimal
--- })

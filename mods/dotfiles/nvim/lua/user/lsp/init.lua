@@ -7,7 +7,7 @@ end
 require "user.lsp.mason"
 require("user.lsp.handlers").setup()
 require("mason-nvim-dap").setup({
-    ensure_installed = { "python", "lldb", "node2", "chrome" }
+    ensure_installed = { "python", "lldb", "node2", "chrome", "js-debug-adapter" }
 })
 require "user.lsp.null-ls"
 

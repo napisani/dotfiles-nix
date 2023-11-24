@@ -223,7 +223,13 @@ function M.get_root_dir()
 end
 
 function M.get_primary_git_branch(default_branch)
-	local handle = io.popen("git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'")
+  if default_branch == nil then
+    default_branch = "main"
+  end
+	local status_ok, handle = pcall(io.popen, "git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'")
+  if not status_ok then
+    return default_branch
+  end
 	if handle ~= nil then
 		local result = handle:read("*a")
     if result == nil or result:match("fatal") or result == '' then

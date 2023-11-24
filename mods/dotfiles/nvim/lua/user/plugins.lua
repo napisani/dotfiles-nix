@@ -140,10 +140,16 @@ local function define_plugins(use)
   -- use{ "ggandor/leap.nvim", commit = "f7391b5fe9771d788816383ee3c75e0be92022af" }
 
   -- debugging
-  use { "mfussenegger/nvim-dap",commit = "4048f37bc8b1a36fe1f5fde0df7d84aef71380e4" }
+  use { "mfussenegger/nvim-dap",commit = "e154fdb6d70b3765d71f296e718b29d8b7026a63" }
   use {
     "rcarriga/nvim-dap-ui",requires = { "mfussenegger/nvim-dap" },commit = "34160a7ce6072ef332f350ae1d4a6a501daf0159" }
   use { "jayp0521/mason-nvim-dap.nvim",commit = "f0cd12f7a8a310c58cecebddb6b219ffad1cfd0f" }
+  use { "mxsdev/nvim-dap-vscode-js", requires = {"mfussenegger/nvim-dap"} }
+  -- use {
+  --   "microsoft/vscode-js-debug",
+  --   opt = true,
+  --   run = "npm install --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out" 
+  -- }
   use {
     "nvim-neotest/neotest",requires = {
     "nvim-lua/plenary.nvim",

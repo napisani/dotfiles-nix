@@ -3,6 +3,7 @@ if not status_ok then
   return
 end
 local utils = require("user.utils")
+local primary_branch = utils.get_primary_git_branch()
 
 local setup = {
   plugins = {
@@ -37,7 +38,7 @@ local setup = {
   icons = {
     breadcrumb = "»", -- symbol used in the command line area that shows your active key combo
     separator = "➜", -- symbol used between a key and it's label
-    group = "+",      -- symbol prepended to a group
+    group = "+", -- symbol prepended to a group
   },
   popup_mappings = {
     scroll_down = "<c-d>", -- binding to scroll down inside the popup
@@ -121,11 +122,8 @@ local mappings = {
     -- d = { "<cmd>Gitsigns diffthis HEAD<cr>", "Diff" },
     c = {
       name = "Checkout",
-      m = { "<Cmd>:G checkout main -- %<CR>", "(m)ain" },
-      M = { "<Cmd>:G checkout origin/main -- %<CR>", "origin/(M)ain" },
-
-      d = { "<Cmd>:G checkout dev -- %<CR>", "(d)ev" },
-      D = { "<Cmd>:G checkout origin/dev -- %<CR>", "origin/(D)ev" },
+      m = { "<Cmd>:G checkout " .. primary_branch .. " -- %<CR>", "(m)ain" },
+      M = { "<Cmd>:G checkout origin/" .. primary_branch .. "-- %<CR>", "origin/(M)ain" },
 
       p = { "<Cmd>:G checkout prod -- %<CR>", "(p)rod" },
       P = { "<Cmd>:G checkout origin/prod -- %<CR>", "origin/(P)rod" },
@@ -136,11 +134,8 @@ local mappings = {
   c = {
     name = "Changes",
     O = { "<Cmd>:DiffviewOpen<CR>", "Open" },
-    m = { "<Cmd>:DiffviewOpen main<CR>", "(m)ain" },
-    M = { "<Cmd>:DiffviewOpen origin/main<CR>", "origin/(M)ain" },
-
-    d = { "<Cmd>:DiffviewOpen dev<CR>", "(d)ev" },
-    D = { "<Cmd>:DiffviewOpen origin/dev<CR>", "origin/(D)ev" },
+    m = { "<Cmd>:DiffviewOpen " .. primary_branch .. "<CR>", "(m)ain" },
+    M = { "<Cmd>:DiffviewOpen origin/" .. primary_branch .. "<CR>", "origin/(M)ain" },
 
     p = { "<Cmd>:DiffviewOpen prod<CR>", "(p)rod" },
     P = { "<Cmd>:DiffviewOpen origin/prod<CR>", "origin/(P)rod" },
@@ -150,11 +145,9 @@ local mappings = {
 
     f = {
       name = "(F)ile",
-      m = { "<Cmd>:DiffviewOpen main -- %<CR>", "(m)ain" },
-      M = { "<Cmd>:DiffviewOpen origin/main -- %<CR>", "origin/(M)ain" },
+      m = { "<Cmd>:DiffviewOpen " .. primary_branch .. " -- %<CR>", "(m)ain" },
+      M = { "<Cmd>:DiffviewOpen origin/" .. primary_branch .. "-- %<CR>", "origin/(M)ain" },
 
-      d = { "<Cmd>:DiffviewOpen dev -- %<CR>", "(d)ev" },
-      D = { "<Cmd>:DiffviewOpen origin/dev -- %<CR>", "origin/(D)ev" },
 
       p = { "<Cmd>:DiffviewOpen prod -- %<CR>", "(p)rod" },
       P = { "<Cmd>:DiffviewOpen origin/prod -- %<CR>", "origin/(P)rod" },
@@ -205,7 +198,7 @@ local mappings = {
     name = "Replace",
     b = { ":%s/<c-r>0//g<left><left>", "(b)uffer" },
     B = { ":%s/<c-r>0//gc<left><left><left>", "(B)uffer ask" },
-    ["*"] = {":%s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(*)word"},
+    ["*"] = { ":%s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(*)word" },
     q = { ":cdo %s/<c-r>0//g<left><left>", "(q)uicklist" },
     Q = { ":cdo %s/<c-r>0//gc<left><left><left>", "(Q)uicklist ask" },
   },
@@ -274,10 +267,10 @@ local mappings = {
   },
   ["*"] = {
     name = "CWord Under Cursor",
-    f = { 
-      name="Find" ,
-      r = {"<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.expand('<cword>')})<CR>", "(f)ile by name"},
-      h = {"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.expand('<cword>')})<CR>", "grep w(h)ole project"}
+    f = {
+      name = "Find",
+      r = { "<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.expand('<cword>')})<CR>", "(f)ile by name" },
+      h = { "<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.expand('<cword>')})<CR>", "grep w(h)ole project" }
     },
     r = {
       name = "Replace",
@@ -294,8 +287,8 @@ local mappings = {
     },
     f = {
       name = "Find",
-      r = { "<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.getreg('*')})<CR>", "(f)ile by name"},
-      h = {"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.getreg('*')})<CR>", "grep w(h)ole project"}
+      r = { "<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.getreg('*')})<CR>", "(f)ile by name" },
+      h = { "<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.getreg('*')})<CR>", "grep w(h)ole project" }
     },
     r = {
       name = "Replace",
@@ -371,7 +364,7 @@ local mappings = {
   --   }
   -- },
 
-  w = "(w)rite" ,
+  w = "(w)rite",
   W = { "<cmd>:wa<cr>", "(w)rite all" },
   Q = { "<Cmd>:q<CR>", "(Q)uit" },
 }
