@@ -65,9 +65,6 @@ keymap("v", ">", ">gv", opts)
 keymap("n", "<C-_>", ":Commentary<CR>", opts)
 keymap("v", "<C-_>", ":Commentary<CR>", opts)
 
--- Search files
-keymap("n", "<C-S-T>", ":Commentary<CR>", opts)
-
 -- Alias for window leader
 keymap("n", "gw", ':call feedkeys("\\<lt>c-w>")<cr>', opts)
 

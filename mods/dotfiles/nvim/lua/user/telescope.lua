@@ -253,9 +253,6 @@ function M.find_files_from_root(opts)
 end
 
 M.search_git_files = builtin.git_files
-vim.keymap.set("n", "<C-S-R>", M.find_files_from_root, {})
-vim.keymap.set("n", "<C-S-T>", builtin.git_files, {})
-vim.keymap.set("n", "<C-S-P>", ":Telescope file_browser path=%:p:h<CR>", {})
 function M.live_grep_from_root(opts)
   opts = opts or {}
   -- local cwd = require("nvim-rooter").get_root()
@@ -286,9 +283,9 @@ function M.live_grep_from_root(opts)
   builtin.live_grep(opts)
 end
 
-vim.keymap.set("n", "<C-S-H>", M.live_grep_from_root, {})
+-- vim.keymap.set("n", "<C-S-H>", M.live_grep_from_root, {})
 M.search_buffers = builtin.buffers
-vim.keymap.set("n", "<C-S-E>", builtin.buffers, {})
+-- vim.keymap.set("n", "<C-S-E>", builtin.buffers, {})
 --vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
 --vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
 
