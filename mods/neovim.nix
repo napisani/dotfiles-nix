@@ -36,6 +36,11 @@
         black
         python3Packages.flake8
         mypy
+        ruff
+        yapf
+
+        # lua
+        stylua
 
 
         # Nix

@@ -226,7 +226,7 @@ function M.get_primary_git_branch(default_branch)
   if default_branch == nil then
     default_branch = "main"
   end
-	local status_ok, handle = pcall(io.popen, "git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'")
+	local status_ok, handle = pcall(io.popen, "git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'")
   if not status_ok then
     return default_branch
   end
