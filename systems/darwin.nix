@@ -35,6 +35,7 @@
       "docker"
       "github"
       "lulu"
+      "firefox-developer-edition"
 
     ];
     # anything installed with brew (non-casks)
@@ -46,6 +47,7 @@
     # any custom taps / repos
     taps = [
         "napisani/procmux"
+        "homebrew/cask-versions"
     ];
   };
   environment = {
