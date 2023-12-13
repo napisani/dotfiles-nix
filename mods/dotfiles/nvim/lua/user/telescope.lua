@@ -251,7 +251,7 @@ function M.find_files_from_root(opts)
 		cmd_opts
 	)
 	opts.search_dirs = opts.search_dirs or {}
-	opts.search_dirs = utils.table_merge(opts.search_dirs, dir_opts)
+	opts.search_dirs = utils.merge_list(opts.search_dirs, dir_opts)
 
 	-- utils.print(opts.find_command)
 	builtin.find_files(opts)
@@ -266,8 +266,8 @@ function M.live_grep_from_root(opts)
 	-- end
 	opts.cwd = utils.get_root_dir()
 	local cmd_opts, dir_opts = constrain_to_scope()
-	opts.vimgrep_arguments = utils.table_merge(
-		utils.table_merge({
+	opts.vimgrep_arguments = utils.merge_list(
+		utils.merge_list({
 			"rg",
 			"--color=never",
 			"--no-heading",
@@ -282,7 +282,7 @@ function M.live_grep_from_root(opts)
 	)
 
 	opts.search_dirs = opts.search_dirs or {}
-	opts.search_dirs = utils.table_merge(opts.search_dirs, dir_opts)
+	opts.search_dirs = utils.merge_list(opts.search_dirs, dir_opts)
 	-- utils.print(opts)
 	-- vim.notify(opts)
 	builtin.live_grep(opts)
