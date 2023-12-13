@@ -313,7 +313,6 @@ end
 -- DAP python
 -- you must first: `pip install debugpy` into you current venv
 
--- local rooter = require("user.nvim-rooter")
 dap.adapters.python = {
   type = "executable",
   -- command = 'path/to/virtualenvs/debugpy/bin/python';

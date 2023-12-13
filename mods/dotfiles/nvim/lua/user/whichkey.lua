@@ -314,9 +314,19 @@ local mappings = {
     p = { "<cmd>Telescope file_browser path=%:p:h<CR>", "Project" },
 
     -- b = { "<cmd>Telescope git_branches<cr>", "Checkout branch" },
-    d = { "<cmd>Easypick git_changed_files<cr>", "(d)iff git files" },
-    D = { "<cmd>Easypick git_changed_cmp_base_branch<cr>", "(D)iff git branch" },
-    c = { "<cmd>Easypick git_conflicts<cr>", "(c)onflicts" },
+    -- d = { "<cmd>Easypick git_changed_files<cr>", "(d)iff git files" },
+    d = {
+      "<cmd>lua require('user.telescope').git_changed_files()<CR>",
+      "(d)iff git files",
+    },
+    D = {
+      "<cmd>lua require('user.telescope').git_changed_cmp_base_branch()<CR>",
+      "(D)iff git branch",
+    },
+    c = {
+      "<cmd>lua require('user.telescope').git_conflicts()<CR>",
+      "(c)onflicts",
+    },
     C = { "<cmd>Telescope commands<cr>", "Commands" },
     o = { "<cmd>Telescope colorscheme<cr>", "C(o)lorscheme" },
     q = { "<cmd>Telescope help_tags<cr>", "Find Help" },

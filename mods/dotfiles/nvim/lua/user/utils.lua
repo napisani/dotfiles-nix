@@ -1,38 +1,41 @@
 local vim = vim
-local validate = vim.validate
-local api = vim.api
-local lsp = vim.lsp
-local uv = vim.loop
 local M = {}
+
 function M.table_merge(t1, t2)
-	for _, v in ipairs(t2) do
-		table.insert(t1, v)
+	local result = {}
+	for k, v in pairs(t1) do
+		result[k] = v
 	end
-	return t1
+	for k, v in pairs(t2) do
+		result[k] = v
+	end
+	return result
 end
 
 function M.deep_copy(object)
-    if type(object) ~= 'table' then return object end
+	if type(object) ~= "table" then
+		return object
+	end
 
-    local result = {}
-    for key, value in pairs(object) do
-        result[key] = M.deep_copy(value)
-    end
-    return result
+	local result = {}
+	for key, value in pairs(object) do
+		result[key] = M.deep_copy(value)
+	end
+	return result
 end
 
 function M.spread(template)
-    return function(table)
-        local result = {}
-        for key, value in pairs(template) do
-            result[key] = M.deep_copy(value)  -- Note the deep copy!
-        end
+	return function(table)
+		local result = {}
+		for key, value in pairs(template) do
+			result[key] = M.deep_copy(value) -- Note the deep copy!
+		end
 
-        for key, value in pairs(table) do
-            result[key] = value
-        end
-        return result
-    end
+		for key, value in pairs(table) do
+			result[key] = value
+		end
+		return result
+	end
 end
 
 function M.home_directory()
@@ -198,44 +201,46 @@ function M.get_db_connections()
 	end
 	return conns
 end
-function M.connection_to_golang_string(conn)
-  -- if conn['adapter'] ~= "mysql" then
-  --   vim.notify("Only mysql is supported", vim.log.levels.ERROR)
-  --   return nil
-  -- end
-  local user = conn['user']
-  local password= conn['password']
-  local database= conn['database']
-  local host= conn['host']
-  local port= conn['port'] or 3306
-  local conn_string =  user .. ":" .. password .. "@tcp(" .. host .. ":" .. port .. ")/" .. database
-  return conn_string
 
+function M.connection_to_golang_string(conn)
+	-- if conn['adapter'] ~= "mysql" then
+	--   vim.notify("Only mysql is supported", vim.log.levels.ERROR)
+	--   return nil
+	-- end
+	local user = conn["user"]
+	local password = conn["password"]
+	local database = conn["database"]
+	local host = conn["host"]
+	local port = conn["port"] or 3306
+	local conn_string = user .. ":" .. password .. "@tcp(" .. host .. ":" .. port .. ")/" .. database
+	return conn_string
 end
 
+local _orig_root_dir = vim.fn.getcwd()
 function M.get_root_dir()
-	local root_dir = vim.fn.getcwd()
+	local root_dir = _orig_root_dir
 	local git_dir = require("lspconfig.util").root_pattern(".git")(root_dir)
 	if git_dir ~= nil and git_dir ~= "" then
-		root_dir = git_dir
+		return git_dir
 	end
 	return root_dir
 end
 
 function M.get_primary_git_branch(default_branch)
-  if default_branch == nil then
-    default_branch = "main"
-  end
-	local status_ok, handle = pcall(io.popen, "git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'")
-  if not status_ok then
-    return default_branch
-  end
+	if default_branch == nil then
+		default_branch = "main"
+	end
+	local status_ok, handle =
+		pcall(io.popen, "git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'")
+	if not status_ok then
+		return default_branch
+	end
 	if handle ~= nil then
 		local result = handle:read("*a")
-    if result == nil or result:match("fatal") or result == '' then
-      return default_branch
-    end
-    return result:gsub("\n", "")
+		if result == nil or result:match("fatal") or result == "" then
+			return default_branch
+		end
+		return result:gsub("\n", "")
 	end
 	return default_branch
 end

@@ -105,10 +105,6 @@ local function define_plugins(use)
   use {
     "benfowler/telescope-luasnip.nvim", commit = "2ef7da3a363890686dbaad18ddbf59177cfe4f78"
   }
-  use {
-    'axkirillov/easypick.nvim',
-    commit = "6ea5aef3eceba46a26091e2339c9b51d7e104648",
-    requires = 'nvim-telescope/telescope.nvim' }
 
   -- Treesitter
   use {

@@ -12,6 +12,7 @@
     ];
     # anything installed with brew (non-casks)
     brews = [
+      "helm"
       /* "procmux" */
       /* "mkcert" */
     ];

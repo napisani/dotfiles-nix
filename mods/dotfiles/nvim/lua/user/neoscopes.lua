@@ -4,7 +4,6 @@ if not status_ok then
 	return
 end
 
-local rooter = require("user.nvim-rooter")
 local utils = require("user.utils")
 -- built_scopes = require("libmonoscope").scopes
 -- for _, scope in ipairs(built_scopes) do
@@ -19,14 +18,13 @@ end
 
 neoscopes.setup({
 	on_scope_selected = function(scope)
-    vim.cmd("cd " .. rooter.get_root_dir())
+    vim.cmd("cd " .. utils.get_root_dir())
 		if scope.name:find("^python:") ~= nil then
 			vim.cmd("cd " .. scope.name:gsub('^python:', ''))
 		end
 	end,
 })
 M = {}
--- local rooter = require("nvim-rooter")
 -- local utils = require("user.utils")
 -- Let's say you are working on the networking area in the project.
 neoscopes.add({
