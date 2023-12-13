@@ -22,12 +22,12 @@ export const mehRules = [
       "modifiers": ["left_command"]
     }).description("Meh + Tab = switch to next tab"),
     map({
-      key_code: "a",
+      key_code: "i",
       modifiers: {mandatory: [
         ...mehModifiers
       ]}
     }).to({
-      "key_code": "a",
+      "key_code": "i",
       "modifiers": ["left_command", "left_shift"]
     }).description("Meh + a = left command + shift + a (bitwarden auto fill)"),
   ]),

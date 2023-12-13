@@ -445,7 +445,7 @@
               {
                 "type": "basic",
                 "from": {
-                  "key_code": "a",
+                  "key_code": "i",
                   "modifiers": {
                     "mandatory": [
                       "right_option",
@@ -456,7 +456,7 @@
                 },
                 "to": [
                   {
-                    "key_code": "a",
+                    "key_code": "i",
                     "modifiers": [
                       "left_command",
                       "left_shift"
