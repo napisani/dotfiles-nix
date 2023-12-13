@@ -239,8 +239,8 @@ function M.find_files_from_root(opts)
 	-- end
 	opts.cwd = utils.get_root_dir()
 	local cmd_opts, dir_opts = constrain_to_scope()
-	opts.find_command = utils.table_merge(
-		utils.table_merge({
+	opts.find_command = utils.merge_list(
+		utils.merge_list({
 			"rg",
 			"--files",
 			-- '--iglob', 'config.local.json',
@@ -405,8 +405,6 @@ M.git_conflicts = function(opts)
 	opts.cwd = utils.get_root_dir()
 
 	opts.entry_maker = opts.entry_maker or make_entry.gen_from_file(opts)
-
-	local base_branch = utils.get_primary_git_branch()
 	pickers
 		.new(
 			opts,
