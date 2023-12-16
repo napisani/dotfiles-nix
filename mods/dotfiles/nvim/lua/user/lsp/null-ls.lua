@@ -94,6 +94,7 @@ null_ls.setup({
     diagnostics.cspell.with {
       filetypes = { "markdown", "text", "latex", "tex", "rst", "org" },
     },
+    formatting.rome.with({ command = "biome" }),
     -- diagnostics.flake8,
     -- pipx install codespell
     -- diagnostics.codespell,
