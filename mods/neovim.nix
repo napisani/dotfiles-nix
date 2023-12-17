@@ -1,4 +1,4 @@
-{ pkgs, pkgs-unstable, config, ... }: {
+{ pkgs, pkgs-unstable, oxlint_dep, config, ... }: {
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -18,6 +18,7 @@
         nodePackages.typescript-language-server
         nodePackages.eslint_d
         nodePackages.prettier
+        oxlint_dep.oxlint
 
         # vuejs
         nodePackages.vls

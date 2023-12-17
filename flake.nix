@@ -1,6 +1,7 @@
 {
   description = "Home Manager configuration";
   inputs = {
+    flake-utils.url = "github:numtide/flake-utils";
     # Where we get most of our software. Giant mono repo with recipes
     # called derivations that say how to build software.
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-22.11-darwin";
@@ -11,9 +12,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixpkgs-unstable = {
-      url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    };
+    nixpkgs-unstable = { url = "github:nixos/nixpkgs/nixpkgs-unstable"; };
 
     # Controls system level software and settings including fonts
     darwin.url = "github:lnl7/nix-darwin";
@@ -22,13 +21,25 @@
     procmux.url = "github:napisani/procmux";
     procmux.inputs.nixpkgs.follows = "nixpkgs";
 
+    oxlint_dep.url =
+      "github:NixOS/nixpkgs/85306ef2470ba705c97ce72741d56e42d0264015";
+
     # neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
   };
-  outputs = { nixpkgs, nixpkgs-unstable, home-manager, darwin, procmux, ... }@inputs:
+  outputs =
+    { flake-utils
+    , nixpkgs
+    , nixpkgs-unstable
+    , home-manager
+    , darwin
+    , procmux
+    , oxlint_dep
+    , ...
+    }@inputs:
     let
       overlays = [
-          # inputs.neovim-nightly-overlay.overlay
+        # inputs.neovim-nightly-overlay.overlay
       ];
       commonInherits = {
         inherit (nixpkgs) lib;
@@ -42,14 +53,10 @@
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           system = "aarch64-darwin";
           modules = [
-            ({ config, pkgs, lib, user, ... }:{
-              users = {
-                users.nick = {
-                  home = /Users/nick;
-                };
-              };
+            ({ config, pkgs, lib, user, ... }: {
+              users = { users.nick = { home = /Users/nick; }; };
             })
-            ./systems/darwin.nix 
+            ./systems/darwin.nix
             ./systems/system-nicks-mbp.nix
             home-manager.darwinModules.home-manager
             {
@@ -58,15 +65,15 @@
                 useUserPackages = true;
                 extraSpecialArgs = {
                   inherit inputs;
-                  pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
+                  pkgs-unstable =
+                    nixpkgs-unstable.legacyPackages.aarch64-darwin;
                   procmux = procmux;
+                  oxlint_dep = inputs.oxlint_dep.legacyPackages.aarch64-darwin;
                   overlays = overlays;
                   user = "nick";
                 };
-                users.nick.imports = [
-                  ./homes/macs.nix
-                  ./homes/home-nicks-mbp.nix
-                ];
+                users.nick.imports =
+                  [ ./homes/macs.nix ./homes/home-nicks-mbp.nix ];
               };
             }
           ];
@@ -76,14 +83,10 @@
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           system = "aarch64-darwin";
           modules = [
-            ({ config, pkgs, lib, user, ... }:{
-              users = {
-                users.nick = {
-                  home = /Users/nick;
-                };
-              };
+            ({ config, pkgs, lib, user, ... }: {
+              users = { users.nick = { home = /Users/nick; }; };
             })
-            ./systems/darwin.nix 
+            ./systems/darwin.nix
             ./systems/system-nicks-axion-ray-mbp.nix
             home-manager.darwinModules.home-manager
             {
@@ -92,15 +95,15 @@
                 useUserPackages = true;
                 extraSpecialArgs = {
                   inherit inputs;
-                  pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
+                  pkgs-unstable =
+                    nixpkgs-unstable.legacyPackages.aarch64-darwin;
                   procmux = procmux;
+                  oxlint_dep = inputs.oxlint_dep.legacyPackages.aarch64-darwin;
                   overlays = overlays;
                   user = "nick";
                 };
-                users.nick.imports = [
-                  ./homes/macs.nix
-                  ./homes/home-nicks-axion-ray-mbp.nix
-                ];
+                users.nick.imports =
+                  [ ./homes/macs.nix ./homes/home-nicks-axion-ray-mbp.nix ];
               };
             }
           ];
@@ -110,14 +113,10 @@
           pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           system = "aarch64-darwin";
           modules = [
-            ({ config, pkgs, lib, user, ... }:{
-              users = {
-                users.nickpisani = {
-                  home = /Users/nickpisani;
-                };
-              };
+            ({ config, pkgs, lib, user, ... }: {
+              users = { users.nickpisani = { home = /Users/nickpisani; }; };
             })
-            ./systems/darwin.nix 
+            ./systems/darwin.nix
             ./systems/system-NickCTMMackbook.nix
             home-manager.darwinModules.home-manager
             {
@@ -126,24 +125,24 @@
                 useUserPackages = true;
                 extraSpecialArgs = {
                   inherit inputs;
-                  pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
+                  pkgs-unstable =
+                    nixpkgs-unstable.legacyPackages.aarch64-darwin;
                   procmux = procmux;
+                  oxlint_dep = inputs.oxlint_dep.legacyPackages.aarch64-darwin;
                   overlays = overlays;
                   user = "nickpisani";
                 };
-                users.nickpisani.imports = [
-                  ./homes/macs.nix
-                  ./homes/home-NicksCTMMacbook.nix
-                ];
+                users.nickpisani.imports =
+                  [ ./homes/macs.nix ./homes/home-NicksCTMMacbook.nix ];
               };
             }
           ];
         };
       };
       defaultPackage = {
-        /* x86_64-darwin = home-manager.defaultPackage.x86_64-darwin; */
+        # x86_64-darwin = home-manager.defaultPackage.x86_64-darwin;
         aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;
-        /* aarch64-linux = home-manager.defaultPackage.aarch64-linux; */
+        # aarch64-linux = home-manager.defaultPackage.aarch64-linux;
       };
     };
 
