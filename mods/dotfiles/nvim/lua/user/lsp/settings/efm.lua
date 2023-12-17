@@ -34,6 +34,7 @@ local function get_js_linters()
   local linters = {}
   if utils.table_has_value(project_lint_config,"eslint") or next(project_lint_config) == nil then
     table.insert(linters, eslint_d_lint)
+    table.insert(linters, eslint_d_format)
   end
   if utils.table_has_value(project_lint_config,"prettier") then
     table.insert(linters, prettier)
