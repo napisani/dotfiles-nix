@@ -10,22 +10,23 @@
     withNodeJs = false;
     withPython3 = true;
     extraPackages = with pkgs; [
+
         pkgs-unstable.nodejs_20
+
         # js
         nodePackages.typescript
         nodePackages.typescript-language-server
         nodePackages.eslint_d
         nodePackages.prettier
+
         # vuejs
         nodePackages.vls
-        # nodePackages."@volar/vue-language-server"
 
         # html/css/js
         nodePackages.vscode-langservers-extracted
 
-        # python
-        nodePackages.pyright
-
+        # efm langserver
+        efm-langserver
 
         nodePackages."@tailwindcss/language-server"
         nodePackages.cspell
@@ -39,15 +40,20 @@
         ruff
         yapf
 
+        # json
+        nodePackages.fixjson
+        jq
+
         # lua
         stylua
 
-
         # Nix
-        deadnix
         statix
-        nil
-        nixpkgs-fmt
+        nixfmt
+
+        # bash
+        shellcheck
+        shfmt
       ];
   };
   /* home.file.".config/nvim".source = config.lib.file.mkOutOfStoreSymlink ./dotfiles/nvim; */

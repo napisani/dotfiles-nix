@@ -98,6 +98,12 @@ local function define_plugins(use)
   -- for formatters and linters
   use { "jose-elias-alvarez/null-ls.nvim", commit = "0010ea927ab7c09ef0ce9bf28c2b573fc302f5a7" }
   use { "RRethy/vim-illuminate", commit = "3bd2ab64b5d63b29e05691e624927e5ebbf0fb86" }
+  use {
+    'creativenull/efmls-configs-nvim',
+    tag = 'v1.*', -- tag is optional, but recommended
+    requires = { 'neovim/nvim-lspconfig' },
+    commit = "b65b2ff723f3057e871eb2b0c1418490e1539e38"
+  }
 
   -- Telescope
   use { "nvim-telescope/telescope.nvim", commit = "18774ec7929c8a8003a91e9e1f69f6c32258bbfe" }

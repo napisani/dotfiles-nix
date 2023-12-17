@@ -34,6 +34,7 @@ local servers = {
 	tsserver = { npm = "typescript-language-server" , skip = true}, -- npm install -g typescript typescript-language-server
 	vls = { npm = "vls" }, -- npm install -g @volar/vue-language-server
 	yamlls = {},
+  efm = {},
   -- nil_ls = {},false
 }
 local servers_only = {}
@@ -58,7 +59,7 @@ for server, server_config in pairs(servers) do
 		local on_attach_temp = global_on_attach
 		if server_custom_opts["server"] ~= nil and server_custom_opts["server"]["on_attach"] ~= nil then
 			local override_on_attach = server_custom_opts.server.on_attach
-			local on_attach_temp = function(client, bufnr)
+			on_attach_temp = function(client, bufnr)
 				global_on_attach(client, bufnr)
 				override_on_attach(client, bufnr)
 			end
@@ -73,19 +74,19 @@ for server, server_config in pairs(servers) do
   end
 end
 
-function M.install()
-	for server, server_config in pairs(servers) do
-		if server_config.brew ~= nil then
-			print("brew install " .. server_config.brew)
-			os.execute("brew install " .. server_config.brew)
-		elseif server_config.npm ~= nil then
-			print("npm install -g " .. server_config.npm)
-			os.execute("npm install -g " .. server_config.npm)
-		elseif server_config.pipx ~= nil then
-			print("pipx install " .. server_config.pipx)
-			os.execute("pipx install " .. server_config.pipx)
-		end
-	end
-end
+-- function M.install()
+-- 	for server, server_config in pairs(servers) do
+-- 		if server_config.brew ~= nil then
+-- 			print("brew install " .. server_config.brew)
+-- 			os.execute("brew install " .. server_config.brew)
+-- 		elseif server_config.npm ~= nil then
+-- 			print("npm install -g " .. server_config.npm)
+-- 			os.execute("npm install -g " .. server_config.npm)
+-- 		elseif server_config.pipx ~= nil then
+-- 			print("pipx install " .. server_config.pipx)
+-- 			os.execute("pipx install " .. server_config.pipx)
+-- 		end
+-- 	end
+-- end
 
 return M

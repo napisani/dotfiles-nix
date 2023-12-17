@@ -75,31 +75,31 @@ local cspell = {
 
 -- null_ls.register(cspell)
 utils = require("user.utils")
-null_ls.setup({
-  debug = false,
-  temp_dir = utils.temp_directory(),
-  sources = {
-    formatting.stylua,
-    -- formatting.rustfmt,
-    formatting.eslint_d,
-    formatting.yapf,
-    formatting.isort,
-    formatting.ruff,
-    diagnostics.eslint_d,
-    -- golang fix imports
-    formatting.goimports,
-    -- golang stricter format than gofmt - with backwards compatibility
-    formatting.gofumpt,
-    -- cspell,
-    diagnostics.cspell.with {
-      filetypes = { "markdown", "text", "latex", "tex", "rst", "org" },
-    },
-    formatting.rome.with({ command = "biome" }),
-    -- diagnostics.flake8,
-    -- pipx install codespell
-    -- diagnostics.codespell,
-    -- null_ls.builtins.completion.spell,
-    -- diagnostics.mypy
-    -- null_ls.builtins.code_actions.gitsigns,
-  },
-})
+-- null_ls.setup({
+--   debug = false,
+--   temp_dir = utils.temp_directory(),
+--   sources = {
+--     formatting.stylua,
+--     -- formatting.rustfmt,
+--     formatting.eslint_d,
+--     formatting.yapf,
+--     formatting.isort,
+--     formatting.ruff,
+--     diagnostics.eslint_d,
+--     -- golang fix imports
+--     formatting.goimports,
+--     -- golang stricter format than gofmt - with backwards compatibility
+--     formatting.gofumpt,
+--     -- cspell,
+--     diagnostics.cspell.with {
+--       filetypes = { "markdown", "text", "latex", "tex", "rst", "org" },
+--     },
+--     formatting.rome.with({ command = "biome" }),
+--     -- diagnostics.flake8,
+--     -- pipx install codespell
+--     -- diagnostics.codespell,
+--     -- null_ls.builtins.completion.spell,
+--     -- diagnostics.mypy
+--     -- null_ls.builtins.code_actions.gitsigns,
+--   },
+-- })

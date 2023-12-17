@@ -210,6 +210,24 @@ function M.get_db_connections()
 	return conns
 end
 
+function M.get_project_config()
+	local nvim_rc = M.get_root_dir() .. "/.nvimrc.json"
+	local json_file = M.read_json_file(nvim_rc)
+	if json_file == nil then
+		return {
+      lint = {}
+    }
+	end
+	local lint = {}
+	if json_file["lint"] ~= nil then
+		lint = json_file["lint"]
+	end
+  local settings = {
+    lint = lint
+  }
+	return lint
+end
+
 function M.connection_to_golang_string(conn)
 	-- if conn['adapter'] ~= "mysql" then
 	--   vim.notify("Only mysql is supported", vim.log.levels.ERROR)
