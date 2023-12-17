@@ -32,14 +32,13 @@ local biome_custom = vim.tbl_extend("force", biome, {
 
 local function get_js_linters()
   local linters = {}
-  if project_lint_config["eslint"] ~= nil or next(project_lint_config) == nil then
+  if utils.table_has_value(project_lint_config,"eslint") or next(project_lint_config) == nil then
     table.insert(linters, eslint_d_lint)
-    table.insert(linters, eslint_d_format)
   end
-  if project_lint_config["prettier"] ~= nil then
+  if utils.table_has_value(project_lint_config,"prettier") then
     table.insert(linters, prettier)
   end
-  if project_lint_config["biome"] ~= nil then
+  if utils.table_has_value(project_lint_config,"biome") then
     table.insert(linters, biome_custom)
   end
   return linters
@@ -69,7 +68,21 @@ local efmls_config = {
   init_options = {
     documentFormatting = true,
     documentRangeFormatting = true,
-    codeAction = true,
   },
 }
+
+-- -- Format on save
+-- local lsp_fmt_group = vim.api.nvim_create_augroup("LspFormattingGroup", {})
+-- vim.api.nvim_create_autocmd("BufWritePost", {
+-- 	group = lsp_fmt_group,
+-- 	callback = function(ev)
+-- 		local efm = vim.lsp.get_active_clients({ name = "efm", bufnr = ev.buf })
+
+-- 		if vim.tbl_isempty(efm) then
+-- 			return
+-- 		end
+
+-- 		vim.lsp.buf.format({ name = "efm" })
+-- 	end,
+-- })
 return efmls_config
