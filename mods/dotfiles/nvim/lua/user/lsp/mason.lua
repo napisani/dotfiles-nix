@@ -1,81 +1,81 @@
 local status_ok, mason = pcall(require, "mason")
 if not status_ok then
-	vim.notify("mason not found")
-	return
+  vim.notify("mason not found")
+  return
 end
 local status_ok, mason_lspconfig = pcall(require, "mason-lspconfig")
 if not status_ok then
-	vim.notify("mason not found")
-	return
+  vim.notify("mason not found")
+  return
 end
 local lspconfig = require("lspconfig")
 local utils = require("user.utils")
 
 local project_lint_config = utils.get_project_config().lint or {}
-local biome_enabled = utils.table_has_value(project_lint_config,"biome")
+local biome_enabled = utils.table_has_value(project_lint_config, "biome")
 local M = {}
 local servers = {
-	angularls = { npm = "@angular/language-server" },
-	bashls = {},
-	cssls = {},
-	-- denols = {},
+  angularls = { npm = "@angular/language-server" },
+  bashls = {},
+  cssls = {},
+  -- denols = {},
   gopls = {},
-	docker_compose_language_service = {},
-	dockerls = {},
-	html = {},
-	jsonls = { npm = "vscode-langservers-extracted" },
-	lua_ls = { brew = "lua-language-server" },
-	pyright = { npm = "pyright" },
+  docker_compose_language_service = {},
+  dockerls = {},
+  html = {},
+  jsonls = { npm = "vscode-langservers-extracted" },
+  lua_ls = { brew = "lua-language-server" },
+  pyright = { npm = "pyright" },
   biome = { npm = "@biomejs/biome", skip = not biome_enabled },
-	rnix = {},
-	ruff_lsp = { pipx = "ruff-lsp" },
+  rnix = {},
+  ruff_lsp = { pipx = "ruff-lsp" },
   -- vim_dadbod_completion = {},
-	-- sqlls = {}, -- https://github.com/lighttiger2505/sqls/releases
+  -- sqlls = {}, -- https://github.com/lighttiger2505/sqls/releases
   -- this one is old but it works great
-	-- sqls = {},
-	tailwindcss = {},
-	taplo = {},
-	tsserver = { npm = "typescript-language-server" , skip = true}, -- npm install -g typescript typescript-language-server
-	vls = { npm = "vls" }, -- npm install -g @volar/vue-language-server
-	yamlls = {},
+  -- sqls = {},
+  tailwindcss = {},
+  taplo = {},
+  tsserver = { npm = "typescript-language-server", skip = true }, -- npm install -g typescript typescript-language-server
+  denols = {},
+  vls = { npm = "vls" },                                         -- npm install -g @volar/vue-language-server
+  yamlls = {},
   efm = {},
   -- nil_ls = {},false
 }
 
 local servers_only = {}
 for server, _ in pairs(servers) do
-	table.insert(servers_only, server)
+  table.insert(servers_only, server)
 end
 
 mason.setup({})
 mason_lspconfig.setup({
-	ensure_installed = servers_only,
-	automatic_installation = true,
+  ensure_installed = servers_only,
+  automatic_installation = true,
 })
 
 for server, server_config in pairs(servers) do
-
-	local opts = {
-		on_attach = require("user.lsp.handlers").on_attach,
-		lsp_flags = require("user.lsp.handlers").lsp_flags,
-	}
-	local has_custom_opts, server_custom_opts = pcall(require, "user.lsp.settings." .. server)
-	if has_custom_opts then
-		local global_on_attach = opts.on_attach
-		local on_attach_temp = global_on_attach
-		if server_custom_opts["server"] ~= nil and server_custom_opts["server"]["on_attach"] ~= nil then
-			local override_on_attach = server_custom_opts.server.on_attach
-			on_attach_temp = function(client, bufnr)
-				global_on_attach(client, bufnr)
-				override_on_attach(client, bufnr)
-			end
-		end
-		opts = vim.tbl_deep_extend("force", opts, server_custom_opts)
-		opts["on_attach"] = on_attach_temp
-	end
-	-- require('user.utils').print(opts['init_opts'])
-	-- require('user.utils').print(server)
-  if  server_config.skip  ~= true then
+  local opts = {
+    on_attach = require("user.lsp.handlers").on_attach,
+    lsp_flags = require("user.lsp.handlers").lsp_flags,
+  }
+  local has_custom_opts, server_custom_opts = pcall(require, "user.lsp.settings." .. server)
+  if has_custom_opts then
+    local global_on_attach = opts.on_attach
+    local on_attach_temp = global_on_attach
+    if server_custom_opts["server"] ~= nil and server_custom_opts["server"]["on_attach"] ~= nil then
+      local override_on_attach = server_custom_opts.server.on_attach
+      on_attach_temp = function(client, bufnr)
+        global_on_attach(client, bufnr)
+        override_on_attach(client, bufnr)
+      end
+    end
+    opts = vim.tbl_deep_extend("force", opts, server_custom_opts)
+    opts["on_attach"] = on_attach_temp
+  end
+  -- require('user.utils').print(opts['init_opts'])
+  -- require('user.utils').print(server)
+  if server_config.skip ~= true then
     lspconfig[server].setup(opts)
   end
 end

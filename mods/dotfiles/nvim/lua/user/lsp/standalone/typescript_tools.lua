@@ -1,9 +1,10 @@
+local nvim_lsp = require("lspconfig")
 require("typescript-tools").setup {
   on_attach = require("user.lsp.handlers").on_attach,
   capabilities = require("user.lsp.handlers").capabilities,
   lsp_flags = require("user.lsp.handlers").lsp_flags,
   -- ft = { "typescript", "typescriptreact" },
-  enabled = true,
+  enabled = not nvim_lsp.util.root_pattern("deno.json", "deno.jsonc"),
   -- on_attach = function() ... end,
   -- handlers = { ... },
   settings = {

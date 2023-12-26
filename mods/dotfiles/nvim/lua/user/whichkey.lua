@@ -167,9 +167,6 @@ local mappings = {
   },
   d = {
     name = "Debug",
-    d = { '<cmd>lua require("neotest").run.run({strategy = "dap"})<CR>', "Debug Closest" },
-    D = { '<cmd>lua require("neotest").run.run({ vim.fn.expand("%"), strategy="dap" })<CR>', "Debug File" },
-    R = { '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>', "Run File" },
     c = { "<Cmd>lua require'dap'.continue()<CR>", "continue/launch" },
     j = { "<Cmd>lua require'dap'.step_over()<CR>", "step over" },
     h = { "<Cmd>lua require'dap'.step_into()<CR>", "step_into" },
