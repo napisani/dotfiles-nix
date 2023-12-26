@@ -9,7 +9,10 @@ if not status_ok then
 	return
 end
 local lspconfig = require("lspconfig")
+local utils = require("user.utils")
 
+local project_lint_config = utils.get_project_config().lint or {}
+local biome_enabled = utils.table_has_value(project_lint_config,"biome")
 local M = {}
 local servers = {
 	angularls = { npm = "@angular/language-server" },
@@ -23,6 +26,7 @@ local servers = {
 	jsonls = { npm = "vscode-langservers-extracted" },
 	lua_ls = { brew = "lua-language-server" },
 	pyright = { npm = "pyright" },
+  biome = { npm = "@biomejs/biome", skip = not biome_enabled },
 	rnix = {},
 	ruff_lsp = { pipx = "ruff-lsp" },
   -- vim_dadbod_completion = {},
@@ -37,6 +41,7 @@ local servers = {
   efm = {},
   -- nil_ls = {},false
 }
+
 local servers_only = {}
 for server, _ in pairs(servers) do
 	table.insert(servers_only, server)
@@ -49,6 +54,7 @@ mason_lspconfig.setup({
 })
 
 for server, server_config in pairs(servers) do
+
 	local opts = {
 		on_attach = require("user.lsp.handlers").on_attach,
 		lsp_flags = require("user.lsp.handlers").lsp_flags,

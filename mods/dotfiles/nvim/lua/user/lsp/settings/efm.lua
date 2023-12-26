@@ -30,6 +30,16 @@ local biome_custom = vim.tbl_extend("force", biome, {
   rootMarkers = { "biome.json" },
 })
 
+
+-- local oxlint = {
+--   lintCommand = "./node_modules/.bin/oxlint lint ${INPUT} | sed -z 's/\\n/ /g' | sed -r 's/\\x1B\\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g' ",
+--   lintStdin = false,
+--   lintFormats = { "%f:%l:%c]%m" },
+--   lintIgnoreExitCode = true,
+--   lintSource = "oxlint",
+-- }
+
+
 local function get_js_linters()
   local linters = {}
   if utils.table_has_value(project_lint_config,"eslint") or next(project_lint_config) == nil then
