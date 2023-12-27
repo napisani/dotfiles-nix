@@ -29,6 +29,7 @@
 
     # for personal dashboards
     # pkgs.wtf
+    # pkgs-unstable.nodePackages."node-inspector"
 
     procmux.packages.${pkgs.system}.default
     (pkgs-unstable.python310.withPackages (p: [

@@ -17,7 +17,7 @@ if not dap_utils_status_ok then
 end
 
 dapui.setup({
-  icons = { expanded = "", collapsed = "", current_frame = "" },
+  icons = { expanded = "▾", collapsed = "▸", current_frame = "▸" },
   mappings = {
     -- Use a table to apply multiple mappings
     expand = { "<CR>", "<2-LeftMouse>" },

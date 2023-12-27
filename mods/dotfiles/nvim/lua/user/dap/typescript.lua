@@ -44,27 +44,27 @@ for _idx, language in ipairs(js_based_langs) do
     {
       type = "pwa-node",
       request = "launch",
-      name = "Launch file",
+      name = "Launch node file",
       program = "${file}",
       cwd = "${workspaceFolder}",
     },
     {
       type = "pwa-node",
       request = "attach",
-      name = "Attach to process",
+      name = "Attach to node process",
       processId = require("dap.utils").pick_process,
       cwd = "${workspaceFolder}",
     },
     {
       type = "node-terminal",
       request = "launch",
-      name = "Launch debug terminal",
+      name = "Launch debug node terminal",
       cwd = "${workspaceFolder}",
     },
     {
       type = "pwa-node",
       request = "launch",
-      name = "Debug build script",
+      name = "Debug node build script",
       -- trace = true, -- include debugger info
       runtimeExecutable = "yarn",
       runtimeArgs = { "build" },
