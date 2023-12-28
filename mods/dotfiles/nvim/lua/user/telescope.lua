@@ -351,9 +351,7 @@ M.git_changed_files = function(opts)
 
 	local entry_maker = opts.entry_maker or make_entry.gen_from_file(opts)
 	opts.entry_maker = function(cmd_output)
-		cmd_output = cmd_output:gsub("%s+", "")
-		cmd_output = cmd_output:sub(2)
-		cmd_output = cmd_output:gsub("%s+", "")
+    cmd_output = cmd_output:match("[^%s]+$")
 		return entry_maker(cmd_output)
 	end
 

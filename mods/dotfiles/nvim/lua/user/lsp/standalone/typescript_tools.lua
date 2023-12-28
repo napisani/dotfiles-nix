@@ -4,7 +4,7 @@ require("typescript-tools").setup {
   capabilities = require("user.lsp.handlers").capabilities,
   lsp_flags = require("user.lsp.handlers").lsp_flags,
   -- ft = { "typescript", "typescriptreact" },
-  enabled = not nvim_lsp.util.root_pattern("deno.json", "deno.jsonc"),
+  enabled = true, 
   -- on_attach = function() ... end,
   -- handlers = { ... },
   settings = {
