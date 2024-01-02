@@ -36,6 +36,7 @@
       "github"
       "lulu"
       "firefox-developer-edition"
+      "tailscale"
 
     ];
     # anything installed with brew (non-casks)
