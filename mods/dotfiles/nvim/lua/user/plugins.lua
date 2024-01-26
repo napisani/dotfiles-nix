@@ -216,9 +216,6 @@ local function define_plugins(use)
   use {
     "alexghergh/nvim-tmux-navigation", commit = "d9efffa413a530bdea3783af4fea86be84940283" }
 
-  use {
-    "stevearc/oil.nvim",commit = "dd432e76d01eda08b8658415588d011009478469" }
-
   -- use('/Users/nick/code/monoscope')
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
