@@ -218,24 +218,6 @@ function M.get_db_connections()
   return conns
 end
 
-function M.get_project_config()
-  local nvim_rc = M.get_root_dir() .. "/.nvimrc.json"
-  local json_file = M.read_json_file(nvim_rc)
-  if json_file == nil then
-    return {
-      lint = {},
-    }
-  end
-  local lint = {}
-  if json_file["lint"] ~= nil then
-    lint = json_file["lint"]
-  end
-  local settings = {
-    lint = lint,
-  }
-  return settings
-end
-
 function M.connection_to_golang_string(conn)
   -- if conn['adapter'] ~= "mysql" then
   --   vim.notify("Only mysql is supported", vim.log.levels.ERROR)
@@ -260,9 +242,55 @@ function M.get_root_dir()
   return root_dir
 end
 
+local default_config = {
+  lint = {},
+  branches = {
+    main = "main",
+    prod = "production",
+  },
+  debug = {
+    launch_file = '.vscode/launch.json',
+  }
+}
+
+local project_config = nil
+function M.get_project_config()
+  if project_config ~= nil then
+    return project_config
+  end
+  local nvim_rc = M.get_root_dir() .. "/.nvimrc.json"
+  local json_file = M.read_json_file(nvim_rc)
+  if json_file == nil then
+    project_config = default_config
+    return project_config
+  end
+  local settings = {}
+  for k, v in pairs(default_config) do
+    settings[k] = v
+    if json_file[k] ~= nil then
+      settings[k] = json_file[k]
+    end
+  end
+  project_config = settings
+  return settings
+end
+
+function M.reset_project_config_cache()
+  project_config = nil
+end
+
+function M.get_prod_git_branch()
+  return M.get_project_config().branches.prod
+end
+
+function M.get_debugger_launch_file()
+  return M.get_project_config().debug.launch_file
+end
+
+
 function M.get_primary_git_branch(default_branch)
   if default_branch == nil then
-    default_branch = "main"
+    default_branch = M.get_project_config().branches.main
   end
   local status_ok, handle =
       pcall(io.popen, "git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'")

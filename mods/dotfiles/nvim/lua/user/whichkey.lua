@@ -4,25 +4,26 @@ if not status_ok then
 end
 local utils = require("user.utils")
 local primary_branch = utils.get_primary_git_branch()
+local prod_branch = utils.get_prod_git_branch()
 
 local setup = {
   plugins = {
-    marks = true,       -- shows a list of your marks on ' and `
-    registers = true,   -- shows your registers on " in NORMAL or <C-r> in INSERT mode
+    marks = true,    -- shows a list of your marks on ' and `
+    registers = true, -- shows your registers on " in NORMAL or <C-r> in INSERT mode
     spelling = {
-      enabled = true,   -- enabling this will show WhichKey when pressing z= to select spelling suggestions
+      enabled = true, -- enabling this will show WhichKey when pressing z= to select spelling suggestions
       suggestions = 20, -- how many suggestions should be shown in the list?
     },
     -- the presets plugin, adds help for a bunch of default keybindings in Neovim
     -- No actual key bindings are created
     presets = {
-      operators = false,   -- adds help for operators like d, y, ... and registers them for motion / text object completion
-      motions = true,      -- adds help for motions
+      operators = false, -- adds help for operators like d, y, ... and registers them for motion / text object completion
+      motions = true,   -- adds help for motions
       text_objects = true, -- help for text objects triggered after entering an operator
-      windows = true,      -- default bindings on <c-w>
-      nav = true,          -- misc bindings to work with windows
-      z = true,            -- bindings for folds, spelling and others prefixed with z
-      g = true,            -- bindings for prefixed with g
+      windows = true,   -- default bindings on <c-w>
+      nav = true,       -- misc bindings to work with windows
+      z = true,         -- bindings for folds, spelling and others prefixed with z
+      g = true,         -- bindings for prefixed with g
     },
   },
   -- add operators that will trigger motion and text object completion
@@ -38,29 +39,29 @@ local setup = {
   icons = {
     breadcrumb = "»", -- symbol used in the command line area that shows your active key combo
     separator = "➜", -- symbol used between a key and it's label
-    group = "+", -- symbol prepended to a group
+    group = "+",    -- symbol prepended to a group
   },
   popup_mappings = {
     scroll_down = "<c-d>", -- binding to scroll down inside the popup
-    scroll_up = "<c-u>",   -- binding to scroll up inside the popup
+    scroll_up = "<c-u>", -- binding to scroll up inside the popup
   },
   window = {
-    border = "rounded",       -- none, single, double, shadow
-    position = "bottom",      -- bottom, top
-    margin = { 1, 0, 1, 0 },  -- extra window margin [top, right, bottom, left]
+    border = "rounded",     -- none, single, double, shadow
+    position = "bottom",    -- bottom, top
+    margin = { 1, 0, 1, 0 }, -- extra window margin [top, right, bottom, left]
     padding = { 2, 2, 2, 2 }, -- extra window padding [top, right, bottom, left]
     winblend = 0,
   },
   layout = {
-    height = { min = 4, max = 25 },                                             -- min and max height of the columns
-    width = { min = 20, max = 50 },                                             -- min and max width of the columns
-    spacing = 3,                                                                -- spacing between columns
-    align = "left",                                                             -- align columns left, center or right
+    height = { min = 4, max = 25 },                                            -- min and max height of the columns
+    width = { min = 20, max = 50 },                                            -- min and max width of the columns
+    spacing = 3,                                                               -- spacing between columns
+    align = "left",                                                            -- align columns left, center or right
   },
-  ignore_missing = true,                                                        -- enable this to hide mappings for which you didn't specify a label
+  ignore_missing = true,                                                       -- enable this to hide mappings for which you didn't specify a label
   hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "call", "lua", "^:", "^ " }, -- hide mapping boilerplate
-  show_help = true,                                                             -- show help message on the command line when the popup is visible
-  triggers = "auto",                                                            -- automatically setup triggers
+  show_help = true,                                                            -- show help message on the command line when the popup is visible
+  triggers = "auto",                                                           -- automatically setup triggers
   -- triggers = {"<leader>"} -- or specify a list manually
   triggers_blacklist = {
     -- list of mode / prefixes that should never be hooked by WhichKey
@@ -72,20 +73,20 @@ local setup = {
 }
 vim.cmd([[ command! BuffOnly execute '%bdelete|edit #|normal `"' ]])
 local opts = {
-  mode = "n",     -- NORMAL mode
+  mode = "n",    -- NORMAL mode
   prefix = "<leader>",
-  buffer = nil,   -- Global mappings. Specify a buffer number for buffer local mappings
-  silent = true,  -- use `silent` when creating keymaps
+  buffer = nil,  -- Global mappings. Specify a buffer number for buffer local mappings
+  silent = true, -- use `silent` when creating keymaps
   noremap = true, -- use `noremap` when creating keymaps
-  nowait = true,  -- use `nowait` when creating keymaps
+  nowait = true, -- use `nowait` when creating keymaps
 }
 local opts_v = {
-  mode = "v",     -- VISUAL mode
+  mode = "v",    -- VISUAL mode
   prefix = "<leader>",
-  buffer = nil,   -- Global mappings. Specify a buffer number for buffer local mappings
-  silent = true,  -- use `silent` when creating keymaps
+  buffer = nil,  -- Global mappings. Specify a buffer number for buffer local mappings
+  silent = true, -- use `silent` when creating keymaps
   noremap = true, -- use `noremap` when creating keymaps
-  nowait = true,  -- use `nowait` when creating keymaps
+  nowait = true, -- use `nowait` when creating keymaps
 }
 
 local mappings = {
@@ -125,8 +126,8 @@ local mappings = {
       m = { "<Cmd>:G checkout " .. primary_branch .. " -- %<CR>", "(m)ain" },
       M = { "<Cmd>:G checkout origin/" .. primary_branch .. "-- %<CR>", "origin/(M)ain" },
 
-      p = { "<Cmd>:G checkout prod -- %<CR>", "(p)rod" },
-      P = { "<Cmd>:G checkout origin/prod -- %<CR>", "origin/(P)rod" },
+      p = { "<Cmd>:G checkout " .. prod_branch .. " -- %<CR>", "(p)rod" },
+      P = { "<Cmd>:G checkout origin/" .. prod_branch .. " -- %<CR>", "origin/(P)rod" },
 
       h = { "<Cmd>:G checkout HEAD -- %<CR>", "HEAD" },
     },
@@ -137,8 +138,8 @@ local mappings = {
     m = { "<Cmd>:DiffviewOpen " .. primary_branch .. "<CR>", "(m)ain" },
     M = { "<Cmd>:DiffviewOpen origin/" .. primary_branch .. "<CR>", "origin/(M)ain" },
 
-    p = { "<Cmd>:DiffviewOpen prod<CR>", "(p)rod" },
-    P = { "<Cmd>:DiffviewOpen origin/prod<CR>", "origin/(P)rod" },
+    p = { "<Cmd>:DiffviewOpen " .. prod_branch .. "<CR>", "(p)rod" },
+    P = { "<Cmd>:DiffviewOpen origin/" .. prod_branch .. "<CR>", "origin/(P)rod" },
 
     H = { "<Cmd>:DiffviewOpen HEAD<CR>", "diff (H)ead" },
     q = { "<Cmd>:DiffviewClose<CR>", "DiffviewClose" },
@@ -148,9 +149,8 @@ local mappings = {
       m = { "<Cmd>:DiffviewOpen " .. primary_branch .. " -- %<CR>", "(m)ain" },
       M = { "<Cmd>:DiffviewOpen origin/" .. primary_branch .. "-- %<CR>", "origin/(M)ain" },
 
-
-      p = { "<Cmd>:DiffviewOpen prod -- %<CR>", "(p)rod" },
-      P = { "<Cmd>:DiffviewOpen origin/prod -- %<CR>", "origin/(P)rod" },
+      p = { "<Cmd>:DiffviewOpen " .. prod_branch .. " -- %<CR>", "(p)rod" },
+      P = { "<Cmd>:DiffviewOpen origin/" .. prod_branch .. " -- %<CR>", "origin/(P)rod" },
 
       h = { "<Cmd>:DiffviewFileHistory %<CR>", "File (H)istory" },
       H = { "<Cmd>:DiffviewOpen HEAD -- %<CR>", "diff (H)ead" },
@@ -225,7 +225,6 @@ local mappings = {
     u = { "<cmd>PackerUpdate<cr>", "Update" },
   },
 
-
   l = {
     name = "LSP",
     a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code (a)ction" },
@@ -265,8 +264,14 @@ local mappings = {
     name = "CWord Under Cursor",
     f = {
       name = "Find",
-      r = { "<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.expand('<cword>')})<CR>", "(f)ile by name" },
-      h = { "<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.expand('<cword>')})<CR>", "grep w(h)ole project" }
+      r = {
+        "<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
+        "(f)ile by name",
+      },
+      h = {
+        "<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
+        "grep w(h)ole project",
+      },
     },
     r = {
       name = "Replace",
@@ -274,17 +279,24 @@ local mappings = {
       B = { ":%s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(B)uffer ask" },
       q = { ":cdo %s/<C-R>=expand('<cword>')<CR>//g<left><left>", "(q)uicklist" },
       Q = { ":cdo %s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(Q)uicklist ask" },
-    }
+    },
   },
   p = {
     name = "Paste to",
-    ['/'] = {
-      "/<c-r>0<cr>", "search in buffer",
+    ["/"] = {
+      "/<c-r>0<cr>",
+      "search in buffer",
     },
     f = {
       name = "Find",
-      r = { "<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.getreg('*')})<CR>", "(f)ile by name" },
-      h = { "<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.getreg('*')})<CR>", "grep w(h)ole project" }
+      r = {
+        "<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.getreg('*')})<CR>",
+        "(f)ile by name",
+      },
+      h = {
+        "<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.getreg('*')})<CR>",
+        "grep w(h)ole project",
+      },
     },
     r = {
       name = "Replace",
@@ -292,7 +304,7 @@ local mappings = {
       B = { ":%s/<c-r>0//gc<left><left><left>", "(B)uffer ask" },
       q = { ":cdo %s/<c-r>0//g<left><left>", "(q)uicklist" },
       Q = { ":cdo %s/<c-r>0//gc<left><left><left>", "(Q)uicklist ask" },
-    }
+    },
   },
   f = {
     name = "Find",
@@ -350,7 +362,7 @@ local mappings = {
       t = { "<cmd>:GpUnitTests<cr>", "add (t)ests" },
       e = { "<cmd>:GpExplain<cr>", "(e)xplian" },
       i = { "<cmd>:GpImplement<cr>", "(i)mplement" },
-    }
+    },
   },
 
   -- t = {
@@ -393,7 +405,7 @@ local mappings_v = mappings_spreader({
       t = { ":<C-u>'<,'>GpUnitTests<cr>", "add (t)ests" },
       e = { ":<C-u>'<,'>GpExplain<cr>", "(e)xplian" },
       i = { ":<C-u>'<,'>GpImplement<cr>", "(i)mplement" },
-    }
+    },
   },
 })
 
