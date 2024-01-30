@@ -1,10 +1,9 @@
-{ pkgs, pkgs-unstable, oxlint_dep, config, ... }: {
+{ pkgs, pkgs-unstable, oxlint_dep, neovim_dep, config, ... }: {
   programs.neovim = {
     enable = true;
     defaultEditor = true;
-    /*package = pkgs.neovim.unwrapped;*/
-    /* package = pkgs.neovim-nightly; */
-    package = pkgs-unstable.neovim-unwrapped;
+    package = neovim_dep.neovim-unwrapped;
+    #package = pkgs-unstable.neovim-unwrapped;
     viAlias = false;
     vimAlias = true;
     withNodeJs = false;
