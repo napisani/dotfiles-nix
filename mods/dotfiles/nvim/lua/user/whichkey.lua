@@ -237,7 +237,7 @@ local mappings = {
       "<cmd>Telescope lsp_workspace_diagnostics<cr>",
       "(w)orkspace diagnostics",
     },
-    f = { "<cmd>lua vim.lsp.buf.format{async=true}<cr>", "(f)ormat" },
+    f = { "<cmd>lua vim.lsp.buf.format{ async=true, name = 'efm' }<cr>", "(f)ormat" },
     i = { "organize (i)mports" },
     -- i = { "<cmd>OrganizeImports<cr>", "organize (i)mports" },
     -- i = { "<cmd>LspInfo<cr>", "(i)nfo" },

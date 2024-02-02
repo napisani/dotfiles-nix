@@ -1,7 +1,7 @@
 local status_ok, _ = pcall(require, "efmls-configs")
 if not status_ok then
-  vim.notify("efmls-configs not found")
-  return
+	vim.notify("efmls-configs not found")
+	return
 end
 
 local utils = require("user.utils")
@@ -23,13 +23,13 @@ local ruff_format = require("efmls-configs.formatters.ruff")
 local ruff_lint = require("efmls-configs.linters.ruff")
 local statix = require("efmls-configs.linters.statix")
 local nixfmt = require("efmls-configs.formatters.nixfmt")
+local cspell = require("efmls-configs.linters.cspell")
 
 local project_lint_config = utils.get_project_config().lint or {}
 
 local biome_custom = vim.tbl_extend("force", biome, {
-  rootMarkers = { "biome.json" },
+	rootMarkers = { "biome.json" },
 })
-
 
 -- local oxlint = {
 --   lintCommand = "./node_modules/.bin/oxlint lint ${INPUT} | sed -z 's/\\n/ /g' | sed -r 's/\\x1B\\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g' ",
@@ -39,47 +39,69 @@ local biome_custom = vim.tbl_extend("force", biome, {
 --   lintSource = "oxlint",
 -- }
 
-
 local function get_js_linters()
-  local linters = {}
-  if utils.table_has_value(project_lint_config,"eslint") or next(project_lint_config) == nil then
-    table.insert(linters, eslint_d_lint)
-    table.insert(linters, eslint_d_format)
-  end
-  if utils.table_has_value(project_lint_config,"prettier") then
-    table.insert(linters, prettier)
-  end
-  if utils.table_has_value(project_lint_config,"biome") then
-    table.insert(linters, biome_custom)
-  end
-  return linters
+	local linters = {}
+	if next(project_lint_config) == nil then
+		table.insert(linters, eslint_d_lint)
+		table.insert(linters, eslint_d_format)
+		return linters
+	end
+	for _, value in ipairs(project_lint_config) do
+		if value == "eslint" then
+			table.insert(linters, eslint_d_lint)
+			table.insert(linters, eslint_d_format)
+		end
+		if value == "prettier" then
+			table.insert(linters, prettier)
+		end
+		if value == "biome" then
+			table.insert(linters, biome_custom)
+		end
+	end
+	return linters
 end
 
+
 local languages = {
-  go = { gofmt, goimports },
-  nix = { nixfmt, statix },
-  sh = { shellcheck, shfmt },
-  typescript = get_js_linters(),
-  javascript = get_js_linters(),
-  typescriptreact = get_js_linters(),
-  javascriptreact = get_js_linters(),
-  vue = get_js_linters(),
-  lua = { stylua },
-  json = { fixjson, jq_lint, jq_format },
-  jsonc = { fixjson, jq_lint, jq_format },
-  python = { isort, ruff_format, ruff_lint },
+	go = { gofmt, goimports },
+	nix = { nixfmt, statix },
+	sh = { shellcheck, shfmt },
+	typescript = get_js_linters(),
+	javascript = get_js_linters(),
+	typescriptreact = get_js_linters(),
+	javascriptreact = get_js_linters(),
+	vue = get_js_linters(),
+	lua = { stylua },
+	json = { fixjson, jq_lint, jq_format },
+	jsonc = { fixjson, jq_lint, jq_format },
+	python = { isort, ruff_format, ruff_lint },
 }
 
+-- add linters to all languages
+if next(project_lint_config) == nil then
+	for _, linters in pairs(languages) do
+		table.insert(linters, cspell)
+	end
+else
+	for _, linters in pairs(languages) do
+    for _, value in ipairs(project_lint_config) do
+      if value == "cspell" then
+        table.insert(linters, cspell)
+      end
+    end
+	end
+end
+
 local efmls_config = {
-  filetypes = vim.tbl_keys(languages),
-  settings = {
-    rootMarkers = { ".git/" },
-    languages = languages,
-  },
-  init_options = {
-    documentFormatting = true,
-    documentRangeFormatting = true,
-  },
+	filetypes = vim.tbl_keys(languages),
+	settings = {
+		rootMarkers = { ".git/" },
+		languages = languages,
+	},
+	init_options = {
+		documentFormatting = true,
+		documentRangeFormatting = true,
+	},
 }
 
 -- -- Format on save

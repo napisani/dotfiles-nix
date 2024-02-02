@@ -69,6 +69,9 @@
   system.defaults = {
     finder.AppleShowAllExtensions = true;
     finder._FXShowPosixPathInTitle = true;
+    # When performing a search, search the current folder by default
+    finder.FXDefaultSearchScope = "SCcf";
+    NSGlobalDomain.WebKitDeveloperExtras = true;
     NSGlobalDomain.AppleShowAllExtensions = true;
     NSGlobalDomain.AppleInterfaceStyle = "Dark";
     NSGlobalDomain."com.apple.swipescrolldirection" = false;
@@ -76,6 +79,10 @@
     finder.QuitMenuItem = true;
     finder.ShowStatusBar = true;
     trackpad.Clicking = true;
+    "com.apple.screencapture" = {
+      location = "~/Desktop";
+      type = "png";
+    };
   };
   nix = {
    package = pkgs.nixFlakes;
