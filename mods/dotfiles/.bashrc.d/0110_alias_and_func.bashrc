@@ -29,6 +29,7 @@ alias serve-directory='python3 -m http.server'
 alias password-lookup='pushd $(pwd) ; cd ~/scripts/password-lookup3; python password-lookup.py; popd'
 alias restart-karabiner='killall Karabiner-Elements ; launchctl stop org.pqrs.karabiner.karabiner_console_user_server && sleep 3 && launchctl start org.pqrs.karabiner.karabiner_console_user_server && open -a karabiner-elements'
 
+alias dns-clear='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
 
 # capture the output of a command so it can be retrieved with ret
 cap() { 
@@ -89,3 +90,5 @@ function color-test {
       printf "\n";
   }'
 }
+
+
