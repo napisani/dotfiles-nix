@@ -56,6 +56,15 @@ for k, v in pairs(options) do
   vim.opt[k] = v
 end
 
--- vim.cmd "set whichwrap+=<,>,[,],h,l"
--- vim.cmd [[set iskeyword+=-]]
--- vim.cmd [[set formatoptions-=cro]] -- TODO: this doesn't seem to work
+-- enable :Cfilter in quickfix to refine quickfix list results
+vim.cmd(":packadd cfilter")
+
+
+-- make quickfix modifiable 
+vim.cmd [[
+augroup quickfix_modifiable 
+	autocmd!
+	autocmd BufReadPost quickfix setlocal modifiable
+augroup END
+]]
+
