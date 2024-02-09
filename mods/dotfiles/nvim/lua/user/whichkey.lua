@@ -253,7 +253,7 @@ local mappings = {
     l = { "<cmd>lua vim.lsp.codelens.run()<cr>", "Codea(l)ens Action" },
     q = { "<cmd>lua vim.lsp.diagnostic.set_loclist()<cr>", "(q)uickfix" },
     r = { "<cmd>lua vim.lsp.buf.rename()<cr>", "(r)ename" },
-    R = { "<cmd>:LspStop<cr><cmd>:edit<cr>", "(R)estart LSPs" },
+    R = { "<cmd>:LspRestart<cr>", "(R)estart LSPs" },
     s = { "<cmd>Telescope lsp_document_symbols<cr>", "document (s)ymbols" },
     S = {
       "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>",
