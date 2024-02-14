@@ -316,6 +316,12 @@ local mappings = {
       "<cmd>lua require('user.telescope').live_grep_in_directory()<CR>",
       "grep (in path)",
     },
+
+    q = {
+      "<cmd>lua require('user.telescope').live_grep_qflist()<CR>",
+      "grep (q)uicklist",
+    },
+
     e = { "<cmd>lua require('user.telescope').search_buffers()<CR>", "Buffers" },
     r = { "<cmd>lua require('user.telescope').find_files_from_root()<CR>", "Files" },
     t = { "<cmd>lua require('user.telescope').search_git_files()<CR>", "Git Files" },
@@ -337,7 +343,7 @@ local mappings = {
     },
     C = { "<cmd>Telescope commands<cr>", "Commands" },
     o = { "<cmd>Telescope colorscheme<cr>", "C(o)lorscheme" },
-    q = { "<cmd>Telescope help_tags<cr>", "Find Help" },
+    Q = { "<cmd>Telescope help_tags<cr>", "Find Help" },
     M = { "<cmd>Telescope man_pages<cr>", "Man Pages" },
     -- r = { "<cmd>Telescope oldfiles<cr>", "Open Recent File" },
     R = { "<cmd>Telescope registers<cr>", "Registers" },

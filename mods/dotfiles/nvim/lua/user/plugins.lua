@@ -242,6 +242,11 @@ local function define_plugins(use)
     commit = "d9efffa413a530bdea3783af4fea86be84940283",
   })
 
+  use({
+    "stefandtw/quickfix-reflector.vim",
+    commit = "6a6a9e28e1713b9e9db99eec1e6672e5666c01b9"
+  })
+
   -- use('/Users/nick/code/monoscope')
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
