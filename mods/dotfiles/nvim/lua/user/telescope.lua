@@ -4,6 +4,12 @@ if not status_ok then
 	return
 end
 
+local plenary_ok, PlenaryJob = pcall(require, "plenary.job")
+if not plenary_ok then
+	vim.notify("plenary not found")
+	return
+end
+
 local utils = require("user.utils")
 local actions = require("telescope.actions")
 
@@ -171,7 +177,20 @@ local ignore_globs = {
 	"--iglob",
 	"!**.rlib",
 }
--- local rooter = require("nvim-rooter")
+
+local ripgrep_base_cmd = {
+	"rg",
+	"--color=never",
+	"--no-heading",
+}
+
+local content_ripgrep_base_cmd = utils.merge_list(ripgrep_base_cmd, {
+	"--with-filename",
+	"--line-number",
+	"--column",
+	"--smart-case",
+})
+
 local neoscopes = require("user.neoscopes").neoscopes
 local function constrain_to_scope()
 	local success, scope = pcall(neoscopes.get_current_scope)
@@ -208,25 +227,14 @@ end
 
 function M.find_files_from_root(opts)
 	opts = opts or {}
-	-- local cwd = rooter.get_root()
-	-- if cwd ~= nil then
-	-- 	opts.cwd = cwd
-	-- else
-	-- 	opts.cwd = vim.fn.getcwd()
-	-- end
 	opts.cwd = utils.get_root_dir()
 	local cmd_opts, dir_opts = constrain_to_scope()
-	opts.find_command = utils.merge_list(
-		utils.merge_list({
-			"rg",
-			"--files",
-			-- '--iglob', 'config.local.json',
-			-- '--iglob', '.env.*',
-			"--hidden",
-			-- "--no-ignore", -- **This is the added flag**
-		}, ignore_globs),
-		cmd_opts
-	)
+
+	local find_command = utils.merge_list(ripgrep_base_cmd, { "--files", "--hidden" })
+	find_command = utils.merge_list(find_command, ignore_globs)
+	find_command = utils.merge_list(find_command, cmd_opts)
+
+	opts.find_command = find_command
 	opts.search_dirs = opts.search_dirs or {}
 	opts.search_dirs = utils.merge_list(opts.search_dirs, dir_opts)
 
@@ -237,31 +245,19 @@ end
 M.search_git_files = builtin.git_files
 function M.live_grep_from_root(opts)
 	opts = opts or {}
-	-- local cwd = require("nvim-rooter").get_root()
-	-- if cwd ~= nil then
-	-- 	opts.cwd = cwd
-	-- end
 	opts.cwd = utils.get_root_dir()
 	local cmd_opts, dir_opts = constrain_to_scope()
-	opts.vimgrep_arguments = utils.merge_list(
-		utils.merge_list({
-			"rg",
-			"--color=never",
-			"--no-heading",
-			"--with-filename",
-			"--line-number",
-			"--column",
-			"--smart-case",
-			-- "--no-ignore", -- **This is the added flag**
-			"--hidden", -- **Also this flag. The combination of the two is the same as `-uu`**
-		}, ignore_globs),
-		cmd_opts
-	)
 
+	local vimgrep_arguments = utils.merge_list(content_ripgrep_base_cmd, {
+		-- "--no-ignore", -- **This is the added flag**
+		"--hidden", -- **Also this flag. The combination of the two is the same as `-uu`**
+	})
+	vimgrep_arguments = utils.merge_list(vimgrep_arguments, ignore_globs)
+	vimgrep_arguments = utils.merge_list(vimgrep_arguments, cmd_opts)
+
+	opts.vimgrep_arguments = vimgrep_arguments
 	opts.search_dirs = opts.search_dirs or {}
 	opts.search_dirs = utils.merge_list(opts.search_dirs, dir_opts)
-	-- utils.print(opts)
-	-- vim.notify(opts)
 	builtin.live_grep(opts)
 end
 
@@ -274,27 +270,21 @@ function M.live_grep_qflist(opts)
 	local file_list = {}
 	for _, item in ipairs(list.items) do
 		if item.text ~= nil then
-      table.insert(file_list, '--glob')
+			table.insert(file_list, "--glob")
 			table.insert(file_list, item.text)
 		end
 	end
 	opts = opts or {}
 	opts.cwd = utils.get_root_dir()
 	local cmd_opts, dir_opts = constrain_to_scope()
-	opts.vimgrep_arguments = utils.merge_list(
-		utils.merge_list({
-			"rg",
-			"--color=never",
-			"--no-heading",
-			"--with-filename",
-			"--line-number",
-			"--column",
-			"--smart-case",
-			-- "--no-ignore", -- **This is the added flag**
-			"--hidden", -- **Also this flag. The combination of the two is the same as `-uu`**
-		}, file_list),
-		cmd_opts
-	)
+
+	local vimgrep_arguments = utils.merge_list(content_ripgrep_base_cmd, {
+		-- "--no-ignore", -- **This is the added flag**
+		"--hidden", -- **Also this flag. The combination of the two is the same as `-uu`**
+	})
+	vimgrep_arguments = utils.merge_list(vimgrep_arguments, file_list)
+	vimgrep_arguments = utils.merge_list(vimgrep_arguments, cmd_opts)
+	opts.vimgrep_arguments = vimgrep_arguments
 
 	opts.search_dirs = opts.search_dirs or {}
 	opts.search_dirs = utils.merge_list(opts.search_dirs, dir_opts)
@@ -303,7 +293,6 @@ end
 
 M.search_buffers = builtin.buffers
 
--- live_grep_in_directory propmpt
 local Path = require("plenary.path")
 local action_set = require("telescope.actions.set")
 local action_state = require("telescope.actions.state")
@@ -335,6 +324,36 @@ function M.find_file_from_root_and_callback(callback_fn)
 			return true
 		end,
 	})
+end
+
+
+-- TODO come back to this
+function M.live_grep_git_changed_files(opts)
+	opts = opts or {}
+	opts.cwd = utils.get_root_dir()
+	local cmd_opts, dir_opts = constrain_to_scope()
+
+	PlenaryJob:new({
+		command = "git",
+		args = { "status", "--porcelain", "-u" },
+		cwd = opts.cwd,
+		on_exit = function(j, return_val)
+			print(return_val)
+			print(j:result())
+		end,
+	}):sync() -- or start()
+
+	local vimgrep_arguments = utils.merge_list(content_ripgrep_base_cmd, {
+		-- "--no-ignore", -- **This is the added flag**
+		"--hidden", -- **Also this flag. The combination of the two is the same as `-uu`**
+	})
+	vimgrep_arguments = utils.merge_list(vimgrep_arguments, ignore_globs)
+	vimgrep_arguments = utils.merge_list(vimgrep_arguments, cmd_opts)
+
+	opts.vimgrep_arguments = vimgrep_arguments
+	opts.search_dirs = opts.search_dirs or {}
+	opts.search_dirs = utils.merge_list(opts.search_dirs, dir_opts)
+	builtin.live_grep(opts)
 end
 
 M.live_grep_in_directory = function(opts)
