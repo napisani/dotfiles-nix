@@ -8,6 +8,7 @@
     "nvim",
     "vim",
     "vimgrep",
-    "neoscope"
+    "neoscope",
+    "neoscopes"
   ]
 }

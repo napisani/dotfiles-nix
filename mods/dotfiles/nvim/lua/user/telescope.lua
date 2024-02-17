@@ -191,6 +191,10 @@ local content_ripgrep_base_cmd = utils.merge_list(ripgrep_base_cmd, {
 	"--smart-case",
 })
 
+local function trimGitModificationIndicator(cmd_output)
+	return cmd_output:match("[^%s]+$")
+end
+
 local neoscopes = require("user.neoscopes").neoscopes
 local function constrain_to_scope()
 	local success, scope = pcall(neoscopes.get_current_scope)
@@ -238,7 +242,6 @@ function M.find_files_from_root(opts)
 	opts.search_dirs = opts.search_dirs or {}
 	opts.search_dirs = utils.merge_list(opts.search_dirs, dir_opts)
 
-	-- utils.print(opts.find_command)
 	builtin.find_files(opts)
 end
 
@@ -261,19 +264,7 @@ function M.live_grep_from_root(opts)
 	builtin.live_grep(opts)
 end
 
-function M.live_grep_qflist(opts)
-	local list = vim.fn.getqflist({ all = true })
-	if list == nil or list.items == nil or vim.tbl_isempty(list.items) then
-		vim.notify("No items in quickfix list")
-		return
-	end
-	local file_list = {}
-	for _, item in ipairs(list.items) do
-		if item.text ~= nil then
-			table.insert(file_list, "--glob")
-			table.insert(file_list, item.text)
-		end
-	end
+local function live_grep_static_file_list(opts, file_list)
 	opts = opts or {}
 	opts.cwd = utils.get_root_dir()
 	local cmd_opts, dir_opts = constrain_to_scope()
@@ -289,6 +280,22 @@ function M.live_grep_qflist(opts)
 	opts.search_dirs = opts.search_dirs or {}
 	opts.search_dirs = utils.merge_list(opts.search_dirs, dir_opts)
 	builtin.live_grep(opts)
+end
+
+function M.live_grep_qflist(opts)
+	local list = vim.fn.getqflist({ all = true })
+	if list == nil or list.items == nil or vim.tbl_isempty(list.items) then
+		vim.notify("No items in quickfix list")
+		return
+	end
+	local file_list = {}
+	for _, item in ipairs(list.items) do
+		if item.text ~= nil then
+			table.insert(file_list, "--glob")
+			table.insert(file_list, item.text)
+		end
+	end
+	live_grep_static_file_list(opts, file_list)
 end
 
 M.search_buffers = builtin.buffers
@@ -326,34 +333,38 @@ function M.find_file_from_root_and_callback(callback_fn)
 	})
 end
 
-
--- TODO come back to this
 function M.live_grep_git_changed_files(opts)
-	opts = opts or {}
-	opts.cwd = utils.get_root_dir()
-	local cmd_opts, dir_opts = constrain_to_scope()
-
+	local file_list = {}
 	PlenaryJob:new({
 		command = "git",
 		args = { "status", "--porcelain", "-u" },
-		cwd = opts.cwd,
-		on_exit = function(j, return_val)
-			print(return_val)
-			print(j:result())
+		cwd = utils.get_root_dir(),
+		on_exit = function(job)
+			for _, cmd_output in ipairs(job:result()) do
+				table.insert(file_list, "--glob")
+				table.insert(file_list, trimGitModificationIndicator(cmd_output))
+			end
 		end,
-	}):sync() -- or start()
+	}):sync()
 
-	local vimgrep_arguments = utils.merge_list(content_ripgrep_base_cmd, {
-		-- "--no-ignore", -- **This is the added flag**
-		"--hidden", -- **Also this flag. The combination of the two is the same as `-uu`**
-	})
-	vimgrep_arguments = utils.merge_list(vimgrep_arguments, ignore_globs)
-	vimgrep_arguments = utils.merge_list(vimgrep_arguments, cmd_opts)
+	live_grep_static_file_list(opts, file_list)
+end
 
-	opts.vimgrep_arguments = vimgrep_arguments
-	opts.search_dirs = opts.search_dirs or {}
-	opts.search_dirs = utils.merge_list(opts.search_dirs, dir_opts)
-	builtin.live_grep(opts)
+function M.live_grep_git_changed_cmp_base_branch(opts)
+	local base_branch = utils.get_primary_git_branch()
+	local file_list = {}
+	PlenaryJob:new({
+		command = "git",
+		args = { "diff", "--name-only", base_branch .. "..HEAD" },
+		cwd = utils.get_root_dir(),
+		on_exit = function(job)
+			for _, cmd_output in ipairs(job:result()) do
+				table.insert(file_list, "--glob")
+				table.insert(file_list, cmd_output)
+			end
+		end,
+	}):sync()
+	live_grep_static_file_list(opts, file_list)
 end
 
 M.live_grep_in_directory = function(opts)
@@ -371,7 +382,7 @@ M.live_grep_in_directory = function(opts)
 
 	pickers
 		.new(opts, {
-			prompt_title = "Folders for Live Grep",
+			prompt_title = "Directory for Live Grep",
 			finder = finders.new_table({ results = data, entry_maker = make_entry.gen_from_file(opts) }),
 			previewer = conf.file_previewer(opts),
 			sorter = conf.file_sorter(opts),
@@ -402,7 +413,7 @@ M.git_changed_files = function(opts)
 
 	local entry_maker = opts.entry_maker or make_entry.gen_from_file(opts)
 	opts.entry_maker = function(cmd_output)
-		cmd_output = cmd_output:match("[^%s]+$")
+		cmd_output = trimGitModificationIndicator(cmd_output)
 		return entry_maker(cmd_output)
 	end
 
