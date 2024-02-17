@@ -24,9 +24,9 @@
     oxlint_dep.url =
       "github:NixOS/nixpkgs/85306ef2470ba705c97ce72741d56e42d0264015";
 
-    # neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
-    # neovim 0.9.5
     neovim_dep.url = "github:NixOS/nixpkgs/4fddc9be4eaf195d631333908f2a454b03628ee5";
+
+    golang_dep.url = "github:NixOS/nixpkgs/c0b7a892fb042ede583bdaecbbdc804acb85eabe";
 
   };
   outputs =
@@ -38,6 +38,7 @@
     , procmux
     , oxlint_dep
     , neovim_dep
+    , golang_dep
     , ...
     }@inputs:
     let
@@ -73,6 +74,7 @@
                   procmux = procmux;
                   oxlint_dep = inputs.oxlint_dep.legacyPackages.aarch64-darwin;
                   neovim_dep = inputs.neovim_dep.legacyPackages.aarch64-darwin;
+                  golang_dep = inputs.golang_dep.legacyPackages.aarch64-darwin;
                   overlays = overlays;
                   user = "nick";
                 };
@@ -103,6 +105,7 @@
                   procmux = procmux;
                   oxlint_dep = inputs.oxlint_dep.legacyPackages.aarch64-darwin;
                   neovim_dep = inputs.neovim_dep.legacyPackages.aarch64-darwin;
+                  golang_dep = inputs.golang_dep.legacyPackages.aarch64-darwin;
                   overlays = overlays;
                   user = "nick";
                 };
@@ -134,6 +137,7 @@
                   procmux = procmux;
                   oxlint_dep = inputs.oxlint_dep.legacyPackages.aarch64-darwin;
                   neovim_dep = inputs.neovim_dep.legacyPackages.aarch64-darwin;
+                  golang_dep = inputs.golang_dep.legacyPackages.aarch64-darwin;
                   overlays = overlays;
                   user = "nickpisani";
                 };
