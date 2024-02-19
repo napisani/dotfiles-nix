@@ -98,12 +98,14 @@ local mappings = {
 	W = { "<cmd>:wa<cr>", "(w)rite all" },
 	Q = { "<Cmd>:q<CR>", "(Q)uit" },
 
+	-- buffer commands
 	b = {
 		name = "buffers",
 		["q"] = { "<cmd>Bdelete!<CR>", "(q)uit Buffer" },
 		["o"] = { "<cmd>BuffOnly<CR>", "(o)nly keep current Buffer" },
 	},
 
+	-- git commands
 	g = {
 		name = "Git",
 		j = { "<cmd>lua require 'gitsigns'.next_hunk()<cr>", "Next Hunk" },
@@ -189,19 +191,15 @@ local mappings = {
 		O = { "<Cmd>lua require'dapui'.open()<CR>", "open debugger" },
 		q = { "<Cmd>lua require'dapui'.close()<CR>", "close debugger" },
 	},
+
+	-- database commands
 	D = {
 		name = "Database",
 		o = { "<Cmd>DBUI<CR>", "(o)pen" },
 		q = { "<Cmd>DBUIClose<CR>", "(q)uit" },
 	},
-	r = {
-		name = "Replace",
-		b = { ":%s/<c-r>0//g<left><left>", "(b)uffer" },
-		B = { ":%s/<c-r>0//gc<left><left><left>", "(B)uffer ask" },
-		["*"] = { ":%s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(*)word" },
-		q = { ":cdo %s/<c-r>0//g<left><left>", "(q)uicklist" },
-		Q = { ":cdo %s/<c-r>0//gc<left><left><left>", "(Q)uicklist ask" },
-	},
+
+	-- REPL commands
 	R = {
 		name = "REPL",
 		O = {
@@ -219,6 +217,8 @@ local mappings = {
 		q = "(q)uit repl",
 		x = "clear repl",
 	},
+
+	-- packer commands
 	P = {
 		name = "Packer",
 		c = { "<cmd>PackerCompile<cr>", "Compile" },
@@ -264,18 +264,17 @@ local mappings = {
 			"workspace (S)ymbols",
 		},
 	},
+
+	-- star commands
 	["*"] = {
 		name = "CWord Under Cursor",
 		f = {
-			name = "Find",
-			r = {
-				"<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
-				"(f)ile by name",
-			},
-			h = {
-				"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
-				"grep w(h)ole project",
-			},
+			"<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
+			"(f)ile by name",
+		},
+		h = {
+			"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
+			"grep w(h)ole project",
 		},
 		r = {
 			name = "Replace",
@@ -285,6 +284,18 @@ local mappings = {
 			Q = { ":cdo %s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(Q)uicklist ask" },
 		},
 	},
+
+	-- replace commands
+	r = {
+		name = "Replace",
+		b = { ":%s///g<left><left><left>", "(b)uffer" },
+		B = { ":%s///gc<left><left><left><left>", "(B)uffer ask" },
+		["*"] = { ":%s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(*)word" },
+		q = { ":cdo %s///g<left><left><left>", "(q)uicklist" },
+		Q = { ":cdo %s///gc<left><left><left><left>", "(Q)uicklist ask" },
+	},
+
+	-- paste commands
 	p = {
 		name = "Paste to",
 		["/"] = {
@@ -293,22 +304,12 @@ local mappings = {
 		},
 
 		f = {
-			name = "Find",
-			r = {
-				"<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.getreg('*')})<CR>",
-				"(f)ile by name",
-			},
-			h = {
-				"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.getreg('*')})<CR>",
-				"grep w(h)ole project",
-			},
+			"<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.getreg('*')})<CR>",
+			"find (f)ile by name",
 		},
-		r = {
-			name = "Replace",
-			b = { ":%s/<c-r>0//g<left><left>", "(b)uffer" },
-			B = { ":%s/<c-r>0//gc<left><left><left>", "(B)uffer ask" },
-			q = { ":cdo %s/<c-r>0//g<left><left>", "(q)uicklist" },
-			Q = { ":cdo %s/<c-r>0//gc<left><left><left>", "(Q)uicklist ask" },
+		h = {
+			"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.getreg('*')})<CR>",
+			"grep w(h)ole project",
 		},
 	},
 
@@ -384,27 +385,11 @@ local mappings = {
 			i = { "<cmd>:GpImplement<cr>", "(i)mplement" },
 		},
 	},
-
-	-- t = {
-	--   name = "ChatGPT",
-	--   o = { "<cmd>:ChatGPT<cr>", "(o)pen ChatGPT" },
-	--   e = { "<cmd>:ChatGPTEditWithInstructions<cr>", "(e)dit with instructions" },
-	--   q = "(q)uit prompt",
-	--   r = {
-	--     name = "(r)run",
-	--     t = { "<cmd>:ChatGPTRun add_tests<cr>", "add (t)ests" },
-	--     g = { "<cmd>:ChatGPTRun grammar_correction<cr>", "(g)ammer correction" },
-	--     d = { "<cmd>:ChatGPTRun docstring<cr>", "(d)ocstring" },
-	--     o = { "<cmd>:ChatGPTRun optimize_code<cr>", "(o)ptimize code" },
-	--     s = { "<cmd>:ChatGPTRun summarize<cr>", "(s)summarize" },
-	--     x = { "<cmd>:ChatGPTRun explain code<cr>", "e(x)plain code" },
-	--     b = { "<cmd>:ChatGPTRun fix_bugs<cr>", "fix (b)ugs" },
-	--   }
-	-- },
 }
 
 local mappings_spreader = utils.spread(mappings)
 local mappings_v = mappings_spreader({
+
 	t = {
 		name = "ChatGPT",
 		c = { ":<C-u>'<,'>GpChatNew<cr>", "(c)reate new chat" },
@@ -422,6 +407,15 @@ local mappings_v = mappings_spreader({
 			e = { ":<C-u>'<,'>GpExplain<cr>", "(e)xplian" },
 			i = { ":<C-u>'<,'>GpImplement<cr>", "(i)mplement" },
 		},
+	},
+
+	-- replace commands
+	r = {
+		name = "Replace",
+		b = { "y:%s/<c-r>0//g<left><left>", "(b)uffer" },
+		B = { "y:%s/<c-r>0//gc<left><left><left>", "(B)uffer ask" },
+		q = { "y:cdo %s/<c-r>0//g<left><left>", "(q)uicklist" },
+		Q = { "y:cdo %s/<c-r>0//gc<left><left><left>", "(Q)uicklist ask" },
 	},
 })
 
