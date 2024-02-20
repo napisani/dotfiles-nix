@@ -275,6 +275,8 @@ local mappings = {
 		},
 		r = {
 			name = "Replace",
+
+			l = { ":.s/<C-R>=expand('<cword>')<CR>//g<left><left>", "(l)ine" },
 			b = { ":%s/<C-R>=expand('<cword>')<CR>//g<left><left>", "(b)uffer" },
 			B = { ":%s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(B)uffer ask" },
 			q = { ":cdo %s/<C-R>=expand('<cword>')<CR>//g<left><left>", "(q)uicklist" },
@@ -285,6 +287,7 @@ local mappings = {
 	-- replace commands
 	r = {
 		name = "Replace",
+    l  = { ":.s///g<left><left><left>", "(l)line" },
 		b = { ":%s///g<left><left><left>", "(b)uffer" },
 		B = { ":%s///gc<left><left><left><left>", "(B)uffer ask" },
 		["*"] = { ":%s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(*)word" },
@@ -414,6 +417,7 @@ local mappings_v = mappings_spreader({
 	-- replace commands
 	r = {
 		name = "Replace",
+    l  = { "y:.s///g<left><left>", "(l)line" },
 		b = { "y:%s/<c-r>0//g<left><left>", "(b)uffer" },
 		B = { "y:%s/<c-r>0//gc<left><left><left>", "(B)uffer ask" },
 		q = { "y:cdo %s/<c-r>0//g<left><left>", "(q)uicklist" },
