@@ -220,12 +220,9 @@ local mappings = {
 
 	-- packer commands
 	P = {
-		name = "Packer",
-		c = { "<cmd>PackerCompile<cr>", "Compile" },
-		i = { "<cmd>PackerInstall<cr>", "Install" },
-		s = { "<cmd>PackerSync<cr>", "Sync" },
-		S = { "<cmd>PackerStatus<cr>", "Status" },
-		u = { "<cmd>PackerUpdate<cr>", "Update" },
+		name = "Packer/System",
+		s = { "<cmd>PackerSync<cr>", "(s)ync" },
+    t = { "<cmd>TSUpdate<cr>", "(t)reesitter update" },
 	},
 
 	-- lsp commands
@@ -374,13 +371,16 @@ local mappings = {
 		o = { "<cmd>:GpChatToggle<cr>", "(o)pen existing chat" },
 		q = { "<cmd>:GpChatToggle<cr>", "(q)uit chat" },
 		a = { "<cmd>:GpAppend<cr>", "(a)ppend results" },
+    A = { "<cmd>:GpAskWithContext<cr>", "(A)ppend results /w ctx" },
 		i = { "<cmd>:GpPrepend<cr>", "(i)nsert/prepend results" },
 		n = { "<cmd>:GpEnew<cr>", "(n)ew buffer with results" },
 		p = { "<cmd>:GpPopup<cr>", "(p)opupresults" },
 		s = { "<cmd>:GpStop<cr>", "(s)stop streaming results" },
 		r = {
 			name = "(r)run",
+			n = { "<cmd>:GpNameContext<cr>", "(n)ame context" },
 			t = { "<cmd>:GpUnitTests<cr>", "add (t)ests" },
+			T = { "<cmd>:GpUnitTestsWithContext<cr>", "add (T)ests /w ctx" },
 			e = { "<cmd>:GpExplain<cr>", "(e)xplian" },
 			i = { "<cmd>:GpImplement<cr>", "(i)mplement" },
 		},
@@ -389,7 +389,6 @@ local mappings = {
 
 local mappings_spreader = utils.spread(mappings)
 local mappings_v = mappings_spreader({
-
 	t = {
 		name = "ChatGPT",
 		c = { ":<C-u>'<,'>GpChatNew<cr>", "(c)reate new chat" },
@@ -398,12 +397,15 @@ local mappings_v = mappings_spreader({
 		a = { ":<C-u>'<,'>GpAppend<cr>", "(a)ppend results" },
 		i = { ":<C-u>'<,'>GpPrepend<cr>", "(i)nsert/prepend results" },
 		n = { ":<C-u>'<,'>GpEnew<cr>", "(n)ew buffer with results" },
+    A = { ":<C-u>'<,'>GpAskWithContext<cr>", "(A)ppend results /w ctx" },
 		p = { ":<C-u>'<,'>GpPopup<cr>", "(p)opupresults" },
 		s = { "<cmd>:GpStop<cr>", "(s)stop streaming results" },
 
 		r = {
 			name = "(r)run",
+			n = { "<cmd>:GpNameContext<cr>", "(n)ame context" },
 			t = { ":<C-u>'<,'>GpUnitTests<cr>", "add (t)ests" },
+			T = { "<cmd>:GpUnitTestsWithContext<cr>", "add (T)ests /w ctx" },
 			e = { ":<C-u>'<,'>GpExplain<cr>", "(e)xplian" },
 			i = { ":<C-u>'<,'>GpImplement<cr>", "(i)mplement" },
 		},

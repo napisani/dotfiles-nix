@@ -91,4 +91,18 @@ function color-test {
   }'
 }
 
+function temp-git-clone() {
+  GIT_REPO="$1"
+  if [ -z "$GIT_REPO" ]; then
+    echo "Usage: temp-git-clone <git_repo>"
+    return 1
+  fi
+  PROJECT_NAME=$(basename "$GIT_REPO" .git)
+  EPOCH=$(date +%s)
+  TEMP_DIR="/tmp/tgc-$PROJECT_NAME-$EPOCH"
+  mkdir -p "$TEMP_DIR"
+  pushd "$TEMP_DIR"
+  git clone "$GIT_REPO" .
+}
+
 

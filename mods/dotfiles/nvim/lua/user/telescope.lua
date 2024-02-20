@@ -300,13 +300,12 @@ end
 
 M.search_buffers = builtin.buffers
 
-local Path = require("plenary.path")
+local os_sep = utils.path_sep
 local action_set = require("telescope.actions.set")
 local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
 local finders = require("telescope.finders")
 local make_entry = require("telescope.make_entry")
-local os_sep = Path.path.sep
 local pickers = require("telescope.pickers")
 local scan = require("plenary.scandir")
 
