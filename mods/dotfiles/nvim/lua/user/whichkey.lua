@@ -389,8 +389,9 @@ local mappings = {
 		},
 	},
 
+  -- oil commands
 	["-"] = {
-		"<cmd>:Oil<cr>",
+    "<cmd>:Oil<cr>",
 		"(O)il",
 	},
 }
