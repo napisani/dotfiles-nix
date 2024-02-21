@@ -37,4 +37,5 @@ require "user.gp"
 require "user.dadbod"
 require "user.firenvim"
 require "user.tmux-nav"
+require "user.oil"
 

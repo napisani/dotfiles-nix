@@ -222,7 +222,7 @@ local mappings = {
 	P = {
 		name = "Packer/System",
 		s = { "<cmd>PackerSync<cr>", "(s)ync" },
-    t = { "<cmd>TSUpdate<cr>", "(t)reesitter update" },
+		t = { "<cmd>TSUpdate<cr>", "(t)reesitter update" },
 	},
 
 	-- lsp commands
@@ -287,7 +287,7 @@ local mappings = {
 	-- replace commands
 	r = {
 		name = "Replace",
-    l  = { ":.s///g<left><left><left>", "(l)line" },
+		l = { ":.s///g<left><left><left>", "(l)line" },
 		b = { ":%s///g<left><left><left>", "(b)uffer" },
 		B = { ":%s///gc<left><left><left><left>", "(B)uffer ask" },
 		["*"] = { ":%s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(*)word" },
@@ -374,7 +374,7 @@ local mappings = {
 		o = { "<cmd>:GpChatToggle<cr>", "(o)pen existing chat" },
 		q = { "<cmd>:GpChatToggle<cr>", "(q)uit chat" },
 		a = { "<cmd>:GpAppend<cr>", "(a)ppend results" },
-    A = { "<cmd>:GpAskWithContext<cr>", "(A)ppend results /w ctx" },
+		A = { "<cmd>:GpAskWithContext<cr>", "(A)ppend results /w ctx" },
 		i = { "<cmd>:GpPrepend<cr>", "(i)nsert/prepend results" },
 		n = { "<cmd>:GpEnew<cr>", "(n)ew buffer with results" },
 		p = { "<cmd>:GpPopup<cr>", "(p)opupresults" },
@@ -388,6 +388,11 @@ local mappings = {
 			i = { "<cmd>:GpImplement<cr>", "(i)mplement" },
 		},
 	},
+
+	["-"] = {
+		"<cmd>:Oil<cr>",
+		"(O)il",
+	},
 }
 
 local mappings_spreader = utils.spread(mappings)
@@ -400,7 +405,7 @@ local mappings_v = mappings_spreader({
 		a = { ":<C-u>'<,'>GpAppend<cr>", "(a)ppend results" },
 		i = { ":<C-u>'<,'>GpPrepend<cr>", "(i)nsert/prepend results" },
 		n = { ":<C-u>'<,'>GpEnew<cr>", "(n)ew buffer with results" },
-    A = { ":<C-u>'<,'>GpAskWithContext<cr>", "(A)ppend results /w ctx" },
+		A = { ":<C-u>'<,'>GpAskWithContext<cr>", "(A)ppend results /w ctx" },
 		p = { ":<C-u>'<,'>GpPopup<cr>", "(p)opupresults" },
 		s = { "<cmd>:GpStop<cr>", "(s)stop streaming results" },
 
@@ -417,7 +422,7 @@ local mappings_v = mappings_spreader({
 	-- replace commands
 	r = {
 		name = "Replace",
-    l  = { "y:.s///g<left><left>", "(l)line" },
+		l = { "y:.s///g<left><left>", "(l)line" },
 		b = { "y:%s/<c-r>0//g<left><left>", "(b)uffer" },
 		B = { "y:%s/<c-r>0//gc<left><left><left>", "(B)uffer ask" },
 		q = { "y:cdo %s/<c-r>0//g<left><left>", "(q)uicklist" },
