@@ -228,6 +228,26 @@ local function define_plugins(use)
     commit = "6953c2c17d8ae7454b28c44c8767eebede312e6f"
   }
 
+
+  -- use{
+  --   '/Users/nick/code/nvim-dadbod-ext',
+  --   run = './install.sh',
+  --   config = function()
+  --     vim.cmd([[
+  --       let g:nvim_dadbod_bg_port = '4545'
+  --     ]])
+  --   end
+  -- }
+
+  use { 'napisani/nvim-dadbod-bg',
+    config = function()
+      vim.cmd([[
+        let g:nvim_dadbod_bg_port = '4545'
+      ]])
+    end, 
+    run = './install.sh'
+  }
+
   -- use('/Users/nick/code/monoscope')
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
