@@ -298,7 +298,7 @@ local mappings = {
 	-- paste commands
 	p = {
 		name = "Paste to",
-		["/"] = {
+		["b"] = {
 			"/<c-r>0<cr>",
 			"search in buffer",
 		},
@@ -389,9 +389,9 @@ local mappings = {
 		},
 	},
 
-  -- oil commands
+	-- oil commands
 	["-"] = {
-    "<cmd>:Oil<cr>",
+		"<cmd>:Oil<cr>",
 		"(O)il",
 	},
 }
@@ -428,6 +428,72 @@ local mappings_v = mappings_spreader({
 		B = { "y:%s/<c-r>0//gc<left><left><left>", "(B)uffer ask" },
 		q = { "y:cdo %s/<c-r>0//g<left><left>", "(q)uicklist" },
 		Q = { "y:cdo %s/<c-r>0//gc<left><left><left>", "(Q)uicklist ask" },
+	},
+
+	-- live grep commands
+	h = {
+		r = {
+			"y<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
+			"grep from (r)oot",
+		},
+		R = {
+			"y<cmd>lua require('user.telescope').live_grep_in_directory({default_text = vim.fn.expand('<cword>')})<CR>",
+			"grep (in directory)",
+		},
+		q = {
+			"y<cmd>lua require('user.telescope').live_grep_qflist({default_text = vim.fn.expand('<cword>')})<CR>",
+			"grep (q)uicklist",
+		},
+		d = {
+			"y<cmd>lua require('user.telescope').live_grep_git_changed_files({default_text = vim.fn.expand('<cword>')})<CR>",
+			"(d)iff git files",
+		},
+		D = {
+			"y<cmd>lua require('user.telescope').live_grep_git_changed_cmp_base_branch({default_text = vim.fn.expand('<cword>')})<CR>",
+			"(D)iff git branch",
+		},
+		-- todo this does not paste the word under cursor
+		G = { "y<cmd>lua require('nvim-github-codesearch').prompt()<cr>", "(G)ithub Code Search" },
+	},
+
+	-- find commands
+	f = {
+		name = "Find",
+		e = {
+			"y<cmd>lua require('user.telescope').search_buffers({default_text = vim.fn.expand('<cword>')})<CR>",
+			"Buffers",
+		},
+		r = {
+			"y<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
+			"(f)iles",
+		},
+		t = {
+			"y<cmd>lua require('user.telescope').search_git_files({default_text = vim.fn.expand('<cword>')})<CR>",
+			"Git Files",
+		},
+		p = { "y<cmd>Telescope file_browser path=%:p:h<CR><c-r>0", "Project" },
+		d = {
+			"y<cmd>lua require('user.telescope').git_changed_files({default_text = vim.fn.expand('<cword>')})<CR>",
+			"(d)iff git files",
+		},
+		D = {
+			"y<cmd>lua require('user.telescope').git_changed_cmp_base_branch({default_text = vim.fn.expand('<cword>')})<CR>",
+			"(D)iff git branch",
+		},
+		c = {
+			"y<cmd>lua require('user.telescope').git_conflicts({default_text = vim.fn.expand('<cword>')})<CR>",
+			"(c)onflicts",
+		},
+
+		-- todo this does not paste the word under cursor
+		C = { "<cmd>Telescope commands<cr>", "Commands" },
+		o = { "<cmd>Telescope colorscheme<cr>", "C(o)lorscheme" },
+		Q = { "<cmd>Telescope help_tags<cr>", "Find Help" },
+		M = { "<cmd>Telescope man_pages<cr>", "Man Pages" },
+		R = { "<cmd>Telescope registers<cr>", "Registers" },
+		k = { "<cmd>Telescope keymaps<cr>", "Keymaps" },
+		S = { "<cmd>lua require('user.neoscopes').neoscopes.select()<cr>", "(S)copes" },
+		s = { "<cmd>Telescope luasnip<cr>", "(s)nippet" },
 	},
 })
 
