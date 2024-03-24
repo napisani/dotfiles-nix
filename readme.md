@@ -63,6 +63,9 @@ sudo doppler login
 
 # follow the instructions to login
 gh auth login
+
+# install the copilot extension
+gh extension install github/gh-copilot
 ```
 
 Helpful github issue thread for diagnosing any initial Karabiner problems:

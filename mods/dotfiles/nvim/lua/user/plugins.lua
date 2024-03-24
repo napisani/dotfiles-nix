@@ -239,7 +239,9 @@ local function define_plugins(use)
   --   end
   -- }
 
-  use { 'napisani/nvim-dadbod-bg',
+  use { 
+    'napisani/nvim-dadbod-bg',
+    -- '/Users/nick/code/nvim-dadbod-ext',
     config = function()
       vim.cmd([[
         let g:nvim_dadbod_bg_port = '4545'
