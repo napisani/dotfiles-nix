@@ -24,7 +24,8 @@
     oxlint_dep.url =
       "github:NixOS/nixpkgs/85306ef2470ba705c97ce72741d56e42d0264015";
 
-    neovim_dep.url = "github:NixOS/nixpkgs/4fddc9be4eaf195d631333908f2a454b03628ee5";
+    # neovim 0.9.5
+    neovim_dep.url = "github:NixOS/nixpkgs/a3ed7406349a9335cb4c2a71369b697cecd9d351";
 
     golang_dep.url = "github:NixOS/nixpkgs/c0b7a892fb042ede583bdaecbbdc804acb85eabe";
 
