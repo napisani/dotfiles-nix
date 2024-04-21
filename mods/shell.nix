@@ -36,6 +36,10 @@
     secureSocket = false;
     extraConfig = builtins.readFile ./dotfiles/.tmux.conf;
   };
+  programs.gh = {
+    enable = true;
+  };
+
   home.file.".tmux/tokyonight.tmuxtheme".source = ./dotfiles/tokyonight.tmuxtheme;
   home.file.".tmux/plugins/tpm".source = pkgs.fetchFromGitHub {
      owner = "tmux-plugins";

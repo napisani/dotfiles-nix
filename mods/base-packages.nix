@@ -16,7 +16,6 @@
     pkgs.bitwarden-cli
     pkgs.pet
     pkgs.tree-sitter
-    pkgs.gh
     pkgs.ncdu
     pkgs.git-lfs
     #pkgs.pscale

@@ -11,6 +11,7 @@
     ../mods/base-packages.nix
     ../mods/shell.nix
     ../mods/git.nix
+    ../mods/gh.nix
     ../mods/rust.nix
     ../mods/javascript.nix
     ../mods/golang.nix

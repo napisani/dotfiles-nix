@@ -25,37 +25,39 @@
       "github:NixOS/nixpkgs/85306ef2470ba705c97ce72741d56e42d0264015";
 
     # neovim 0.9.5
-    neovim_dep.url = "github:NixOS/nixpkgs/a3ed7406349a9335cb4c2a71369b697cecd9d351";
+    neovim_dep.url =
+      "github:NixOS/nixpkgs/a3ed7406349a9335cb4c2a71369b697cecd9d351";
 
-    golang_dep.url = "github:NixOS/nixpkgs/c0b7a892fb042ede583bdaecbbdc804acb85eabe";
+    golang_dep.url =
+      "github:NixOS/nixpkgs/c0b7a892fb042ede583bdaecbbdc804acb85eabe";
 
+    nixhub_dep.url =
+      "github:NixOS/nixpkgs/080a4a27f206d07724b88da096e27ef63401a504";
   };
-  outputs =
-    { flake-utils
-    , nixpkgs
-    , nixpkgs-unstable
-    , home-manager
-    , darwin
-    , procmux
-    , oxlint_dep
-    , neovim_dep
-    , golang_dep
-    , ...
-    }@inputs:
+  outputs = { flake-utils, nixpkgs, nixpkgs-unstable, home-manager, darwin
+    , procmux, oxlint_dep, neovim_dep, golang_dep, nixhub_dep, ... }@inputs:
     let
       overlays = [
         # inputs.neovim-nightly-overlay.overlay
       ];
-      commonInherits = {
-        inherit (nixpkgs) lib;
-        inherit (nixpkgs) pkgs;
-        inherit inputs nixpkgs nixpkgs-unstable home-manager darwin procmux;
+      system = "aarch64-darwin";
+      extraSpecialArgs = {
+        inherit inputs;
+        pkgs-unstable = nixpkgs-unstable.legacyPackages."${system}";
+        procmux = procmux;
+        oxlint_dep = inputs.oxlint_dep.legacyPackages."${system}";
+        neovim_dep = inputs.neovim_dep.legacyPackages."${system}";
+        golang_dep = inputs.golang_dep.legacyPackages."${system}";
+        nixhub_dep = import inputs.nixhub_dep {
+          inherit system;
+          config.allowUnfree = true;
+        };
+        overlays = overlays;
+        user = "nick";
       };
-    in
-    {
+    in {
       darwinConfigurations = {
         "nicks-mbp" = inputs.darwin.lib.darwinSystem {
-          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           system = "aarch64-darwin";
           modules = [
             ({ config, pkgs, lib, user, ... }: {
@@ -68,17 +70,7 @@
               home-manager = {
                 useGlobalPkgs = false;
                 useUserPackages = true;
-                extraSpecialArgs = {
-                  inherit inputs;
-                  pkgs-unstable =
-                    nixpkgs-unstable.legacyPackages.aarch64-darwin;
-                  procmux = procmux;
-                  oxlint_dep = inputs.oxlint_dep.legacyPackages.aarch64-darwin;
-                  neovim_dep = inputs.neovim_dep.legacyPackages.aarch64-darwin;
-                  golang_dep = inputs.golang_dep.legacyPackages.aarch64-darwin;
-                  overlays = overlays;
-                  user = "nick";
-                };
+                extraSpecialArgs = extraSpecialArgs;
                 users.nick.imports =
                   [ ./homes/macs.nix ./homes/home-nicks-mbp.nix ];
               };
@@ -87,7 +79,6 @@
         };
 
         "nicks-axion-ray-mbp" = inputs.darwin.lib.darwinSystem {
-          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           system = "aarch64-darwin";
           modules = [
             ({ config, pkgs, lib, user, ... }: {
@@ -100,16 +91,7 @@
               home-manager = {
                 useGlobalPkgs = false;
                 useUserPackages = true;
-                extraSpecialArgs = {
-                  inherit inputs;
-                  pkgs-unstable = nixpkgs-unstable.legacyPackages.aarch64-darwin;
-                  procmux = procmux;
-                  oxlint_dep = inputs.oxlint_dep.legacyPackages.aarch64-darwin;
-                  neovim_dep = inputs.neovim_dep.legacyPackages.aarch64-darwin;
-                  golang_dep = inputs.golang_dep.legacyPackages.aarch64-darwin;
-                  overlays = overlays;
-                  user = "nick";
-                };
+                extraSpecialArgs = extraSpecialArgs;
                 users.nick.imports =
                   [ ./homes/macs.nix ./homes/home-nicks-axion-ray-mbp.nix ];
               };
@@ -118,7 +100,6 @@
         };
 
         "NicksCTMMacbook" = inputs.darwin.lib.darwinSystem {
-          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
           system = "aarch64-darwin";
           modules = [
             ({ config, pkgs, lib, user, ... }: {
@@ -131,17 +112,7 @@
               home-manager = {
                 useGlobalPkgs = false;
                 useUserPackages = true;
-                extraSpecialArgs = {
-                  inherit inputs;
-                  pkgs-unstable =
-                    nixpkgs-unstable.legacyPackages.aarch64-darwin;
-                  procmux = procmux;
-                  oxlint_dep = inputs.oxlint_dep.legacyPackages.aarch64-darwin;
-                  neovim_dep = inputs.neovim_dep.legacyPackages.aarch64-darwin;
-                  golang_dep = inputs.golang_dep.legacyPackages.aarch64-darwin;
-                  overlays = overlays;
-                  user = "nickpisani";
-                };
+                extraSpecialArgs = extraSpecialArgs;
                 users.nickpisani.imports =
                   [ ./homes/macs.nix ./homes/home-NicksCTMMacbook.nix ];
               };
@@ -155,5 +126,5 @@
         # aarch64-linux = home-manager.defaultPackage.aarch64-linux;
       };
     };
-
 }
+
