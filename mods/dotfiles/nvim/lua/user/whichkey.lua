@@ -229,7 +229,7 @@ local mappings = {
 	l = {
 		name = "LSP",
 		a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code (a)ction" },
-		c = { ":Commentary<cr>", "(c)omment" },
+		c = { "<Plug>ContextCommentaryLine", "(c)omment" },
 		d = {
 			"<cmd>Telescope lsp_document_diagnostics<cr>",
 			"(d)ocument diagnostics",
@@ -287,7 +287,7 @@ local mappings = {
 	-- replace commands
 	r = {
 		name = "Replace",
-		l = { ":.s///g<left><left><left>", "(l)line" },
+		l = { ":s///g<left><left><left>", "(l)line" },
 		b = { ":%s///g<left><left><left>", "(b)uffer" },
 		B = { ":%s///gc<left><left><left><left>", "(B)uffer ask" },
 		["*"] = { ":%s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(*)word" },
@@ -398,6 +398,44 @@ local mappings = {
 
 local mappings_spreader = utils.spread(mappings)
 local mappings_v = mappings_spreader({
+
+	-- lsp commands
+	l = {
+		name = "LSP",
+		a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code (a)ction" },
+		c = { "<Plug>ContextCommentary", "(c)omment" },
+		d = {
+			"<cmd>Telescope lsp_document_diagnostics<cr>",
+			"(d)ocument diagnostics",
+		},
+		w = {
+			"<cmd>Telescope lsp_workspace_diagnostics<cr>",
+			"(w)orkspace diagnostics",
+		},
+		f = { "<cmd>lua vim.lsp.buf.format{ async=true, name = 'efm' }<cr>", "(f)ormat" },
+		i = { "organize (i)mports" },
+		-- i = { "<cmd>OrganizeImports<cr>", "organize (i)mports" },
+		-- i = { "<cmd>LspInfo<cr>", "(i)nfo" },
+		-- I = { "<cmd>LspInstallInfo<cr>", "(I)nstaller Info" },
+		j = {
+			"<cmd>lua vim.lsp.diagnostic.goto_next()<CR>",
+			"Next Diagnostic",
+		},
+		k = {
+			"<cmd>lua vim.lsp.diagnostic.goto_prev()<cr>",
+			"Prev Diagnostic",
+		},
+		l = { "<cmd>lua vim.lsp.codelens.run()<cr>", "Codea(l)ens Action" },
+		q = { "<cmd>lua vim.lsp.diagnostic.set_loclist()<cr>", "(q)uickfix" },
+		r = { "<cmd>lua vim.lsp.buf.rename()<cr>", "(r)ename" },
+		R = { "<cmd>:LspRestart<cr>", "(R)estart LSPs" },
+		s = { "<cmd>Telescope lsp_document_symbols<cr>", "document (s)ymbols" },
+		S = {
+			"<cmd>Telescope lsp_dynamic_workspace_symbols<cr>",
+			"workspace (S)ymbols",
+		},
+	},
+
 	t = {
 		name = "ChatGPT",
 		c = { ":<C-u>'<,'>GpChatNew<cr>", "(c)reate new chat" },
