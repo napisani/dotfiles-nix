@@ -353,11 +353,11 @@ local mappings = {
 			"<cmd>lua require('user.telescope').git_changed_cmp_base_branch()<CR>",
 			"(D)iff git branch",
 		},
-		c = {
+		C = {
 			"<cmd>lua require('user.telescope').git_conflicts()<CR>",
-			"(c)onflicts",
+			"(C)onflicts",
 		},
-		C = { "<cmd>Telescope commands<cr>", "Commands" },
+		c = { "<cmd>Telescope commands<cr>", "Commands" },
 		o = { "<cmd>Telescope colorscheme<cr>", "C(o)lorscheme" },
 		Q = { "<cmd>Telescope help_tags<cr>", "Find Help" },
 		M = { "<cmd>Telescope man_pages<cr>", "Man Pages" },
