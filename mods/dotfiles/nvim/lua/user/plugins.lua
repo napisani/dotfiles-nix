@@ -126,7 +126,8 @@ local function define_plugins(use)
       "sindrets/diffview.nvim",        -- optional - Diff integration
 
       "nvim-telescope/telescope.nvim", -- optional
-    }
+    },
+    commit = "f4f7a1017da57f31c182c46fb2535099718fa178"
   }
 
   -- vim.notify notifications
