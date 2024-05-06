@@ -119,6 +119,16 @@ local function define_plugins(use)
   use {
     "sindrets/diffview.nvim", requires = "nvim-lua/plenary.nvim", commit = "3dc498c9777fe79156f3d32dddd483b8b3dbd95f" }
 
+  use {
+    "NeogitOrg/neogit",
+    requires = {
+      "nvim-lua/plenary.nvim",         -- required
+      "sindrets/diffview.nvim",        -- optional - Diff integration
+
+      "nvim-telescope/telescope.nvim", -- optional
+    }
+  }
+
   -- vim.notify notifications
   use { "rcarriga/nvim-notify",commit = "5371f4bfc1f6d3adf4fe9d62cd3a9d44356bfd15" }
 
