@@ -90,6 +90,8 @@ local opts_v = {
 }
 
 local mappings = {
+  ['%'] = { '<cmd>:vsplit<cr>', 'Vertical Split' },
+  ['"'] = { '<cmd>:split<cr>', 'Horizontal Split' },
 	a = { "<cmd>Alpha<cr>", "Alpha" },
 	e = { "<cmd>NvimTreeToggle<cr>", "Explorer" },
 	w = { "<cmd>w!<CR>", "(w)rite" },
@@ -462,11 +464,19 @@ local mappings_v = mappings_spreader({
 	-- replace commands
 	r = {
 		name = "Replace",
-		l = { "y:s/<c-r>0//g<left><left>", "(l)line" },
-		b = { "y:%s/<c-r>0//g<left><left>", "(b)uffer" },
-		B = { "y:%s/<c-r>0//gc<left><left><left>", "(B)uffer ask" },
-		q = { "y:cdo %s/<c-r>0//g<left><left>", "(q)uicklist" },
-		Q = { "y:cdo %s/<c-r>0//gc<left><left><left>", "(Q)uicklist ask" },
+		l = { '"4y:s/<c-r>4//g<left><left>', "(l)line" },
+		b = { '"4y:%s/<c-r>4//g<left><left>', "(b)uffer" },
+		B = { '"4y:%s/<c-r>4//gc<left><left><left>', "(B)uffer ask" },
+		q = { '"4y:cdo %s/<c-r>4//g<left><left>', "(q)uicklist" },
+		Q = { '"4y:cdo %s/c-r4//gc<left><left><left>', "(Q)uicklist ask" },
+	},
+	R = {
+		name = "Replace",
+		l = { '"4y:s/<c-r>4/<c-r>0/g<left><left>', "(l)line" },
+		b = { '"4y:%s/<c-r>4/<c-r>0/g<left><left>', "(b)uffer" },
+		B = { '"4y:%s/<c-r>4/<c-r>0/gc<left><left><left>', "(B)uffer ask" },
+		q = { '"4y:cdo %s/<c-r>4/<c-r>0/g<left><left>', "(q)uicklist" },
+		Q = { '"4y:cdo %s/c-r4/<c-r>0/gc<left><left><left>', "(Q)uicklist ask" },
 	},
 
 	-- live grep commands
@@ -525,7 +535,7 @@ local mappings_v = mappings_spreader({
 		},
 
 		-- todo this does not paste the word under cursor
-		C = { "<cmd>Telescope commands<cr>", "Commands" },
+		c = { "<cmd>Telescope commands<cr>", "Commands" },
 		o = { "<cmd>Telescope colorscheme<cr>", "C(o)lorscheme" },
 		Q = { "<cmd>Telescope help_tags<cr>", "Find Help" },
 		M = { "<cmd>Telescope man_pages<cr>", "Man Pages" },
