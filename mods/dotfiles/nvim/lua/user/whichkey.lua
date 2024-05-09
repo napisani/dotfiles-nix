@@ -80,6 +80,9 @@ local opts = {
 	noremap = true, -- use `noremap` when creating keymaps
 	nowait = true, -- use `nowait` when creating keymaps
 }
+
+
+-- START of VISUAL mode mapping overrides -----------------
 local opts_v = {
 	mode = "v", -- VISUAL mode
 	prefix = "<leader>",
