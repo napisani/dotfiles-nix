@@ -81,7 +81,6 @@ local opts = {
 	nowait = true, -- use `nowait` when creating keymaps
 }
 
-
 -- START of VISUAL mode mapping overrides -----------------
 local opts_v = {
 	mode = "v", -- VISUAL mode
@@ -93,8 +92,8 @@ local opts_v = {
 }
 
 local mappings = {
-  ['%'] = { '<cmd>:vsplit<cr>', 'Vertical Split' },
-  ['"'] = { '<cmd>:split<cr>', 'Horizontal Split' },
+	["%"] = { "<cmd>:vsplit<cr>", "Vertical Split" },
+	['"'] = { "<cmd>:split<cr>", "Horizontal Split" },
 	a = { "<cmd>Alpha<cr>", "Alpha" },
 	e = { "<cmd>NvimTreeToggle<cr>", "Explorer" },
 	w = { "<cmd>w!<CR>", "(w)rite" },
@@ -485,55 +484,55 @@ local mappings_v = mappings_spreader({
 	-- live grep commands
 	h = {
 		r = {
-			"y<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
+			'"4y<cmd>lua require("user.telescope").live_grep_from_root({default_text = vim.fn.getreg("4")})<CR>',
 			"grep from (r)oot",
 		},
 		R = {
-			"y<cmd>lua require('user.telescope').live_grep_in_directory({default_text = vim.fn.expand('<cword>')})<CR>",
+			'"4y<cmd>lua require("user.telescope").live_grep_in_directory({default_text = vim.fn.getreg("4")})<CR>',
 			"grep (in directory)",
 		},
 		q = {
-			"y<cmd>lua require('user.telescope').live_grep_qflist({default_text = vim.fn.expand('<cword>')})<CR>",
+			'"4y<cmd>lua require("user.telescope").live_grep_qflist({default_text = vim.fn.getreg("4")})<CR>',
 			"grep (q)uicklist",
 		},
 		d = {
-			"y<cmd>lua require('user.telescope').live_grep_git_changed_files({default_text = vim.fn.expand('<cword>')})<CR>",
+			'"4y<cmd>lua require("user.telescope").live_grep_git_changed_files({default_text = vim.fn.getreg("4")})<CR>',
 			"(d)iff git files",
 		},
 		D = {
-			"y<cmd>lua require('user.telescope').live_grep_git_changed_cmp_base_branch({default_text = vim.fn.expand('<cword>')})<CR>",
+			'"4y<cmd>lua require("user.telescope").live_grep_git_changed_cmp_base_branch({default_text = vim.fn.getreg("4")})<CR>',
 			"(D)iff git branch",
 		},
 		-- todo this does not paste the word under cursor
-		G = { "y<cmd>lua require('nvim-github-codesearch').prompt()<cr>", "(G)ithub Code Search" },
+		G = { '"y<cmd>lua require("nvim-github-codesearch").prompt()<c-r>4<cr>', "(G)ithub Code Search" },
 	},
 
 	-- find commands
 	f = {
 		name = "Find",
 		e = {
-			"y<cmd>lua require('user.telescope').search_buffers({default_text = vim.fn.expand('<cword>')})<CR>",
+			'"4y<cmd>lua require("user.telescope").search_buffers({default_text = vim.fn.getreg("4")})<CR>',
 			"Buffers",
 		},
 		r = {
-			"y<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
+			'"4y<cmd>lua require("user.telescope").find_files_from_root({default_text = vim.fn.getreg("4")})<CR>',
 			"(f)iles",
 		},
 		t = {
-			"y<cmd>lua require('user.telescope').search_git_files({default_text = vim.fn.expand('<cword>')})<CR>",
+			'"4y<cmd>lua require("user.telescope").search_git_files({default_text = vim.fn.getreg("4")})<CR>',
 			"Git Files",
 		},
-		p = { "y<cmd>Telescope file_browser path=%:p:h<CR><c-r>0", "Project" },
+		p = { '"4y<cmd>Telescope file_browser path=%:p:h<CR><c-r>4', "Project" },
 		d = {
-			"y<cmd>lua require('user.telescope').git_changed_files({default_text = vim.fn.expand('<cword>')})<CR>",
+			'"4y<cmd>lua require("user.telescope").git_changed_files({default_text = vim.fn.getreg("4")})<CR>',
 			"(d)iff git files",
 		},
 		D = {
-			"y<cmd>lua require('user.telescope').git_changed_cmp_base_branch({default_text = vim.fn.expand('<cword>')})<CR>",
+			'"4y<cmd>lua require("user.telescope").git_changed_cmp_base_branch({default_text = vim.fn.getreg("4")})<CR>',
 			"(D)iff git branch",
 		},
-		c = {
-			"y<cmd>lua require('user.telescope').git_conflicts({default_text = vim.fn.expand('<cword>')})<CR>",
+		C = {
+			'"4y<cmd>lua require("user.telescope").git_conflicts({default_text = vim.fn.getreg("4")})<CR>',
 			"(c)onflicts",
 		},
 
