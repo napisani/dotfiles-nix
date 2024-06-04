@@ -281,23 +281,25 @@ local mappings = {
 		r = {
 			name = "Replace",
 
-			l = { ":s/<C-R>=expand('<cword>')<CR>//g<left><left>", "(l)ine" },
-			b = { ":%s/<C-R>=expand('<cword>')<CR>//g<left><left>", "(b)uffer" },
-			B = { ":%s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(B)uffer ask" },
-			q = { ":cdo %s/<C-R>=expand('<cword>')<CR>//g<left><left>", "(q)uicklist" },
-			Q = { ":cdo %s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(Q)uicklist ask" },
+			l = { ":s@<C-R>=expand('<cword>')<CR>@@g<left><left>", "(l)ine" },
+			b = { ":%s@<C-R>=expand('<cword>')<CR>@@g<left><left>", "(b)uffer" },
+			B = { ":%s@<C-R>=expand('<cword>')<CR>@@gc<left><left><left>", "(B)uffer ask" },
+			q = { ":cdo %s@<C-R>=expand('<cword>')<CR>@@g<left><left>", "(q)uicklist" },
+			Q = { ":cdo %s@<C-R>=expand('<cword>')<CR>@@gc<left><left><left>", "(Q)uicklist ask" },
 		},
 	},
 
 	-- replace commands
 	r = {
 		name = "Replace",
-		l = { ":s///g<left><left><left>", "(l)line" },
-		b = { ":%s///g<left><left><left>", "(b)uffer" },
-		B = { ":%s///gc<left><left><left><left>", "(B)uffer ask" },
-		["*"] = { ":%s/<C-R>=expand('<cword>')<CR>//gc<left><left><left>", "(*)word" },
-		q = { ":cdo %s///g<left><left><left>", "(q)uicklist" },
-		Q = { ":cdo %s///gc<left><left><left><left>", "(Q)uicklist ask" },
+		l = { ":s@@@g<left><left><left>", "(l)line" },
+		b = { ":%s@@@g<left><left><left>", "(b)uffer" },
+		B = { ":%s@@@gc<left><left><left><left>", "(B)uffer ask" },
+		["*"] = { ":%s@<C-R>=expand('<cword>')<CR>@@gc<left><left><left>", "(*)word" },
+		q = { ":cdo %s@@@g<left><left><left>", "(q)uicklist" },
+		Q = { ":cdo %s@@@gc<left><left><left><left>", "(Q)uicklist ask" },
+    d = { ':g@@d<left><left>', "(d)elete" },
+    D = { ':g!@@d<left><left>', "(D)elete else" },
 	},
 
 	-- paste commands
@@ -466,19 +468,23 @@ local mappings_v = mappings_spreader({
 	-- replace commands
 	r = {
 		name = "Replace",
-		l = { '"4y:s/<c-r>4//g<left><left>', "(l)line" },
-		b = { '"4y:%s/<c-r>4//g<left><left>', "(b)uffer" },
-		B = { '"4y:%s/<c-r>4//gc<left><left><left>', "(B)uffer ask" },
-		q = { '"4y:cdo %s/<c-r>4//g<left><left>', "(q)uicklist" },
-		Q = { '"4y:cdo %s/c-r4//gc<left><left><left>', "(Q)uicklist ask" },
+		l = { '"4y:s@<c-r>4@@g<left><left>', "(l)line" },
+		b = { '"4y:%s@<c-r>4@@g<left><left>', "(b)uffer" },
+		B = { '"4y:%s@<c-r>4@@gc<left><left><left>', "(B)uffer ask" },
+		q = { '"4y:cdo %s@<c-r>4@@g<left><left>', "(q)uicklist" },
+		Q = { '"4y:cdo %s@c-r4@@gc<left><left><left>', "(Q)uicklist ask" },
+    v = { ":s@@@g<left><left><left>", "(v)isual" },
+    V = { ":s@@@gc<left><left><left>", "(V)isual ask" },
+    d = { '"4y:g@<c-r>4@d<left><left>', "(d)elete" },
+    D = { '"4y:g!@<c-r>4@d<left><left>', "(D)elete else" },
 	},
 	R = {
 		name = "Replace",
-		l = { '"4y:s/<c-r>4/<c-r>0/g<left><left>', "(l)line" },
-		b = { '"4y:%s/<c-r>4/<c-r>0/g<left><left>', "(b)uffer" },
-		B = { '"4y:%s/<c-r>4/<c-r>0/gc<left><left><left>', "(B)uffer ask" },
-		q = { '"4y:cdo %s/<c-r>4/<c-r>0/g<left><left>', "(q)uicklist" },
-		Q = { '"4y:cdo %s/c-r4/<c-r>0/gc<left><left><left>', "(Q)uicklist ask" },
+		l = { '"4y:s@<c-r>4@<c-r>0@g<left><left>', "(l)line" },
+		b = { '"4y:%s@<c-r>4@<c-r>0@g<left><left>', "(b)uffer" },
+		B = { '"4y:%s@<c-r>4@<c-r>0@gc<left><left><left>', "(B)uffer ask" },
+		q = { '"4y:cdo %s@<c-r>4@<c-r>0@g<left><left>', "(q)uicklist" },
+		Q = { '"4y:cdo %s@c-r4@<c-r>0@gc<left><left><left>', "(Q)uicklist ask" },
 	},
 
 	-- live grep commands

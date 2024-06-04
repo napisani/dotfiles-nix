@@ -106,3 +106,24 @@ function temp-git-clone() {
 }
 
 
+function project-root-dir() {
+    local DIR="$(pwd)"
+    while [[ "$DIR" != "/" ]]; do
+        if [[ -d "$DIR/.git" ]]; then
+            echo "$DIR"
+            return 0
+        fi
+        DIR="$(dirname "$DIR")"
+    done
+    echo "No .git directory found in the directory tree."
+    return 1
+}
+
+function cdpr() {
+  DIR=$(project-root-dir "$1")
+  if [ -z "$DIR" ]; then
+    return 1
+  fi
+  cd "$DIR"
+}
+
