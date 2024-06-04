@@ -26,7 +26,7 @@
 
     # neovim 0.9.5
     neovim_dep.url =
-      "github:NixOS/nixpkgs/a3ed7406349a9335cb4c2a71369b697cecd9d351";
+      "github:NixOS/nixpkgs/1a9df4f74273f90d04e621e8516777efcec2802a";
 
     golang_dep.url =
       "github:NixOS/nixpkgs/c0b7a892fb042ede583bdaecbbdc804acb85eabe";
