@@ -18,7 +18,7 @@
     darwin.url = "github:lnl7/nix-darwin";
     darwin.inputs.nixpkgs.follows = "nixpkgs";
 
-    procmux.url = "github:napisani/procmux";
+    procmux.url = "github:napisani/procmux/2785927bff9a236682dc4e98a412ef0aadee212d";
     procmux.inputs.nixpkgs.follows = "nixpkgs";
 
     oxlint_dep.url =
