@@ -37,7 +37,7 @@
         black
         python3Packages.flake8
         mypy
-        ruff
+        pkgs-unstable.ruff
         yapf
 
         # json
