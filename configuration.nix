@@ -5,10 +5,9 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [ # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   # Use the GRUB 2 boot loader.
   # boot.loader.grub.enable = true;
@@ -43,7 +42,6 @@
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
 
-
   # Configure keymap in X11
   # services.xserver.xkb.layout = "us";
   # services.xserver.xkb.options = "eurosign:e,caps:escape";
@@ -64,13 +62,13 @@
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.nick = {
-     isNormalUser = true;
-     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
- #    packages = with pkgs; [
-  #     firefox
-  #     tree
-  #   ];
-   };
+    isNormalUser = true;
+    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+    #    packages = with pkgs; [
+    #     firefox
+    #     tree
+    #   ];
+  };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -91,7 +89,6 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -122,11 +119,11 @@
   #
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "24.05"; # Did you read the comment?
-nix = {
-  package = pkgs.nixFlakes;
-  extraOptions = ''
-    experimental-features = nix-command flakes
-  '';
-};
+  nix = {
+    package = pkgs.nixFlakes;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
+  };
 
 }
