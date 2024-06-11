@@ -119,27 +119,41 @@
       };
 
       nixosConfigurations = {
-        supermicro = nixpkgs-unstable.lib.nixosSystem {
+        "supermicro" = nixpkgs-unstable.lib.nixosSystem {
           system = "x86_64-linux";
+          pkgs = inputsBySystem."x86_64-linux".extraSpecialArgs.pkgs-unstable;
           modules = [
-            ./configuration.nix
             home-manager.nixosModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.users.nick = { pkgs, ... }: {
-                home.username = "nick";
-                home.homeDirectory = "/home/nick";
-                programs.home-manager.enable = true;
-                home.packages = with pkgs; [ 
-                  bat
-                ];
-                home.stateVersion = "24.05";
-              };
-            }
+            # ./nixos/configuration.nix
           ];
+          specialArgs = {
+            inherit inputs;
+            user = "nick";
+          };
         };
       };
+
+      # nixosConfigurations = {
+      #   supermicro = nixpkgs-unstable.lib.nixosSystem {
+      #     system = "x86_64-linux";
+      #     modules = [
+      #       ./configuration.nix
+      #       home-manager.nixosModules.home-manager
+      #       {
+      #         home-manager.useGlobalPkgs = true;
+      #         home-manager.useUserPackages = true;
+      #         home-manager.users.nick = { pkgs, ... }: {
+      #           home.username = "nick";
+      #           home.homeDirectory = "/home/nick";
+      #           programs.home-manager.enable = true;
+      #           home.packages = with pkgs; [ 
+      #             bat
+      #           ];
+      #           home.stateVersion = "24.05";
+      #         };
+      #       }
+      #     ];
+      #   };
 
       defaultPackage = {
         # x86_64-darwin = home-manager.defaultPackage.x86_64-darwin;
