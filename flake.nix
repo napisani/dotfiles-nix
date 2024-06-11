@@ -47,7 +47,7 @@
     , procmux, oxlint_dep, neovim_dep, golang_dep, nixhub_dep, ... }@inputs:
     let
       allSystems = [ "x86_64-linux" "aarch64-darwin" ];
-      inputsBySystem= builtins.listToAttrs (map (system: {
+      inputsBySystem = builtins.listToAttrs (map (system: {
         name = system;
         value = {
           system = system;
@@ -71,7 +71,6 @@
         };
       }) allSystems);
 
-
     in {
       darwinConfigurations = {
         "nicks-mbp" = inputs.darwin.lib.darwinSystem {
@@ -87,7 +86,8 @@
               home-manager = {
                 useGlobalPkgs = false;
                 useUserPackages = true;
-                extraSpecialArgs = inputsBySystem."aarch64-darwin".extraSpecialArgs;
+                extraSpecialArgs =
+                  inputsBySystem."aarch64-darwin".extraSpecialArgs;
                 users.nick.imports =
                   [ ./homes/macs.nix ./homes/home-nicks-mbp.nix ];
               };
@@ -108,15 +108,37 @@
               home-manager = {
                 useGlobalPkgs = false;
                 useUserPackages = true;
-                extraSpecialArgs = inputsBySystem."aarch64-darwin".extraSpecialArgs;
+                extraSpecialArgs =
+                  inputsBySystem."aarch64-darwin".extraSpecialArgs;
                 users.nick.imports =
                   [ ./homes/macs.nix ./homes/home-nicks-axion-ray-mbp.nix ];
               };
             }
           ];
         };
-
       };
+
+      nixosConfigurations = {
+        supermicro = nixpkgs-unstable.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./configuration.nix
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.nick = { pkgs, ... }: {
+                home.username = "nick";
+                home.homeDirectory = "/home/nick";
+                programs.home-manager.enable = true;
+                home.packages = with pkgs; [ ];
+                home.stateVersion = "24.05";
+              };
+            }
+          ];
+        };
+      };
+
       defaultPackage = {
         # x86_64-darwin = home-manager.defaultPackage.x86_64-darwin;
         aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;
