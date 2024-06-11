@@ -131,7 +131,9 @@
                 home.username = "nick";
                 home.homeDirectory = "/home/nick";
                 programs.home-manager.enable = true;
-                home.packages = with pkgs; [ ];
+                home.packages = with pkgs; [ 
+                  bat
+                ];
                 home.stateVersion = "24.05";
               };
             }
