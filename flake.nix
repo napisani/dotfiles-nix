@@ -132,9 +132,7 @@
                 useUserPackages = true;
                 extraSpecialArgs =
                   inputsBySystem."x86_64-linux".extraSpecialArgs;
-                users.nick = {
-                  imports = [ ./homes/home-nicks-supermicro.nix ];
-                };
+                users.nick.imports = [ ./homes/home-supermicro.nix ];
               };
             }
           ];
