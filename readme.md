@@ -2,6 +2,12 @@
 
 Dotfiles, powered by [Nix](https://nixos.org/nix/) and [home-manager](https://github.com/rycee/home-manager).
 
+## How to use (Linux)
+
+nix-channel --add https://github.com/nix-community/home-manager/archive/release-24.05.tar.gz home-manager
+nix-channel --update
+nixos-rebuild --flake .#supermicro switch
+
 ## How to use (Mac)
 
 1. Install Nix:
