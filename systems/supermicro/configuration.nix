@@ -127,12 +127,17 @@
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   networking.firewall.allowedTCPPorts = [
+    80 # HTTP
+    443 # HTTPS
     6443 # k3s: required so that pods can reach the API server (running on port 6443 by default)
     # 2379 # k3s, etcd clients: required if using a "High Availability Embedded etcd" configuration
     # 2380 # k3s, etcd peers: required if using a "High Availability Embedded etcd" configuration
+    32400 # plex
   ];
   networking.firewall.allowedUDPPorts = [
     # 8472 # k3s, flannel: required if using multi-node for inter-node networking
+    32400 # plex
+    7359 # jellyfin local discovery
   ];
   services.k3s.enable = true;
   services.k3s.role = "server";
