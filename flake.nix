@@ -125,6 +125,18 @@
           modules = [
             home-manager.nixosModules.home-manager
             ./systems/supermicro/configuration.nix
+
+            {
+              home-manager = {
+                useGlobalPkgs = false;
+                useUserPackages = true;
+                extraSpecialArgs =
+                  inputsBySystem."x86_64-linux".extraSpecialArgs;
+                users.nick = {
+                  imports = [ ./homes/home-nicks-supermicro.nix ];
+                };
+              };
+            }
           ];
           specialArgs = {
             inherit inputs;
