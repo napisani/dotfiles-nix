@@ -17,4 +17,50 @@
     ../mods/alacritty.nix
   ];
 
+  nixpkgs = {
+    # You can add overlays here
+    overlays = overlays;
+    
+    # Configure your nixpkgs instance
+    config = {
+      # Disable if you don't want unfree packages
+      allowUnfree = true;
+      # Workaround for https://github.com/nix-community/home-manager/issues/2942
+      allowUnfreePredicate = (_: true);
+      /* packageOverrides = pkgs: rec { */
+      /*   secret_inject = pkgs.callPackage ../mods/secret_inject.nix { }; */
+      /* }; */
+    };
+  };
+
+  
+  home = {
+    username = user;
+    /* homeDirectory = "/Users/nick"; */
+  };
+
+  home.packages = with pkgs; [
+    /* my-scripts */
+  ];
+
+  # Add stuff for your user as you see fit:
+  # programs.neovim.enable = true;
+  # home.packages = with pkgs; [ steam ];
+
+  # Enable home-manager and git
+  programs.home-manager.enable = true;
+  /* programs.git.enable = true; */
+
+  programs.bash = {
+    shellAliases = { 
+      nixswitch = "pushd /etc/dotfiles-nix; nixos-rebuild --flake .#supermicro switch --impure ; popd";
+      nixup = "pushd /etc/dotfiles-nix; nix flake update; nixswitch; popd";
+    };
+  };
+
+  # Nicely reload system units when changing configs
+  systemd.user.startServices = "sd-switch";
+
+  # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
+  home.stateVersion = "22.11";
 }
