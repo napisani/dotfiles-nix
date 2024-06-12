@@ -20,28 +20,28 @@
   nixpkgs = {
     # You can add overlays here
     overlays = overlays;
-    
+
     # Configure your nixpkgs instance
     config = {
       # Disable if you don't want unfree packages
       allowUnfree = true;
       # Workaround for https://github.com/nix-community/home-manager/issues/2942
       allowUnfreePredicate = (_: true);
-      /* packageOverrides = pkgs: rec { */
-      /*   secret_inject = pkgs.callPackage ../mods/secret_inject.nix { }; */
-      /* }; */
+      # packageOverrides = pkgs: rec {
+      # secret_inject = pkgs.callPackage ../mods/secret_inject.nix { };
+      # };
     };
   };
 
-  
   home = {
     username = user;
-    /* homeDirectory = "/Users/nick"; */
+    # homeDirectory = "/Users/nick";
   };
 
-  home.packages = with pkgs; [
-    /* my-scripts */
-  ];
+  home.packages = with pkgs;
+    [
+      # my-scripts
+    ];
 
   # Add stuff for your user as you see fit:
   # programs.neovim.enable = true;
@@ -49,12 +49,16 @@
 
   # Enable home-manager and git
   programs.home-manager.enable = true;
-  /* programs.git.enable = true; */
+  # programs.git.enable = true;
 
   programs.bash = {
-    shellAliases = { 
-      nixswitch = "pushd ~/.config/home-manager; sudo nixos-rebuild --flake .#supermicro switch --impure ; popd";
-      nixup = "pushd ~/.config/home-manager; sudo nix flake update; sudo nixswitch; popd";
+    enable = true;
+    sessionVariables = { SHELL = "${pkgs.bashInteractive}/bin/bash"; };
+    shellAliases = {
+      nixswitch =
+        "pushd ~/.config/home-manager; sudo nixos-rebuild --flake .#supermicro switch --impure ; popd";
+      nixup =
+        "pushd ~/.config/home-manager; sudo nix flake update; sudo nixswitch; popd";
     };
   };
 
