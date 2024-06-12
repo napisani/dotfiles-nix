@@ -38,10 +38,7 @@
     # homeDirectory = "/Users/nick";
   };
 
-  home.packages = with pkgs;
-    [
-      # my-scripts
-    ];
+  home.packages = with pkgs; [ gcc ];
 
   # Add stuff for your user as you see fit:
   # programs.neovim.enable = true;
