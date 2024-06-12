@@ -53,8 +53,8 @@
 
   programs.bash = {
     shellAliases = { 
-      nixswitch = "pushd ~/.config/home-manager; nixos-rebuild --flake .#supermicro switch --impure ; popd";
-      nixup = "pushd ~/.config/home-manager; nix flake update; nixswitch; popd";
+      nixswitch = "pushd ~/.config/home-manager; sudo nixos-rebuild --flake .#supermicro switch --impure ; popd";
+      nixup = "pushd ~/.config/home-manager; sudo nix flake update; sudo nixswitch; popd";
     };
   };
 
