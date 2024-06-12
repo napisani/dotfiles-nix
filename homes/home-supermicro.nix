@@ -13,8 +13,8 @@
     ../mods/golang.nix
     ../mods/neovim.nix
     ../mods/secret_inject.nix
-    ../mods/packer_plugin_manager.nix
-    ../mods/alacritty.nix
+    # ../mods/packer_plugin_manager.nix
+    # ../mods/alacritty.nix
   ];
 
   nixpkgs = {
