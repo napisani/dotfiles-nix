@@ -124,7 +124,7 @@
           pkgs = inputsBySystem."x86_64-linux".extraSpecialArgs.pkgs-unstable;
           modules = [
             home-manager.nixosModules.home-manager
-            ./configuration.nix
+            ./systems/supermicro/configuration.nix
           ];
           specialArgs = {
             inherit inputs;
