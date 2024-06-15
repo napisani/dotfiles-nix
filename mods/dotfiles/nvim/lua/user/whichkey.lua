@@ -112,7 +112,7 @@ local mappings = {
 	-- git commands
 	g = {
 		name = "Git",
-		O = { "<Cmd>:Neogit<CR>", "Open neogit" },
+		o = { "<Cmd>:Neogit<CR>", "Open neogit" },
 		n = { "<cmd>lua require 'gitsigns'.next_hunk()<cr>", "Next Hunk" },
 		p = { "<cmd>lua require 'gitsigns'.prev_hunk()<cr>", "Prev Hunk" },
 		l = { "<cmd>lua require 'gitsigns'.blame_line()<cr>", "Blame" },
@@ -142,7 +142,7 @@ local mappings = {
 	-- change(git) commands
 	c = {
 		name = "Changes",
-		O = { "<Cmd>:DiffviewOpen<CR>", "Open" },
+		o = { "<Cmd>:DiffviewOpen<CR>", "Open" },
 		m = { "<Cmd>:DiffviewOpen " .. primary_branch .. "<CR>", "(m)ain" },
 		M = { "<Cmd>:DiffviewOpen origin/" .. primary_branch .. "<CR>", "origin/(M)ain" },
 
@@ -166,7 +166,7 @@ local mappings = {
 			f = { "<cmd>lua require('user.telescope').find_file_from_root_to_compare_to()<CR>", "(f)ile" },
 		},
 		B = { "<Cmd>:G blame<CR>", "Blame" },
-		o = "Choose OURS",
+		y = "Choose YOURS",
 		t = "Choose THEIRS",
 		b = "Choose BASE",
 		a = "Choose ALL",
@@ -193,7 +193,7 @@ local mappings = {
 		X = { "<Cmd>lua require'dap'.clear_breakpoints()<CR>", "Clear all Breakpoints" },
 		r = { "<Cmd>lua require'dap'.repl.open()<CR>", "open REPL" },
 		l = { "<Cmd>lua require'dap'.run_last()<CR>", "run last" },
-		O = { "<Cmd>lua require'dapui'.open()<CR>", "open debugger" },
+		o = { "<Cmd>lua require'dapui'.open()<CR>", "open debugger" },
 		q = { "<Cmd>lua require'dapui'.close()<CR>", "close debugger" },
 	},
 
@@ -207,7 +207,7 @@ local mappings = {
 	-- REPL commands
 	R = {
 		name = "REPL",
-		O = {
+		o = {
 			"<cmd>:IronRepl<cr>",
 			"(O)pen REPL",
 		},
