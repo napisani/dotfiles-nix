@@ -150,9 +150,7 @@
   # Enable cron service
   services.cron = {
     enable = true;
-    systemCronJobs = [ "*/1 * * * *      root    k3s kubectl exec -n home `k3s kubectl get pods -n home\
-              | grep pgvector | awk '{ print $1 }'` \
-              -- bash -c 'pg_dumpall -U homelab' > /tmp/pgvector.sql" ];
+    systemCronJobs = [ "*/1 * * * *      root    k3s kubectl exec -n home `k3s kubectl get pods -n home | grep pgvector | awk '{ print $1 }'`  -- bash -c 'pg_dumpall -U homelab' > /tmp/pgvector.sql" ];
   };
 
 }
