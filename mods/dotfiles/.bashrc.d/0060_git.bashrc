@@ -66,10 +66,7 @@ if command -v git &> /dev/null ; then
       possible_files=("$root_dir/procmux.yaml" "$root_dir/procmux.yml")
       for file in "${possible_files[@]}"; do
           if [ -e "$file" ]; then
-              # procmux signal-restart-running --config "$file" 
-              # TODO fix this  so its not hardcoded
-              procmux signal-restart --name 'pnpm:backend:start'
-              procmux signal-restart --name 'pnpm:frontend:start'
+              procmux signal-restart-running --config "$file" 
               return 0
           fi
       done

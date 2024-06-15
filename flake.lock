@@ -248,17 +248,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1717887315,
-        "narHash": "sha256-8Z0MobZthIRtMgeucHkIS6oxTF9kRo5fskWDXiM2Ofg=",
+        "lastModified": 1718412130,
+        "narHash": "sha256-FrfwChgqWWhrvDqWVZ+FJSQDUYZdzYYFQ0XcphD5crE=",
         "owner": "napisani",
         "repo": "procmux",
-        "rev": "2785927bff9a236682dc4e98a412ef0aadee212d",
+        "rev": "606ca6dde890ee87b95a1ea51355983997fffc7c",
         "type": "github"
       },
       "original": {
         "owner": "napisani",
         "repo": "procmux",
-        "rev": "2785927bff9a236682dc4e98a412ef0aadee212d",
+        "rev": "606ca6dde890ee87b95a1ea51355983997fffc7c",
         "type": "github"
       }
     },

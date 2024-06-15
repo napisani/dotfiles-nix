@@ -26,7 +26,7 @@
     # };
 
     procmux.url =
-      "github:napisani/procmux/2785927bff9a236682dc4e98a412ef0aadee212d";
+      "github:napisani/procmux/606ca6dde890ee87b95a1ea51355983997fffc7c";
     procmux.inputs.nixpkgs.follows = "nixpkgs";
 
     oxlint_dep.url =
