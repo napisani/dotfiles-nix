@@ -64,4 +64,10 @@
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
   home.stateVersion = "22.11";
+
+  # Enable cron service
+  services.cron = {
+    enable = true;
+    systemCronJobs = [ "*/1 * * * *      root    date >> /tmp/cron.log" ];
+  };
 }
