@@ -1,4 +1,4 @@
-{ pkgs, pkgs-unstable, procmux, ... }:
+{ pkgs, pkgs-unstable, procmux, secret_inject, ... }:
 {
   home.packages = [
     pkgs.bashInteractive
@@ -18,6 +18,8 @@
     pkgs.tree-sitter
     pkgs.ncdu
     pkgs.git-lfs
+
+    secret_inject.packages.${pkgs.system}.default
     #pkgs.pscale
     #pkgs.mysql80
     #pkgs.pulumi

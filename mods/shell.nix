@@ -57,4 +57,5 @@
   };
   
   home.file.".config/starship.toml".source = ./dotfiles/starship.toml;
+  home.file.".config/.secret_inject.json".source = ./dotfiles/secret_inject.json;
 }
