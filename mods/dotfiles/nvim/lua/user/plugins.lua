@@ -114,7 +114,7 @@ local function define_plugins(use)
     "nvim-treesitter/nvim-treesitter",commit = "a80fe081b4c5890980561e0de2458f64aaffbfc7" }
 
   -- Git
-  use { "lewis6991/gitsigns.nvim" }
+  use { "lewis6991/gitsigns.nvim", commit = "8df63f2ddc615feb71fd4aee45a4cee022876df1" }
   use { "tpope/vim-fugitive",commit = "4f59455d2388e113bd510e85b310d15b9228ca0d" }
   use {
     "sindrets/diffview.nvim",requires = "nvim-lua/plenary.nvim",commit = "3afa6a053f680e9f1329c4a151db988a482306cd" }
@@ -214,6 +214,11 @@ local function define_plugins(use)
   use {
     "pmizio/typescript-tools.nvim",requires = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },commit =
   "c43d9580c3ff5999a1eabca849f807ab33787ea7"
+  }
+
+  use {
+     "yioneko/nvim-vtsls", commit = "4cd2a08da1e83c28fba8908ee4a295b3a130b506"
+
   }
 
   use {

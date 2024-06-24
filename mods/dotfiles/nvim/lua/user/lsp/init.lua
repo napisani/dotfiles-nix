@@ -17,4 +17,4 @@ require("user.lsp.null-ls")
 require("user.lsp.standalone.rust_tools")
 -- require "user.lsp.standalone.ruff"
 
-require("user.lsp.standalone.typescript_tools")
+-- require("user.lsp.standalone.typescript_tools")

@@ -18,7 +18,7 @@ local servers = {
   angularls = { npm = "@angular/language-server" },
   bashls = {},
   cssls = {},
-  -- denols = {},
+
   gopls = {},
   docker_compose_language_service = {},
   dockerls = {},
@@ -35,10 +35,12 @@ local servers = {
   -- sqls = {},
   tailwindcss = {},
   taplo = {},
-  tsserver = { npm = "typescript-language-server", skip = true }, -- npm install -g typescript typescript-language-server
+  -- tsserver = { npm = "typescript-language-server", skip = true }, -- npm install -g typescript typescript-language-server
   denols = {},
-  vls = { npm = "vls" },                                         -- npm install -g @volar/vue-language-server
   yamlls = {},
+  vtsls = {
+    npm = "@vtsls/language-server"
+  },
   efm = {},
   -- nil_ls = {},false
 }
