@@ -228,6 +228,7 @@ local mappings = {
 		name = "Packer/System",
 		s = { "<cmd>PackerSync<cr>", "(s)ync" },
 		t = { "<cmd>TSUpdate<cr>", "(t)reesitter update" },
+    m = { "<cmd>Mason<cr>", "(m)ason" },
 	},
 
 	-- lsp commands

@@ -1,32 +1,30 @@
-{ pkgs, pkgs-unstable, procmux, secret_inject, ... }:
-{
-  home.packages = [
-    pkgs.bashInteractive
-    pkgs.bat
-    pkgs.coreutils
-    pkgs.gnupg
-    pkgs.gnugrep
-    pkgs.jq
-    pkgs.ripgrep
-    pkgs.tree
-    pkgs.watch
-    pkgs.wget
-    #pkgs.postman
-    pkgs-unstable.doppler
-    pkgs.bitwarden-cli
-    pkgs.pet
-    pkgs.tree-sitter
-    pkgs.ncdu
-    pkgs.git-lfs
+{ pkgs, pkgs-unstable, procmux, secret_inject, ... }: {
+  home.packages = with pkgs-unstable; [
+    bashInteractive
+    bat
+    coreutils
+    gnupg
+    gnugrep
+    jq
+    ripgrep
+    tree
+    watch
+    wget
+    #postman
+    doppler
+    bitwarden-cli
+    pet
+    tree-sitter
+    ncdu
+    git-lfs
 
     secret_inject.packages.${pkgs.system}.default
     #pkgs.pscale
     #pkgs.mysql80
     #pkgs.pulumi
 
-
     # for doing pretty diffs
-    pkgs.delta
+    delta
 
     # for personal dashboards
     # pkgs.wtf

@@ -63,7 +63,7 @@
             oxlint_dep = inputs.oxlint_dep.legacyPackages."${system}";
             neovim_dep = inputs.neovim_dep.legacyPackages."${system}";
             golang_dep = inputs.golang_dep.legacyPackages."${system}";
-            secret_inject = secret_inject; 
+            secret_inject = secret_inject;
             nixhub_dep = import inputs.nixhub_dep {
               inherit system;
               config.allowUnfree = true;

@@ -8,7 +8,7 @@
     vimAlias = true;
     withNodeJs = false;
     withPython3 = true;
-    extraPackages = with pkgs; [
+    extraPackages = with pkgs-unstable; [
 
         pkgs-unstable.nodejs_20
 
@@ -29,6 +29,7 @@
         efm-langserver
 
         nodePackages."@tailwindcss/language-server"
+
         nodePackages.cspell
 
         # python
@@ -50,6 +51,7 @@
         # Nix
         statix
         nixfmt
+        nil
 
         # bash
         shellcheck

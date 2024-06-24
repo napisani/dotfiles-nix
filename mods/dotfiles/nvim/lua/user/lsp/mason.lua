@@ -27,7 +27,7 @@ local servers = {
   lua_ls = { brew = "lua-language-server" },
   pyright = { npm = "pyright" },
   biome = { npm = "@biomejs/biome", skip = not biome_enabled },
-  rnix = {},
+  -- rnix = {},
   ruff_lsp = { pipx = "ruff-lsp" },
   -- vim_dadbod_completion = {},
   -- sqlls = {}, -- https://github.com/lighttiger2505/sqls/releases
@@ -42,12 +42,15 @@ local servers = {
     npm = "@vtsls/language-server"
   },
   efm = {},
-  -- nil_ls = {},false
+  -- nil_ls = {},
 }
 
 local servers_only = {}
 for server, _ in pairs(servers) do
-  table.insert(servers_only, server)
+  -- nil_ls will not install from mason rely on the neovim nix flake
+  if server ~= "nil_ls" then
+    table.insert(servers_only, server)
+  end
 end
 
 mason.setup({})
