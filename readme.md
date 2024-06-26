@@ -85,6 +85,8 @@ https://github.com/LnL7/nix-darwin/issues/564
 ## homelab disk connfiguration 
 1. setup the two 18tb drives using zfs
 ```bash
+https://nixos.wiki/wiki/ZFS
+
 fdisk -l
 
 
@@ -99,5 +101,13 @@ fdisk /dev/sdb
 # --- use defaults for the entire disk
 # w - write the changes
 
+
+# create the zpool with compression on 
+# enable acltype=posixacl to allow for linux style ACLs
+# enable xattr=sa to store extended attributes in the inode
+# ashift=12 is the default for 4k sector drives
 zpool create -O compression=on -O mountpoint=none -O xattr=sa -O acltype=posixacl -o ashift=12 zpool /dev/sda1 /dev/sdb1
+
+zfs create -o mountpoint=legacy zpool/storage
+mount -t zfs zpool/storage /media/storage
 ```
