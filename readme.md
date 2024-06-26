@@ -81,3 +81,23 @@ Helpful github issue thread for diagnosing any initial Karabiner problems:
 ```
 https://github.com/LnL7/nix-darwin/issues/564
 ```
+
+## homelab disk connfiguration 
+1. setup the two 18tb drives using zfs
+```bash
+fdisk -l
+
+
+
+# format the drives
+fdisk /dev/sda
+fdisk /dev/sdb
+# p - print
+# g - create a new GPT partition table
+# w - write the changes
+# n - new partition
+# --- use defaults for the entire disk
+# w - write the changes
+
+zpool create -O compression=on -O mountpoint=none -O xattr=sa -O acltype=posixacl -o ashift=12 zpool /dev/sda1 /dev/sdb1
+```
