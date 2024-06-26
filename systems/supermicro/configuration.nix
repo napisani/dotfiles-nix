@@ -13,6 +13,13 @@
   # boot.loader.grub.enable = true;
 
   boot.loader.systemd-boot.enable = true;
+
+
+  # enable zfs
+  boot.supportedFilesystems = [ "zfs" ];
+  boot.zfs.forceImportRoot = false;
+  networking.hostId = "14ad4931";
+
   # boot.loader.grub.efiSupport = true;
   # boot.loader.grub.efiInstallAsRemovable = true;
   # boot.loader.efi.efiSysMountPoint = "/boot/efi";
