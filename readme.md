@@ -106,8 +106,8 @@ fdisk /dev/sdb
 # enable acltype=posixacl to allow for linux style ACLs
 # enable xattr=sa to store extended attributes in the inode
 # ashift=12 is the default for 4k sector drives
-zpool create -O compression=on -O mountpoint=none -O xattr=sa -O acltype=posixacl -o ashift=12 zpool /dev/sda1 /dev/sdb1
+zpool create -O compression=on -O mountpoint=none -O xattr=sa -O acltype=posixacl -o ashift=12 storagepool mirror /dev/sda1 /dev/sdb1
 
-zfs create -o mountpoint=legacy zpool/storage
-mount -t zfs zpool/storage /media/storage
+zfs create -o mountpoint=legacy storagepool/storage
+mount -t zfs storagepool/storage /media/storage
 ```
