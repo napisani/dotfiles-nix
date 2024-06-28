@@ -23,18 +23,23 @@
     options = [ "fmask=0077" "dmask=0077" ];
   };
 
+  # fileSystems."/media/storage" = {
+  #   device = "//192.168.0.29/storage";
+  #   fsType = "cifs";
+  #   options = [
+  #     "username=admin"
+  #     (builtins.readFile /etc/nixsecrets/storage-mount.txt)
+  #     "rw"
+  #     "nounix"
+  #     "iocharset=utf8"
+  #     "file_mode=0777"
+  #     "dir_mode=0777 0 0"
+  #   ];
+  # };
+
   fileSystems."/media/storage" = {
-    device = "//192.168.0.29/storage";
-    fsType = "cifs";
-    options = [
-      "username=admin"
-      (builtins.readFile /etc/nixsecrets/storage-mount.txt)
-      "rw"
-      "nounix"
-      "iocharset=utf8"
-      "file_mode=0777"
-      "dir_mode=0777 0 0"
-    ];
+    device = "storagepool/stroage";
+    fsType = "zfs";
   };
 
   swapDevices =

@@ -1,0 +1,31 @@
+#!/bin/bash
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:f5399bad7e8f20a7beef9c589b38a8e78c75df7f3aa3d904c197bba2242207c6
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:f15cdf25830219c052b0a20f5071c921cf5c71050a131b50e1ff0b4e681761c1
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:ec939b2456d7dd88a36bb7b620b10caed3301f2c440d3385ec7686d69823e69d
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:e9c8d0ee2938347a81a53069926dc592b509a19064ada70da0b9a59d3846e8f0
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:e0bf483a5504fa9ab7e878990290fb916c1538bf85fac24d0aee8d2303d2cdfb
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:ce755905bac692bdf64e1205b9eb3a493def59a7062f135e2a4e7bee5144d064
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:b84a74cde5af5c5199bfc2ce2a8c8951a29a7716d17327e923f1a14c870a858b
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:b6ea0ec1d723a7b7390474bf0ab12f9e2a429c6c6c2b2ed7332d522e2b674f19
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:b4f55cfa204de43907d8c82fa9218c0a828cc1fd437da5f3bca90f4d96dbf2d5
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:af9559eaf504fc975d5241ac3c79dc34699f6de610c4f8a99926249fb0dbd8dd
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:aeb1e597980ad0bcbb2fd1768c25d44c34998cb818807d4837717c99e1274cb6
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:a1dcfcbe95b062213a98053042f42c38a8c867922c47b3f53d78bc9e00e49063
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:86c35ade2ef3fc036c4d252dc91d9bbcb7a182cccde80ed8cd38f2441cc1d114
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:8311a42582b3be423b36b2d2b20dc028c69b089c941ed07c31cb35399305461c
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:6b549263cbbd6a62fbe0fc206b12bfdaf0f8be68ce22381354b69158a965da9a
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:56051d5ceced327050d3affcbe858aabf524aacc3bd3a8fb5879dc9f2943af9c
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:4dc33c44a1dd3bd9d2a96d4b995f3db2a49ba24556756be31066423b36327578
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:4838760d22df5943d9a3eadd764e3dfc8477e8e28651724efdb110723febcfb3
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:3dbf61dacbcba0c48574ffea7344b31cdf9e70ff8c7421f0975d33597791d024
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:22b5962f565bb11fdd72d8ccc57b42d9832f5b5299b9db779747118268d6b92f
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:09346f78c3bf1db9dc1c4b8409221df0297ef5bf774bd0ac30e687a8fc02e036
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:069162cafcb2d93bd3329e0cc7b8ba71ed0aeb4482fbb2712c486e08d0334194
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:05638d723ee340a58e6431aa057752f41d240c4d9a3cf62c72cd21fb68be40eb
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:0102bea57027dc7aee55edbe80b59dec0853bf7fbdfa6b92bcd00bc7eb8d953c
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite index-buildkit-1-da9b75e0#1
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:f45cc1f0bc1e7b0cc02802ebc5fa8a6274fac4db1cdb4c425119e560a6500a75
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:eeed024e68689845d6f9e9b8a7195f32bd6af46ef8efc24dd2585d0dcab1fc2e
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:dab4d67e34fa7a76aca8c54b0ca33894cc0da924762d8c1eb13fe164a6bfc6ed
+gh actions-cache delete --repo https://github.com/Axion-Ray/axion-multisite buildkit-blob-1-sha256:c595f606bd7cf662327f8ec800cfc4b76263a85b0d2c2ee8e101262e4762f00f
+
