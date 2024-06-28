@@ -38,7 +38,7 @@
   # };
 
   fileSystems."/media/storage" = {
-    device = "storagepool/stroage";
+    device = "storagepool/storage";
     fsType = "zfs";
   };
 
