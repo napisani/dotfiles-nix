@@ -7,6 +7,14 @@
 {
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    ../../mods/system-packages.nix
+    # ../mods/shell.nix
+    # ../mods/git.nix
+    # ../mods/gh.nix
+    # ../mods/rust.nix
+    # ../mods/javascript.nix
+    # ../mods/golang.nix
+    # ../mods/neovim.nix
   ];
 
   # Use the GRUB 2 boot loader.
@@ -65,13 +73,6 @@
     #   ];
   };
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    # vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    tmux
-    unzip
-  ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
