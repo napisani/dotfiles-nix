@@ -45,10 +45,13 @@
     secret_inject.url =
       "github:napisani/secret_inject/58be3ae97e2e55aef6b4255ec3e3f387f307973a";
 
+    animal_rescue.url =
+      "github:napisani/animal-rescue/b60f90ac2673ad1a533c842d5876d260c2fcd932";
+
   };
 
   outputs = { flake-utils, nixpkgs, nixpkgs-unstable, home-manager, darwin
-    , procmux, secret_inject, oxlint_dep, neovim_dep, golang_dep, nixhub_dep
+    , procmux, secret_inject, animal_rescue, oxlint_dep, neovim_dep, golang_dep, nixhub_dep
     , ... }@inputs:
     let
       allSystems = [ "x86_64-linux" "aarch64-darwin" ];
@@ -64,6 +67,7 @@
             neovim_dep = inputs.neovim_dep.legacyPackages."${system}";
             golang_dep = inputs.golang_dep.legacyPackages."${system}";
             secret_inject = secret_inject;
+            animal_rescue = animal_rescue;
             nixhub_dep = import inputs.nixhub_dep {
               inherit system;
               config.allowUnfree = true;

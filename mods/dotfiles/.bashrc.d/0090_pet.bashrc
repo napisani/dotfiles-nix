@@ -5,7 +5,7 @@ then
       sh -c "pet new `printf %q "$PREV"`"
     }
     function pet-select() {
-      BUFFER=$(pet search --query "$READLINE_LINE")
+      BUFFER=$(pet search --query "$READLINE_LINE" --config $(animal-rescue --config ~/.config/pet/config.toml))
       echo "$BUFFER" | tr '\n' ' ' | pbcopy
       echo "copied to clipboard!"
       #READLINE_LINE=$BUFFER
