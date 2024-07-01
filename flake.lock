@@ -7,17 +7,17 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1719799297,
-        "narHash": "sha256-uQwA0+H8ybs3opZDGduXSWHGt1iDm/xfBYUVoAhbMoU=",
+        "lastModified": 1719871488,
+        "narHash": "sha256-VjyvTy6R33/PC4sUj2mT2igGkQWnKxjEPcfCeTvhoNQ=",
         "owner": "napisani",
         "repo": "animal-rescue",
-        "rev": "28d9749732879e2edcde912697abaf84888240f4",
+        "rev": "6f6eb764fa836ced2c4fbacc852708763963f6c9",
         "type": "github"
       },
       "original": {
         "owner": "napisani",
         "repo": "animal-rescue",
-        "rev": "28d9749732879e2edcde912697abaf84888240f4",
+        "rev": "6f6eb764fa836ced2c4fbacc852708763963f6c9",
         "type": "github"
       }
     },
