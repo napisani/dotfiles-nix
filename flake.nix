@@ -46,7 +46,7 @@
       "github:napisani/secret_inject/58be3ae97e2e55aef6b4255ec3e3f387f307973a";
 
     animal_rescue.url =
-      "github:napisani/animal-rescue/6f6eb764fa836ced2c4fbacc852708763963f6c9";
+      "github:napisani/animal-rescue/be99d9f9ad6e6a746529e1dae2b72d04f308e062";
 
   };
 
