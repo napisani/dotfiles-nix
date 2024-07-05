@@ -301,8 +301,7 @@
                       "^com\\.apple\\.Terminal",
                       "^com\\.googlecode\\.iterm2",
                       "^io\\.alacritty",
-                      "^org\\.alacritty",
-                      "^com\\.jetbrains\\..*"
+                      "^org\\.alacritty"
                     ]
                   }
                 ]
@@ -326,8 +325,7 @@
                       "^com\\.apple\\.Terminal",
                       "^com\\.googlecode\\.iterm2",
                       "^io\\.alacritty",
-                      "^org\\.alacritty",
-                      "^com\\.jetbrains\\..*"
+                      "^org\\.alacritty"
                     ]
                   }
                 ]
@@ -356,8 +354,7 @@
                       "^com\\.apple\\.Terminal",
                       "^com\\.googlecode\\.iterm2",
                       "^io\\.alacritty",
-                      "^org\\.alacritty",
-                      "^com\\.jetbrains\\..*"
+                      "^org\\.alacritty"
                     ]
                   }
                 ]
@@ -386,8 +383,7 @@
                       "^com\\.apple\\.Terminal",
                       "^com\\.googlecode\\.iterm2",
                       "^io\\.alacritty",
-                      "^org\\.alacritty",
-                      "^com\\.jetbrains\\..*"
+                      "^org\\.alacritty"
                     ]
                   }
                 ]

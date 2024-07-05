@@ -6,9 +6,9 @@ local term_opts = { silent = true }
 local keymap = vim.api.nvim_set_keymap
 
 --Remap space as leader key
- keymap("", "<Space>", "<Nop>", opts)
- vim.g.mapleader = " "
- vim.g.maplocalleader = " "
+keymap("", "<Space>", "<Nop>", opts)
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
 
 -- Modes
 --   normal_mode = "n",
@@ -68,9 +68,15 @@ keymap("v", "<C-_>", ":Commentary<CR>", opts)
 -- Alias for window leader
 keymap("n", "gw", ':call feedkeys("\\<lt>c-w>")<cr>', opts)
 
-
--- keybinding to refresh vim config
-keymap("n", "<leader>vr", ":source $MYVIMRC<CR>", opts)
-keymap("n", "s", "<cmd>HopWord<CR>", opts)
-
-
+-- Hop keybindings
+-- unmap default keybindings for s
+local noop = function() end
+vim.keymap.set({ "n", "x", "o" }, "s", noop, { silent = true })
+vim.keymap.set({ "n", "x", "o" }, "S", "<cmd>HopWord<CR>", opts)
+vim.keymap.set({ "n", "x", "o" }, "ss", "<cmd>HopWord<CR>", opts)
+vim.keymap.set({ "n", "x", "o" }, "sv", "<cmd>HopVertical<CR>", opts)
+vim.keymap.set({ "n", "x", "o" }, "sb", "<cmd>HopNodes<CR>", opts)
+vim.keymap.set({ "n", "x", "o" }, "sl", "<cmd>HopWordCurrentLine<CR>", opts)
+-- vim.keymap.set({ "n", "x", "o"},  "gj", "<cmd>HopVertical<CR>", opts)
+-- vim.keymap.set({ "n", "x", "o"},  "gn", "<cmd>HopNodes<CR>", opts)
+-- vim.keymap.set({ "n", "x", "o"},  "gf", "<cmd>HopWordCurrentLine<CR>", opts)

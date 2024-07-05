@@ -30,6 +30,7 @@ alias password-lookup='pushd $(pwd) ; cd ~/scripts/password-lookup3; python pass
 alias restart-karabiner='killall Karabiner-Elements ; launchctl stop org.pqrs.karabiner.karabiner_console_user_server && sleep 3 && launchctl start org.pqrs.karabiner.karabiner_console_user_server && open -a karabiner-elements'
 
 alias dns-clear='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
+alias cdhomeman='cd ~/.config/home-manager'
 
 # capture the output of a command so it can be retrieved with ret
 cap() { 
@@ -126,4 +127,6 @@ function cdpr() {
   fi
   cd "$DIR"
 }
+
+
 

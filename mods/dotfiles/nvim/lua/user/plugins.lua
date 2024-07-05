@@ -147,7 +147,7 @@ local function define_plugins(use)
   -- adds support using the 's' selector for changing text surroundings
   use { "tpope/vim-surround", commit = "3d188ed2113431cf8dac77be61b842acb64433d9" }
   use {
-    "phaazon/hop.nvim", branch = "v2", commit = "90db1b2c61b820e230599a04fedcd2679e64bd07" }
+    "smoka7/hop.nvim",  commit = "036462a345792279c58f2f6445756efab706f04a" }
   -- use 'ggandor/lightspeed.nvim'
   -- use{ "ggandor/leap.nvim", commit = "f7391b5fe9771d788816383ee3c75e0be92022af" }
 
