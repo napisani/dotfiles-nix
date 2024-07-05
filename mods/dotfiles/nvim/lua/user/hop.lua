@@ -13,6 +13,7 @@ hop.setup({
   create_hl_autocmd = true,
 })
 
+-- background colors
 -- local bg = '#83a598'
 local bg = '#fabd2f'
 -- local  bg = '#d3869b'
