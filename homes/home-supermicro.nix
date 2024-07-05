@@ -52,6 +52,8 @@
     enable = true;
     sessionVariables = { SHELL = "${pkgs.bashInteractive}/bin/bash"; };
     shellAliases = {
+      nixswitchup =
+        "pushd ~/.config/home-manager; git pull && sudo nixos-rebuild --flake .#supermicro switch --impure ; popd";
       nixswitch =
         "pushd ~/.config/home-manager; sudo nixos-rebuild --flake .#supermicro switch --impure ; popd";
       nixup =
