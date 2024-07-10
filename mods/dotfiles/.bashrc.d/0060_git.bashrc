@@ -74,40 +74,15 @@ if command -v git &> /dev/null ; then
   }
   __git_complete git-checkout  _git_checkout
 
-  # rebase branch without dealing with merge conflicts
-  # already been resolved
-  function git-squash-branch() {
-    REBASE_BRANCH="$1"
-    CURRENT_BRANCH="$(git-current-branch)"
-    if [ -z "$REBASE_BRANCH" ]; then
-      echo "Usage: git-branch-commits <branch>"
+  function git-rebase-onto() {
+    if [ -z "$1" ]; then
+      echo "Usage: git-rebase-onto <branch>"
       return 1
     fi
-    if [ "$REBASE_BRANCH" = "$CURRENT_BRANCH" ]; then
-      echo "Cannot rebase branch onto itself"
-      return 1
-    fi
-    TEMP_BRANCH="squash-branch-$(date +%s)"
-
-    # back merge ancestor branch
-    git fetch && \ 
-    git merge "origin/$REBASE_BRANCH" && \
-    git checkout "$REBASE_BRANCH" && \
-
-    # create temp branch 
-    git pull && \
-    git checkout -b "$TEMP_BRANCH" && \
-
-    # merge the original branch and squash all commits
-    git merge --squash "$CURRENT_BRANCH" && \
-    git commit
-
-    # renmae to original branch and clean up the temp branch
-    git branch -D "$CURRENT_BRANCH" && \
-    git checkout -b "$CURRENT_BRANCH" 
-
-    git branch -D "$TEMP_BRANCH" 
-
+    git rebase --onto "$1" "$(git log --oneline | fzf --reverse  --prompt='Select the commit BEFORE the first commit: ' | awk '{print $1}')"
   }
 
+  function git-squash() {
+    git rebase -i  "$(git log --oneline | fzf --reverse  --prompt='Select the commit BEFORE the first commit: ' | awk '{print $1}')"
+  }
 fi

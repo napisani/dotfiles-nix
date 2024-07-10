@@ -72,10 +72,12 @@
               inherit system;
               config.allowUnfree = true;
             };
-
             overlays = [
+              # import ./packages/node/node-packages.nix
               # inputs.neovim-nightly-overlay.overlay
+
             ];
+
             user = "nick";
           };
         };
