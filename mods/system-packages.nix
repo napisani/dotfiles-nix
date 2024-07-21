@@ -3,6 +3,7 @@
     tmux
     unzip
     wget
+    kubectl
   ];
 
 }

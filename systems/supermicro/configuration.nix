@@ -22,7 +22,6 @@
 
   boot.loader.systemd-boot.enable = true;
 
-
   # enable zfs
   boot.supportedFilesystems = [ "zfs" ];
   boot.zfs.forceImportRoot = false;
@@ -67,13 +66,19 @@
   users.users.nick = {
     isNormalUser = true;
     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-    #    packages = with pkgs; [
-    #     firefox
-    #     tree
-    #   ];
+    openssh.authorizedKeys.keys = [
+      "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCtAGvt/B1nDT4FjDde2a5P91roW0QLqJU3aNrEdQ1zCcqPy+Hj39OXu1zc1i0TGOrZpBHReFqZn2Je8UAIzYpSqBSuxIiCFJvzsfkjeKF2HmWCECqBpNDxblp87DdoQv6sKqB9zroJ9CAnJS/+alLyNX2/JSNMvHt6dOQE5DF6QV3TlReEzFZx+E7nzOGDW7Ph6VhOzkqHNL6D68niOM0Slvj4wFTD+prZJe4Y5lFY6YI0y/UGvMqcnxicJhpiA5KqQgRrLqirtDI9MHk7sTxwVnGkOuBpn6sEZz+AncVhM37jhGvINN1FKiVAUP4iZ5cxAjHLhCI8yfCEy84ytSUEXWxwWO8uP7jHy0qCRO7cWhA7xSfHT7cGuGofY/MNgF85t2Bgj0NG36rtpd7XWj5QIn2S89c9MbIu+Zw9MYluHhyOsbi35KoC/e4HnJWtX2pe5TNwfi41wBWLkH1vET8cd9zLj7VT5SGiL0UhWA9As67G0jZ/1juGzJ/lj+DQBkU= olivetin@olivetin-f5bd7df78-5ncnp"
+    ];
   };
 
+  programs.nix-ld.enable = true;
 
+  programs.nix-ld.libraries = with pkgs;
+    [
+
+      # Add any missing dynamic libraries for unpackaged programs
+      # here, NOT in environment.systemPackages
+    ];
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
@@ -161,10 +166,11 @@
     enable = true;
     systemCronJobs = [
       "0 1 * * *      root    k3s kubectl exec -n home `k3s kubectl get pods -n home | grep pgvector | awk '{ print $1 }'`  -- bash -c 'pg_dumpall -U homelab' > /media/storage/computer_backups/supermicro/pgvector_backup.sql"
-      "0 1 * * *      root    k3s kubectl exec -n home `k3s kubectl get pods -n home | grep postgres | awk '{ print $1 }'`  -- bash -c 'pg_dumpall -U homelab' > /media/storage/computer_backups/supermicro/postgres_backup.sql"
+      "1 1 * * *      root    k3s kubectl exec -n home `k3s kubectl get pods -n home | grep postgres | awk '{ print $1 }'`  -- bash -c 'pg_dumpall -U homelab' > /media/storage/computer_backups/supermicro/postgres_backup.sql"
+      "2 1 * * *      root    k3s kubectl exec -n home `k3s kubectl get pods -n home | grep mongo | awk '{ print $1 }'` -- /usr/bin/mongodump --uri 'mongodb://localhost:27017' --archive  > /media/storage/computer_backups/supermicro/mongo_backup.dump"
+
     ];
 
   };
-
 
 }
