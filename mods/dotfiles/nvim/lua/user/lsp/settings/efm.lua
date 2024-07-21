@@ -58,9 +58,9 @@ local function get_js_linters()
 			table.insert(linters, biome_custom)
 		end
 	end
+
 	return linters
 end
-
 
 local languages = {
 	go = { gofmt, goimports },
@@ -84,11 +84,11 @@ if next(project_lint_config) == nil then
 	end
 else
 	for _, linters in pairs(languages) do
-    for _, value in ipairs(project_lint_config) do
-      if value == "cspell" then
-        table.insert(linters, cspell)
-      end
-    end
+		for _, value in ipairs(project_lint_config) do
+			if value == "cspell" then
+				table.insert(linters, cspell)
+			end
+		end
 	end
 end
 

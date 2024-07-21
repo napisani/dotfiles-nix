@@ -22,7 +22,6 @@
 
   boot.loader.systemd-boot.enable = true;
 
-
   # enable zfs
   boot.supportedFilesystems = [ "zfs" ];
   boot.zfs.forceImportRoot = false;
@@ -72,7 +71,14 @@
     ];
   };
 
+  programs.nix-ld.enable = true;
 
+  programs.nix-ld.libraries = with pkgs;
+    [
+
+      # Add any missing dynamic libraries for unpackaged programs
+      # here, NOT in environment.systemPackages
+    ];
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
@@ -85,7 +91,6 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -161,10 +166,11 @@
     enable = true;
     systemCronJobs = [
       "0 1 * * *      root    k3s kubectl exec -n home `k3s kubectl get pods -n home | grep pgvector | awk '{ print $1 }'`  -- bash -c 'pg_dumpall -U homelab' > /media/storage/computer_backups/supermicro/pgvector_backup.sql"
-      "0 1 * * *      root    k3s kubectl exec -n home `k3s kubectl get pods -n home | grep postgres | awk '{ print $1 }'`  -- bash -c 'pg_dumpall -U homelab' > /media/storage/computer_backups/supermicro/postgres_backup.sql"
+      "1 1 * * *      root    k3s kubectl exec -n home `k3s kubectl get pods -n home | grep postgres | awk '{ print $1 }'`  -- bash -c 'pg_dumpall -U homelab' > /media/storage/computer_backups/supermicro/postgres_backup.sql"
+      "2 1 * * *      root    k3s kubectl exec -n home `k3s kubectl get pods -n home | grep mongo | awk '{ print $1 }'` -- /usr/bin/mongodump --uri 'mongodb://localhost:27017' --archive  > /media/storage/computer_backups/supermicro/mongo_backup.dump"
+
     ];
 
   };
-
 
 }
