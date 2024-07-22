@@ -26,7 +26,7 @@ local servers = {
   jsonls = { npm = "vscode-langservers-extracted" },
   lua_ls = { brew = "lua-language-server" },
   pyright = { npm = "pyright" },
-  biome = { npm = "@biomejs/biome", skip = not biome_enabled },
+  -- biome = { npm = "@biomejs/biome", skip = not biome_enabled },
   -- rnix = {},
   ruff_lsp = { pipx = "ruff-lsp" },
   -- vim_dadbod_completion = {},
@@ -48,7 +48,7 @@ local servers = {
 local servers_only = {}
 for server, _ in pairs(servers) do
   -- nil_ls will not install from mason rely on the neovim nix flake
-  if server ~= "nil_ls" then
+  if server ~= "nil_ls"  and server ~= "biome" then
     table.insert(servers_only, server)
   end
 end

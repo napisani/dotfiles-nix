@@ -27,7 +27,7 @@ local cspell = require("efmls-configs.linters.cspell")
 
 local project_lint_config = utils.get_project_config().lint or {}
 
-local biome_custom = vim.tbl_extend("force", biome, {
+local biome_custom_format = vim.tbl_extend("force", biome, {
 	rootMarkers = { "biome.json" },
 })
 
@@ -55,7 +55,7 @@ local function get_js_linters()
 			table.insert(linters, prettier)
 		end
 		if value == "biome" then
-			table.insert(linters, biome_custom)
+			table.insert(linters, biome_custom_format)
 		end
 	end
 
