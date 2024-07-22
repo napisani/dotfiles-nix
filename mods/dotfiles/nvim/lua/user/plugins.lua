@@ -50,6 +50,7 @@ local function define_plugins(use)
   use { "tpope/vim-commentary",commit = "c4b8f52cbb7142ec239494e5a2c4a512f92c4d07" }
   use { "JoosepAlviste/nvim-ts-context-commentstring",commit = "6b5f95aa4d24f2c629a74f2c935c702b08dbde62" }
   use { "kyazdani42/nvim-web-devicons",commit = "e612de3d3a41a6b7be47f51e956dddabcbf419d9" }
+  use { "echasnovski/mini.icons" }
   use { "kyazdani42/nvim-tree.lua",commit = "4e396b26244444c911b73e9f2f40ae0115351fd1" }
   use { "akinsho/bufferline.nvim",commit = "0b2fd861eee7595015b6561dade52fb060be10c4" }
   use { "moll/vim-bbye", commit = "25ef93ac5a87526111f43e5110675032dbcacf56" }
