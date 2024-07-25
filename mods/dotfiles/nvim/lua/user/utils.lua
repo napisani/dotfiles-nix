@@ -84,5 +84,15 @@ function M.connection_to_golang_string(conn)
 	return conn_string
 end
 
+function M.close_all_buffers_except_current()
+  local current_bufnr = vim.api.nvim_get_current_buf()
+  local buflist = vim.api.nvim_list_bufs()
+  for _, bufnr in ipairs(buflist) do
+    if bufnr ~= current_bufnr then
+      vim.api.nvim_buf_delete(bufnr, { force = true })
+    end
+  end
+end
+
 
 return M
