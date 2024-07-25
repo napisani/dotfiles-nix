@@ -47,7 +47,11 @@ local mappings = {
 	{ "<leader>W", "<cmd>:wa<cr>", desc = "(w)rite all" },
 	{ "<leader>a", "<cmd>Alpha<cr>", desc = "Alpha" },
 	{ "<leader>b", group = "buffers" },
-	{ "<leader>bo", "<cmd>lua require('user.utils').close_all_buffers_except_current()<CR>", desc = "(o)nly keep current Buffer" },
+	{
+		"<leader>bo",
+		"<cmd>lua require('user.utils').close_all_buffers_except_current()<CR>",
+		desc = "(o)nly keep current Buffer",
+	},
 	{ "<leader>bq", "<cmd>Bdelete!<CR>", desc = "(q)uit Buffer" },
 	{ "<leader>c", group = "Changes" },
 	{ "<leader>cB", "<Cmd>:G blame<CR>", desc = "Blame" },
@@ -157,6 +161,8 @@ local mappings = {
 	{ "<leader>lr", "<cmd>lua vim.lsp.buf.rename()<cr>", desc = "(r)ename" },
 	{ "<leader>ls", "<cmd>Telescope lsp_document_symbols<cr>", desc = "document (s)ymbols" },
 	{ "<leader>lw", "<cmd>Telescope lsp_workspace_diagnostics<cr>", desc = "(w)orkspace diagnostics" },
+	{ "<leader>o", "<cmd>Outline<cr>", desc = "(o)outline" },
+
 	{ "<leader>p", group = "Paste to" },
 	{ "<leader>pb", "/<c-r>0<cr>", desc = "search in buffer" },
 	{

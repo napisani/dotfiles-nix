@@ -210,10 +210,10 @@ local function define_plugins(use)
     'glacambre/firenvim',run = function() vim.fn['firenvim#install'](0) end,commit = "c6e37476ab3b58cf01ababfe80ec9335798e70e5" 
   }
 
-  use {
-    "pmizio/typescript-tools.nvim",requires = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },commit =
-  "f8c2e0b36b651c85f52ad5c5373ff8b07adc15a7"
-  }
+  -- use {
+  --   "pmizio/typescript-tools.nvim",requires = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },commit =
+  -- "f8c2e0b36b651c85f52ad5c5373ff8b07adc15a7"
+  -- }
 
   use {
      "yioneko/nvim-vtsls",commit = "45c6dfea9f83a126e9bfc5dd63430562b3f8af16"
@@ -234,13 +234,18 @@ local function define_plugins(use)
   use {
     "alexghergh/nvim-tmux-navigation",commit = "4898c98702954439233fdaf764c39636681e2861" }
 
+  -- editable quickfix lists
   use {
     "stefandtw/quickfix-reflector.vim",
     commit = "6a6a9e28e1713b9e9db99eec1e6672e5666c01b9"
   }
 
   use {
-    "stevearc/oil.nvim",commit = "9e5eb2fcd1dfee2ff30c89273ffff179e42034b9"
+    "stevearc/oil.nvim", commit = "9e5eb2fcd1dfee2ff30c89273ffff179e42034b9"
+  }
+
+  use {
+    "hedyhli/outline.nvim", commit = "2175b6da5b7b5be9de14fd3f54383a17f5e4609c"
   }
 
   -- use{
@@ -265,7 +270,6 @@ local function define_plugins(use)
     run = './install.sh'
   }
 
-  -- use('/Users/nick/code/monoscope')
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if PACKER_BOOTSTRAP then
