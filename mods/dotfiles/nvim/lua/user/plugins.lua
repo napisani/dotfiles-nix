@@ -45,7 +45,7 @@ local function define_plugins(use)
   use { "nvim-lua/plenary.nvim",commit = "a3e3bc82a3f95c5ed0d7201546d5d2c19b20d683" }
 
   -- Autopairs, integrates with both cmp and treesitter
-  use { "windwp/nvim-autopairs",commit = "78a4507bb9ffc9b00f11ae0ac48243d00cb9194d" }
+  use { "windwp/nvim-autopairs",commit = "e38c5d837e755ce186ae51d2c48e1b387c4425c6" }
 
   use { "tpope/vim-commentary",commit = "c4b8f52cbb7142ec239494e5a2c4a512f92c4d07" }
   use { "JoosepAlviste/nvim-ts-context-commentstring",commit = "6b5f95aa4d24f2c629a74f2c935c702b08dbde62" }
@@ -90,12 +90,12 @@ local function define_plugins(use)
   use { "rafamadriz/friendly-snippets",commit = "00ebcaa159e817150bd83bfe2d51fa3b3377d5c4" }
 
   -- LSP
-  use { "neovim/nvim-lspconfig",commit = "1ea7c6126a1aa0121098e4f16c04d5dde1a4ba22" }
+  use { "neovim/nvim-lspconfig",commit = "f95d371c1a274f60392edfd8ea5121b42dca736e" }
   -- simple to use language server installer
   use { "williamboman/mason.nvim",
     run = ":MasonUpdate" -- :MasonUpdate updates registry contents
   }
-  use { "williamboman/mason-lspconfig.nvim",commit = "58bc9119ca273c0ce5a66fad1927ef0f617bd81b" }
+  use { "williamboman/mason-lspconfig.nvim",commit = "ba9c2f0b93deb48d0a99ae0e8d8dd36f7cc286d6" }
   -- for formatters and linters
   use { "jose-elias-alvarez/null-ls.nvim", commit = "0010ea927ab7c09ef0ce9bf28c2b573fc302f5a7" }
   use { "RRethy/vim-illuminate",commit = "5eeb7951fc630682c322e88a9bbdae5c224ff0aa" }
@@ -104,15 +104,15 @@ local function define_plugins(use)
   }
 
   -- Telescope
-  use { "nvim-telescope/telescope.nvim",commit = "79552ef8488cb492e0f9d2bf3b4e808f57515e35" }
-  use { "nvim-telescope/telescope-file-browser.nvim",commit = "a7ab9a957b17199183388c6f357d614fcaa508e5" }
+  use { "nvim-telescope/telescope.nvim",commit = "10b8a82b042caf50b78e619d92caf0910211973d" }
+  use { "nvim-telescope/telescope-file-browser.nvim",commit = "8574946bf6d0d820d7f600f3db808f5900a2ae23" }
   use {
     "benfowler/telescope-luasnip.nvim",commit = "11668478677de360dea45cf2b090d34f21b8ae07"
   }
 
   -- Treesitter
   use {
-    "nvim-treesitter/nvim-treesitter",commit = "733fa85db27079ec2757183c5c840ba15a303e1f" }
+    "nvim-treesitter/nvim-treesitter",commit = "e265fec94c7dc0c8c64cb86820ff5ad3ee135c7d" }
 
   -- Git
   use { "lewis6991/gitsigns.nvim",commit = "fc68586dbed6f98add38e02ce3fda233e7382096" }
@@ -122,12 +122,12 @@ local function define_plugins(use)
 
   use {
 
-    "NeogitOrg/neogit",    requires = {
+    "NeogitOrg/neogit",requires = {
       "nvim-lua/plenary.nvim",         -- required
       "sindrets/diffview.nvim",        -- optional - Diff integration
 
       "nvim-telescope/telescope.nvim", -- optional
-    },    commit = "af1d8d88f426a4da63c913f3b81a37350dbe8d02"
+    },commit = "2b74a777b963dfdeeabfabf84d5ba611666adab4"
   }
 
   -- vim.notify notifications
@@ -191,7 +191,7 @@ local function define_plugins(use)
   use { 'karb94/neoscroll.nvim',commit = "a7f5953dbfbe7069568f2d0ed23a9709a56725ab" }
   use { 'hkupty/iron.nvim',commit = "e6b78ec1bc56eab63b3a9112d348b3d79836b672" }
 
-  use({ "robitx/gp.nvim", commit = "5ec4ff704838ea214c53b0269d31f82b4ea0bee4" })
+  use({ "robitx/gp.nvim", commit = "2ecf538c9dd3f502571a109e0d64b803984957d4" })
 
   -- use ({
   -- "kndndrj/nvim-dbee",
@@ -241,7 +241,7 @@ local function define_plugins(use)
   }
 
   use {
-    "stevearc/oil.nvim", commit = "9e5eb2fcd1dfee2ff30c89273ffff179e42034b9"
+    "stevearc/oil.nvim",commit = "71c972fbd218723a3c15afcb70421f67340f5a6d"
   }
 
   use {

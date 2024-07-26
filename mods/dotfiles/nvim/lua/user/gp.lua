@@ -1,11 +1,17 @@
+local status_ok, gp = pcall(require, "gp")
+if not status_ok then
+	vim.notify("gp not found")
+	return
+end
+
 local ctx = {}
 local M = {}
 
 local utils = require("user.utils")
 
 local write_context = function(name, content)
-  local dir = utils.create_temp_directory("nvim-gp-ctx")
-  local file = utils.join_path(dir, utils.file_safe_name(name) .. ".txt")
+	local dir = utils.create_temp_directory("nvim-gp-ctx")
+	local file = utils.join_path(dir, utils.file_safe_name(name) .. ".txt")
 	vim.fn.writefile(content, file)
 	ctx[name] = { file = file }
 
@@ -81,7 +87,11 @@ function apply_replacements(prompt)
 	return prompt
 end
 
-local conf = {
+local conf = require("gp.config")
+conf.providers.copilot.disable = false
+conf.providers.openai.disable = false
+
+conf = vim.tbl_extend("force", conf, {
 	hooks = {
 		InspectPlugin = function(plugin, params)
 			print(string.format("Plugin structure:\n%s", vim.inspect(plugin)))
@@ -146,8 +156,8 @@ local conf = {
 			gp.Prompt(params, gp.Target.enew, nil, gp.config.command_model, template, gp.config.command_system_prompt)
 		end,
 	},
-}
+})
 
 -- call setup on your config
-require("gp").setup(conf)
+gp.setup(conf)
 return M
