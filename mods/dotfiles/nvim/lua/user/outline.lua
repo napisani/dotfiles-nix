@@ -4,7 +4,4 @@ if not status_ok then
 	return
 end
 
-outline.setup({
-	-- Your setup opts here (leave empty to use defaults)
-})
-
+outline.setup({ })

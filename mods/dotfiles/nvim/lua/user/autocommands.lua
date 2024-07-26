@@ -33,7 +33,32 @@ vim.cmd [[
     autocmd!
     autocmd BufRead,BufNewFile */templates/*.yml,helmfile*.yml set ft=helm
   augroup end
+
 ]]
+
+
+-- efm - format on save
+local lsp_fmt_group = vim.api.nvim_create_augroup("LspFormattingGroup", {})
+vim.api.nvim_create_autocmd("BufWritePost", {
+	group = lsp_fmt_group,
+	callback = function(ev)
+		local efm = vim.lsp.get_active_clients({ name = "efm", bufnr = ev.buf })
+		if vim.tbl_isempty(efm) then
+			return
+		end
+		vim.lsp.buf.format({ name = "efm" })
+	end,
+})
+
+-- dadbod - enable auto complete for table names and other db assets
+vim.api.nvim_create_autocmd("FileType", {
+  desc = "dadbod completion",
+  group = vim.api.nvim_create_augroup("dadbod_cmp", { clear = true }),
+  pattern = { "sql", "mysql", "plsql" },
+  callback = function()
+    require("cmp").setup.buffer({ sources = { { name = "vim-dadbod-completion" } } })
+  end,
+})
 
 -- Autoformat
 -- augroup _lsp

@@ -161,7 +161,7 @@ local mappings = {
 	{ "<leader>lr", "<cmd>lua vim.lsp.buf.rename()<cr>", desc = "(r)ename" },
 	{ "<leader>ls", "<cmd>Telescope lsp_document_symbols<cr>", desc = "document (s)ymbols" },
 	{ "<leader>lw", "<cmd>Telescope lsp_workspace_diagnostics<cr>", desc = "(w)orkspace diagnostics" },
-	{ "<leader>o", "<cmd>Outline<cr>", desc = "(o)outline" },
+	{ "<leader>o", "<cmd>:aboveleft Outline<cr>", desc = "(o)outline" },
 
 	{ "<leader>p", group = "Paste to" },
 	{ "<leader>pb", "/<c-r>0<cr>", desc = "search in buffer" },
