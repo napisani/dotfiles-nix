@@ -50,7 +50,7 @@ finally, set the shell to the last `bash` option
 8. Open new vim with command `nvim`. Let the plugins install, ignore all of the errors.
 9. Reopen neovim and run the following commands:
 ```
-:PackerSync
+:Lazy
 :TSUpdate
 :MasonUpdate
 :Copilot
