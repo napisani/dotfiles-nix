@@ -28,91 +28,87 @@ require("lazy").setup({
 		-- { import = "plugins" },
 
 		-- Useful lua functions used by lots of plugins
-		{ "nvim-lua/plenary.nvim", commit = "a3e3bc82a3f95c5ed0d7201546d5d2c19b20d683" },
+		{ "nvim-lua/plenary.nvim" },
 
 		-- Autopairs, integrates with both cmp and treesitter
-		{ "windwp/nvim-autopairs", commit = "e38c5d837e755ce186ae51d2c48e1b387c4425c6" },
+		{ "windwp/nvim-autopairs" },
 
-		{ "tpope/vim-commentary", commit = "c4b8f52cbb7142ec239494e5a2c4a512f92c4d07" },
-		{ "JoosepAlviste/nvim-ts-context-commentstring", commit = "6b5f95aa4d24f2c629a74f2c935c702b08dbde62" },
-		{ "kyazdani42/nvim-web-devicons", commit = "e612de3d3a41a6b7be47f51e956dddabcbf419d9" },
+		{ "tpope/vim-commentary" },
+		{ "JoosepAlviste/nvim-ts-context-commentstring" },
+		{ "kyazdani42/nvim-web-devicons" },
 		{ "echasnovski/mini.icons" },
-		{ "kyazdani42/nvim-tree.lua", commit = "4e396b26244444c911b73e9f2f40ae0115351fd1" },
-		{ "akinsho/bufferline.nvim", commit = "0b2fd861eee7595015b6561dade52fb060be10c4" },
+		{ "kyazdani42/nvim-tree.lua" },
+		{ "akinsho/bufferline.nvim" },
 
 		-- for deleting buffers without closing windows
-		{ "moll/vim-bbye", commit = "25ef93ac5a87526111f43e5110675032dbcacf56" },
-		{ "nvim-lualine/lualine.nvim", commit = "544dd1583f9bb27b393f598475c89809c4d5e86b" },
+		{ "moll/vim-bbye" },
+		{ "nvim-lualine/lualine.nvim" },
 
-		{ "lukas-reineke/indent-blankline.nvim", commit = "65e20ab94a26d0e14acac5049b8641336819dfc7" },
+		{ "lukas-reineke/indent-blankline.nvim" },
 
-		{ "goolord/alpha-nvim", commit = "41283fb402713fc8b327e60907f74e46166f4cfd" },
+		{ "goolord/alpha-nvim" },
 		{ "folke/which-key.nvim" },
 
 		-- Colorschemes
-		-- { "folke/tokyonight.nvim",commit = "9a01eada39558dc3243278e6805d90e8dff45dc0" },
-		-- { "morhetz/gruvbox",commit = "f1ecde848f0cdba877acb0c740320568252cc482" },
-		-- { "shaunsingh/nord.nvim",commit = "15fbfc38a83980b93e169b32a1bf64757f1e2bf4" },
-		{ "rebelot/kanagawa.nvim", commit = "e5f7b8a804360f0a48e40d0083a97193ee4fcc87" },
+		-- { "folke/tokyonight.nvim" },
+		-- { "morhetz/gruvbox" },
+		-- { "shaunsingh/nord.nvim" },
+		{ "rebelot/kanagawa.nvim" },
 
 		-- Cmp
 		-- The completion plugin
-		{ "hrsh7th/nvim-cmp", commit = "d818fd0624205b34e14888358037fb6f5dc51234" },
+		{ "hrsh7th/nvim-cmp" },
 		-- buffer completions
-		{ "hrsh7th/cmp-buffer", commit = "3022dbc9166796b644a841a02de8dd1cc1d311fa" },
+		{ "hrsh7th/cmp-buffer" },
 		-- path completions
-		{ "hrsh7th/cmp-path", commit = "91ff86cd9c29299a64f968ebb45846c485725f23" },
+		{ "hrsh7th/cmp-path" },
 		-- snippet completions
-		{ "saadparwaiz1/cmp_luasnip", commit = "05a9ab28b53f71d1aece421ef32fee2cb857a843" },
-		{ "hrsh7th/cmp-nvim-lsp", commit = "39e2eda76828d88b773cc27a3f61d2ad782c922d" },
-		{ "hrsh7th/cmp-nvim-lua", commit = "f12408bdb54c39c23e67cab726264c10db33ada8" },
+		{ "saadparwaiz1/cmp_luasnip" },
+		{ "hrsh7th/cmp-nvim-lsp" },
+		{ "hrsh7th/cmp-nvim-lua" },
 		--{ "hrsh7th/cmp-nvim-lsp-signature-help" },
-		{ "erhickey/sig-window-nvim", commit = "606e9dbd1f80646c8d2d1b4384872ec718ddc48a" },
+		{ "erhickey/sig-window-nvim" },
 
 		-- Snippets
 		--snippet engine
-		{ "L3MON4D3/LuaSnip", commit = "ce0a05ab4e2839e1c48d072c5236cce846a387bc" },
+		{ "L3MON4D3/LuaSnip" },
 		-- a bunch of snippets to
-		{ "rafamadriz/friendly-snippets", commit = "00ebcaa159e817150bd83bfe2d51fa3b3377d5c4" },
+		{ "rafamadriz/friendly-snippets" },
 
 		-- LSP
-		{ "neovim/nvim-lspconfig", commit = "f95d371c1a274f60392edfd8ea5121b42dca736e" },
+		{ "neovim/nvim-lspconfig" },
 		-- simple to use language server installer
 		{
 			"williamboman/mason.nvim",
 			build = ":MasonUpdate", -- :MasonUpdate updates registry contents
 		},
-		{ "williamboman/mason-lspconfig.nvim", commit = "ba9c2f0b93deb48d0a99ae0e8d8dd36f7cc286d6" },
+		{ "williamboman/mason-lspconfig.nvim" },
 		-- for formatters and linters
-		-- { "RRethy/vim-illuminate", commit = "5eeb7951fc630682c322e88a9bbdae5c224ff0aa" },
+		-- { "RRethy/vim-illuminate" },
 		{
 			"creativenull/efmls-configs-nvim",
 			tag = "v1.*",
 			dependencies = { "neovim/nvim-lspconfig" },
-			commit = "1e3210cb48ba14cf154c88c59702dafb321c79db",
 		},
 
 		-- Telescope
-		{ "nvim-telescope/telescope.nvim", commit = "10b8a82b042caf50b78e619d92caf0910211973d" },
-		{ "nvim-telescope/telescope-file-browser.nvim", commit = "8574946bf6d0d820d7f600f3db808f5900a2ae23" },
+		{ "nvim-telescope/telescope.nvim" },
+		{ "nvim-telescope/telescope-file-browser.nvim" },
 		{
 			"benfowler/telescope-luasnip.nvim",
-			commit = "11668478677de360dea45cf2b090d34f21b8ae07",
 		},
 
 		-- Treesitter
 		{
 			"nvim-treesitter/nvim-treesitter",
-			commit = "e265fec94c7dc0c8c64cb86820ff5ad3ee135c7d",
 		},
 
 		-- Git
-		{ "lewis6991/gitsigns.nvim", commit = "fc68586dbed6f98add38e02ce3fda233e7382096" },
-		{ "tpope/vim-fugitive", commit = "0444df68cd1cdabc7453d6bd84099458327e5513" },
+		{ "lewis6991/gitsigns.nvim" },
+		{ "tpope/vim-fugitive" },
 		{
 			"sindrets/diffview.nvim",
 			dependencies = "nvim-lua/plenary.nvim",
-			commit = "4516612fe98ff56ae0415a259ff6361a89419b0a",
 		},
 
 		{
@@ -124,45 +120,42 @@ require("lazy").setup({
 
 				"nvim-telescope/telescope.nvim", -- optional
 			},
-			commit = "2b74a777b963dfdeeabfabf84d5ba611666adab4",
 		},
 
 		-- vim.notify notifications
-		{ "rcarriga/nvim-notify", commit = "d333b6f167900f6d9d42a59005d82919830626bf" },
+		{ "rcarriga/nvim-notify" },
 
 		-- Rust tools
-		{ "simrat39/rust-tools.nvim", commit = "676187908a1ce35ffcd727c654ed68d851299d3e" },
+		{ "simrat39/rust-tools.nvim" },
 
 		-- vim-rooter - ensures that when opening files/dirs vim's CWD remains the root of the project
 		-- use{
 		-- 	"notjedi/nvim-rooter.lua",
-		-- 	commit = "833e6a37fafb9b2acb6228b9005c680face2a20f",
+		--
 		-- }
 
 		-- VIM movement addons
 		-- adds support using the 's' selector for changing text surroundings
-		{ "tpope/vim-surround", commit = "3d188ed2113431cf8dac77be61b842acb64433d9" },
+		{ "tpope/vim-surround" },
 		{
 			"smoka7/hop.nvim",
-			commit = "036462a345792279c58f2f6445756efab706f04a",
 		},
 
 		-- debugging
-		{ "mfussenegger/nvim-dap", commit = "bc03b83c94d0375145ff5ac6a6dcf28c1241e06f" },
+		{ "mfussenegger/nvim-dap" },
 		{
 			"rcarriga/nvim-dap-ui",
 			dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },
-			commit = "a5606bc5958db86f8d92803bea7400ee26a8d7e4",
 		},
-		{ "jayp0521/mason-nvim-dap.nvim", commit = "4ba55f9755ebe8297d92c419b90a946123292ae6" },
+		{ "jayp0521/mason-nvim-dap.nvim" },
 
-		{ "theHamsta/nvim-dap-virtual-text", commit = "484995d573c0f0563f6a66ebdd6c67b649489615" },
+		{ "theHamsta/nvim-dap-virtual-text" },
 
 		-- hex colors to actual colors (for css)
-		{ "norcalli/nvim-colorizer.lua", commit = "a065833f35a3a7cc3ef137ac88b5381da2ba302e" },
+		{ "norcalli/nvim-colorizer.lua" },
 
 		-- Install neoscopes.
-		{ "smartpde/neoscopes", commit = "d9655aa272f22378c1cfccce2a4e9d53f986e414" },
+		{ "smartpde/neoscopes" },
 
 		-- { "napisani/neoscopes" }
 		-- ('/Users/nick/code/neoscopes')
@@ -173,12 +166,12 @@ require("lazy").setup({
 		},
 
 		-- copilot
-		{ "github/copilot.vim", commit = "25f73977033c597d530c7ab0e211d99b60927d2d" },
+		{ "github/copilot.vim" },
 
-		{ "karb94/neoscroll.nvim", commit = "a7f5953dbfbe7069568f2d0ed23a9709a56725ab" },
-		{ "hkupty/iron.nvim", commit = "e6b78ec1bc56eab63b3a9112d348b3d79836b672" },
+		{ "karb94/neoscroll.nvim" },
+		{ "hkupty/iron.nvim" },
 
-		{ "robitx/gp.nvim", commit = "2ecf538c9dd3f502571a109e0d64b803984957d4" },
+		{ "robitx/gp.nvim" },
 
 		-- ({
 		-- "kndndrj/nvim-dbee",
@@ -196,7 +189,6 @@ require("lazy").setup({
 
 		{
 			"yioneko/nvim-vtsls",
-			commit = "45c6dfea9f83a126e9bfc5dd63430562b3f8af16",
 		},
 
 		{
@@ -219,23 +211,19 @@ require("lazy").setup({
 
 		{
 			"alexghergh/nvim-tmux-navigation",
-			commit = "4898c98702954439233fdaf764c39636681e2861",
 		},
 
 		-- editable quickfix lists
 		{
 			"stefandtw/quickfix-reflector.vim",
-			commit = "6a6a9e28e1713b9e9db99eec1e6672e5666c01b9",
 		},
 
 		{
 			"stevearc/oil.nvim",
-			commit = "71c972fbd218723a3c15afcb70421f67340f5a6d",
 		},
 
 		{
 			"hedyhli/outline.nvim",
-			commit = "2175b6da5b7b5be9de14fd3f54383a17f5e4609c",
 		},
 
 		-- {
