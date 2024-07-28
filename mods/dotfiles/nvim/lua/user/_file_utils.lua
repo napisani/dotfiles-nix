@@ -1,6 +1,5 @@
 local M = {}
 
-
 M.path_sep = "/"
 
 function M.home_directory()
@@ -12,11 +11,11 @@ function M.temp_directory()
 end
 
 function M.create_temp_directory(prefix)
-  local temp_dir = M.temp_directory()
-  local temp_name = os.tmpname()
-  local temp_path = temp_dir .. "/" .. prefix .. temp_name
-  vim.fn.mkdir(temp_path, "p")
-  return temp_path
+	local temp_dir = M.temp_directory()
+	local temp_name = os.tmpname()
+	local temp_path = temp_dir .. "/" .. prefix .. temp_name
+	vim.fn.mkdir(temp_path, "p")
+	return temp_path
 end
 
 function M.file_exists(name)
@@ -31,6 +30,19 @@ function M.read_json_file(filename)
 	end
 	local json = vim.fn.json_decode(contents)
 	return json
+end
+
+function M.read_yaml_file(filename)
+  if not M.file_exists(filename) then
+    return nil
+  end
+	local handle = io.popen(string.format("yq . %s --output-format json", filename))
+	if handle == nil then
+		return nil
+	end
+	local output = handle:read("*a")
+	handle:close()
+	return vim.fn.json_decode(output)
 end
 
 function M.read_file_to_string(filename)
@@ -52,17 +64,14 @@ function M.file_string_to_lines(str)
 	return lines
 end
 
-
 function M.file_safe_name(name)
 	return name:gsub("[^%w_-]", "_")
 end
 
-
 function M.join_path(...)
-  local parts = { ... }
-  return table.concat(parts, M.path_sep)
+	local parts = { ... }
+	return table.concat(parts, M.path_sep)
 end
-
 
 local _orig_root_dir = vim.fn.getcwd()
 function M.get_root_dir()
@@ -76,6 +85,12 @@ end
 
 function M.read_package_json()
 	return M.read_json_file("package.json")
+end
+
+function M.write_string_to_file(filename, content)
+	local fd = io.open(filename, "w")
+	fd:write(content)
+	fd:close()
 end
 
 return M

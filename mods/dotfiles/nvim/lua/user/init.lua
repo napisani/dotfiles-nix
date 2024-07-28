@@ -33,6 +33,7 @@ require("user.search-rules")
 require("user.gp")
 -- require "user.dbee"
 require("user.dadbod")
-require("user.firenvim")
+-- require("user.firenvim")
+require("user.surround")
 require("user.tmux-nav")
 require("user.oil")

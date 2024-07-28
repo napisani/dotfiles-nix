@@ -1,5 +1,4 @@
-{ config, pkgs, lib, ... }:
-{
+{ config, pkgs, lib, ... }: {
   programs = {
     bash = {
       enable = true;
@@ -11,7 +10,7 @@
     nix-daemon.enable = true;
     karabiner-elements.enable = true;
   };
-  
+
   homebrew = {
     enable = true;
     caskArgs.no_quarantine = true;
@@ -23,9 +22,9 @@
     };
     # app store apps
     masApps = {
-       Xcode = 497799835;
-       magnet = 441258766;
-       /* "Apple Configurator" = 1037126344; */
+      Xcode = 497799835;
+      magnet = 441258766;
+      # "Apple Configurator" = 1037126344;
     };
     # anything installed with brew cask
     casks = [
@@ -41,31 +40,21 @@
     ];
     # anything installed with brew (non-casks)
     brews = [
-      /* "procmux" */
-      /* "mkcert" */
-      /* "mongodb-atlas-cli" */
+      # "procmux"
+      # "mkcert"
+      # "mongodb-atlas-cli"
     ];
     # any custom taps / repos
-    taps = [
-        "napisani/procmux"
-        "homebrew/cask-versions"
-    ];
+    taps = [ "napisani/procmux" "homebrew/cask-versions" ];
   };
   environment = {
     shells = [ pkgs.bash ];
     loginShell = pkgs.bash;
-    systemPackages =
-      with pkgs; [
-      	bashInteractive
-        coreutils 
-        gnugrep
-      ];
+    systemPackages = with pkgs; [ bashInteractive coreutils gnugrep ];
   };
   fonts.fontDir.enable = true; # DANGER
-  fonts.fonts = [ 
-  (pkgs.nerdfonts.override { fonts = [ 
-    "Meslo" 
-  ]; }) ];
+  fonts.fonts = [ (pkgs.nerdfonts.override { fonts = [ "Meslo" ]; }) ];
+
   system.defaults = {
     finder.AppleShowAllExtensions = true;
     finder._FXShowPosixPathInTitle = true;
@@ -85,21 +74,21 @@
     #};
   };
   nix = {
-   package = pkgs.nixFlakes;
-   extraOptions = lib.optionalString (config.nix.package == pkgs.nixFlakes)
-     "experimental-features = nix-command flakes";
+    package = pkgs.nixFlakes;
+    extraOptions = lib.optionalString (config.nix.package == pkgs.nixFlakes)
+      "experimental-features = nix-command flakes";
   };
   system = {
-    /* dock = { */
-    /*   autohide = true; */
-    /* }; */
+    # dock = {
+    # autohide = true;
+    # };
     stateVersion = 4;
   };
 
-  /* users = { */
-  /*   users.${user} = { */
-  /*     home = /Users/${user}; */
-  /*   }; */
-  /* }; */
+  # users = {
+  # users.${user} = {
+  # home = /Users/${user};
+  # };
+  # };
 
 }

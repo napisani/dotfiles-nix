@@ -6,9 +6,33 @@ local utils = require("user.utils")
 local primary_branch = utils.get_primary_git_branch()
 local prod_branch = utils.get_prod_git_branch()
 
-local mappings = {
+local surround = {
+	{ "<leader>s", group = "Surround" },
+	{ "<leader>sa", desc = "Add surrounding in Normal and Visual modes" },
+	{ "<leader>sd", desc = "Delete surrounding" },
+	{ "<leader>sf", desc = "Find surrounding (to the right)" },
+	{ "<leader>sF", desc = "Find surrounding (to the left)" },
+	{ "<leader>sh", desc = "Highlight surrounding" },
+	{ "<leader>sr", desc = "Replace surrounding" },
+	{ "<leader>sn", desc = "Update `n_lines`" },
+	{ "<leader>sl", desc = "Suffix to search with 'prev' method" },
+	{ "<leader>sn", desc = "Suffix to search with 'next' method" },
+}
+
+local root_mappings = {
 	{ '<leader>"', "<cmd>:split<cr>", desc = "Horizontal Split" },
 	{ "<leader>%", "<cmd>:vsplit<cr>", desc = "Vertical Split" },
+	{ "<leader>-", "<cmd>:Oil<cr>", desc = "(O)il" },
+	{ "<leader>e", "<cmd>NvimTreeToggle<cr>", desc = "Explorer" },
+	{ "<leader>o", "<cmd>:aboveleft Outline<cr>", desc = "(o)outline" },
+}
+
+local shared_mappings = {
+	root_mappings,
+	surround,
+}
+
+local mappings_n = {
 	{ "<leader>*", group = "CWord Under Cursor" },
 	{
 		"<leader>*f",
@@ -26,7 +50,6 @@ local mappings = {
 	{ "<leader>*rb", ":%s@<C-R>=expand('<cword>')<CR>@@g<left><left>", desc = "(b)uffer" },
 	{ "<leader>*rl", ":s@<C-R>=expand('<cword>')<CR>@@g<left><left>", desc = "(l)ine" },
 	{ "<leader>*rq", ":cdo %s@<C-R>=expand('<cword>')<CR>@@g<left><left>", desc = "(q)uicklist" },
-	{ "<leader>-", "<cmd>:Oil<cr>", desc = "(O)il" },
 	{ "<leader>D", group = "Database" },
 	{ "<leader>Do", "<Cmd>DBUI<CR>", desc = "(o)pen" },
 	{ "<leader>Dq", "<Cmd>DBUIClose<CR>", desc = "(q)uit" },
@@ -97,7 +120,6 @@ local mappings = {
 	{ "<leader>do", "<Cmd>lua require'dapui'.open()<CR>", desc = "open debugger" },
 	{ "<leader>dq", "<Cmd>lua require'dapui'.close()<CR>", desc = "close debugger" },
 	{ "<leader>dr", "<Cmd>lua require'dap'.repl.open()<CR>", desc = "open REPL" },
-	{ "<leader>e", "<cmd>NvimTreeToggle<cr>", desc = "Explorer" },
 	{ "<leader>f", group = "Find" },
 	{ "<leader>fC", "<cmd>lua require('user.telescope').git_conflicts()<CR>", desc = "(C)onflicts" },
 	{
@@ -149,19 +171,21 @@ local mappings = {
 	{ "<leader>l", group = "LSP" },
 	{ "<leader>lR", "<cmd>:LspRestart<cr>", desc = "(R)estart LSPs" },
 	{ "<leader>lS", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", desc = "workspace (S)ymbols" },
-	{ "<leader>la", "<cmd>lua vim.lsp.buf.code_action()<cr>", desc = "Code (a)ction" },
+	-- { "<leader>la", "<cmd>lua vim.lsp.buf.code_action()<cr>", desc = "Code (a)ction" },
+	{ "<leader>la", "<cmd>lua require('tiny-code-action').code_action()<cr>", desc = "Code (a)ction" },
 	{ "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
 	{ "<leader>ld", "<cmd>Telescope lsp_document_diagnostics<cr>", desc = "(d)ocument diagnostics" },
 	{ "<leader>lf", "<cmd>lua vim.lsp.buf.format{ async=true, name = 'efm' }<cr>", desc = "(f)ormat" },
 	{ "<leader>li", desc = "organize (i)mports" },
 	{ "<leader>lj", "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", desc = "Next Diagnostic" },
 	{ "<leader>lk", "<cmd>lua vim.lsp.diagnostic.goto_prev()<cr>", desc = "Prev Diagnostic" },
+	{ "<leader>lh", "<cmd>lua require('user.lsp.handlers').toggle_inlay_hints()<cr>", desc = "inlay (h)ints" },
+
 	{ "<leader>ll", "<cmd>lua vim.lsp.codelens.run()<cr>", desc = "Codea(l)ens Action" },
 	{ "<leader>lq", "<cmd>lua vim.lsp.diagnostic.set_loclist()<cr>", desc = "(q)uickfix" },
 	{ "<leader>lr", "<cmd>lua vim.lsp.buf.rename()<cr>", desc = "(r)ename" },
 	{ "<leader>ls", "<cmd>Telescope lsp_document_symbols<cr>", desc = "document (s)ymbols" },
 	{ "<leader>lw", "<cmd>Telescope lsp_workspace_diagnostics<cr>", desc = "(w)orkspace diagnostics" },
-	{ "<leader>o", "<cmd>:aboveleft Outline<cr>", desc = "(o)outline" },
 
 	{ "<leader>p", group = "Paste to" },
 	{ "<leader>pb", "/<c-r>0<cr>", desc = "search in buffer" },
@@ -208,8 +232,6 @@ local mappings = {
 local mappings_v = {
 	{
 		mode = { "v" },
-		{ '<leader>"', "<cmd>:split<cr>", desc = "Horizontal Split" },
-		{ "<leader>%", "<cmd>:vsplit<cr>", desc = "Vertical Split" },
 		{ "<leader>*", group = "CWord Under Cursor" },
 		{
 			"<leader>*f",
@@ -227,7 +249,6 @@ local mappings_v = {
 		{ "<leader>*rb", ":%s@<C-R>=expand('<cword>')<CR>@@g<left><left>", desc = "(b)uffer" },
 		{ "<leader>*rl", ":s@<C-R>=expand('<cword>')<CR>@@g<left><left>", desc = "(l)ine" },
 		{ "<leader>*rq", ":cdo %s@<C-R>=expand('<cword>')<CR>@@g<left><left>", desc = "(q)uicklist" },
-		{ "<leader>-", "<cmd>:Oil<cr>", desc = "(O)il" },
 		{ "<leader>D", group = "Database" },
 		{ "<leader>Do", "<Cmd>DBUI<CR>", desc = "(o)pen" },
 		{ "<leader>Dq", "<Cmd>DBUIClose<CR>", desc = "(q)uit" },
@@ -295,7 +316,6 @@ local mappings_v = {
 		{ "<leader>do", "<Cmd>lua require'dapui'.open()<CR>", desc = "open debugger" },
 		{ "<leader>dq", "<Cmd>lua require'dapui'.close()<CR>", desc = "close debugger" },
 		{ "<leader>dr", "<Cmd>lua require'dap'.repl.open()<CR>", desc = "open REPL" },
-		{ "<leader>e", "<cmd>NvimTreeToggle<cr>", desc = "Explorer" },
 		{ "<leader>f", group = "Find" },
 		{
 			"<leader>fC",
@@ -387,13 +407,16 @@ local mappings_v = {
 		{ "<leader>l", group = "LSP" },
 		{ "<leader>lR", "<cmd>:LspRestart<cr>", desc = "(R)estart LSPs" },
 		{ "<leader>lS", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", desc = "workspace (S)ymbols" },
-		{ "<leader>la", "<cmd>lua vim.lsp.buf.code_action()<cr>", desc = "Code (a)ction" },
+		-- { "<leader>la", "<cmd>lua vim.lsp.buf.code_action()<cr>", desc = "Code (a)ction" },
+		{ "<leader>la", "<cmd>lua require('tiny-code-action').code_action()<cr>", desc = "Code (a)ction" },
+
 		{ "<leader>lc", "<Plug>ContextCommentary", desc = "(c)omment" },
 		{ "<leader>ld", "<cmd>Telescope lsp_document_diagnostics<cr>", desc = "(d)ocument diagnostics" },
 		{ "<leader>lf", "<cmd>lua vim.lsp.buf.format{ async=true, name = 'efm' }<cr>", desc = "(f)ormat" },
 		{ "<leader>li", desc = "organize (i)mports" },
 		{ "<leader>lj", "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", desc = "Next Diagnostic" },
 		{ "<leader>lk", "<cmd>lua vim.lsp.diagnostic.goto_prev()<cr>", desc = "Prev Diagnostic" },
+		{ "<leader>lh", "<cmd>lua require('user.lsp.handlers').toggle_inlay_hints()<cr>", desc = "inlay (h)ints" },
 		{ "<leader>ll", "<cmd>lua vim.lsp.codelens.run()<cr>", desc = "Codea(l)ens Action" },
 		{ "<leader>lq", "<cmd>lua vim.lsp.diagnostic.set_loclist()<cr>", desc = "(q)uickfix" },
 		{ "<leader>lr", "<cmd>lua vim.lsp.buf.rename()<cr>", desc = "(r)ename" },
@@ -446,6 +469,14 @@ local mappings_v = {
 which_key.setup({})
 -- register mappings for both normal and visual mode
 -- which_key.register(mappings, opts)
-which_key.add(mappings)
+
+for _, mappings in ipairs(shared_mappings) do
+	for _, mapping in ipairs(mappings) do
+		table.insert(mappings_n, mapping)
+		table.insert(mappings_v, mapping)
+	end
+end
+
+which_key.add(mappings_n)
 which_key.add(mappings_v)
 -- which_key.register(mappings_v, opts_v)

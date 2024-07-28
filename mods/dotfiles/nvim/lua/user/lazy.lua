@@ -83,11 +83,25 @@ require("lazy").setup({
 			build = ":MasonUpdate", -- :MasonUpdate updates registry contents
 		},
 		{ "williamboman/mason-lspconfig.nvim" },
+
+		{
+			"rachartier/tiny-code-action.nvim",
+			dependencies = {
+				{ "nvim-lua/plenary.nvim" },
+				{ "nvim-telescope/telescope.nvim" },
+			},
+			event = "LspAttach",
+			config = function()
+				require("tiny-code-action").setup({
+					backend = "delta",
+				})
+			end,
+		},
+
 		-- for formatters and linters
-		-- { "RRethy/vim-illuminate" },
 		{
 			"creativenull/efmls-configs-nvim",
-			tag = "v1.*",
+			version = "v1.x.x", -- version is optional, but recommended
 			dependencies = { "neovim/nvim-lspconfig" },
 		},
 
@@ -135,8 +149,10 @@ require("lazy").setup({
 		-- }
 
 		-- VIM movement addons
-		-- adds support using the 's' selector for changing text surroundings
-		{ "tpope/vim-surround" },
+		{
+			"echasnovski/mini.surround",
+			version = "*",
+		},
 		{
 			"smoka7/hop.nvim",
 		},

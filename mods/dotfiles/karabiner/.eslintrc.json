@@ -9,5 +9,8 @@
         "sourceType": "module"
     },
     "rules": {
+    },
+    "parserOptions": {
+        "project": ["./tsconfig.json"]
     }
 }

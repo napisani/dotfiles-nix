@@ -1,4 +1,6 @@
-vim.cmd [[
+local utils = require("user.utils")
+
+vim.cmd([[
   augroup _general_settings
     autocmd!
     autocmd FileType qf,help,man,lspinfo nnoremap <silent> <buffer> q :close<CR> 
@@ -34,8 +36,7 @@ vim.cmd [[
     autocmd BufRead,BufNewFile */templates/*.yml,helmfile*.yml set ft=helm
   augroup end
 
-]]
-
+]])
 
 -- efm - format on save
 local lsp_fmt_group = vim.api.nvim_create_augroup("LspFormattingGroup", {})
@@ -52,12 +53,12 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 
 -- dadbod - enable auto complete for table names and other db assets
 vim.api.nvim_create_autocmd("FileType", {
-  desc = "dadbod completion",
-  group = vim.api.nvim_create_augroup("dadbod_cmp", { clear = true }),
-  pattern = { "sql", "mysql", "plsql" },
-  callback = function()
-    require("cmp").setup.buffer({ sources = { { name = "vim-dadbod-completion" } } })
-  end,
+	desc = "dadbod completion",
+	group = vim.api.nvim_create_augroup("dadbod_cmp", { clear = true }),
+	pattern = { "sql", "mysql", "plsql" },
+	callback = function()
+		require("cmp").setup.buffer({ sources = { { name = "vim-dadbod-completion" } } })
+	end,
 })
 
 -- Autoformat
@@ -66,3 +67,24 @@ vim.api.nvim_create_autocmd("FileType", {
 --   autocmd BufWritePre * lua vim.lsp.buf.formatting()
 -- augroup end
 
+local project_lint_config = utils.get_project_config().autocmds or {}
+if next(project_lint_config) ~= nil then
+	local project_autocmd_group = vim.api.nvim_create_augroup("nvim_project_autocmds", { clear = true })
+	for _, value in ipairs(project_lint_config) do
+		local event = value.event
+		local pattern = value.pattern
+		local cmd = value.command
+		if event == nil or cmd == nil then
+			vim.notify("event and command are required for project autocmds", vim.log.levels.ERROR)
+			return
+		end
+
+		vim.api.nvim_create_autocmd(event, {
+			group = project_autocmd_group,
+			pattern = pattern,
+			callback = function()
+				vim.cmd(cmd)
+			end,
+		})
+	end
+end

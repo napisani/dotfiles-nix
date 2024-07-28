@@ -1,4 +1,4 @@
-import { Modifier, ModifierKeyCode, map, rule } from "karabiner.ts";
+import { Modifier, map, rule } from "karabiner.ts";
 
 const mehModifiers: Modifier[] = ['right_option', 'right_control',  'right_shift']
 export const mehRules = [

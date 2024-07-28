@@ -1,5 +1,6 @@
-{ pkgs, pkgs-unstable, procmux, secret_inject, animal_rescue, ... }: 
-{
+{ pkgs, pkgs-unstable, procmux, secret_inject, animal_rescue, ... }: {
+
+
   home.packages = with pkgs-unstable; [
     bashInteractive
     bat
@@ -42,6 +43,5 @@
     #pkgs-unstable.python310Packages.tiktoken
     # custom_node_packages.opencommit
   ];
-
 
 }
