@@ -34,7 +34,7 @@
       "docker"
       "github"
       "lulu"
-      "firefox-developer-edition"
+      "firefox@developer-edition"
       "tailscale"
       "obsidian"
     ];
