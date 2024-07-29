@@ -16,7 +16,7 @@
     # ../mods/golang.nix
     # ../mods/neovim.nix
   ];
-
+networking.nameservers = [ "8.8.8.8" "9.9.9.9" ];
   # Use the GRUB 2 boot loader.
   # boot.loader.grub.enable = true;
 
