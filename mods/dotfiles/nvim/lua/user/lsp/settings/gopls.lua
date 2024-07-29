@@ -37,5 +37,7 @@ return {
 			}
 			vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>li", "", opts)
 		end,
+
+    fix_all_imports = fix_all_imports,
 	},
 }

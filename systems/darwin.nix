@@ -28,7 +28,7 @@
     };
     # anything installed with brew cask
     casks = [
-      "google-chrome"
+      "eloston-chromium"
       "bitwarden"
       "caffeine"
       "docker"

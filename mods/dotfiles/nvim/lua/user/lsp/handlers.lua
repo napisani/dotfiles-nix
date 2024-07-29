@@ -85,10 +85,6 @@ end
 
 M.on_attach = function(client, bufnr)
 	-- vim.notify(client.name .. " starting...")
-	-- TODO: refactor this into a method that checks if string in list
-	if client.name == "tsserver" then
-		client.server_capabilities.documentFormattingProvider = false
-	end
 	lsp_keymaps(bufnr)
 	disable_inlay_hints()
 end
@@ -106,4 +102,7 @@ M.capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
 M.lsp_flags = {
 	debounce_text_changes = 150,
 }
+
+
+
 return M
