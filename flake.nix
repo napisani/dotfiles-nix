@@ -40,7 +40,7 @@
       "github:NixOS/nixpkgs/c0b7a892fb042ede583bdaecbbdc804acb85eabe";
 
     nixhub_dep.url =
-      "github:NixOS/nixpkgs/080a4a27f206d07724b88da096e27ef63401a504";
+      "github:NixOS/nixpkgs/6e14bbce7bea6c4efd7adfa88a40dac750d80100";
 
     secret_inject.url =
       "github:napisani/secret_inject/58be3ae97e2e55aef6b4255ec3e3f387f307973a";

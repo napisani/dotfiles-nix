@@ -85,7 +85,7 @@ for server, server_config in pairs(servers) do
 
 		if server_custom_opts["server"] ~= nil then
 			local custom_server_opts = server_custom_opts["server"]
-			client_to_fix_import_fns[server] = custom_server_opts["fix_all_imports"]
+			-- client_to_fix_import_fns[server] = custom_server_opts["fix_all_imports"]
 
 			if custom_server_opts["on_attach"] ~= nil then
 				local override_on_attach = custom_server_opts.on_attach

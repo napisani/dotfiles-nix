@@ -44,8 +44,8 @@ local lsp_fmt_group = vim.api.nvim_create_augroup("LspFormattingGroup", {})
 vim.api.nvim_create_autocmd("BufWritePost", {
 	group = lsp_fmt_group,
 	callback = function(ev)
-		-- fix imports 
-		lsp_mason.fix_all_imports()
+		-- fix imports
+		-- lsp_mason.fix_all_imports()
 
 		-- run formatters
 		local efm = vim.lsp.get_active_clients({ name = "efm", bufnr = ev.buf })
