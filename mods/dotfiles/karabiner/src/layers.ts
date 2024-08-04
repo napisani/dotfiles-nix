@@ -1,5 +1,8 @@
 import { map, simlayer } from "karabiner.ts";
 
+
+
+
 export const layerRules = [
 
   // Delimiter layer - special characters that are hard-ish to reach / remember
@@ -25,9 +28,9 @@ export const layerRules = [
   ]),
  
   // Delimiter layer - special characters that are hard-ish to reach / remember
-  //   ^$+   -_
+  //  0^$+   -_
   //      :/?= l
-  //     \  %|
+  //     \! %|
   // 
   simlayer('l', 'delimiters layer 2').manipulators([
     map('r').to({ key_code: 'equal_sign', modifiers: ['left_shift']}), // +
@@ -42,24 +45,26 @@ export const layerRules = [
     map('n').to({ key_code: '5', modifiers: ['left_shift']}), //  %
     map('e').to({ key_code: '4', modifiers: ['left_shift']}), // $
     map('w').to({ key_code: '6', modifiers: ['left_shift']}), // ^
+    map('v').to({ key_code: '1', modifiers: ['left_shift']}), // !
+    map('a').to({ key_code: '2', modifiers: ['left_shift']}), // @
+    map('q').to({ key_code: '0'} ), // 0
   ]),
 
   // Number layer 
-  //   1 2 3 4  
-  //   5 6 7 8 
-  //       9 0 
+  //   1 2 3 4 5 6 7 8 9 0 
 
   simlayer('n', 'number layer').manipulators([
-    map('v').to('0'),
     map('q').to('1'),
     map('w').to('2'),
     map('e').to('3'),
     map('r').to('4'),
-    map('a').to('5'),
-    map('s').to('6'),
-    map('d').to('7'),
-    map('f').to('8'),
-    map('c').to('9'),
+    map('t').to('5'),
+    map('y').to('6'),
+    map('u').to('7'),
+    map('i').to('8'),
+    map('o').to('9'),
+    map('p').to('0'),
+
   ]),
 
   // simlayer('e', 'emoji layer').manipulators([

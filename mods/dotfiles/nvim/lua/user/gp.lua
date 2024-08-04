@@ -98,35 +98,20 @@ conf = vim.tbl_extend("force", conf, {
 			print(string.format("Command params:\n%s", vim.inspect(params)))
 		end,
 
-		-- GpImplement rewrites the provided selection/range based on comments in the code
-		Implement = function(gp, params)
-			local template = "Having following from {{filename}}:\n\n"
-				.. "```{{filetype}}\n{{selection}}\n```\n\n"
-				.. "Please rewrite this code according to the comment instructions."
-				.. "\n\nRespond only with the snippet of finalized code:"
-
-			gp.Prompt(
-				params,
-				gp.Target.rewrite,
-				nil, -- command will run directly without any prompting for user input
-				gp.config.command_model,
-				template,
-				gp.config.command_system_prompt
-			)
-		end,
-
 		Explain = function(gp, params)
 			local template = "I have the following code from {{filename}}:\n\n"
 				.. "```{{filetype}}\n{{selection}}\n```\n\n"
 				.. "Please respond by explaining the code above."
-			gp.Prompt(params, gp.Target.popup, nil, gp.config.command_model, template, gp.config.chat_system_prompt)
+			local agent = gp.get_command_agent()
+			gp.Prompt(params, gp.Target.vnew, agent, template)
 		end,
 
 		UnitTests = function(gp, params)
 			local template = "I have the following code from {{filename}}:\n\n"
 				.. "```{{filetype}}\n{{selection}}\n```\n\n"
 				.. "Please respond by writing unit tests for the code above."
-			gp.Prompt(params, gp.Target.enew, nil, gp.config.command_model, template, gp.config.command_system_prompt)
+			local agent = gp.get_command_agent()
+			gp.Prompt(params, gp.Target.vnew, agent, template)
 		end,
 
 		UnitTestsWithContext = function(gp, params)
@@ -135,8 +120,8 @@ conf = vim.tbl_extend("force", conf, {
 				.. "Here is a code that needs to be unit tested:\n\n"
 				.. "CODE\n"
 				.. "Please respond by writing unit tests for the code above."
-			template = apply_replacements(template)
-			gp.Prompt(params, gp.Target.enew, nil, gp.config.command_model, template, gp.config.command_system_prompt)
+			local agent = gp.get_command_agent()
+			gp.Prompt(params, gp.Target.vnew, agent, template)
 		end,
 
 		NameContext = function(_gp, _params)
@@ -153,7 +138,8 @@ conf = vim.tbl_extend("force", conf, {
 			local template = vim.fn.input("Enter AI Prompt context(" .. ctx_keys_str .. "): ")
 			template = apply_replacements(template)
 			template = system_prompt .. "\n" .. template .. "\n"
-			gp.Prompt(params, gp.Target.enew, nil, gp.config.command_model, template, gp.config.command_system_prompt)
+			local agent = gp.get_command_agent()
+			gp.Prompt(params, gp.Target.vnew, agent, template)
 		end,
 	},
 })

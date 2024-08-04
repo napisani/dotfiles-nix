@@ -1,7 +1,16 @@
-import { ModifierKeyCode, map, rule } from "karabiner.ts";
+import { map, ModifierKeyCode, rule } from "karabiner.ts";
 
 const hyperModifiers: ModifierKeyCode[] = ['right_command', 'right_control',  'right_shift', 'right_option']
-export const hyperRules = [
+export const capsRules = [ 
+ // rule('caps lock to escape or left_control if held').manipulators([
+ //    {
+ //      type: 'basic',
+ //      from: { key_code: 'caps_lock' },
+ //      to: [{ key_code: 'left_control' }],
+ //      to_if_alone: [{ key_code: 'escape' }],
+ //    },
+ //  ]),
+
   rule('CapsLock to Hyper').manipulators([
     map({
       key_code: "caps_lock", 
@@ -14,6 +23,17 @@ export const hyperRules = [
     .toIfAlone({key_code: "escape"})
     .description("CapsLock = hyper (held), Escape (alone)"),
   ]),
+
+  rule('Hyper + space = tmux prefix/leader').manipulators([
+    map({
+      key_code: "spacebar",
+      modifiers: {mandatory: [...hyperModifiers]}
+    }).to({
+      "key_code": "spacebar",
+      "modifiers": ["left_control"]
+    }).description("Hyper + space = tmux prefix/leader")
+  ]),
+
   rule('Hyper + hjkl to arrow keys').manipulators([
     map({
       key_code: "h",
@@ -58,6 +78,7 @@ export const hyperRules = [
     }).description("Hyper + d = page down"),
 
   ]),
+
   rule('Hyper + shift n/p - switch tabs').manipulators([
     map({
       key_code: "p",
@@ -93,3 +114,5 @@ export const hyperRules = [
     }).description("Hyper + 5 = select screen record")
   ])
 ]
+
+
