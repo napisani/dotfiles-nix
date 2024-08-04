@@ -352,7 +352,6 @@ function M.live_grep_git_changed_files(opts)
 		end,
 	}):sync()
 
-	{ "<leader>fa", "<cmd>lua require('user.telescope').ai_contexts()<cr>", desc = "(a)i contexts" },
 	live_grep_static_file_list(opts, file_list)
 end
 
