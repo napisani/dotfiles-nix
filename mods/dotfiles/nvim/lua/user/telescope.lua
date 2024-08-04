@@ -133,6 +133,11 @@ telescope.load_extension("luasnip")
 
 local builtin = require("telescope.builtin")
 
+-- to force certain files to be included per project
+-- use a `.ignore` file at the root of the project and use
+-- syntax like
+-- !*.env.* # this will force .env files to be included in all searches
+
 local ignore_globs = {
 	"--iglob",
 	"!.git",

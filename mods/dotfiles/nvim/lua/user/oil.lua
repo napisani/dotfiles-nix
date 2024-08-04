@@ -5,9 +5,7 @@ if not oil_ok then
 end
 
 oil.setup({
-	-- display = {
-	-- 	-- open_fn = function()
-	-- 	-- 	return require("packer.util").float({ border = "rounded" })
-	-- 	-- end,
-	-- },
+	view_options = {
+		show_hidden = true,
+	},
 })
