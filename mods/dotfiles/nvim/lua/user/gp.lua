@@ -101,6 +101,7 @@ end
 local conf = require("gp.config")
 conf.providers.copilot.disable = false
 conf.providers.openai.disable = false
+conf.providers.anthropic.disable = false
 
 conf = vim.tbl_extend("force", conf, {
 	hooks = {
