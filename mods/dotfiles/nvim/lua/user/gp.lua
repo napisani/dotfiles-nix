@@ -141,7 +141,7 @@ conf = vim.tbl_extend("force", conf, {
 		end,
 
 		AskWithContext = function(gp, params)
-			local system_prompt = gp.config.command_system_prompt
+			local system_prompt = gp.config.command_system_prompt or ""
 			local ctx_keys = {}
 			for k, _ in pairs(ctx) do
 				table.insert(ctx_keys, k)
