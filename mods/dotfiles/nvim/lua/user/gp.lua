@@ -138,8 +138,7 @@ conf = vim.tbl_extend("force", conf, {
 			local template = vim.fn.input("Enter AI Prompt context(" .. ctx_keys_str .. "): ")
 			template = apply_replacements(template)
 			template = system_prompt .. "\n" .. template .. "\n"
-			local agent = gp.get_command_agent()
-			gp.Prompt(params, gp.Target.vnew, agent, template)
+			gp.Prompt(params, gp.Target.enew, nil, gp.config.command_model, template, gp.config.command_system_prompt)
 		end,
 	},
 })

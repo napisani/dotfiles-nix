@@ -1,4 +1,4 @@
-import { map, ModifierKeyCode, rule } from "karabiner.ts";
+import { FromKeyCode, map, ModifierKeyCode, rule, ToKeyCode } from "karabiner.ts";
 
 const hyperModifiers: ModifierKeyCode[] = ['right_command', 'right_control',  'right_shift', 'right_option']
 export const capsRules = [ 
@@ -34,6 +34,21 @@ export const capsRules = [
     }).description("Hyper + space = tmux prefix/leader")
   ]),
 
+  ...('abcdefghijklmnopqrstuvwxyz'.split(''))
+    .filter((key) => !['j', 'k', 'l', 'h'].includes(key))
+    .map((key) => {
+    return (rule(`Hyper + ${key} = ctl + ${key}`).manipulators([
+        map({
+          key_code: key as FromKeyCode, 
+          modifiers: {mandatory: [...hyperModifiers]}
+        }).to({
+          "key_code": key as ToKeyCode, 
+          "modifiers": ["left_control"]
+        }).description(`Hyper + ${key} = ctl + ${key}`)
+      ]));
+    }),
+  
+
   rule('Hyper + hjkl to arrow keys').manipulators([
     map({
       key_code: "h",
@@ -62,20 +77,6 @@ export const capsRules = [
     }).to({
       "key_code": "down_arrow",
     }).description("Hyper + j = down arrow"),
-
-    map({
-      key_code: "u",
-      modifiers: {mandatory: [...hyperModifiers]}
-    }).to({
-      "key_code": "page_up",
-    }).description("Hyper + u = page up"),
-    
-    map({
-      key_code: "d",
-      modifiers: {mandatory: [...hyperModifiers]}
-    }).to({
-      "key_code": "page_down",
-    }).description("Hyper + d = page down"),
 
   ]),
 
