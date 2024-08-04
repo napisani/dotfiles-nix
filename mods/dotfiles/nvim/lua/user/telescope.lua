@@ -313,6 +313,7 @@ local finders = require("telescope.finders")
 local make_entry = require("telescope.make_entry")
 local pickers = require("telescope.pickers")
 local scan = require("plenary.scandir")
+local gp = require("user.gp")
 
 function M.find_file_from_root_to_compare_to()
 	M.find_file_from_root_and_callback(function(prompt_bufnr)
@@ -351,6 +352,7 @@ function M.live_grep_git_changed_files(opts)
 		end,
 	}):sync()
 
+	{ "<leader>fa", "<cmd>lua require('user.telescope').ai_contexts()<cr>", desc = "(a)i contexts" },
 	live_grep_static_file_list(opts, file_list)
 end
 
@@ -483,6 +485,48 @@ M.git_conflicts = function(opts)
 					"--relative",
 				}, opts),
 				sorter = conf.file_sorter(opts),
+			})
+		)
+		:find()
+end
+
+M.ai_contexts = function(opts)
+	opts = opts or {}
+	opts.cwd = utils.get_root_dir()
+
+	opts.entry_maker = opts.entry_maker or make_entry.gen_from_file(opts)
+
+	local make_finder = function()
+		return finders.new_table({
+			results = gp.get_all_contexts(),
+			entry_maker = function(result)
+				return {
+					value = result.file,
+					display = result.name,
+					ordinal = result.name,
+				}
+			end,
+		})
+	end
+	pickers
+		.new(
+			opts,
+			utils.table_merge(adhoc_picker_layout, {
+				prompt_title = "AI Contexts",
+				previewer = conf.file_previewer(opts),
+				finder = make_finder(),
+				sorter = conf.file_sorter(opts),
+				attach_mappings = function(prompt_bufnr, map)
+					map("n", "dd", function()
+						local current_picker = action_state.get_current_picker(prompt_bufnr)
+						local selection = action_state.get_selected_entry()
+						if selection ~= nil then
+							gp.delete_context(selection.display)
+							current_picker:refresh(make_finder(), { reset_prompt = false })
+						end
+					end)
+					return true
+				end,
 			})
 		)
 		:find()

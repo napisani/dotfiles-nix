@@ -11,14 +11,14 @@ local utils = require("user.utils")
 
 local write_context = function(name, content)
 	local dir = utils.create_temp_directory("nvim-gp-ctx")
-	local file = utils.join_path(dir, utils.file_safe_name(name) .. ".txt")
+	local file = utils.join_path(dir, utils.file_safe_name(name) .. ".md")
 	vim.fn.writefile(content, file)
 	ctx[name] = { file = file }
 
 	return file
 end
 
-local delete_context = function(name)
+M.delete_context = function(name)
 	if name ~= nil and ctx[name] ~= nil then
 		local file = ctx[name].file
 		if file then
@@ -44,18 +44,18 @@ function M.name_context()
 	local filetype = vim.api.nvim_buf_get_option(buf, "filetype")
 	local filename = vim.fn.expand("%")
 	local name = vim.fn.input("Enter the name of the context: ")
-	delete_context(name)
+	M.delete_context(name)
 	table.insert(selection, 1, "filecontent: ")
 	table.insert(selection, 1, "filetype: " .. filetype)
 	table.insert(selection, 1, "filename: " .. filename)
-	table.insert(selection, 1, "```")
+	table.insert(selection, 1, "```" .. filetype)
 	table.insert(selection, "```")
 	write_context(name, selection)
 end
 
 function M.clear_context()
 	for k, v in pairs(ctx) do
-		delete_context(k)
+		M.delete_context(k)
 	end
 	ctx = {}
 end
@@ -70,6 +70,17 @@ function M.get_context_value(name)
 		end
 	end
 	return nil
+end
+
+function M.get_all_contexts()
+	local results = {}
+	for k, v in pairs(ctx) do
+		table.insert(results, {
+			name = k,
+			file = v.file,
+		})
+	end
+	return results
 end
 
 function apply_replacements(prompt)
@@ -143,6 +154,7 @@ conf = vim.tbl_extend("force", conf, {
 	},
 })
 
--- call setup on your config
+-- -- call setup on your config
 gp.setup(conf)
+
 return M
