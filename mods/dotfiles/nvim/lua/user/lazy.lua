@@ -252,6 +252,8 @@ require("lazy").setup({
 			"hedyhli/outline.nvim",
 		},
 
+		{ "jinh0/eyeliner.nvim" },
+
 		-- {
 		--   '/Users/nick/code/nvim-dadbod-ext',
 		--   build = './install.sh',
