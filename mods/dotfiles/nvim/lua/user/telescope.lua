@@ -339,37 +339,25 @@ function M.find_file_from_root_and_callback(callback_fn)
 end
 
 function M.live_grep_git_changed_files(opts)
-	local file_list = {}
-	PlenaryJob:new({
-		command = "git",
-		args = { "status", "--porcelain", "-u" },
-		cwd = utils.get_root_dir(),
-		on_exit = function(job)
-			for _, cmd_output in ipairs(job:result()) do
-				table.insert(file_list, "--glob")
-				table.insert(file_list, trimGitModificationIndicator(cmd_output))
-			end
-		end,
-	}):sync()
+	local file_list = utils.git_changed_files().get_files()
+	local arg_list = {}
+	for _, file in ipairs(file_list) do
+		table.insert(arg_list, "--glob")
+		table.insert(arg_list, file)
+	end
 
-	live_grep_static_file_list(opts, file_list)
+	live_grep_static_file_list(opts, arg_list)
 end
 
 function M.live_grep_git_changed_cmp_base_branch(opts)
 	local base_branch = utils.get_primary_git_branch()
-	local file_list = {}
-	PlenaryJob:new({
-		command = "git",
-		args = { "diff", "--name-only", base_branch .. "..HEAD" },
-		cwd = utils.get_root_dir(),
-		on_exit = function(job)
-			for _, cmd_output in ipairs(job:result()) do
-				table.insert(file_list, "--glob")
-				table.insert(file_list, cmd_output)
-			end
-		end,
-	}):sync()
-	live_grep_static_file_list(opts, file_list)
+	local file_list = utils.git_changed_in_branch().get_files(base_branch)
+	local arg_list = {}
+	for _, file in ipairs(file_list) do
+		table.insert(arg_list, "--glob")
+		table.insert(arg_list, file)
+	end
+	live_grep_static_file_list(opts, arg_list)
 end
 
 M.live_grep_in_directory = function(opts)
@@ -422,18 +410,19 @@ M.git_changed_files = function(opts)
 		return entry_maker(cmd_output)
 	end
 
+	local cmd = { "git" }
+	local args = utils.git_changed_files().get_git_args()
+	for _, arg in ipairs(args) do
+		table.insert(cmd, arg)
+	end
+
 	pickers
 		.new(
 			opts,
 			utils.table_merge(adhoc_picker_layout, {
 				prompt_title = "Git changed files",
 				previewer = conf.file_previewer(opts),
-				finder = finders.new_oneshot_job({
-					"git",
-					"status",
-					"--porcelain",
-					"-u",
-				}, opts),
+				finder = finders.new_oneshot_job(cmd, opts),
 				sorter = conf.file_sorter(opts),
 			})
 		)
@@ -447,18 +436,19 @@ M.git_changed_cmp_base_branch = function(opts)
 	opts.entry_maker = opts.entry_maker or make_entry.gen_from_file(opts)
 
 	local base_branch = utils.get_primary_git_branch()
+	local cmd = { "git" }
+	local args = utils.git_changed_in_branch().get_git_args(base_branch)
+	for _, arg in ipairs(args) do
+		table.insert(cmd, arg)
+	end
+
 	pickers
 		.new(
 			opts,
 			utils.table_merge(adhoc_picker_layout, {
 				prompt_title = "Git changed files compared to " .. base_branch,
 				previewer = conf.file_previewer(opts),
-				finder = finders.new_oneshot_job({
-					"git",
-					"diff",
-					"--name-only",
-					base_branch .. "..HEAD",
-				}, opts),
+				finder = finders.new_oneshot_job(cmd, opts),
 				sorter = conf.file_sorter(opts),
 			})
 		)
@@ -468,6 +458,11 @@ end
 M.git_conflicts = function(opts)
 	opts = opts or {}
 	opts.cwd = utils.get_root_dir()
+	local cmd = { "git" }
+	local args = utils.git_conflicted_files().get_git_args()
+	for _, arg in ipairs(args) do
+		table.insert(cmd, arg)
+	end
 
 	opts.entry_maker = opts.entry_maker or make_entry.gen_from_file(opts)
 	pickers
@@ -476,13 +471,7 @@ M.git_conflicts = function(opts)
 			utils.table_merge(adhoc_picker_layout, {
 				prompt_title = "Git conflicts",
 				previewer = conf.file_previewer(opts),
-				finder = finders.new_oneshot_job({
-					"git",
-					"diff",
-					"--name-only",
-					"--diff-filter=U",
-					"--relative",
-				}, opts),
+				finder = finders.new_oneshot_job(args, opts),
 				sorter = conf.file_sorter(opts),
 			})
 		)
