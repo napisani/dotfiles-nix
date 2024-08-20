@@ -103,21 +103,21 @@ local changes = {
 	{ "<leader>cB", "<Cmd>:G blame<CR>", desc = "Blame" },
 	{ "<leader>cH", "<Cmd>:DiffviewOpen HEAD<CR>", desc = "diff (H)ead" },
 	{ "<leader>ch", "<Cmd>:DiffViewFileHistory<CR>", desc = "(h)istory" },
-	{ "<leader>cM", "<Cmd>:DiffviewOpen " .. primary_branch .. "<CR>", desc = "origin/(M)ain" },
-	{ "<leader>cP", "<Cmd>:DiffviewOpen " .. prod_branch .. "<CR>", desc = "origin/(P)rod" },
-	{ "<leader>cf", group = "(F)ile" },
-	{ "<leader>cfH", "<Cmd>:DiffviewOpen HEAD -- %<CR>", desc = "diff (H)ead" },
-	{ "<leader>cfM", "<Cmd>:DiffviewOpen " .. primary_branch .. " -- %<CR>", desc = "origin/(M)ain" },
-	{ "<leader>cfP", "<Cmd>:DiffviewOpen " .. prod_branch .. " -- %<CR>", desc = "origin/(P)rod" },
-	{ "<leader>cff", "<cmd>lua require('user.telescope').find_file_from_root_to_compare_to()<CR>", desc = "(f)ile" },
-	{ "<leader>cfh", "<Cmd>:DiffviewFileHistory %<CR>", desc = "File (H)istory" },
-	{ "<leader>cfm", "<Cmd>:DiffviewOpen " .. primary_branch .. " -- %<CR>", desc = "(m)ain" },
-	{ "<leader>cfp", "<Cmd>:DiffviewOpen " .. prod_branch .. " -- %<CR>", desc = "(p)rod" },
-	{ "<leader>cm", "<Cmd>:DiffviewOpen " .. primary_branch .. "<CR>", desc = "(m)ain" },
+	{ "<leader>cM", "<Cmd>:DiffviewOpen origin/" .. primary_branch .. "<CR>", desc = "origin/" .. primary_branch },
+	{ "<leader>cP", "<Cmd>:DiffviewOpen origin/" .. prod_branch .. "<CR>", desc = "origin/" .. prod_branch },
+	{ "<leader>cm", "<Cmd>:DiffviewOpen " .. primary_branch .. "<CR>", desc = primary_branch },
+	{ "<leader>cp", "<Cmd>:DiffviewOpen " .. prod_branch .. "<CR>", desc = prod_branch },
 	{ "<leader>co", "<Cmd>:DiffviewOpen<CR>", desc = "Open" },
-	{ "<leader>cp", "<Cmd>:DiffviewOpen " .. prod_branch .. "<CR>", desc = "(p)rod" },
 	{ "<leader>cq", "<Cmd>:DiffviewClose<CR>", desc = "DiffviewClose" },
 	{ "<leader>cx", '<Cmd>call feedkeys("dx")<CR>', desc = "Choose DELETE" },
+	{ "<leader>cf", group = "(F)ile" },
+	{ "<leader>cfH", "<Cmd>:DiffviewOpen HEAD -- %<CR>", desc = "diff (H)ead" },
+	{ "<leader>cfM", "<Cmd>:DiffviewOpen " .. primary_branch .. " -- %<CR>", desc = "origin/" .. primary_branch },
+	{ "<leader>cfP", "<Cmd>:DiffviewOpen " .. prod_branch .. " -- %<CR>", desc = "origin/" .. prod_branch },
+	{ "<leader>cff", "<cmd>lua require('user.telescope').find_file_from_root_to_compare_to()<CR>", desc = "(f)ile" },
+	{ "<leader>cfh", "<Cmd>:DiffviewFileHistory %<CR>", desc = "File (H)istory" },
+	{ "<leader>cfm", "<Cmd>:DiffviewOpen " .. primary_branch .. " -- %<CR>", desc = primary_branch },
+	{ "<leader>cfp", "<Cmd>:DiffviewOpen " .. prod_branch .. " -- %<CR>", desc = prod_branch },
 }
 
 local debugging = {
@@ -181,7 +181,6 @@ local lsp = {
 	{ "<leader>lS", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", desc = "workspace (S)ymbols" },
 	-- { "<leader>la", "<cmd>lua vim.lsp.buf.code_action()<cr>", desc = "Code (a)ction" },
 	{ "<leader>la", "<cmd>lua require('tiny-code-action').code_action()<cr>", desc = "Code (a)ction" },
-	{ "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
 	{ "<leader>ld", "<cmd>Telescope lsp_document_diagnostics<cr>", desc = "(d)ocument diagnostics" },
 	{ "<leader>lf", "<cmd>lua vim.lsp.buf.format{ async=true, name = 'efm' }<cr>", desc = "(f)ormat" },
 	{ "<leader>li", desc = "organize (i)mports" },
@@ -285,6 +284,8 @@ local mappings_n = {
 	{ "<leader>trn", "<cmd>:GpNameContext<cr>", desc = "(n)ame context" },
 	{ "<leader>trt", "<cmd>:GpUnitTests<cr>", desc = "add (t)ests" },
 	{ "<leader>ts", "<cmd>:GpStop<cr>", desc = "(s)stop streaming results" },
+
+	{ "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
 }
 
 local mappings_v = {
@@ -429,6 +430,8 @@ local mappings_v = {
 		{ "<leader>trn", "<cmd>:GpNameContext<cr>", desc = "(n)ame context" },
 		{ "<leader>trt", ":<C-u>'<,'>GpUnitTests<cr>", desc = "add (t)ests" },
 		{ "<leader>ts", "<cmd>:GpStop<cr>", desc = "(s)stop streaming results" },
+
+		{ "<leader>lc", "<Plug>ContextCommentary", desc = "(c)omment" },
 	},
 }
 
