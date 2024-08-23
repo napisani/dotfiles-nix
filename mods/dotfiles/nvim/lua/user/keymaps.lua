@@ -26,10 +26,10 @@ vim.g.maplocalleader = " "
 --keymap("n", "<C-l>", "<C-w>l", opts)
 
 -- Resize with arrows
-keymap("n", "<C-Up>", ":resize -2<CR>", opts)
-keymap("n", "<C-Down>", ":resize +2<CR>", opts)
-keymap("n", "<C-Left>", ":vertical resize -2<CR>", opts)
-keymap("n", "<C-Right>", ":vertical resize +2<CR>", opts)
+-- keymap("n", "<C-Up>", ":resize -2<CR>", opts)
+-- keymap("n", "<C-Down>", ":resize +2<CR>", opts)
+-- keymap("n", "<C-Left>", ":vertical resize -2<CR>", opts)
+-- keymap("n", "<C-Right>", ":vertical resize +2<CR>", opts)
 
 -- Navigate buffers
 keymap("n", "<S-l>", ":bnext<CR>", opts)
@@ -77,6 +77,11 @@ vim.keymap.set({ "n", "x", "o" }, "ss", "<cmd>HopWord<CR>", opts)
 vim.keymap.set({ "n", "x", "o" }, "sv", "<cmd>HopVertical<CR>", opts)
 vim.keymap.set({ "n", "x", "o" }, "sb", "<cmd>HopNodes<CR>", opts)
 vim.keymap.set({ "n", "x", "o" }, "sl", "<cmd>HopCamelCaseCurrentLine<CR>", opts)
+
+-- always recenter after c-u and c-d
+-- vim.keymap.set({ "n", "x", "o" }, "<C-u>", "<C-u>zz", opts)
+-- vim.keymap.set({ "n", "x", "o" }, "<C-d>", "<C-d>zz", opts)
+
 -- vim.keymap.set({ "n", "x", "o"},  "gj", "<cmd>HopVertical<CR>", opts)
 -- vim.keymap.set({ "n", "x", "o"},  "gn", "<cmd>HopNodes<CR>", opts)
 -- vim.keymap.set({ "n", "x", "o"},  "gf", "<cmd>HopWordCurrentLine<CR>", opts)
