@@ -198,28 +198,29 @@ require("lazy").setup({
 		{ "hkupty/iron.nvim" },
 
 		{ "robitx/gp.nvim" },
-		{
-			"yetone/avante.nvim",
-			event = "VeryLazy",
-			build = "make",
-			opts = {
-				-- add any opts here
-			},
-			dependencies = {
-				"nvim-tree/nvim-web-devicons",
-				"stevearc/dressing.nvim",
-				"nvim-lua/plenary.nvim",
-				"MunifTanjim/nui.nvim",
-				--- The below is optional, make sure to setup it properly if you have lazy=true
-				{
-					"MeanderingProgrammer/render-markdown.nvim",
-					opts = {
-						file_types = { "markdown", "Avante" },
-					},
-					ft = { "markdown", "Avante" },
-				},
-			},
-		},
+
+		-- {
+		-- 	"yetone/avante.nvim",
+		-- 	event = "VeryLazy",
+		-- 	build = "make",
+		-- 	opts = {
+		-- 		-- add any opts here
+		-- 	},
+		-- 	dependencies = {
+		-- 		"nvim-tree/nvim-web-devicons",
+		-- 		"stevearc/dressing.nvim",
+		-- 		"nvim-lua/plenary.nvim",
+		-- 		"MunifTanjim/nui.nvim",
+		-- 		--- The below is optional, make sure to setup it properly if you have lazy=true
+		-- 		{
+		-- 			"MeanderingProgrammer/render-markdown.nvim",
+		-- 			opts = {
+		-- 				file_types = { "markdown", "Avante" },
+		-- 			},
+		-- 			ft = { "markdown", "Avante" },
+		-- 		},
+		-- 	},
+		-- },
 
 		-- ({
 		-- "kndndrj/nvim-dbee",
@@ -275,6 +276,22 @@ require("lazy").setup({
 		},
 
 		{ "jinh0/eyeliner.nvim" },
+
+		-- {
+		-- 	"folke/noice.nvim",
+		-- 	event = "VeryLazy",
+		-- 	opts = {
+		-- 		-- add any options here
+		-- 	},
+		-- 	dependencies = {
+		-- 		-- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+		-- 		"MunifTanjim/nui.nvim",
+		-- 		-- OPTIONAL:
+		-- 		--   `nvim-notify` is only needed, if you want to use the notification view.
+		-- 		--   If not available, we use `mini` as the fallback
+		-- 		"rcarriga/nvim-notify",
+		-- 	},
+		-- },
 
 		-- {
 		--   '/Users/nick/code/nvim-dadbod-ext',

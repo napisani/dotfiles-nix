@@ -96,6 +96,28 @@ local buffers = {
 		desc = "(o)nly keep current Buffer",
 	},
 	{ "<leader>bq", "<cmd>Bdelete!<CR>", desc = "(q)uit Buffer" },
+
+	{
+		"<leader>bfy",
+		function()
+			-- Get the full path of the current buffer
+			local buffer_path = vim.api.nvim_buf_get_name(0)
+			if buffer_path == "" then
+				return
+			end
+			local file_name = vim.fn.fnamemodify(buffer_path, ":t")
+			vim.fn.setreg("+", file_name)
+		end,
+		desc = "(y)ank path",
+	},
+	{
+		"<leader>bpy",
+		function()
+			local buffer_path = vim.api.nvim_buf_get_name(0)
+			vim.fn.setreg("+", buffer_path)
+		end,
+		desc = "(y)ank filename",
+	},
 }
 
 local changes = {
@@ -245,18 +267,6 @@ local mappings_n = {
 	{ "<leader>ls", "<cmd>Telescope lsp_document_symbols<cr>", desc = "document (s)ymbols" },
 	{ "<leader>lw", "<cmd>Telescope lsp_workspace_diagnostics<cr>", desc = "(w)orkspace diagnostics" },
 
-	{ "<leader>p", group = "Paste to" },
-	{ "<leader>pb", "/<c-r>0<cr>", desc = "search in buffer" },
-	{
-		"<leader>pf",
-		"<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.getreg('*')})<CR>",
-		desc = "find (f)ile by name",
-	},
-	{
-		"<leader>ph",
-		"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.getreg('*')})<CR>",
-		desc = "grep w(h)ole project",
-	},
 	{ "<leader>q", "<cmd>q!<CR>", desc = "Quit" },
 	{ "<leader>r", group = "Replace" },
 	{ "<leader>r*", ":%s@<C-R>=expand('<cword>')<CR>@@gc<left><left><left>", desc = "(*)word" },
