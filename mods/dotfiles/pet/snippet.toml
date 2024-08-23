@@ -14,3 +14,10 @@
   description = "sample terminal colors"
   command = "msgcat --color=test"
   output = ""
+
+[[snippets]]
+  description = "chat ai open neovim to chat with gpt models"
+  command = "chatai"
+  tag = ["chat", "ai", "gpt", "openai", "neovim"]
+
+
