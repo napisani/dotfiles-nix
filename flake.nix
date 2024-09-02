@@ -39,8 +39,7 @@
     golang_dep.url =
       "github:NixOS/nixpkgs/c0b7a892fb042ede583bdaecbbdc804acb85eabe";
 
-    nixhub_dep.url =
-      "github:NixOS/nixpkgs/6e14bbce7bea6c4efd7adfa88a40dac750d80100";
+    nixhub_dep.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
     secret_inject.url =
       "github:napisani/secret_inject/58be3ae97e2e55aef6b4255ec3e3f387f307973a";
@@ -51,8 +50,8 @@
   };
 
   outputs = { flake-utils, nixpkgs, nixpkgs-unstable, home-manager, darwin
-    , procmux, secret_inject, animal_rescue, oxlint_dep, neovim_dep, golang_dep, nixhub_dep
-    , ... }@inputs:
+    , procmux, secret_inject, animal_rescue, oxlint_dep, neovim_dep, golang_dep
+    , nixhub_dep, ... }@inputs:
     let
       allSystems = [ "x86_64-linux" "aarch64-darwin" ];
       inputsBySystem = builtins.listToAttrs (map (system: {
