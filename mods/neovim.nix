@@ -34,7 +34,7 @@
 
       # python
       python3Packages.isort
-      nodePackages.pyright
+      pyright
       black
       python3Packages.flake8
       mypy

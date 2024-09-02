@@ -14,12 +14,12 @@
           fi
       done
     '';
-    shellAliases = { 
+    shellAliases = {
       vim = "nvim";
-      /* vi = "nvim"; */
+      # vi = "nvim";
       grep = "grep --color=auto";
       fgrep = "fgrep --color=auto";
-      egrep ="egrep --color=auto";
+      egrep = "egrep --color=auto";
       ls = "ls --color";
       ll = "ls -alF";
       la = "ls -A";
@@ -36,26 +36,31 @@
     secureSocket = false;
     extraConfig = builtins.readFile ./dotfiles/.tmux.conf;
   };
-  programs.gh = {
-    enable = true;
+  programs.gh = { enable = true; };
+
+  home.file.".tmux/tokyonight.tmuxtheme".source =
+    ./dotfiles/tokyonight.tmuxtheme;
+  home.file.".tmux/plugins/tpm".source = pkgs.fetchFromGitHub {
+    owner = "tmux-plugins";
+    repo = "tpm";
+    rev = "99469c4a9b1ccf77fade25842dc7bafbc8ce9946";
+    sha256 = "hW8mfwB8F9ZkTQ72WQp/1fy8KL1IIYMZBtZYIwZdMQc=";
   };
 
-  home.file.".tmux/tokyonight.tmuxtheme".source = ./dotfiles/tokyonight.tmuxtheme;
-  home.file.".tmux/plugins/tpm".source = pkgs.fetchFromGitHub {
-     owner = "tmux-plugins";
-     repo = "tpm";
-     rev = "99469c4a9b1ccf77fade25842dc7bafbc8ce9946";
-     sha256 = "hW8mfwB8F9ZkTQ72WQp/1fy8KL1IIYMZBtZYIwZdMQc=";
-  };
+  home.file.".config/discordo/config.toml".source =
+    ./dotfiles/discordo-config.toml;
+
+  home.file."/Library/Application Support/discordo/config.toml".source =
+    ./dotfiles/discordo-config.toml;
+
   programs.direnv = {
     enable = true;
     enableBashIntegration = true;
     nix-direnv.enable = true;
   };
-  programs.starship = {
-    enable = true;
-  };
-  
+  programs.starship = { enable = true; };
+
   home.file.".config/starship.toml".source = ./dotfiles/starship.toml;
-  home.file.".config/.secret_inject.json".source = ./dotfiles/secret_inject.json;
+  home.file.".config/.secret_inject.json".source =
+    ./dotfiles/secret_inject.json;
 }

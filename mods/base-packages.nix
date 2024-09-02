@@ -19,6 +19,7 @@
     tree-sitter
     ncdu
     git-lfs
+    discordo
 
     secret_inject.packages.${pkgs.system}.default
     animal_rescue.packages.${pkgs.system}.default
@@ -39,6 +40,9 @@
       p.pipx
       # p.tiktoken
     ]))
+    rye
+
+
     #pkgs-unstable.python310Packages.tiktoken
     # custom_node_packages.opencommit
 
