@@ -1,7 +1,7 @@
 { pkgs, pkgs-unstable, procmux, secret_inject, animal_rescue, ... }: {
 
   home.packages = with pkgs-unstable; [
-    bashInteractive
+    pkgs.bashInteractive
     bat
     coreutils
     gnupg
@@ -14,7 +14,7 @@
     wget
     #postman
     doppler
-    bitwarden-cli
+    pkgs.bitwarden-cli
     pet
     tree-sitter
     ncdu
@@ -41,7 +41,6 @@
       # p.tiktoken
     ]))
     rye
-
 
     #pkgs-unstable.python310Packages.tiktoken
     # custom_node_packages.opencommit
