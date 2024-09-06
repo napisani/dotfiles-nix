@@ -5,7 +5,6 @@ end
 local utils = require("user.utils")
 local primary_branch = utils.get_primary_git_branch()
 local prod_branch = utils.get_prod_git_branch()
-
 -- Shared mappings
 local surround = {
 	{ "<leader>s", group = "Surround" },
@@ -132,14 +131,18 @@ local changes = {
 	{ "<leader>co", "<Cmd>:DiffviewOpen<CR>", desc = "Open" },
 	{ "<leader>cq", "<Cmd>:DiffviewClose<CR>", desc = "DiffviewClose" },
 	{ "<leader>cx", '<Cmd>call feedkeys("dx")<CR>', desc = "Choose DELETE" },
+
 	{ "<leader>cf", group = "(F)ile" },
 	{ "<leader>cfH", "<Cmd>:DiffviewOpen HEAD -- %<CR>", desc = "diff (H)ead" },
 	{ "<leader>cfM", "<Cmd>:DiffviewOpen " .. primary_branch .. " -- %<CR>", desc = "origin/" .. primary_branch },
 	{ "<leader>cfP", "<Cmd>:DiffviewOpen " .. prod_branch .. " -- %<CR>", desc = "origin/" .. prod_branch },
 	{ "<leader>cff", "<cmd>lua require('user.telescope').find_file_from_root_to_compare_to()<CR>", desc = "(f)ile" },
-	{ "<leader>cfh", "<Cmd>:DiffviewFileHistory %<CR>", desc = "File (H)istory" },
+	{ "<leader>cfh", "<Cmd>:DiffviewFileHistory --follow %<CR>", desc = "(h)istory" },
 	{ "<leader>cfm", "<Cmd>:DiffviewOpen " .. primary_branch .. " -- %<CR>", desc = primary_branch },
 	{ "<leader>cfp", "<Cmd>:DiffviewOpen " .. prod_branch .. " -- %<CR>", desc = prod_branch },
+
+	-- changes
+	{ "<leader>cfc", "<cmd>CompareClipboard<cr>", desc = "compare (c)lipboard" },
 }
 
 local debugging = {
@@ -442,6 +445,15 @@ local mappings_v = {
 		{ "<leader>ts", "<cmd>:GpStop<cr>", desc = "(s)stop streaming results" },
 
 		{ "<leader>lc", "<Plug>ContextCommentary", desc = "(c)omment" },
+
+		-- changes
+		{ "<leader>c", group = "Changes" },
+		{ "<leader>cc", "<esc><cmd>CompareClipboardSelection<cr>", desc = "compare (c)lipboard" },
+		{
+			"<leader>ch",
+			"<Esc><Cmd>'<,'>DiffviewFileHistory --follow<CR>",
+			desc = "(h)istory",
+		},
 	},
 }
 

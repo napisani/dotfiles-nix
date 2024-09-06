@@ -2,7 +2,7 @@
 
   homebrew = {
     masApps = {
-      /* "Apple Configurator" = 1037126344; */
+      # "Apple Configurator" = 1037126344;
     };
     # anything installed with brew cask
     casks = [
@@ -10,14 +10,14 @@
       "discord"
       "skype"
       "mongodb-compass"
+      # "diffusionbee" 
     ];
     # anything installed with brew (non-casks)
     brews = [
-      /* "procmux" */
-      /* "mkcert" */
+      # "procmux"
+      # "mkcert"
     ];
     # any custom taps / repos
-    taps = [
-    ];
+    taps = [ ];
   };
 }

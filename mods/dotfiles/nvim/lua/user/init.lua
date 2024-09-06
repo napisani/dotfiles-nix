@@ -1,6 +1,7 @@
 -- vim.opt.runtimepath:append("~/code/monoscope")
 require("user.options")
 require("user.keymaps")
+require("user.diff")
 require("user.lazy")
 require("user.notify")
 require("user.colorscheme")

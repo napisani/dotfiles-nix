@@ -54,7 +54,7 @@
 
       # Nix
       statix
-      nixfmt
+      nixfmt-classic
       nil
 
       # bash
