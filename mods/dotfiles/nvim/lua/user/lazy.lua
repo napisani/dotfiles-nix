@@ -229,9 +229,10 @@ require("lazy").setup({
 		-- },
 
 		{
-			dir = "/Users/nick/code/context-nvim",
-			name = "context-nvim",
-			dev = true,
+			"napisani/context-nvim",
+			-- dir = "/Users/nick/code/context-nvim",
+			-- name = "context-nvim",
+			-- dev = true,
 			config = function()
 				require("context_nvim").setup({})
 			end,
