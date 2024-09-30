@@ -193,6 +193,12 @@ require("lazy").setup({
 
 		-- copilot
 		{ "github/copilot.vim" },
+		-- {
+		-- 	"supermaven-inc/supermaven-nvim",
+		-- 	config = function()
+		-- 		require("supermaven-nvim").setup({})
+		-- 	end,
+		-- },
 
 		{ "karb94/neoscroll.nvim" },
 		{ "hkupty/iron.nvim" },
@@ -221,6 +227,15 @@ require("lazy").setup({
 		-- 		},
 		-- 	},
 		-- },
+
+		{
+			dir = "/Users/nick/code/context-nvim",
+			name = "context-nvim",
+			dev = true,
+			config = function()
+				require("context_nvim").setup({})
+			end,
+		},
 
 		-- ({
 		-- "kndndrj/nvim-dbee",
@@ -305,7 +320,7 @@ require("lazy").setup({
 
 		{
 			"napisani/nvim-dadbod-bg",
-			-- '/Users/nick/code/nvim-dadbod-ext',
+			-- dir = "/Users/nick/code/nvim-dadbod-ext",
 			config = function()
 				vim.cmd([[
         let g:nvim_dadbod_bg_port = '4545'
