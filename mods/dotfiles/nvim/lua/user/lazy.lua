@@ -292,6 +292,9 @@ require("lazy").setup({
 
 		{ "jinh0/eyeliner.nvim" },
 
+		-- for better substitutions
+		{ "tpope/vim-abolish" },
+
 		-- {
 		-- 	"folke/noice.nvim",
 		-- 	event = "VeryLazy",
