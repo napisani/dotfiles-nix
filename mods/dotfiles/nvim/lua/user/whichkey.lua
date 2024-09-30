@@ -228,7 +228,7 @@ local mappings_n = {
 		desc = "(D)iff git branch",
 	},
 	{ "<leader>fM", "<cmd>Telescope man_pages<cr>", desc = "Man Pages" },
-	{ "<leader>fa", "<cmd>lua require('user.telescope').ai_contexts()<cr>", desc = "(a)i contexts" },
+
 	{ "<leader>fQ", "<cmd>Telescope help_tags<cr>", desc = "Find Help" },
 	{ "<leader>fR", "<cmd>Telescope registers<cr>", desc = "Registers" },
 	{ "<leader>fS", "<cmd>lua require('user.neoscopes').neoscopes.select()<cr>", desc = "(S)copes" },
@@ -299,6 +299,10 @@ local mappings_n = {
 	{ "<leader>ts", "<cmd>:GpStop<cr>", desc = "(s)stop streaming results" },
 
 	{ "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
+
+	{ "<leader>fa", desc = "(a)i" },
+	{ "<leader>fam", "<cmd>:ContextNvim find_context_manual<cr>", desc = "(m)anual contexts" },
+	{ "<leader>fah", "<cmd>:ContextNvim find_context_history<cr>", desc = "(h)istory_contexts" },
 }
 
 local mappings_v = {

@@ -70,33 +70,26 @@ local default_mappings = {
 
 local picker_layout = {
 	theme = "dropdown",
-	layout_config = {
-		-- prompt_position = "top",
-		-- anchor = 'N',
-		width = 0.98,
-		height = 0.60,
-	},
-}
-local adhoc_picker_layout = {
-	theme = "dropdown",
 	sorting_strategy = "ascending",
 	layout_config = {
 		prompt_position = "top",
 		anchor = "N",
 		width = 0.98,
-		height = 0.60,
+		height = 0.70,
+		preview_cutoff = 1, -- Always show preview
+		preview_height = 0.3, -- 30% of the height for preview
 	},
 	layout_strategy = "vertical",
 }
 
 telescope.setup({
-	defaults = {
+	defaults = vim.tbl_extend("force", {
 		path_display = { "truncate" },
 		prompt_prefix = "⮕ ",
 		selection_caret = "➤ ",
 		-- path_display = { "smart" },
 		mappings = default_mappings,
-	},
+	}, picker_layout),
 
 	layout_config = {},
 	pickers = {
@@ -419,7 +412,7 @@ M.git_changed_files = function(opts)
 	pickers
 		.new(
 			opts,
-			utils.table_merge(adhoc_picker_layout, {
+			vim.tbl_extend("force", picker_layout, {
 				prompt_title = "Git changed files",
 				previewer = conf.file_previewer(opts),
 				finder = finders.new_oneshot_job(cmd, opts),
@@ -445,7 +438,7 @@ M.git_changed_cmp_base_branch = function(opts)
 	pickers
 		.new(
 			opts,
-			utils.table_merge(adhoc_picker_layout, {
+			utils.table_merge(picker_layout, {
 				prompt_title = "Git changed files compared to " .. base_branch,
 				previewer = conf.file_previewer(opts),
 				finder = finders.new_oneshot_job(cmd, opts),
@@ -468,53 +461,11 @@ M.git_conflicts = function(opts)
 	pickers
 		.new(
 			opts,
-			utils.table_merge(adhoc_picker_layout, {
+			utils.table_merge(picker_layout, {
 				prompt_title = "Git conflicts",
 				previewer = conf.file_previewer(opts),
 				finder = finders.new_oneshot_job(args, opts),
 				sorter = conf.file_sorter(opts),
-			})
-		)
-		:find()
-end
-
-M.ai_contexts = function(opts)
-	opts = opts or {}
-	opts.cwd = utils.get_root_dir()
-
-	opts.entry_maker = opts.entry_maker or make_entry.gen_from_file(opts)
-
-	local make_finder = function()
-		return finders.new_table({
-			results = gp.get_all_contexts(),
-			entry_maker = function(result)
-				return {
-					value = result.file,
-					display = result.name,
-					ordinal = result.name,
-				}
-			end,
-		})
-	end
-	pickers
-		.new(
-			opts,
-			utils.table_merge(adhoc_picker_layout, {
-				prompt_title = "AI Contexts",
-				previewer = conf.file_previewer(opts),
-				finder = make_finder(),
-				sorter = conf.file_sorter(opts),
-				attach_mappings = function(prompt_bufnr, map)
-					map("n", "dd", function()
-						local current_picker = action_state.get_current_picker(prompt_bufnr)
-						local selection = action_state.get_selected_entry()
-						if selection ~= nil then
-							gp.delete_context(selection.display)
-							current_picker:refresh(make_finder(), { reset_prompt = false })
-						end
-					end)
-					return true
-				end,
 			})
 		)
 		:find()

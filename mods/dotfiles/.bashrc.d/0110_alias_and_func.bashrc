@@ -130,4 +130,6 @@ function cdpr() {
 }
 
 
+# diff two files in WebStorm
+alias wsdiff='function _wsdiff() { /Applications/WebStorm.app/Contents/MacOS/webstorm diff "$1" "$2"; }; _wsdiff'
 
