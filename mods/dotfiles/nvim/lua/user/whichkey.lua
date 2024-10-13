@@ -84,7 +84,7 @@ local write_all = {
 }
 
 local alpha = {
-	{ "<leader>a", "<cmd>Alpha<cr>", desc = "Alpha" },
+	{ "<leader>A", "<cmd>Alpha<cr>", desc = "Alpha" },
 }
 
 local buffers = {
@@ -290,6 +290,10 @@ local mappings_n = {
 	{ "<leader>to", "<cmd>:GpChatToggle<cr>", desc = "(o)pen existing chat" },
 	{ "<leader>tp", "<cmd>:GpPopup<cr>", desc = "(p)opupresults" },
 	{ "<leader>tq", "<cmd>:GpChatToggle<cr>", desc = "(q)uit chat" },
+	{ "<leader>a", group = "AI" },
+	{ "<leader>aA", ":ContextNvim add_current<cr>", desc = "(A)dd context" },
+	{ "<leader>aX", ":ContextNvim clear_manual<cr>", desc = "clear context" },
+
 	{ "<leader>tr", group = "(r)run" },
 	{ "<leader>trT", "<cmd>:GpUnitTestsWithContext<cr>", desc = "add (T)ests /w ctx" },
 	{ "<leader>tre", "<cmd>:GpExplain<cr>", desc = "(e)xplian" },
@@ -440,6 +444,10 @@ local mappings_v = {
 		{ "<leader>to", ":<C-u>'<,'>GpChatToggle<cr>", desc = "(o)pen existing chat" },
 		{ "<leader>tp", ":<C-u>'<,'>GpPopup<cr>", desc = "(p)opupresults" },
 		{ "<leader>tq", ":<C-u>'<,'>GpChatToggle<cr>", desc = "(q)uit chat" },
+
+		{ "<leader>a", group = "AI" },
+		{ "<leader>aA", ":<C-u>'<,'>ContextNvim add_current<cr>", desc = "(A)dd context" },
+
 		{ "<leader>tr", group = "(r)run" },
 		{ "<leader>trT", "<cmd>:GpUnitTestsWithContext<cr>", desc = "add (T)ests /w ctx" },
 		{ "<leader>tre", ":<C-u>'<,'>GpExplain<cr>", desc = "(e)xplian" },
