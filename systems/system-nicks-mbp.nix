@@ -9,6 +9,8 @@
       "slack"
       "discord"
       "skype"
+      "cryptomator"
+      "nikitabobko/tap/aerospace"
       # "diffusionbee" 
     ];
     # anything installed with brew (non-casks)

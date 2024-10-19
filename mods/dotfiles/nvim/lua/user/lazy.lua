@@ -207,10 +207,11 @@ require("lazy").setup({
 
 		{
 			"yetone/avante.nvim",
+			-- dir = "/Users/nick/code/avante.nvim",
 			event = "VeryLazy",
 			lazy = false,
 			version = false, -- set this if you want to always pull the latest change
-			opts = require('user.avante'),
+			opts = require("user.avante"),
 			-- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
 			build = "make",
 			-- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
@@ -256,7 +257,13 @@ require("lazy").setup({
 			-- name = "context-nvim",
 			-- dev = true,
 			config = function()
-				require("context_nvim").setup({})
+				require("context_nvim").setup({
+					lsp = {
+						ignore_sources = {
+							"efm/cspell",
+						},
+					},
+				})
 			end,
 		},
 

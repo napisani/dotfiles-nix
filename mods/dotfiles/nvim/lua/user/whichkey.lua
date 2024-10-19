@@ -292,6 +292,7 @@ local mappings_n = {
 	{ "<leader>tq", "<cmd>:GpChatToggle<cr>", desc = "(q)uit chat" },
 	{ "<leader>a", group = "AI" },
 	{ "<leader>aA", ":ContextNvim add_current<cr>", desc = "(A)dd context" },
+	{ "<leader>al", ":ContextNvim add_line_lsp_daig<cr>", desc = "(l)sp diag to context" },
 	{ "<leader>aX", ":ContextNvim clear_manual<cr>", desc = "clear context" },
 
 	{ "<leader>tr", group = "(r)run" },
