@@ -232,7 +232,10 @@ local mappings_n = {
 	{ "<leader>fQ", "<cmd>Telescope help_tags<cr>", desc = "Find Help" },
 	{ "<leader>fR", "<cmd>Telescope registers<cr>", desc = "Registers" },
 	{ "<leader>fS", "<cmd>lua require('user.neoscopes').neoscopes.select()<cr>", desc = "(S)copes" },
-	{ "<leader>fc", "<cmd>Telescope commands<cr>", desc = "Commands" },
+	{ "<leader>fc", desc = "(c)ommands" },
+	{ "<leader>fcv", "<cmd>Telescope commands<cr>", desc = "neo(v)im commands" },
+	{ "<leader>fcp", "<cmd>lua require('user.telescope').project_commands()<CR>", desc = "neo(v)im commands" },
+
 	{ "<leader>fd", "<cmd>lua require('user.telescope').git_changed_files()<CR>", desc = "(d)iff git files" },
 	{ "<leader>fe", "<cmd>lua require('user.telescope').search_buffers()<CR>", desc = "Buffers" },
 	{ "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Keymaps" },
@@ -354,7 +357,9 @@ local mappings_v = {
 		{ "<leader>fQ", "<cmd>Telescope help_tags<cr>", desc = "Find Help" },
 		{ "<leader>fR", "<cmd>Telescope registers<cr>", desc = "Registers" },
 		{ "<leader>fS", "<cmd>lua require('user.neoscopes').neoscopes.select()<cr>", desc = "(S)copes" },
-		{ "<leader>fc", "<cmd>Telescope commands<cr>", desc = "Commands" },
+		{ "<leader>fc", desc = "(c)ommands" },
+		{ "<leader>fcv", "<cmd>Telescope commands<cr>", desc = "neo(v)im commands" },
+		{ "<leader>fcp", "<cmd>lua require('user.telescope').project_commands()<CR>", desc = "neo(v)im commands" },
 		{
 			"<leader>fd",
 			'"4y<cmd>lua require("user.telescope").git_changed_files({default_text = vim.fn.getreg("4")})<CR>',

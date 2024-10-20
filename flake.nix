@@ -35,7 +35,7 @@
     # };
 
     procmux.url =
-      "github:napisani/procmux/606ca6dde890ee87b95a1ea51355983997fffc7c";
+      "github:napisani/procmux/8533a3ff8d0f8e98c12bb0906497dd813a770836";
     procmux.inputs.nixpkgs.follows = "nixpkgs";
 
     # neovim 0.9.5
@@ -51,7 +51,7 @@
       "github:napisani/secret_inject/58be3ae97e2e55aef6b4255ec3e3f387f307973a";
 
     animal_rescue.url =
-      "github:napisani/animal-rescue/d410241fbeb100d6b62425cf0f3501c4127cfe04";
+      "github:napisani/animal-rescue/ff0226e437330665c043c498ca476f95320bc8ea";
 
   };
 

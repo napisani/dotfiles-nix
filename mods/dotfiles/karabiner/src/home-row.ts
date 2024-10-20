@@ -1,5 +1,4 @@
-import { rule } from "karabiner.ts";
-
+import { map, rule } from "karabiner.ts";
 export const homeRowRules = [
  // rule('d as left_control').manipulators([
  //    {
@@ -23,8 +22,8 @@ export const homeRowRules = [
  //    {
  //      type: 'basic',
  //      from: { key_code: 'j' },
- //      to: [{ key_code: 'left_command' }],
+//      to: [{ key_code: 'left_command' }],
  //      to_if_alone: [{ key_code: 'j' }],
  //    },
  //  ]),
-]
+];
