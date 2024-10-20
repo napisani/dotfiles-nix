@@ -14,9 +14,9 @@
     ../mods/shell.nix
     ../mods/git.nix
     ../mods/gh.nix
-    ../mods/rust.nix
-    ../mods/javascript.nix
-    ../mods/golang.nix
+    # ../mods/rust.nix
+    # ../mods/javascript.nix
+    # ../mods/golang.nix
     ../mods/neovim.nix
     # ../mods/secret_inject.nix
     # ../mods/packer_plugin_manager.nix

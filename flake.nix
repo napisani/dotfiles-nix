@@ -38,9 +38,6 @@
       "github:napisani/procmux/606ca6dde890ee87b95a1ea51355983997fffc7c";
     procmux.inputs.nixpkgs.follows = "nixpkgs";
 
-    oxlint_dep.url =
-      "github:NixOS/nixpkgs/85306ef2470ba705c97ce72741d56e42d0264015";
-
     # neovim 0.9.5
     neovim_dep.url =
       "github:NixOS/nixpkgs/1a9df4f74273f90d04e621e8516777efcec2802a";
@@ -59,8 +56,8 @@
   };
 
   outputs = { flake-utils, nixpkgs, nixpkgs-unstable, home-manager, darwin
-    , procmux, secret_inject, animal_rescue, oxlint_dep, neovim_dep, golang_dep
-    , nixhub_dep, ... }@inputs:
+    , procmux, secret_inject, animal_rescue, neovim_dep, golang_dep, nixhub_dep
+    , ... }@inputs:
     let
       allSystems = [ "x86_64-linux" "aarch64-darwin" ];
       inputsBySystem = builtins.listToAttrs (map (system: {
@@ -71,7 +68,6 @@
             inherit inputs;
             pkgs-unstable = nixpkgs-unstable.legacyPackages."${system}";
             procmux = procmux;
-            oxlint_dep = inputs.oxlint_dep.legacyPackages."${system}";
             neovim_dep = inputs.neovim_dep.legacyPackages."${system}";
             golang_dep = inputs.golang_dep.legacyPackages."${system}";
             secret_inject = secret_inject;

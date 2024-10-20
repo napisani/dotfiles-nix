@@ -42,13 +42,13 @@ local servers = {
 		npm = "@vtsls/language-server",
 	},
 	efm = {},
-	-- nil_ls = {},
+	ocamllsp = {},
 }
 
 local servers_only = {}
 for server, _ in pairs(servers) do
 	-- nil_ls will not install from mason rely on the neovim nix flake
-	if server ~= "nil_ls" and server ~= "biome" then
+	if server ~= "nil_ls" and server ~= "biome" and server ~= "ocamllsp" then
 		table.insert(servers_only, server)
 	end
 end
@@ -56,7 +56,7 @@ end
 mason.setup({})
 mason_lspconfig.setup({
 	ensure_installed = servers_only,
-	automatic_installation = true,
+	automatic_installation = false,
 })
 
 local client_to_fix_import_fns = {}

@@ -1,4 +1,6 @@
-{ pkgs, pkgs-unstable, oxlint_dep, neovim_dep, config, ... }: {
+{ pkgs, pkgs-unstable,  neovim_dep, config, ... }:
+let langPackages = import ./languages/all.nix { inherit pkgs pkgs-unstable; };
+in {
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -8,61 +10,7 @@
     vimAlias = true;
     withNodeJs = false;
     withPython3 = true;
-    extraPackages = with pkgs-unstable; [
-
-      pkgs-unstable.nodejs_20
-
-      # js
-      nodePackages.typescript
-      nodePackages.typescript-language-server
-      nodePackages.eslint_d
-      nodePackages.prettier
-      oxlint_dep.oxlint
-
-      # vuejs
-      nodePackages.vls
-
-      # html/css/js
-      nodePackages.vscode-langservers-extracted
-
-      # efm langserver
-      efm-langserver
-
-      nodePackages."@tailwindcss/language-server"
-
-      nodePackages.cspell
-
-      # python
-      python3Packages.isort
-      pyright
-      black
-      python3Packages.flake8
-      mypy
-      pkgs-unstable.ruff
-      yapf
-
-      # json
-      nodePackages.fixjson
-      jq
-
-      # yaml 
-      yq
-
-      # lua
-      stylua
-      luarocks
-
-      # Nix
-      statix
-      nixfmt-classic
-      nil
-
-      # bash
-      shellcheck
-      shfmt
-
-      delta
-    ];
+    extraPackages = with pkgs-unstable; langPackages ++ [ ];
   };
   # home.file.".config/nvim".source = config.lib.file.mkOutOfStoreSymlink ./dotfiles/nvim;
 
