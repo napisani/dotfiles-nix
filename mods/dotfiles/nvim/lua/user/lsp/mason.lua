@@ -42,7 +42,6 @@ local servers = {
 		npm = "@vtsls/language-server",
 	},
 	efm = {},
-	ocamllsp = {},
 }
 
 local servers_only = {}
@@ -56,7 +55,7 @@ end
 mason.setup({})
 mason_lspconfig.setup({
 	ensure_installed = servers_only,
-	automatic_installation = false,
+	automatic_installation = true,
 })
 
 local client_to_fix_import_fns = {}
