@@ -1,16 +1,6 @@
 import { FromKeyCode, map, ModifierKeyCode, rule, ToKeyCode } from "karabiner.ts";
-
 const hyperModifiers: ModifierKeyCode[] = ['right_command', 'right_control',  'right_shift', 'right_option']
 export const capsRules = [ 
- // rule('caps lock to escape or left_control if held').manipulators([
- //    {
- //      type: 'basic',
- //      from: { key_code: 'caps_lock' },
- //      to: [{ key_code: 'left_control' }],
- //      to_if_alone: [{ key_code: 'escape' }],
- //    },
- //  ]),
-
   rule('CapsLock to Hyper').manipulators([
     map({
       key_code: "caps_lock", 
@@ -77,9 +67,7 @@ export const capsRules = [
     }).to({
       "key_code": "down_arrow",
     }).description("Hyper + j = down arrow"),
-
   ]),
-
   rule('Hyper + shift n/p - switch tabs').manipulators([
     map({
       key_code: "p",
@@ -116,4 +104,56 @@ export const capsRules = [
   ])
 ]
 
+
+// const otherModifierRules = [
+//   rule('"Tab = left_option (held), Tab(alone)"').manipulators([
+//     map({
+//       key_code: "tab", 
+//       modifiers: {optional: ["any"]}
+//     })
+//     .to({
+//       key_code: "left_option", 
+//     })
+//     .toIfAlone({key_code: "tab"})
+//     .description("Tab = left_option (held), Tab (alone)"),
+//   ]),
+
+//   rule('; = right_control (held),  ; (alone)').manipulators([
+//     map({
+//       key_code: "semicolon", 
+//       modifiers: {optional: ["any"]}
+//     })
+//     .to({
+//       key_code: "right_control", 
+//     })
+//     .toIfAlone({key_code: "semicolon"})
+//     .description("; = right_control (held), ; (alone)"),
+//   ]),
+//   rule('[ = right_option (held),  [ (alone)').manipulators([
+//     map({
+//       key_code: "open_bracket", 
+//       modifiers: {optional: ["any"]}
+//     })
+//     .to({
+//       key_code: "right_option", 
+//     })
+//     .toIfAlone({key_code: "open_bracket"})
+//     .description("[ = right_option (held), [ (alone)"),
+//   ])
+// ]
+
+// export const capsRules = [
+//   rule('CapsLock to Control and Escape').manipulators([
+//     map({
+//       key_code: "caps_lock", 
+//       modifiers: {optional: ["any"]}
+//     })
+//     .to({
+//       key_code: "left_control", 
+//     })
+//     .toIfAlone({key_code: "escape"})
+//     .description("CapsLock = left_control (held), Escape (alone)"),
+//   ]),
+//   ...otherModifierRules
+// ]
 

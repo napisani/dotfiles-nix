@@ -1,10 +1,10 @@
 import { map, simlayer } from "karabiner.ts";
+import { formatWithOptions } from "util";
 
 
 
 
 export const layerRules = [
-
   // Delimiter layer - special characters that are hard-ish to reach / remember
   //     ('")
   //   a [{,.}]
@@ -26,7 +26,14 @@ export const layerRules = [
     map('v').to({ key_code: '7', modifiers: ['left_shift']}), // &
     map('n').to({ key_code: '8', modifiers: ['left_shift']}), // *
   ]),
- 
+
+  simlayer('s', 'arrows layer').manipulators([
+    map('h').to({ key_code: 'left_arrow' }),
+    map('j').to({ key_code: 'down_arrow' }),
+    map('k').to({ key_code: 'up_arrow' }),
+    map('l').to({ key_code: 'right_arrow' }),
+  ]),
+
   // Delimiter layer - special characters that are hard-ish to reach / remember
   //  0^$+   -_
   //      :/?= l

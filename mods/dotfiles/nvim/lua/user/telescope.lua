@@ -485,15 +485,20 @@ M.project_commands = function(opts)
 		"--search-path",
 		opts.cwd,
 	}
-	local raw = vim.fn.system(cmd)
-	local json_snippets = vim.fn.json_decode(raw)
 
-	local entries = {}
-	for _, snippet in ipairs(json_snippets["snippets"]) do
+	local pet_data_raw = vim.fn.system(cmd)
+	local json_snippets = vim.fn.json_decode(pet_data_raw)
+
+	local to_preview = function(snippet)
 		local content = {}
 		table.insert(content, snippet.command)
 		table.insert(content, "")
 		table.insert(content, "# " .. snippet.description)
+		return content
+	end
+	local entries = {}
+	for _, snippet in ipairs(json_snippets["snippets"]) do
+		local content = to_preview(snippet)
 		table.insert(entries, {
 			value = snippet.command,
 			display = snippet.description,
@@ -502,8 +507,18 @@ M.project_commands = function(opts)
 		})
 	end
 	opts.results = entries
+	local project_commands = utils.get_project_config().commands
+	for _, command in ipairs(project_commands) do
+		local content = to_preview(command)
+		table.insert(entries, {
+			value = command.command,
+			display = command.description,
+			ordinal = command.description,
+			content = content,
+		})
+	end
 
-	function get_tmux_pane_id()
+	local get_tmux_pane_id = function()
 		if tmux_pane_id ~= nil then
 			return tmux_pane_id
 		end
