@@ -76,8 +76,9 @@ require("lazy").setup({
 		{ "saadparwaiz1/cmp_luasnip" },
 		{ "hrsh7th/cmp-nvim-lsp" },
 		{ "hrsh7th/cmp-nvim-lua" },
-		--{ "hrsh7th/cmp-nvim-lsp-signature-help" },
-		{ "erhickey/sig-window-nvim" },
+		-- { "hrsh7th/cmp-nvim-lsp-signature-help" },
+
+		-- { "erhickey/sig-window-nvim" },
 
 		-- Snippets
 		--snippet engine

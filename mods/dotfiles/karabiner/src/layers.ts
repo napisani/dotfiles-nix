@@ -35,12 +35,13 @@ export const layerRules = [
   ]),
 
   // Delimiter layer - special characters that are hard-ish to reach / remember
-  //  0^$+   -_
+  //  0^$+~ -_
   //      :/?= l
   //     \! %|
   // 
   simlayer('l', 'delimiters layer 2').manipulators([
     map('r').to({ key_code: 'equal_sign', modifiers: ['left_shift']}), // +
+    map('t').to({ key_code: 'grave_accent_and_tilde', modifiers: ['left_shift']}), // ~
     map('u').to({ key_code: 'hyphen' }), // -
     map('i').to({ key_code: 'hyphen', modifiers: ['left_shift']}), // _
     map('f').to({ key_code: 'semicolon', modifiers: ['left_shift']}),  // :

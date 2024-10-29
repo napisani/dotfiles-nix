@@ -20,4 +20,9 @@
   command = "chatai"
   tag = ["chat", "ai", "gpt", "openai", "neovim"]
 
+[[snippets]]
+  description = "chat ai open neovim to chat with gpt models"
+  command = "git for-each-ref --sort=-committerdate refs/heads/ --format='%(committerdate:short) %(refname:short)'"
+  tag = ['git', 'branch', 'date', 'sort']
+
 
