@@ -160,9 +160,19 @@ require("lazy").setup({
 		-- }
 
 		-- VIM movement addons
+		-- {
+		-- 	"echasnovski/mini.surround",
+		-- 	version = "*",
+		-- },
 		{
-			"echasnovski/mini.surround",
-			version = "*",
+			"kylechui/nvim-surround",
+			version = "*", -- Use for stability; omit to use `main` branch for the latest features
+			event = "VeryLazy",
+			config = function()
+				require("nvim-surround").setup({
+					-- Configuration here, or leave empty to use defaults
+				})
+			end,
 		},
 		{
 			"smoka7/hop.nvim",
@@ -194,6 +204,7 @@ require("lazy").setup({
 
 		-- copilot
 		{ "github/copilot.vim" },
+
 		-- {
 		-- 	"supermaven-inc/supermaven-nvim",
 		-- 	config = function()
@@ -335,7 +346,31 @@ require("lazy").setup({
 		{ "jinh0/eyeliner.nvim" },
 
 		-- for better substitutions
-		{ "tpope/vim-abolish" },
+		{
+			"johmsalas/text-case.nvim",
+			dependencies = { "nvim-telescope/telescope.nvim" },
+			config = function()
+				require("textcase").setup({})
+				require("telescope").load_extension("textcase")
+			end,
+			-- If you want to use the interactive feature of the `Subs` command right away, text-case.nvim
+			-- has to be loaded on startup. Otherwise, the interactive feature of the `Subs` will only be
+			-- available after the first executing of it or after a keymap of text-case.nvim has been used.
+			lazy = false,
+		},
+
+		{
+			"ray-x/lsp_signature.nvim",
+			event = "VeryLazy",
+			opts = {
+				hint_inline = function()
+					return false
+				end, -- should the hint be inline(nvim 0.10 only)?  default false
+			},
+			config = function(_, opts)
+				require("lsp_signature").setup(opts)
+			end,
+		},
 
 		-- {
 		-- 	"folke/noice.nvim",

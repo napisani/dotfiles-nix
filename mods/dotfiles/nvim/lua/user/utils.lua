@@ -17,9 +17,8 @@ _combine_utils({
 	_file_utils,
 	_collection_utils,
 	_project_utils,
-  _git_utils
+	_git_utils,
 })
-
 
 function M.is_npm_package_installed(package)
 	local package_json = M.read_package_json()
@@ -44,7 +43,6 @@ function M.print(...)
 	local objects = vim.tbl_map(vim.inspect, { ... })
 	print(unpack(objects))
 end
-
 
 function M.python_path()
 	if os.getenv("VIRTUAL_ENV") ~= nil then
@@ -85,14 +83,13 @@ function M.connection_to_golang_string(conn)
 end
 
 function M.close_all_buffers_except_current()
-  local current_bufnr = vim.api.nvim_get_current_buf()
-  local buflist = vim.api.nvim_list_bufs()
-  for _, bufnr in ipairs(buflist) do
-    if bufnr ~= current_bufnr then
-      vim.api.nvim_buf_delete(bufnr, { force = true })
-    end
-  end
+	local current_bufnr = vim.api.nvim_get_current_buf()
+	local buflist = vim.api.nvim_list_bufs()
+	for _, bufnr in ipairs(buflist) do
+		if bufnr ~= current_bufnr then
+			vim.api.nvim_buf_delete(bufnr, { force = true })
+		end
+	end
 end
-
 
 return M

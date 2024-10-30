@@ -5,19 +5,20 @@ end
 local utils = require("user.utils")
 local primary_branch = utils.get_primary_git_branch()
 local prod_branch = utils.get_prod_git_branch()
+local replace_mappings = require("user.whichkey_replace")
 -- Shared mappings
-local surround = {
-	{ "<leader>s", group = "Surround" },
-	{ "<leader>sa", desc = "Add surrounding in Normal and Visual modes" },
-	{ "<leader>sd", desc = "Delete surrounding" },
-	{ "<leader>sf", desc = "Find surrounding (to the right)" },
-	{ "<leader>sF", desc = "Find surrounding (to the left)" },
-	{ "<leader>sh", desc = "Highlight surrounding" },
-	{ "<leader>sr", desc = "Replace surrounding" },
-	{ "<leader>sn", desc = "Update `n_lines`" },
-	{ "<leader>sl", desc = "Suffix to search with 'prev' method" },
-	{ "<leader>sn", desc = "Suffix to search with 'next' method" },
-}
+-- local surround = {
+-- 	{ "<leader>s", group = "Surround" },
+-- 	{ "<leader>sa", desc = "Add surrounding in Normal and Visual modes" },
+-- 	{ "<leader>sd", desc = "Delete surrounding" },
+-- 	{ "<leader>sf", desc = "Find surrounding (to the right)" },
+-- 	{ "<leader>sF", desc = "Find surrounding (to the left)" },
+-- 	{ "<leader>sh", desc = "Highlight surrounding" },
+-- 	{ "<leader>sr", desc = "Replace surrounding" },
+-- 	{ "<leader>sn", desc = "Update `n_lines`" },
+-- 	{ "<leader>sl", desc = "Suffix to search with 'prev' method" },
+-- 	{ "<leader>sn", desc = "Suffix to search with 'next' method" },
+-- }
 
 local root_mappings = {
 	{ '<leader>"', "<cmd>:split<cr>", desc = "Horizontal Split" },
@@ -26,27 +27,6 @@ local root_mappings = {
 	{ "<leader>e", "<cmd>NvimTreeToggle<cr>", desc = "Explorer" },
 	{ "<leader>o", "<cmd>:aboveleft Outline<cr>", desc = "(o)outline" },
 }
-
--- -- Normal mode mappings
--- local cword_under_cursor = {
--- 	{ "<leader>*", group = "CWord Under Cursor" },
--- 	{
--- 		"<leader>*f",
--- 		"<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
--- 		desc = "(f)ile by name",
--- 	},
--- 	{
--- 		"<leader>*h",
--- 		"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
--- 		desc = "grep w(h)ole project",
--- 	},
--- 	{ "<leader>*r", group = "Replace" },
--- 	{ "<leader>*rB", ":%s@<C-R>=expand('<cword>')<CR>@@gc<left><left><left>", desc = "(B)uffer ask" },
--- 	{ "<leader>*rQ", ":cdo %s@<C-R>=expand('<cword>')<CR>@@gc<left><left><left>", desc = "(Q)uicklist ask" },
--- 	{ "<leader>*rb", ":%s@<C-R>=expand('<cword>')<CR>@@g<left><left>", desc = "(b)uffer" },
--- 	{ "<leader>*rl", ":s@<C-R>=expand('<cword>')<CR>@@g<left><left>", desc = "(l)ine" },
--- 	{ "<leader>*rq", ":cdo %s@<C-R>=expand('<cword>')<CR>@@g<left><left>", desc = "(q)uicklist" },
--- }
 
 local database = {
 	{ "<leader>D", group = "Database" },
@@ -219,7 +199,7 @@ local lsp = {
 	{ "<leader>lw", "<cmd>Telescope lsp_workspace_diagnostics<cr>", desc = "(w)orkspace diagnostics" },
 }
 
-local mappings_n = {
+local mappings_n = utils.extend_lists({
 	{ "<leader>f", group = "Find" },
 	{ "<leader>fC", "<cmd>lua require('user.telescope').git_conflicts()<CR>", desc = "(C)onflicts" },
 	{
@@ -274,15 +254,6 @@ local mappings_n = {
 	{ "<leader>lw", "<cmd>Telescope lsp_workspace_diagnostics<cr>", desc = "(w)orkspace diagnostics" },
 
 	{ "<leader>q", "<cmd>q!<CR>", desc = "Quit" },
-	{ "<leader>r", group = "Replace" },
-	{ "<leader>r*", ":%s@<C-R>=expand('<cword>')<CR>@@gc<left><left><left>", desc = "(*)word" },
-	{ "<leader>rB", ":%s@@@gc<left><left><left><left>", desc = "(B)uffer ask" },
-	{ "<leader>rD", ":g!@@d<left><left>", desc = "(D)elete else" },
-	{ "<leader>rQ", ":cdo %s@@@gc<left><left><left><left>", desc = "(Q)uicklist ask" },
-	{ "<leader>rb", ":%s@@@g<left><left><left>", desc = "(b)uffer" },
-	{ "<leader>rd", ":g@@d<left><left>", desc = "(d)elete" },
-	{ "<leader>rl", ":s@@@g<left><left><left>", desc = "(l)line" },
-	{ "<leader>rq", ":cdo %s@@@g<left><left><left>", desc = "(q)uicklist" },
 	{ "<leader>t", group = "ChatGPT" },
 	{ "<leader>tA", "<cmd>:GpAskWithContext<cr>", desc = "(A)ppend results /w ctx" },
 	{ "<leader>ta", "<cmd>:GpAppend<cr>", desc = "(a)ppend results" },
@@ -311,11 +282,11 @@ local mappings_n = {
 	{ "<leader>fa", desc = "(a)i" },
 	{ "<leader>fam", "<cmd>:ContextNvim find_context_manual<cr>", desc = "(m)anual contexts" },
 	{ "<leader>fah", "<cmd>:ContextNvim find_context_history<cr>", desc = "(h)istory_contexts" },
-}
+}, replace_mappings.n_mappings)
 
 local mappings_v = {
-	{
-		mode = { "v" },
+	mode = { "v" },
+	utils.extend_lists({
 		{ "<leader>*", group = "CWord Under Cursor" },
 		{
 			"<leader>*f",
@@ -327,19 +298,6 @@ local mappings_v = {
 			"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
 			desc = "grep w(h)ole project",
 		},
-		{ "<leader>*r", group = "Replace" },
-		{ "<leader>*rB", ":%s@<C-R>=expand('<cword>')<CR>@@gc<left><left><left>", desc = "(B)uffer ask" },
-		{ "<leader>*rQ", ":cdo %s@<C-R>=expand('<cword>')<CR>@@gc<left><left><left>", desc = "(Q)uicklist ask" },
-		{ "<leader>*rb", ":%s@<C-R>=expand('<cword>')<CR>@@g<left><left>", desc = "(b)uffer" },
-		{ "<leader>*rl", ":s@<C-R>=expand('<cword>')<CR>@@g<left><left>", desc = "(l)ine" },
-		{ "<leader>*rq", ":cdo %s@<C-R>=expand('<cword>')<CR>@@g<left><left>", desc = "(q)uicklist" },
-
-		{ "<leader>R", group = "Replace" },
-		{ "<leader>RB", '"4y:%s@<c-r>4@@gc<left><left><left>', desc = "(B)uffer ask" },
-		{ "<leader>RQ", '"4y:cdo %s@c-r4@@gc<left><left><left>', desc = "(Q)uicklist ask" },
-		{ "<leader>Rb", '"4y:%s@<c-r>4@@g<left><left>', desc = "(b)uffer" },
-		{ "<leader>Rl", '"4y:s@<c-r>4@@g<left><left>', desc = "(l)line" },
-		{ "<leader>Rq", '"4y:cdo %s@<c-r>4@@g<left><left>', desc = "(q)uicklist" },
 
 		{ "<leader>f", group = "Find" },
 		{
@@ -417,29 +375,6 @@ local mappings_v = {
 
 		{ "<leader>/", '"4y/<c-r>4', desc = "search in buffer" },
 
-		-- { "<leader>p", group = "Paste to" },
-		-- {
-		-- 	"<leader>pf",
-		-- 	"<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.getreg('*')})<CR>",
-		-- 	desc = "find (f)ile by name",
-		-- },
-		-- {
-		-- 	"<leader>ph",
-		-- 	"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.getreg('*')})<CR>",
-		-- 	desc = "grep w(h)ole project",
-		-- },
-
-		{ "<leader>r", group = "Replace" },
-		{ "<leader>rB", '"4y:%s@<c-r>4@@gc<left><left><left>', desc = "(B)uffer ask" },
-		{ "<leader>rD", '"4y:g!@<c-r>4@d<left><left>', desc = "(D)elete else" },
-		{ "<leader>rQ", '"4y:cdo %s@<c-r>4@@gc<left><left><left>', desc = "(Q)uicklist ask" },
-		{ "<leader>rV", ":s@@@gc<left><left><left>", desc = "(V)isual ask" },
-		{ "<leader>rb", '"4y:%s@<c-r>4@@g<left><left>', desc = "(b)uffer" },
-		{ "<leader>rd", '"4y:g@<c-r>4@d<left><left>', desc = "(d)elete" },
-		{ "<leader>rl", '"4y:s@<c-r>4@@g<left><left>', desc = "(l)line" },
-		{ "<leader>rq", '"4y:cdo %s@<c-r>4@@g<left><left>', desc = "(q)uicklist" },
-		{ "<leader>rv", ":s@@@g<left><left><left>", desc = "(v)isual" },
-
 		{ "<leader>t", group = "ChatGPT" },
 		{ "<leader>tA", ":<C-u>'<,'>GpAskWithContext<cr>", desc = "(A)ppend results /w ctx" },
 		{ "<leader>ta", ":<C-u>'<,'>GpAppend<cr>", desc = "(a)ppend results" },
@@ -472,7 +407,7 @@ local mappings_v = {
 			"<Esc><Cmd>'<,'>DiffviewFileHistory --follow<CR>",
 			desc = "(h)istory",
 		},
-	},
+	}, replace_mappings.v_mappings),
 }
 
 -- Register mappings
@@ -480,7 +415,7 @@ which_key.setup({})
 
 local shared_mappings = {
 	root_mappings,
-	surround,
+	-- surround,
 	database,
 	lazy_system,
 	quit,
