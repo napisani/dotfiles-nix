@@ -7,17 +7,17 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1729448713,
-        "narHash": "sha256-IWYVzrYlPlGq6QGWvCQsvXTZiw2CjxEtvPTqrjiVvzk=",
+        "lastModified": 1730429247,
+        "narHash": "sha256-4W9klPJxG977m3Xx8QUGiYV/KwfZd0auAELrCMO9pwk=",
         "owner": "napisani",
         "repo": "animal-rescue",
-        "rev": "ff0226e437330665c043c498ca476f95320bc8ea",
+        "rev": "321b2e7de5a915d30526ee083fb23b98fbf10cb5",
         "type": "github"
       },
       "original": {
         "owner": "napisani",
         "repo": "animal-rescue",
-        "rev": "ff0226e437330665c043c498ca476f95320bc8ea",
+        "rev": "321b2e7de5a915d30526ee083fb23b98fbf10cb5",
         "type": "github"
       }
     },
@@ -44,11 +44,11 @@
     "flake-compat": {
       "flake": false,
       "locked": {
-        "lastModified": 1696426674,
-        "narHash": "sha256-kvjfFW7WAETZlt09AgDn1MrtKzP7t90Vf7vypd3OL1U=",
+        "lastModified": 1673956053,
+        "narHash": "sha256-4gtG9iQuiKITOjNQQeQIpoIB6b16fm+504Ch3sNKLd8=",
         "owner": "edolstra",
         "repo": "flake-compat",
-        "rev": "0f9255e01c2351cc7d116c072cb317785dd33b33",
+        "rev": "35bb57c0c8d8b62bbfd284272c928ceb64ddbde9",
         "type": "github"
       },
       "original": {
@@ -230,11 +230,11 @@
         "pypi-deps-db": "pypi-deps-db"
       },
       "locked": {
-        "lastModified": 1715262043,
-        "narHash": "sha256-gY8XkqNI21+Jkko6HigBv54s8od/SdyiSugM1yq/XII=",
+        "lastModified": 1681814846,
+        "narHash": "sha256-IMQ1Twf/ozE53CwrunXNlYD3D31xqgz/mZyZG38Ov/Y=",
         "owner": "davhau",
         "repo": "mach-nix",
-        "rev": "c409df5347ef23f0bcba0aefc9a6345ef17b3441",
+        "rev": "8d903072c7b5426d90bc42a008242c76590af916",
         "type": "github"
       },
       "original": {
@@ -364,40 +364,28 @@
         ]
       },
       "locked": {
-<<<<<<< Updated upstream
-        "lastModified": 1730128209,
-        "narHash": "sha256-0CVHEcDkCJ2G6YQ9/yJs1UJh7cMUxVzd9JQ13EoRNY8=",
-        "owner": "napisani",
-        "repo": "procmux",
-        "rev": "e18accb8fdab8fdb72b75febeb91ab0f93637f3a",
-=======
         "lastModified": 1718412130,
         "narHash": "sha256-FrfwChgqWWhrvDqWVZ+FJSQDUYZdzYYFQ0XcphD5crE=",
         "owner": "napisani",
         "repo": "procmux",
         "rev": "606ca6dde890ee87b95a1ea51355983997fffc7c",
->>>>>>> Stashed changes
         "type": "github"
       },
       "original": {
         "owner": "napisani",
         "repo": "procmux",
-<<<<<<< Updated upstream
-        "rev": "e18accb8fdab8fdb72b75febeb91ab0f93637f3a",
-=======
         "rev": "606ca6dde890ee87b95a1ea51355983997fffc7c",
->>>>>>> Stashed changes
         "type": "github"
       }
     },
     "pypi-deps-db": {
       "flake": false,
       "locked": {
-        "lastModified": 1685526402,
-        "narHash": "sha256-V0SXx0dWlUBL3E/wHWTszrkK2dOnuYYnBc7n6e0+NQU=",
+        "lastModified": 1678051695,
+        "narHash": "sha256-kFFP8TN8pEKARtjK9loGdH+TU23ZbHdVLCUdNcufKPs=",
         "owner": "DavHau",
         "repo": "pypi-deps-db",
-        "rev": "ba35683c35218acb5258b69a9916994979dc73a9",
+        "rev": "e00b22ead9d3534ba1c448e1af3076af6b234acf",
         "type": "github"
       },
       "original": {

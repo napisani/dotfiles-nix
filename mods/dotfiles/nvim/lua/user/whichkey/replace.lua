@@ -11,7 +11,7 @@ local function prepare_search_replace(cmd, cursor_left, extra_cmd, copy)
 		end
 		if copy then
 			vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-r>", true, true, true), "n", true)
-			vim.fn.feedkeys('"4', "n")
+			vim.fn.feedkeys("4", "n")
 			vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Right>", true, true, true), "n", true)
 		end
 
@@ -53,7 +53,6 @@ local normal_mappings = utils.extend_lists(replace_group, common_search, subvert
 
 local visual_mappings = utils.extend_lists(
 	replace_group,
-	common_search,
 	{
 		{ "<leader>*rB", prepare_search_replace(":%s@<C-R>=expand('<cword>')<CR>@@gc", 3), desc = "(B)uffer ask" },
 		{
@@ -68,24 +67,24 @@ local visual_mappings = utils.extend_lists(
 			prepare_search_replace(":%s@<C-R>=expand('<cword>')<CR>@@g", 2, ":cdo "),
 			desc = "(q)uicklist",
 		},
-		{ "<leader>RB", prepare_search_replace(":%s@@@gc", 4, "", true), desc = "(B)uffer ask" },
-		{ "<leader>RQ", prepare_search_replace(":%s@@@gc", 4, ":cdo ", true), desc = "(Q)uicklist ask" },
-		{ "<leader>Rb", prepare_search_replace(":%s@@@g", 3, "", true), desc = "(b)uffer" },
-		{ "<leader>Rl", prepare_search_replace(":s@@@g", 3, "", true), desc = "(l)line" },
-		{ "<leader>Rq", prepare_search_replace(":%s@@@g", 3, ":cdo ", true), desc = "(q)uicklist" },
+
+		{ "<leader>rB", prepare_search_replace(":%s@@@gc", 4, "", true), desc = "(B)uffer ask" },
+		{ "<leader>rQ", prepare_search_replace(":%s@@@gc", 4, ":cdo ", true), desc = "(Q)uicklist ask" },
+		{ "<leader>rb", prepare_search_replace(":%s@@@g", 3, "", true), desc = "(b)uffer" },
+		{ "<leader>rl", prepare_search_replace(":s@@@g", 3, "", true), desc = "(l)line" },
+		{ "<leader>rq", prepare_search_replace(":%s@@@g", 3, ":cdo ", true), desc = "(q)uicklist" },
 
 		{ "<leader>rV", prepare_search_replace(":s@@@gc", 4, "", false), desc = "(V)isual ask" },
 		{ "<leader>rv", prepare_search_replace(":s@@@g", 3, "", false), desc = "(v)isual" },
 	},
 
 	subvert_group,
-	common_subvert,
 	{
-		{ "<leader><leader>RB", prepare_search_replace(":%Subs///gc", 4, "", true), desc = "(B)uffer ask" },
-		{ "<leader><leader>RQ", prepare_search_replace(":%Subs///gc", 4, ":cdo ", true), desc = "(Q)uicklist ask" },
-		{ "<leader><leader>Rb", prepare_search_replace(":%Subs///g", 3, "", true), desc = "(b)uffer" },
-		{ "<leader><leader>Rl", prepare_search_replace(":Subs///g", 3, "", true), desc = "(l)line" },
-		{ "<leader><leader>Rq", prepare_search_replace(":%Subs///g", 3, ":cdo ", true), desc = "(q)uicklist" },
+		{ "<leader><leader>rB", prepare_search_replace(":%Subs///gc", 4, "", true), desc = "(B)uffer ask" },
+		{ "<leader><leader>rQ", prepare_search_replace(":%Subs///gc", 4, ":cdo ", true), desc = "(Q)uicklist ask" },
+		{ "<leader><leader>rb", prepare_search_replace(":%Subs///g", 3, "", true), desc = "(b)uffer" },
+		{ "<leader><leader>rl", prepare_search_replace(":Subs///g", 3, "", true), desc = "(l)line" },
+		{ "<leader><leader>rq", prepare_search_replace(":%Subs///g", 3, ":cdo ", true), desc = "(q)uicklist" },
 
 		{ "<leader><leader>rV", prepare_search_replace(":Subs///gc", 4, "", false), desc = "(V)isual ask" },
 		{ "<leader><leader>rv", prepare_search_replace(":Subs///g", 3, "", false), desc = "(v)isual" },

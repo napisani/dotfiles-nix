@@ -5,7 +5,10 @@ end
 local utils = require("user.utils")
 local primary_branch = utils.get_primary_git_branch()
 local prod_branch = utils.get_prod_git_branch()
-local replace_mappings = require("user.whichkey_replace")
+local replace_mappings = require("user.whichkey.replace")
+local find_mappings = require("user.whichkey.find")
+local search_mappings = require("user.whichkey.search")
+
 -- Shared mappings
 -- local surround = {
 -- 	{ "<leader>s", group = "Surround" },
@@ -168,16 +171,6 @@ local git = {
 	{ "<leader>gr", "<cmd>lua require 'gitsigns'.reset_hunk()<cr>", desc = "Reset Hunk" },
 	{ "<leader>gs", "<cmd>lua require 'gitsigns'.stage_hunk()<cr>", desc = "Stage Hunk" },
 	{ "<leader>gu", "<cmd>lua require 'gitsigns'.undo_stage_hunk()<cr>", desc = "Undo Stage Hunk" },
-	{
-		"<leader>hD",
-		"<cmd>lua require('user.telescope').live_grep_git_changed_cmp_base_branch()<CR>",
-		desc = "(D)iff git branch",
-	},
-	{ "<leader>hG", "<cmd>lua require('nvim-github-codesearch').prompt()<cr>", desc = "(G)ithub Code Search" },
-	{ "<leader>hR", "<cmd>lua require('user.telescope').live_grep_in_directory()<CR>", desc = "grep (in directory)" },
-	{ "<leader>hd", "<cmd>lua require('user.telescope').live_grep_git_changed_files()<CR>", desc = "(d)iff git files" },
-	{ "<leader>hq", "<cmd>lua require('user.telescope').live_grep_qflist()<CR>", desc = "grep (q)uicklist" },
-	{ "<leader>hr", "<cmd>lua require('user.telescope').live_grep_from_root()<CR>", desc = "grep from (r)oot" },
 }
 
 local lsp = {
@@ -199,41 +192,7 @@ local lsp = {
 	{ "<leader>lw", "<cmd>Telescope lsp_workspace_diagnostics<cr>", desc = "(w)orkspace diagnostics" },
 }
 
-local mappings_n = utils.extend_lists({
-	{ "<leader>f", group = "Find" },
-	{ "<leader>fC", "<cmd>lua require('user.telescope').git_conflicts()<CR>", desc = "(C)onflicts" },
-	{
-		"<leader>fD",
-		"<cmd>lua require('user.telescope').git_changed_cmp_base_branch()<CR>",
-		desc = "(D)iff git branch",
-	},
-	{ "<leader>fM", "<cmd>Telescope man_pages<cr>", desc = "Man Pages" },
-
-	{ "<leader>fQ", "<cmd>Telescope help_tags<cr>", desc = "Find Help" },
-	{ "<leader>fR", "<cmd>Telescope registers<cr>", desc = "Registers" },
-	{ "<leader>fS", "<cmd>lua require('user.neoscopes').neoscopes.select()<cr>", desc = "(S)copes" },
-	{ "<leader>fc", desc = "(c)ommands" },
-	{ "<leader>fcv", "<cmd>Telescope commands<cr>", desc = "neo(v)im commands" },
-	{ "<leader>fcp", "<cmd>lua require('user.telescope').project_commands()<CR>", desc = "neo(v)im commands" },
-
-	{ "<leader>fd", "<cmd>lua require('user.telescope').git_changed_files()<CR>", desc = "(d)iff git files" },
-	{ "<leader>fe", "<cmd>lua require('user.telescope').search_buffers()<CR>", desc = "Buffers" },
-	{ "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Keymaps" },
-	{ "<leader>fo", "<cmd>Telescope colorscheme<cr>", desc = "C(o)lorscheme" },
-	{ "<leader>fp", "<cmd>Telescope file_browser path=%:p:h<CR>", desc = "Project" },
-	{ "<leader>fr", "<cmd>lua require('user.telescope').find_files_from_root()<CR>", desc = "(f)iles" },
-	{ "<leader>fs", "<cmd>Telescope luasnip<cr>", desc = "(s)nippet" },
-	{ "<leader>ft", "<cmd>lua require('user.telescope').search_git_files()<CR>", desc = "Git Files" },
-	{
-		"<leader>hD",
-		"<cmd>lua require('user.telescope').live_grep_git_changed_cmp_base_branch()<CR>",
-		desc = "(D)iff git branch",
-	},
-	{ "<leader>hG", "<cmd>lua require('nvim-github-codesearch').prompt()<cr>", desc = "(G)ithub Code Search" },
-	{ "<leader>hR", "<cmd>lua require('user.telescope').live_grep_in_directory()<CR>", desc = "grep (in directory)" },
-	{ "<leader>hd", "<cmd>lua require('user.telescope').live_grep_git_changed_files()<CR>", desc = "(d)iff git files" },
-	{ "<leader>hq", "<cmd>lua require('user.telescope').live_grep_qflist()<CR>", desc = "grep (q)uicklist" },
-	{ "<leader>hr", "<cmd>lua require('user.telescope').live_grep_from_root()<CR>", desc = "grep from (r)oot" },
+local mappings_n = utils.extend_lists(find_mappings.mapping_n, search_mappings.mapping_n, {
 	{ "<leader>l", group = "LSP" },
 	{ "<leader>lR", "<cmd>:LspRestart<cr>", desc = "(R)estart LSPs" },
 	{ "<leader>lS", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", desc = "workspace (S)ymbols" },
@@ -286,7 +245,7 @@ local mappings_n = utils.extend_lists({
 
 local mappings_v = {
 	mode = { "v" },
-	utils.extend_lists({
+	utils.extend_lists(find_mappings.mapping_v, search_mappings.mapping_v, {
 		{ "<leader>*", group = "CWord Under Cursor" },
 		{
 			"<leader>*f",
@@ -298,82 +257,6 @@ local mappings_v = {
 			"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
 			desc = "grep w(h)ole project",
 		},
-
-		{ "<leader>f", group = "Find" },
-		{
-			"<leader>fC",
-			'"4y<cmd>lua require("user.telescope").git_conflicts({default_text = vim.fn.getreg("4")})<CR>',
-			desc = "(c)onflicts",
-		},
-		{
-			"<leader>fD",
-			'"4y<cmd>lua require("user.telescope").git_changed_cmp_base_branch({default_text = vim.fn.getreg("4")})<CR>',
-			desc = "(D)iff git branch",
-		},
-		{ "<leader>fM", "<cmd>Telescope man_pages<cr>", desc = "Man Pages" },
-		{ "<leader>fa", "<cmd>lua require('user.telescope').ai_contexts()<cr>", desc = "(a)i contexts" },
-		{ "<leader>fQ", "<cmd>Telescope help_tags<cr>", desc = "Find Help" },
-		{ "<leader>fR", "<cmd>Telescope registers<cr>", desc = "Registers" },
-		{ "<leader>fS", "<cmd>lua require('user.neoscopes').neoscopes.select()<cr>", desc = "(S)copes" },
-		{ "<leader>fc", desc = "(c)ommands" },
-		{ "<leader>fcv", "<cmd>Telescope commands<cr>", desc = "neo(v)im commands" },
-		{ "<leader>fcp", "<cmd>lua require('user.telescope').project_commands()<CR>", desc = "neo(v)im commands" },
-		{
-			"<leader>fd",
-			'"4y<cmd>lua require("user.telescope").git_changed_files({default_text = vim.fn.getreg("4")})<CR>',
-			desc = "(d)iff git files",
-		},
-		{
-			"<leader>fe",
-			'"4y<cmd>lua require("user.telescope").search_buffers({default_text = vim.fn.getreg("4")})<CR>',
-			desc = "Buffers",
-		},
-		{ "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Keymaps" },
-		{ "<leader>fo", "<cmd>Telescope colorscheme<cr>", desc = "C(o)lorscheme" },
-		{ "<leader>fp", '"4y<cmd>Telescope file_browser path=%:p:h<CR><c-r>4', desc = "Project" },
-		{
-			"<leader>fr",
-			'"4y<cmd>lua require("user.telescope").find_files_from_root({default_text = vim.fn.getreg("4")})<CR>',
-			desc = "(f)iles",
-		},
-		{ "<leader>fs", "<cmd>Telescope luasnip<cr>", desc = "(s)nippet" },
-		{
-			"<leader>ft",
-			'"4y<cmd>lua require("user.telescope").search_git_files({default_text = vim.fn.getreg("4")})<CR>',
-			desc = "Git Files",
-		},
-		{
-			"<leader>hD",
-			'"4y<cmd>lua require("user.telescope").live_grep_git_changed_cmp_base_branch({default_text = vim.fn.getreg("4")})<CR>',
-			desc = "(D)iff git branch",
-		},
-		{
-			"<leader>hG",
-			'"y<cmd>lua require("nvim-github-codesearch").prompt()<c-r>4<cr>',
-			desc = "(G)ithub Code Search",
-		},
-		{
-			"<leader>hR",
-			'"4y<cmd>lua require("user.telescope").live_grep_in_directory({default_text = vim.fn.getreg("4")})<CR>',
-			desc = "grep (in directory)",
-		},
-		{
-			"<leader>hd",
-			'"4y<cmd>lua require("user.telescope").live_grep_git_changed_files({default_text = vim.fn.getreg("4")})<CR>',
-			desc = "(d)iff git files",
-		},
-		{
-			"<leader>hq",
-			'"4y<cmd>lua require("user.telescope").live_grep_qflist({default_text = vim.fn.getreg("4")})<CR>',
-			desc = "grep (q)uicklist",
-		},
-		{
-			"<leader>hr",
-			'"4y<cmd>lua require("user.telescope").live_grep_from_root({default_text = vim.fn.getreg("4")})<CR>',
-			desc = "grep from (r)oot",
-		},
-
-		{ "<leader>/", '"4y/<c-r>4', desc = "search in buffer" },
 
 		{ "<leader>t", group = "ChatGPT" },
 		{ "<leader>tA", ":<C-u>'<,'>GpAskWithContext<cr>", desc = "(A)ppend results /w ctx" },

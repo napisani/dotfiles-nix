@@ -359,19 +359,6 @@ require("lazy").setup({
 			lazy = false,
 		},
 
-		{
-			"ray-x/lsp_signature.nvim",
-			event = "VeryLazy",
-			opts = {
-				hint_inline = function()
-					return false
-				end, -- should the hint be inline(nvim 0.10 only)?  default false
-			},
-			config = function(_, opts)
-				require("lsp_signature").setup(opts)
-			end,
-		},
-
 		-- {
 		-- 	"folke/noice.nvim",
 		-- 	event = "VeryLazy",

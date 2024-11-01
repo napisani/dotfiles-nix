@@ -38,6 +38,7 @@
       "firefox@developer-edition"
       "tailscale"
       "obsidian"
+      "stats"
     ];
     # anything installed with brew (non-casks)
     brews = [

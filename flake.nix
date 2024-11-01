@@ -34,12 +34,9 @@
     #   follows = "nixpkgs";
     # };
 
-<<<<<<< Updated upstream
-    procmux.url =
-      "github:napisani/procmux/e18accb8fdab8fdb72b75febeb91ab0f93637f3a";
-=======
+    # procmux.url =
+    #   "github:napisani/procmux/e18accb8fdab8fdb72b75febeb91ab0f93637f3a";
     procmux.url = "github:napisani/procmux/606ca6dde890ee87b95a1ea51355983997fffc7c";
->>>>>>> Stashed changes
     procmux.inputs.nixpkgs.follows = "nixpkgs";
 
     # neovim 0.9.5
@@ -55,7 +52,7 @@
       "github:napisani/secret_inject/58be3ae97e2e55aef6b4255ec3e3f387f307973a";
 
     animal_rescue.url =
-      "github:napisani/animal-rescue/ff0226e437330665c043c498ca476f95320bc8ea";
+      "github:napisani/animal-rescue/321b2e7de5a915d30526ee083fb23b98fbf10cb5";
 
   };
 

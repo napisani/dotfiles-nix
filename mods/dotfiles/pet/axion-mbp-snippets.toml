@@ -1,0 +1,11 @@
+[[snippets]]
+  description = "get kube pipeline-cluster credentials"
+  command = "gcloud container clusters get-credentials pipeline-cluster --zone us-west1-a --project axion-in-theory"
+  tag = ["kube", "cluster", "gcloud", "credentials"]
+  output = ""
+
+[[snippets]]
+  description = "port forward dagster service"
+  command = "kubectl port-forward service/dagster-service-dagster-webserver 8080:80"
+  tag = ["kube", "port-forward", "dagster", "service"]
+  output = ""
