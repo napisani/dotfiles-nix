@@ -9,7 +9,7 @@ let
 
   ocamlPackages = import ./ocaml.nix { inherit pkgs pkgs-unstable; };
 
-  # javaPackages = import ./java.nix { inherit pkgs pkgs-unstable; };
+  javaPackages = import ./java.nix { inherit pkgs pkgs-unstable; };
 
   luaPackages = import ./lua.nix { inherit pkgs pkgs-unstable; };
   nixPackages = import ./nix.nix { inherit pkgs pkgs-unstable; };
@@ -17,5 +17,5 @@ let
   miscPackages = import ./misc.nix { inherit pkgs pkgs-unstable; };
 in with pkgs-unstable;
 jsPackages ++ pythonPackages ++ golangPackages ++ rustPackages ++ ocamlPackages
-++ luaPackages ++ nixPackages ++ bashPackages ++ miscPackages
+++ luaPackages ++ nixPackages ++ bashPackages ++ miscPackages ++ javaPackages
 

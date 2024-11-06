@@ -39,3 +39,8 @@ require("user.dadbod")
 require("user.tmux-nav")
 require("user.oil")
 require("user.eyeliner")
+
+-- Enable secure external rc files
+vim.opt.exrc = true
+-- Also enable secure mode when using exrc for security
+vim.opt.secure = true
