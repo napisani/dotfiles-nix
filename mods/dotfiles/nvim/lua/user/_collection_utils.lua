@@ -1,14 +1,4 @@
 local M = {}
-function M.merge_list(t1, t2)
-	local new_list = {}
-	for _, v in ipairs(t1) do
-		table.insert(new_list, v)
-	end
-	for _, v in ipairs(t2) do
-		table.insert(new_list, v)
-	end
-	return new_list
-end
 
 function M.table_has_value(tab, val)
 	for _, value in ipairs(tab) do
@@ -38,5 +28,7 @@ function M.extend_lists(...)
 	end
 	return result
 end
+
+M.merge_list = M.extend_lists
 
 return M

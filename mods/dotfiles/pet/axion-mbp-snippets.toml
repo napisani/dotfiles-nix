@@ -9,3 +9,10 @@
   command = "kubectl port-forward service/dagster-service-dagster-webserver 8080:80"
   tag = ["kube", "port-forward", "dagster", "service"]
   output = ""
+
+[[snippets]]
+  description = "run insights service"
+  command = "poetry run uvicorn app.main:app --reload --port 8001 --host 0.0.0.0"
+  tag = ["poetry", "insights", "service", "uvicorn"]
+  output = ""
+
