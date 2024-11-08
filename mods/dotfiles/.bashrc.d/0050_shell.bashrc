@@ -7,4 +7,6 @@ fi
 export EDITOR="nvim"
 export VISUAL="nvim" 
 
+ulimit -n 65536 
+
 

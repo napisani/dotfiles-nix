@@ -6,6 +6,7 @@
       enableCompletion = true;
     };
   };
+
   security.pam.enableSudoTouchIdAuth = true;
   services = {
     nix-daemon.enable = true;
@@ -42,12 +43,13 @@
     ];
     # anything installed with brew (non-casks)
     brews = [
+      "mongodb-community"
       # "procmux"
       # "mkcert"
       # "mongodb-atlas-cli"
     ];
     # any custom taps / repos
-    taps = [ "napisani/procmux" "homebrew/cask-versions" ];
+    taps = [ "napisani/procmux" "homebrew/cask-versions" "mongodb/brew" ];
   };
   environment = {
     shells = [ pkgs.bash ];

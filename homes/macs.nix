@@ -27,7 +27,7 @@
 
   nixpkgs = {
     # You can add overlays here
-    overlays = overlays;
+    overlays = [ (import ../overlays/vi-mongo.nix) ] ++ overlays;
 
     # Configure your nixpkgs instance
     config = {
@@ -48,6 +48,7 @@
 
   home.packages = with pkgs;
     [
+      vi-mongo
       # my-scripts
     ];
 
