@@ -41,6 +41,7 @@ local servers = {
 	vtsls = {
 		npm = "@vtsls/language-server",
 	},
+	jdtls = {},
 	efm = {},
 }
 

@@ -153,6 +153,9 @@ require("lazy").setup({
 		-- Rust tools
 		{ "simrat39/rust-tools.nvim" },
 
+    -- java
+    { 'nvim-java/nvim-java' },
+
 		-- vim-rooter - ensures that when opening files/dirs vim's CWD remains the root of the project
 		-- use{
 		-- 	"notjedi/nvim-rooter.lua",

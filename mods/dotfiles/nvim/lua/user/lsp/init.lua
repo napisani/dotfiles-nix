@@ -4,6 +4,9 @@ if not status_ok then
 	return
 end
 
+-- nvim-java needs to load before mason + jdtls
+require("user.lsp.standalone.java")
+
 require("user.lsp.mason")
 require("user.lsp.handlers").setup()
 local utils = require("user.utils")

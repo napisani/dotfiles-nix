@@ -24,6 +24,7 @@ local ruff_lint = require("efmls-configs.linters.ruff")
 local statix = require("efmls-configs.linters.statix")
 local nixfmt = require("efmls-configs.formatters.nixfmt")
 local cspell = require("efmls-configs.linters.cspell")
+local google_java_format = require("efmls-configs.formatters.google_java_format")
 
 local project_lint_config = utils.get_project_config().lint or {}
 
@@ -77,6 +78,7 @@ local languages = {
 	json = { fixjson, jq_lint, jq_format },
 	jsonc = { fixjson, jq_lint, jq_format },
 	python = { isort, ruff_format, ruff_lint },
+  java = { google_java_format },
 }
 
 -- add linters to all languages
