@@ -28,7 +28,7 @@ local root_mappings = {
 	{ "<leader>%", "<cmd>:vsplit<cr>", desc = "Vertical Split" },
 	{ "<leader>-", "<cmd>:Oil<cr>", desc = "(O)il" },
 	{ "<leader>e", "<cmd>NvimTreeToggle<cr>", desc = "Explorer" },
-	{ "<leader>o", "<cmd>:aboveleft Outline<cr>", desc = "(o)outline" },
+	{ "<leader><leader>e", "<cmd>:aboveleft Outline<cr>", desc = "outlin(e)" },
 }
 
 local database = {
@@ -100,6 +100,12 @@ local buffers = {
 		end,
 		desc = "(y)ank filename",
 	},
+}
+
+local overseer = {
+	{ "<leader>o", group = "Overseer" },
+	{ "<leader>oo", "<cmd>:OverseerOpen<CR>", desc = "(O)pen" },
+	{ "<leader>oq", "<cmd>:OverseerClose<CR>", desc = "(q)uit" },
 }
 
 local changes = {
@@ -306,6 +312,7 @@ local shared_mappings = {
 	write_all,
 	alpha,
 	buffers,
+	overseer,
 	changes,
 	debugging,
 	git,
