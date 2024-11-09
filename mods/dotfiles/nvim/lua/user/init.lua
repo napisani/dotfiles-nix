@@ -1,3 +1,10 @@
+-- Enable secure external rc files
+vim.opt.exrc = true
+-- Also enable secure mode when using exrc for security
+vim.opt.secure = true
+
+local exrc_manager = require("user.exrc_manager")
+exrc_manager.source_local_config()
 -- vim.opt.runtimepath:append("~/code/monoscope")
 require("user.options")
 require("user.keymaps")
@@ -30,7 +37,6 @@ require("user.neoscroll")
 require("user.github-search")
 
 require("user.search-rules")
--- require "user.chatgpt"
 require("user.gp")
 -- require "user.dbee"
 require("user.dadbod")
@@ -39,8 +45,6 @@ require("user.dadbod")
 require("user.tmux-nav")
 require("user.oil")
 require("user.eyeliner")
+require("user.overseer")
 
--- Enable secure external rc files
-vim.opt.exrc = true
--- Also enable secure mode when using exrc for security
-vim.opt.secure = true
+exrc_manager.setup()

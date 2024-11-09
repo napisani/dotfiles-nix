@@ -61,15 +61,33 @@ M.default_mappings = {
 M.picker_layout = {
 	theme = "dropdown",
 	sorting_strategy = "ascending",
-	layout_config = {
-		prompt_position = "top",
-		-- anchor = "N",
-		width = 0.98,
-		height = 0.70,
-		preview_cutoff = 1, -- Always show preview
-		preview_height = 0.3, -- 30% of the height for preview
-	},
 	layout_strategy = "vertical",
+	layout_config = {
+		horizontal = {
+			width = 0.98,
+			height = 0.70,
+			preview_width = 0.6,
+		},
+		vertical = {
+			prompt_position = "top",
+			width = 0.98,
+			height = 0.70,
+			preview_cutoff = 1, -- Always show preview
+			preview_height = 0.3,
+		},
+		center = {
+			width = 0.98,
+			height = 0.70,
+		},
+		cursor = {
+			width = 0.8,
+			height = 0.9,
+		},
+		bottom_pane = {
+			height = 25,
+			preview_cutoff = 120,
+		},
+	},
 }
 
 -- to force certain files to be included per project

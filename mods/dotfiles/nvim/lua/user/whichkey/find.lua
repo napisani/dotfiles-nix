@@ -13,7 +13,7 @@ local mapping_n = {
 	{ "<leader>fS", "<cmd>lua require('user.neoscopes').neoscopes.select()<cr>", desc = "(S)copes" },
 	{ "<leader>fc", desc = "(c)ommands" },
 	{ "<leader>fcv", "<cmd>Telescope commands<cr>", desc = "neo(v)im commands" },
-	{ "<leader>fcp", "<cmd>lua require('user.telescope').project_commands()<CR>", desc = "neo(v)im commands" },
+	{ "<leader>fcp", "<cmd>OverseerRun<CR>", desc = "neo(v)im commands" },
 
 	{ "<leader>fd", "<cmd>lua require('user.telescope').git_changed_files()<CR>", desc = "(d)iff git files" },
 	{ "<leader>fe", "<cmd>lua require('user.telescope').search_buffers()<CR>", desc = "Buffers" },
@@ -45,7 +45,7 @@ local mapping_v = {
 	{ "<leader>fS", "<cmd>lua require('user.neoscopes').neoscopes.select()<cr>", desc = "(S)copes" },
 	{ "<leader>fc", desc = "(c)ommands" },
 	{ "<leader>fcv", "<cmd>Telescope commands<cr>", desc = "neo(v)im commands" },
-	{ "<leader>fcp", "<cmd>lua require('user.telescope').project_commands()<CR>", desc = "neo(v)im commands" },
+	{ "<leader>fcp", "<cmd>OverseerRun<CR>", desc = "neo(v)im commands" },
 	{
 		"<leader>fd",
 		'"4y<cmd>lua require("user.telescope").git_changed_files({default_text = vim.fn.getreg("4")})<CR>',

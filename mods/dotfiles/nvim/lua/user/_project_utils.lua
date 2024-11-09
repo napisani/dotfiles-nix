@@ -21,13 +21,22 @@ function M.get_project_config()
 	if project_config ~= nil then
 		return project_config
 	end
+
+	local exrc_module = require("user.exrc_manager").get_exrc()
+	if exrc_module["project_config"] ~= nil then
+		project_config = vim.tbl_extend("force", default_config, exrc_module["project_config"])
+		return project_config
+	end
+
 	local nvim_rc = file_utils.get_root_dir() .. "/" .. base_filename
 	local yaml_data = file_utils.read_yaml_file(nvim_rc)
 	if yaml_data == nil then
 		project_config = default_config
 		return project_config
 	end
-	return vim.tbl_extend("force", default_config, yaml_data)
+
+	project_config = vim.tbl_extend("force", default_config, yaml_data)
+	return project_config
 end
 
 function M.reset_project_config_cache()

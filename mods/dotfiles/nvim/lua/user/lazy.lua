@@ -359,6 +359,11 @@ require("lazy").setup({
 			lazy = false,
 		},
 
+		{
+			"stevearc/overseer.nvim",
+			opts = {},
+		},
+
 		-- {
 		-- 	"folke/noice.nvim",
 		-- 	event = "VeryLazy",
