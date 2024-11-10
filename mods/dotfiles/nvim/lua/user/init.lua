@@ -46,5 +46,6 @@ require("user.tmux-nav")
 require("user.oil")
 require("user.eyeliner")
 require("user.overseer")
+require("user.context_nvim")
 
 exrc_manager.setup()
