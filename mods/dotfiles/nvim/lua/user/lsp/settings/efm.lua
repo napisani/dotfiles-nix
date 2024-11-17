@@ -18,6 +18,7 @@ local shellcheck = require("efmls-configs.linters.shellcheck")
 local gofmt = require("efmls-configs.formatters.gofmt")
 local goimports = require("efmls-configs.formatters.goimports")
 local biome = require("efmls-configs.formatters.biome")
+local deno_fmt = require("efmls-configs.formatters.deno_fmt")
 local isort = require("efmls-configs.formatters.isort")
 local ruff_format = require("efmls-configs.formatters.ruff")
 local ruff_lint = require("efmls-configs.linters.ruff")
@@ -58,6 +59,9 @@ local function get_js_linters()
 		if value == "biome" then
 			table.insert(linters, biome_custom_format)
 		end
+		if value == "deno" then
+			table.insert(linters, deno_fmt)
+		end
 	end
 
 	return linters
@@ -78,7 +82,7 @@ local languages = {
 	json = { fixjson, jq_lint, jq_format },
 	jsonc = { fixjson, jq_lint, jq_format },
 	python = { isort, ruff_format, ruff_lint },
-  java = { google_java_format },
+	java = { google_java_format },
 }
 
 -- add linters to all languages

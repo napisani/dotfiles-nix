@@ -1,5 +1,5 @@
 { config, pkgs, lib, ... }: {
-  documentation.enable = false
+  documentation.enable = false;
   programs = {
     bash = {
       enable = true;

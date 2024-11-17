@@ -36,7 +36,8 @@
 
     # procmux.url =
     #   "github:napisani/procmux/e18accb8fdab8fdb72b75febeb91ab0f93637f3a";
-    procmux.url = "github:napisani/procmux/606ca6dde890ee87b95a1ea51355983997fffc7c";
+    procmux.url =
+      "github:napisani/procmux/606ca6dde890ee87b95a1ea51355983997fffc7c";
     procmux.inputs.nixpkgs.follows = "nixpkgs";
 
     # neovim 0.9.5
@@ -67,7 +68,10 @@
           system = system;
           extraSpecialArgs = {
             inherit inputs;
-            pkgs-unstable = nixpkgs-unstable.legacyPackages."${system}";
+            pkgs-unstable = import nixpkgs-unstable {
+              inherit system;
+              config.allowUnfree = true;
+            };
             procmux = procmux;
             neovim_dep = inputs.neovim_dep.legacyPackages."${system}";
             golang_dep = inputs.golang_dep.legacyPackages."${system}";

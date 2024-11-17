@@ -19,9 +19,10 @@ in {
       pkgs.bitwarden-cli
       pet
       tree-sitter
-      ncdu
+      # pkgs.ncdu
       git-lfs
       discordo
+      ngrok
 
       secret_inject.packages.${pkgs.system}.default
       animal_rescue.packages.${pkgs.system}.default

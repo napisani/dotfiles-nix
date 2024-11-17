@@ -10,9 +10,9 @@
     PET_ADDL_SNIPPETS = "/Users/nick/.config/pet/axion-mbp-snippets.toml";
   };
 
-  home.packages = with pkgs;
-    [
-      vi-mongo
-      # my-scripts
-    ];
+  # home.packages = with pkgs;
+  #   [
+  #     vi-mongo
+  #     # my-scripts
+  #   ];
 }

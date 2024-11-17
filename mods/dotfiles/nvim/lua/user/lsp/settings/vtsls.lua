@@ -1,5 +1,5 @@
 local vtsls = require("vtsls")
-
+local nvim_lsp = require("lspconfig")
 local fix_all_imports = function(bufnr)
 	-- vim.lsp.buf.code_action({ apply = true, context = { only = { "source.addMissingImports.ts" } } })
 	-- vim.lsp.buf.code_action({ apply = true, context = { only = { "source.removeUnusedImports.ts" } } })
@@ -14,7 +14,9 @@ local fix_all_imports = function(bufnr)
 end
 
 return {
-
+	-- in single file mode the root_dir is ignored, so this needs to be false
+	single_file_support = false,
+	root_dir = nvim_lsp.util.root_pattern("package.json"),
 	settings = {
 		typescript = {
 			inlayHints = {
