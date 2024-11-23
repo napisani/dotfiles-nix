@@ -20,11 +20,10 @@ local options = {
 	splitright = true, -- force all vertical splits to go to the right of current window
 	swapfile = false, -- creates a swapfile
 	wildmenu = true,
-	wildmode = "list:long,list:full",
+	-- wildmode = "list:long,list:full",
 	wildmode = "list:longest",
 	laststatus = 2,
 	ruler = true,
-	number = true,
 	shell = "bash",
 	hidden = true,
 	termguicolors = true, -- set term gui colors (most terminals support this)
@@ -61,9 +60,8 @@ vim.cmd(":packadd cfilter")
 
 -- make quickfix modifiable
 -- vim.cmd([[
--- augroup quickfix_modifiable 
+-- augroup quickfix_modifiable
 -- 	autocmd!
 -- 	autocmd BufReadPost quickfix setlocal modifiable
 -- augroup END
 -- ]])
-

@@ -12,12 +12,15 @@ local mapping_n = {
 	{ "<leader>fR", "<cmd>Telescope registers<cr>", desc = "Registers" },
 	{ "<leader>fS", "<cmd>lua require('user.neoscopes').neoscopes.select()<cr>", desc = "(S)copes" },
 	{ "<leader>fc", desc = "(c)ommands" },
-	{ "<leader>fcv", "<cmd>Telescope commands<cr>", desc = "neo(v)im commands" },
-	{ "<leader>fcp", "<cmd>OverseerRun<CR>", desc = "neo(v)im commands" },
+	{ "<leader>fk", "<cmd>Legendary<cr>", desc = "legendary (k)commands" },
+	{ "<leader>fc", "<cmd>OverseerRun<CR>", desc = "project (c)ommands" },
+
+	{ "<leader>k", "<cmd>Legendary<cr>", desc = "Legendary" },
+	{ "<leader>K", "<cmd>OverseerRun<cr>", desc = "Project Command" },
 
 	{ "<leader>fd", "<cmd>lua require('user.telescope').git_changed_files()<CR>", desc = "(d)iff git files" },
 	{ "<leader>fe", "<cmd>lua require('user.telescope').search_buffers()<CR>", desc = "Buffers" },
-	{ "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Keymaps" },
+	-- { "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Keymaps" },
 	{ "<leader>fo", "<cmd>Telescope colorscheme<cr>", desc = "C(o)lorscheme" },
 	{ "<leader>fp", "<cmd>Telescope file_browser path=%:p:h<CR>", desc = "Project" },
 	{ "<leader>fr", "<cmd>lua require('user.telescope').find_files_from_root()<CR>", desc = "(f)iles" },

@@ -329,4 +329,9 @@ end
 which_key.add(mappings_n)
 which_key.add(mappings_v)
 
+return {
+	mappings_n = mappings_n,
+	mappings_v = mappings_v,
+}
+
 -- which_key.register(mappings_v, opts_v)

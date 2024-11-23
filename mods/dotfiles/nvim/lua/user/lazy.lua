@@ -27,6 +27,16 @@ require("lazy").setup({
 		-- -- import your plugins
 		-- { import = "plugins" },
 
+		{
+			"mrjones2014/legendary.nvim",
+			-- since legendary.nvim handles all your keymaps/commands,
+			-- its recommended to load legendary.nvim before other plugins
+			priority = 10000,
+			lazy = false,
+			-- sqlite is only needed if you want to use frecency sorting
+			-- dependencies = { 'kkharji/sqlite.lua' }
+		},
+
 		-- Useful lua functions used by lots of plugins
 		{ "nvim-lua/plenary.nvim" },
 
@@ -48,6 +58,12 @@ require("lazy").setup({
 
 		{ "goolord/alpha-nvim" },
 		{ "folke/which-key.nvim" },
+		{
+			"folke/trouble.nvim",
+			opts = require("user.trouble").opts,
+			cmd = require("user.trouble").cmd,
+			keys = require("user.trouble").keys,
+		},
 
 		-- Colorschemes
 		-- { "folke/tokyonight.nvim" },
@@ -219,6 +235,13 @@ require("lazy").setup({
 		{ "hkupty/iron.nvim" },
 
 		{ "robitx/gp.nvim" },
+		{
+			"stevearc/dressing.nvim",
+			event = "VeryLazy",
+			config = function()
+				require("user.dressing").setup()
+			end,
+		},
 
 		{
 			"yetone/avante.nvim",

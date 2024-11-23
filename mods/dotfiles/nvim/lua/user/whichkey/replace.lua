@@ -37,12 +37,12 @@ local replace_group = {
 }
 
 local common_subvert = {
-	{ "<leader><leader>r*", prepare_search_replace(":%Subs/<C-R>=expand('<cword>')<CR>//gc", 3), desc = "(*)word" },
-	{ "<leader><leader>rb", prepare_search_replace(":%Subs///g", 3), desc = "(b)uffer" },
-	{ "<leader><leader>rB", prepare_search_replace(":%Subs///gc", 4), desc = "(B)uffer ask" },
-	{ "<leader><leader>rQ", prepare_search_replace(":cdo %Subs///gc", 4), desc = "(Q)uicklist ask" },
+	{ "<leader><leader>r*", prepare_search_replace(":Subs/<C-R>=expand('<cword>')<CR>//gc", 3), desc = "(*)word" },
+	{ "<leader><leader>rb", prepare_search_replace(":Subs///g", 3), desc = "(b)uffer" },
+	{ "<leader><leader>rB", prepare_search_replace(":Subs///gc", 4), desc = "(B)uffer ask" },
+	{ "<leader><leader>rQ", prepare_search_replace(":cdo Subs///gc", 4), desc = "(Q)uicklist ask" },
 	{ "<leader><leader>rl", prepare_search_replace(":Subs///g", 3), desc = "(l)line" },
-	{ "<leader><leader>rq", prepare_search_replace(":cdo %Subs///g", 3), desc = "(q)uicklist" },
+	{ "<leader><leader>rq", prepare_search_replace(":cdo Subs///g", 3), desc = "(q)uicklist" },
 }
 
 local normal_mappings = utils.extend_lists(replace_group, common_search, subvert_group, common_subvert)
@@ -76,11 +76,11 @@ local visual_mappings = utils.extend_lists(
 
 	subvert_group,
 	{
-		{ "<leader><leader>rB", prepare_search_replace(":%Subs///gc", 4, true), desc = "(B)uffer ask" },
-		{ "<leader><leader>rQ", prepare_search_replace(":cdo %Subs///gc", 4, true), desc = "(Q)uicklist ask" },
-		{ "<leader><leader>rb", prepare_search_replace(":%Subs///g", 3, true), desc = "(b)uffer" },
+		{ "<leader><leader>rB", prepare_search_replace(":Subs///gc", 4, true), desc = "(B)uffer ask" },
+		{ "<leader><leader>rQ", prepare_search_replace(":cdo Subs///gc", 4, true), desc = "(Q)uicklist ask" },
+		{ "<leader><leader>rb", prepare_search_replace(":Subs///g", 3, true), desc = "(b)uffer" },
 		{ "<leader><leader>rl", prepare_search_replace(":Subs///g", 3, true), desc = "(l)line" },
-		{ "<leader><leader>rq", prepare_search_replace(":cdo %Subs///g", 3, true), desc = "(q)uicklist" },
+		{ "<leader><leader>rq", prepare_search_replace(":cdo Subs///g", 3, true), desc = "(q)uicklist" },
 
 		{ "<leader><leader>rV", prepare_search_replace(":Subs///gc", 4, false), desc = "(V)isual ask" },
 		{ "<leader><leader>rv", prepare_search_replace(":Subs///g", 3, false), desc = "(v)isual" },

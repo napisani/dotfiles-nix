@@ -22,6 +22,7 @@ telescope.setup({
 		buffers = picker_layout,
 		git_files = picker_layout,
 		live_grep = picker_layout,
+		legendary = picker_layout,
 		-- Default configuration for builtin pickers goes here:
 		-- picker_name = {
 		--   picker_config_key = value,
