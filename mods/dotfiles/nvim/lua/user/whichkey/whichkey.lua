@@ -5,11 +5,12 @@ end
 local utils = require("user.utils")
 local primary_branch = utils.get_primary_git_branch()
 local prod_branch = utils.get_prod_git_branch()
-local replace_mappings = require("user.whichkey.replace")
-local find_mappings = require("user.whichkey.find")
-local search_mappings = require("user.whichkey.search")
+local replace_mapping = require("user.whichkey.replace")
+local find_mapping = require("user.whichkey.find")
+local search_mapping = require("user.whichkey.search")
+local ai_mapping = require("user.whichkey.ai")
 
--- Shared mappings
+-- Shared mapping
 -- local surround = {
 -- 	{ "<leader>s", group = "Surround" },
 -- 	{ "<leader>sa", desc = "Add surrounding in Normal and Visual modes" },
@@ -23,12 +24,14 @@ local search_mappings = require("user.whichkey.search")
 -- 	{ "<leader>sn", desc = "Suffix to search with 'next' method" },
 -- }
 
-local root_mappings = {
+local root_mapping = {
 	{ '<leader>"', "<cmd>:split<cr>", desc = "Horizontal Split" },
 	{ "<leader>%", "<cmd>:vsplit<cr>", desc = "Vertical Split" },
 	{ "<leader>-", "<cmd>:Oil<cr>", desc = "(O)il" },
 	{ "<leader>e", "<cmd>NvimTreeToggle<cr>", desc = "Explorer" },
 	{ "<leader><leader>e", "<cmd>:aboveleft Outline<cr>", desc = "outlin(e)" },
+	{ "<leader>q", "<cmd>q!<CR>", desc = "Quit" },
+	{ "<leader>K", "<cmd>:LegendaryRepeat<CR>", desc = "Repeat last (K)command" },
 }
 
 local database = {
@@ -198,60 +201,16 @@ local lsp = {
 	{ "<leader>lw", "<cmd>Telescope lsp_workspace_diagnostics<cr>", desc = "(w)orkspace diagnostics" },
 }
 
-local mappings_n = utils.extend_lists(find_mappings.mapping_n, search_mappings.mapping_n, {
-	{ "<leader>l", group = "LSP" },
-	{ "<leader>lR", "<cmd>:LspRestart<cr>", desc = "(R)estart LSPs" },
-	{ "<leader>lS", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", desc = "workspace (S)ymbols" },
-	-- { "<leader>la", "<cmd>lua vim.lsp.buf.code_action()<cr>", desc = "Code (a)ction" },
-	{ "<leader>la", "<cmd>lua require('tiny-code-action').code_action()<cr>", desc = "Code (a)ction" },
-	{ "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
-	{ "<leader>ld", "<cmd>Telescope lsp_document_diagnostics<cr>", desc = "(d)ocument diagnostics" },
-	{ "<leader>lf", "<cmd>lua vim.lsp.buf.format{ async=true, name = 'efm' }<cr>", desc = "(f)ormat" },
-	{ "<leader>li", desc = "organize (i)mports" },
-	{ "<leader>lj", "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", desc = "Next Diagnostic" },
-	{ "<leader>lk", "<cmd>lua vim.lsp.diagnostic.goto_prev()<cr>", desc = "Prev Diagnostic" },
-	{ "<leader>lh", "<cmd>lua require('user.lsp.handlers').toggle_inlay_hints()<cr>", desc = "inlay (h)ints" },
+local mapping_n = utils.extend_lists(
+	find_mapping.mapping_n,
+	search_mapping.mapping_n,
+	ai_mapping.mapping_n,
+	replace_mapping.mapping_n
+)
 
-	{ "<leader>ll", "<cmd>lua vim.lsp.codelens.run()<cr>", desc = "Codea(l)ens Action" },
-	{ "<leader>lq", "<cmd>lua vim.lsp.diagnostic.set_loclist()<cr>", desc = "(q)uickfix" },
-	{ "<leader>lr", "<cmd>lua vim.lsp.buf.rename()<cr>", desc = "(r)ename" },
-	{ "<leader>ls", "<cmd>Telescope lsp_document_symbols<cr>", desc = "document (s)ymbols" },
-	{ "<leader>lw", "<cmd>Telescope lsp_workspace_diagnostics<cr>", desc = "(w)orkspace diagnostics" },
-
-	{ "<leader>q", "<cmd>q!<CR>", desc = "Quit" },
-	{ "<leader>t", group = "ChatGPT" },
-	{ "<leader>tA", "<cmd>:GpAskWithContext<cr>", desc = "(A)ppend results /w ctx" },
-	{ "<leader>ta", "<cmd>:GpAppend<cr>", desc = "(a)ppend results" },
-	{ "<leader>tc", "<cmd>:GpChatNew vsplit<cr>", desc = "(c)reate new chat" },
-	{ "<leader>ti", "<cmd>:GpPrepend<cr>", desc = "(i)nsert/prepend results" },
-	{ "<leader>tI", "<cmd>:GpRewrite<cr>", desc = "(I)nline / rewrite results" },
-	{ "<leader>tn", "<cmd>:GpEnew<cr>", desc = "(n)ew buffer with results" },
-	{ "<leader>to", "<cmd>:GpChatToggle<cr>", desc = "(o)pen existing chat" },
-	{ "<leader>tp", "<cmd>:GpPopup<cr>", desc = "(p)opupresults" },
-	{ "<leader>tq", "<cmd>:GpChatToggle<cr>", desc = "(q)uit chat" },
-	{ "<leader>a", group = "AI" },
-	{ "<leader>aA", ":ContextNvim add_current<cr>", desc = "(A)dd context" },
-	{ "<leader>al", ":ContextNvim add_line_lsp_daig<cr>", desc = "(l)sp diag to context" },
-	{ "<leader>aX", ":ContextNvim clear_manual<cr>", desc = "clear context" },
-
-	{ "<leader>tr", group = "(r)run" },
-	{ "<leader>trT", "<cmd>:GpUnitTestsWithContext<cr>", desc = "add (T)ests /w ctx" },
-	{ "<leader>tre", "<cmd>:GpExplain<cr>", desc = "(e)xplian" },
-	{ "<leader>tri", "<cmd>:GpImplement<cr>", desc = "(i)mplement" },
-	{ "<leader>trn", "<cmd>:GpNameContext<cr>", desc = "(n)ame context" },
-	{ "<leader>trt", "<cmd>:GpUnitTests<cr>", desc = "add (t)ests" },
-	{ "<leader>ts", "<cmd>:GpStop<cr>", desc = "(s)stop streaming results" },
-
-	{ "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
-
-	{ "<leader>fa", desc = "(a)i" },
-	{ "<leader>fam", "<cmd>:ContextNvim find_context_manual<cr>", desc = "(m)anual contexts" },
-	{ "<leader>fah", "<cmd>:ContextNvim find_context_history<cr>", desc = "(h)istory_contexts" },
-}, replace_mappings.n_mappings)
-
-local mappings_v = {
+local mapping_v = {
 	mode = { "v" },
-	utils.extend_lists(find_mappings.mapping_v, search_mappings.mapping_v, {
+	utils.extend_lists(find_mapping.mapping_v, search_mapping.mapping_v, {
 		{ "<leader>*", group = "CWord Under Cursor" },
 		{
 			"<leader>*f",
@@ -264,28 +223,6 @@ local mappings_v = {
 			desc = "grep w(h)ole project",
 		},
 
-		{ "<leader>t", group = "ChatGPT" },
-		{ "<leader>tA", ":<C-u>'<,'>GpAskWithContext<cr>", desc = "(A)ppend results /w ctx" },
-		{ "<leader>ta", ":<C-u>'<,'>GpAppend<cr>", desc = "(a)ppend results" },
-		{ "<leader>tc", ":<C-u>'<,'>GpChatNew vsplit<cr>", desc = "(c)reate new chat" },
-		{ "<leader>ti", ":<C-u>'<,'>GpPrepend<cr>", desc = "(i)nsert/prepend results" },
-		{ "<leader>ti", ":<C-u>'<,'>GpRewrite<cr>", desc = "(I)nline / rewrite" },
-		{ "<leader>tn", ":<C-u>'<,'>GpEnew<cr>", desc = "(n)ew buffer with results" },
-		{ "<leader>to", ":<C-u>'<,'>GpChatToggle<cr>", desc = "(o)pen existing chat" },
-		{ "<leader>tp", ":<C-u>'<,'>GpPopup<cr>", desc = "(p)opupresults" },
-		{ "<leader>tq", ":<C-u>'<,'>GpChatToggle<cr>", desc = "(q)uit chat" },
-
-		{ "<leader>a", group = "AI" },
-		{ "<leader>aA", ":<C-u>'<,'>ContextNvim add_current<cr>", desc = "(A)dd context" },
-
-		{ "<leader>tr", group = "(r)run" },
-		{ "<leader>trT", "<cmd>:GpUnitTestsWithContext<cr>", desc = "add (T)ests /w ctx" },
-		{ "<leader>tre", ":<C-u>'<,'>GpExplain<cr>", desc = "(e)xplian" },
-		{ "<leader>tri", ":<C-u>'<,'>GpImplement<cr>", desc = "(i)mplement" },
-		{ "<leader>trn", "<cmd>:GpNameContext<cr>", desc = "(n)ame context" },
-		{ "<leader>trt", ":<C-u>'<,'>GpUnitTests<cr>", desc = "add (t)ests" },
-		{ "<leader>ts", "<cmd>:GpStop<cr>", desc = "(s)stop streaming results" },
-
 		{ "<leader>lc", "<Plug>ContextCommentary", desc = "(c)omment" },
 
 		-- changes
@@ -296,14 +233,14 @@ local mappings_v = {
 			"<Esc><Cmd>'<,'>DiffviewFileHistory --follow<CR>",
 			desc = "(h)istory",
 		},
-	}, replace_mappings.v_mappings),
+	}, ai_mapping.mapping_v, replace_mapping.mapping_v),
 }
 
--- Register mappings
+-- Register mapping
 which_key.setup({})
 
-local shared_mappings = {
-	root_mappings,
+local shared_mapping = {
+	root_mapping,
 	-- surround,
 	database,
 	lazy_system,
@@ -319,19 +256,19 @@ local shared_mappings = {
 	lsp,
 }
 
-for _, mappings in ipairs(shared_mappings) do
-	for _, mapping in ipairs(mappings) do
-		table.insert(mappings_n, mapping)
-		table.insert(mappings_v, mapping)
+for _, mapping in ipairs(shared_mapping) do
+	for _, mapping in ipairs(mapping) do
+		table.insert(mapping_n, mapping)
+		table.insert(mapping_v, mapping)
 	end
 end
 
-which_key.add(mappings_n)
-which_key.add(mappings_v)
+which_key.add(mapping_n)
+which_key.add(mapping_v)
 
 return {
-	mappings_n = mappings_n,
-	mappings_v = mappings_v,
+	mapping_n = mapping_n,
+	mapping_v = mapping_v,
 }
 
--- which_key.register(mappings_v, opts_v)
+-- which_key.register(mapping_v, opts_v)

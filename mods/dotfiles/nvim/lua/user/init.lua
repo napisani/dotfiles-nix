@@ -47,6 +47,6 @@ require("user.oil")
 require("user.eyeliner")
 require("user.overseer")
 require("user.context_nvim")
-require("user.legendary")
+require("user.legendary.init")
 
 exrc_manager.setup()

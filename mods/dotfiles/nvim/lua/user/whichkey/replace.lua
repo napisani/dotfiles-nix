@@ -88,6 +88,6 @@ local visual_mappings = utils.extend_lists(
 )
 
 return {
-	v_mappings = visual_mappings,
-	n_mappings = normal_mappings,
+	mapping_v = visual_mappings,
+	mapping_n = normal_mappings,
 }

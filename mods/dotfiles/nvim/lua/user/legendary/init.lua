@@ -3,13 +3,16 @@ local whichkey_maps = require("user.whichkey.whichkey")
 
 local keymappings = {}
 local group = ""
-for _, mapping in ipairs(whichkey_maps.mappings_n) do
+for _, mapping in ipairs(whichkey_maps.mapping_n) do
 	if mapping.group ~= nil then
 		group = mapping.group .. " > "
 	else
 		table.insert(keymappings, vim.tbl_extend("force", mapping, { desc = group .. (mapping.desc or "") }))
 	end
 end
+
+local commands =
+	utils.extend_lists(require("user.legendary.package_manage").commands, require("user.legendary.ai").commands)
 
 require("legendary").setup({
 	extensions = {
@@ -18,9 +21,9 @@ require("legendary").setup({
 		which_key = false,
 	},
 	keymaps = keymappings,
+	commands = commands,
 
-	-- Use the custom Telescope picker
-	select_prompt = nil, -- Use default Telescope prompt
-	formatter = nil, -- Use default Telescope formatter
-
+	-- -- Use the custom Telescope picker
+	-- select_prompt = nil, -- Use default Telescope prompt
+	-- formatter = nil, -- Use default Telescope formatter
 })
