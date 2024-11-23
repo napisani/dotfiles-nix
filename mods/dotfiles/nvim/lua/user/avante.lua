@@ -17,7 +17,4 @@ return {
 		},
 	},
 	hints = { enabled = false },
-	additional_cmp_sources = {
-		{ name = "context_nvim" },
-	},
 }

@@ -12,6 +12,7 @@ local mapping_n = {
 	{ "<leader>aA", ":ContextNvim add_current<cr>", desc = "(A)dd context" },
 	{ "<leader>al", ":ContextNvim add_line_lsp_daig<cr>", desc = "(l)sp diag to context" },
 	{ "<leader>aX", ":ContextNvim clear_manual<cr>", desc = "clear context" },
+	{ "<leader>ap", ":ContextNvim insert_prompt<cr>", desc = "insert (p)rompt" },
 
 	{ "<leader>tr", group = "(r)run" },
 	{ "<leader>tre", "<cmd>:GpExplain<cr>", desc = "(e)xplian" },

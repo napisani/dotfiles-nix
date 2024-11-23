@@ -29,9 +29,22 @@ vim.api.nvim_create_autocmd("InsertEnter", {
 })
 
 require("context_nvim").setup({
+	enable_history = false,
+
+	cmp = {
+		manual_context_keyword = "@ctx",
+	},
+
 	lsp = {
 		ignore_sources = {
 			"efm/cspell",
+		},
+	},
+
+	prompts = {
+		{
+			name = "jest test suite",
+			prompt = "Using the code above, write a jest test suite. Please respond with only code any not explanation",
 		},
 	},
 })
