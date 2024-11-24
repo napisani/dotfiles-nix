@@ -43,6 +43,7 @@ require("context_nvim").setup({
 
 	prompts = {
 		{
+      cmp = 'Jesttest',
 			name = "jest test suite",
 			prompt = "Using the code above, write a jest test suite. Please respond with only code any not explanation",
 		},
