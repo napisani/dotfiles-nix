@@ -995,106 +995,6 @@
             ]
           },
           {
-            "description": "backslash to Meh",
-            "manipulators": [
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "backslash",
-                  "modifiers": {
-                    "optional": []
-                  }
-                },
-                "to": [
-                  {
-                    "key_code": "right_option",
-                    "modifiers": [
-                      "right_control",
-                      "right_shift"
-                    ]
-                  }
-                ],
-                "to_if_alone": [
-                  {
-                    "key_code": "backslash"
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "tab",
-                  "modifiers": {
-                    "mandatory": [
-                      "right_option",
-                      "right_control",
-                      "right_shift"
-                    ]
-                  }
-                },
-                "to": [
-                  {
-                    "key_code": "tab",
-                    "modifiers": [
-                      "left_command"
-                    ]
-                  }
-                ],
-                "description": "Meh + Tab = switch to next tab"
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "i",
-                  "modifiers": {
-                    "mandatory": [
-                      "right_option",
-                      "right_control",
-                      "right_shift"
-                    ]
-                  }
-                },
-                "to": [
-                  {
-                    "key_code": "i",
-                    "modifiers": [
-                      "left_command",
-                      "left_shift"
-                    ]
-                  }
-                ],
-                "description": "Meh + a = left command + shift + a (bitwarden auto fill)"
-              }
-            ]
-          },
-          {
-            "description": "meh + e = emoji picker",
-            "manipulators": [
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "e",
-                  "modifiers": {
-                    "mandatory": [
-                      "right_option",
-                      "right_control",
-                      "right_shift"
-                    ]
-                  }
-                },
-                "to": [
-                  {
-                    "key_code": "spacebar",
-                    "modifiers": [
-                      "left_command",
-                      "left_control"
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
             "description": "Simlayer - delimiters layer",
             "manipulators": [
               {
@@ -4267,6 +4167,79 @@
                     ]
                   }
                 }
+              }
+            ]
+          },
+          {
+            "description": "tab to Meh",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "tab",
+                  "modifiers": {
+                    "optional": []
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "right_option",
+                    "modifiers": [
+                      "right_control",
+                      "right_shift"
+                    ]
+                  }
+                ],
+                "to_if_alone": [
+                  {
+                    "key_code": "tab"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "n",
+                  "modifiers": {
+                    "mandatory": [
+                      "right_option",
+                      "right_control",
+                      "right_shift"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "tab",
+                    "modifiers": [
+                      "left_command"
+                    ]
+                  }
+                ],
+                "description": "Meh + Tab = switch to next tab"
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "p",
+                  "modifiers": {
+                    "mandatory": [
+                      "right_option",
+                      "right_control",
+                      "right_shift"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "tab",
+                    "modifiers": [
+                      "left_command",
+                      "left_shift"
+                    ]
+                  }
+                ],
+                "description": "Meh + Tab = switch to next tab"
               }
             ]
           },

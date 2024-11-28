@@ -5,10 +5,11 @@ import {
 } from 'karabiner.ts'
 import { writeContext } from './output'
 import { modifierSwapRules } from './modifierSwap'
-import { mehRules } from './meh'
+// import { backslashRules } from './backslash'
 import { layerRules } from './layers'
 import { homeRowRules } from './home-row'
 import { capsRules } from './caps-lock'
+import { tabRules } from './tab';
 
 writeToProfile({
   name: 'default', 
@@ -17,9 +18,10 @@ writeToProfile({
 }, [
   ...capsRules,
   ...modifierSwapRules,
-  ...mehRules,
+  // ...backslashRules,
   ...layerRules,
  ...homeRowRules,
+  ...tabRules,
 
   rule('escape -> grave_accent_and_tilde').manipulators([
     map("escape").to("grave_accent_and_tilde")
