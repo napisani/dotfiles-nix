@@ -24,6 +24,13 @@ in {
       discordo
       ngrok
 
+      # search for packages on nixos
+      nix-search-cli
+
+
+      # ai refactoring tools
+      aider-chat
+
       secret_inject.packages.${pkgs.system}.default
       animal_rescue.packages.${pkgs.system}.default
       #pkgs.pscale

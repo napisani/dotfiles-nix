@@ -2,3 +2,5 @@ result
 .idea/
 dist/
 node_modules/
+.aider*
+.env

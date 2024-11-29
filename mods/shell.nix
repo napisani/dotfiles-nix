@@ -27,6 +27,7 @@
     };
   };
   home.file.".config/pet".source = ./dotfiles/pet;
+  home.file.".aider.conf.yml".source = ./dotfiles/.aider.conf.yml;
   home.file.".bashrc.d".source = ./dotfiles/.bashrc.d;
   home.file.".inputrc".source = ./dotfiles/.inputrc;
   home.file.".ideavimrc".source = ./dotfiles/.ideavimrc;

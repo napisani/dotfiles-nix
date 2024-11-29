@@ -36,8 +36,9 @@
 
     # procmux.url =
     #   "github:napisani/procmux/e18accb8fdab8fdb72b75febeb91ab0f93637f3a";
+
     procmux.url =
-      "github:napisani/procmux/606ca6dde890ee87b95a1ea51355983997fffc7c";
+      "github:napisani/procmux/ab479fa499fb35b040c2230ac52d5958b05b1934";
     procmux.inputs.nixpkgs.follows = "nixpkgs";
 
     # neovim 0.9.5
