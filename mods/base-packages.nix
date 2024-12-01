@@ -27,9 +27,9 @@ in {
       # search for packages on nixos
       nix-search-cli
 
-
       # ai refactoring tools
       aider-chat
+      ollama
 
       secret_inject.packages.${pkgs.system}.default
       animal_rescue.packages.${pkgs.system}.default

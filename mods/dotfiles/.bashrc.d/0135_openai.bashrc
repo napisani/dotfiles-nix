@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+export OLLAMA_API_BASE=http://127.0.0.1:11434 # Mac/Linux
+
 function hey_gpt() {
 	prompt="$@"
 	echo "Prompt: $prompt"
