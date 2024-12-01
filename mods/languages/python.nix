@@ -9,7 +9,7 @@ with pkgs-unstable; [
   ruff
   yapf
 
-  (pkgs-unstable.python310.withPackages (p: [
+  (pkgs-unstable.python312.withPackages (p: [
     p.ipython # interactive shell
     p.pipx
     # p.tiktoken
