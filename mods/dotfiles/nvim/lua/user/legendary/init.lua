@@ -11,8 +11,11 @@ for _, mapping in ipairs(whichkey_maps.mapping_n) do
 	end
 end
 
-local commands =
-	utils.extend_lists(require("user.legendary.package_manage").commands, require("user.legendary.ai").commands)
+local commands = utils.extend_lists(
+	require("user.legendary.package_manage").commands,
+	require("user.legendary.ai").commands,
+	require("user.legendary.lsp").commands
+)
 
 require("legendary").setup({
 	extensions = {

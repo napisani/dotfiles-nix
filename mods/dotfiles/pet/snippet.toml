@@ -27,6 +27,6 @@
 
 [[snippets]]
   description = "search for nix package"
-  command = "nix-search --details <package>"
+  command = "nix-search --details <package> | head -50"
   tag = ['nix', 'search', 'package']
 
