@@ -32,6 +32,7 @@ local root_mapping = {
 	{ "<leader><leader>e", "<cmd>:aboveleft Outline<cr>", desc = "outlin(e)" },
 	{ "<leader>q", "<cmd>q!<CR>", desc = "Quit" },
 	{ "<leader>K", "<cmd>:LegendaryRepeat<CR>", desc = "Repeat last (K)command" },
+	{ "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
 }
 
 local database = {
