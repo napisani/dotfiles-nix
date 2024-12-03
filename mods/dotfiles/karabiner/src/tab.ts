@@ -1,42 +1,28 @@
-import { Modifier, map, rule } from "karabiner.ts";
+import { map, rule } from "karabiner.ts";
 
-const mehModifiers: Modifier[] = ['right_option', 'right_control',  'right_shift']
-export const tabRules= [
-  rule('tab to Meh').manipulators([
+export const tabRules = [
+  rule('tab to alt').manipulators([
     map({
       key_code: "tab", 
       modifiers: {optional: []} 
     })
     .to({
-      key_code: "right_option", 
-      modifiers: ["right_control", "right_shift"]
+      key_code: "left_option", 
     })
     .toIfAlone({key_code: "tab"}),
+  ]),
 
-
+  rule('tab + q to left_option + left_shift').manipulators([
     map({
-      key_code: "n",
-      modifiers: {mandatory: [
-        ...mehModifiers
-      ]}
-    }).to({
-      "key_code": "tab",
-      "modifiers": ["left_command"]
-    }).description("Meh + Tab = switch to next tab"),
-
-    map({
-      key_code: "p",
-      modifiers: {mandatory: [
-        ...mehModifiers
-      ]}
-    }).to({
-      "key_code": "tab",
-      "modifiers": ["left_command", "left_shift"]
-    }).description("Meh + Tab = switch to next tab"),
-
-
-
+      key_code: "q",
+      modifiers: {
+        mandatory: ["left_option"]
+      }
+    })
+    .to({
+      key_code: "left_shift",
+      modifiers: ["left_option"]
+    })
   ]),
 ]
-    
-  
+

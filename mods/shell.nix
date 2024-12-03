@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, config, ... }: {
   programs.fzf = {
     enable = true;
     enableBashIntegration = true;
@@ -28,6 +28,16 @@
   };
   home.file.".config/pet".source = ./dotfiles/pet;
   home.file.".aider.conf.yml".source = ./dotfiles/.aider.conf.yml;
+
+  # home.file.".aerospace.toml".source = ./dotfiles/.aerospace.toml;
+
+  home.file = {
+    ".aerospace.toml" = {
+      source = config.lib.file.mkOutOfStoreSymlink
+        "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.aerospace.toml";
+    };
+  };
+
   home.file.".aider.model.settings.yml".source =
     ./dotfiles/.aider.model.settings.yml;
   home.file.".bashrc.d".source = ./dotfiles/.bashrc.d;

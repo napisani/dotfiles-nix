@@ -10,6 +10,7 @@
       "discord"
       "skype"
       "mongodb-compass"
+      "nikitabobko/tap/aerospace"
       # "diffusionbee" 
     ];
     # anything installed with brew (non-casks)
