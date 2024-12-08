@@ -72,10 +72,10 @@ vim.api.nvim_create_autocmd("FileType", {
 --   autocmd BufWritePre * lua vim.lsp.buf.formatting()
 -- augroup end
 
-local project_lint_config = utils.get_project_config().autocmds or {}
-if next(project_lint_config) ~= nil then
+local project_autocmd_config = utils.get_project_config().autocmds or {}
+if next(project_autocmd_config) ~= nil then
 	local project_autocmd_group = vim.api.nvim_create_augroup("nvim_project_autocmds", { clear = true })
-	for _, value in ipairs(project_lint_config) do
+	for _, value in ipairs(project_autocmd_config) do
 		local event = value.event
 		local pattern = value.pattern
 		local cmd = value.command

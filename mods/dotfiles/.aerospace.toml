@@ -96,6 +96,7 @@ outer.right =      0
 # See: https://nikitabobko.github.io/AeroSpace/commands#layout
 # alt-slash = 'layout tiles horizontal vertical'
 alt-leftSquareBracket= 'layout accordion tiles horizontal'
+alt-rightSquareBracket= 'layout floating tiling'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#focus
 alt-h = 'focus left'
@@ -192,7 +193,12 @@ alt-space= 'mode service'
 [mode.service.binding]
 esc = ['reload-config', 'mode main']
 r = ['flatten-workspace-tree', 'mode main'] # reset layout
-f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
+# f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
+x = ['close']
+
+# toggle 'zoom' by switching between accordian and tiling layouts 
+# accordion will keep the current node in fullscree mode
+z = ['layout accordion tiles horizontal', 'mode main']
 backspace = ['close-all-windows-but-current', 'mode main']
 
 # sticky is not yet supported https://github.com/nikitabobko/AeroSpace/issues/2

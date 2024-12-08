@@ -43,12 +43,13 @@ local servers = {
 	},
 	jdtls = {},
 	efm = {},
+	gleam = {},
 }
 
 local servers_only = {}
 for server, _ in pairs(servers) do
 	-- nil_ls will not install from mason rely on the neovim nix flake
-	if server ~= "nil_ls" and server ~= "biome" and server ~= "ocamllsp" then
+	if server ~= "nil_ls" and server ~= "biome" and server ~= "ocamllsp" and server ~= "gleam" then
 		table.insert(servers_only, server)
 	end
 end

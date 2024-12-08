@@ -34,3 +34,4 @@ function data_gpt() {
 }
 
 alias chatai="nvim -c 'GpChatNew'"
+alias aichat="nvim -c 'GpChatNew'"

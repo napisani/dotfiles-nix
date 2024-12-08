@@ -32,7 +32,7 @@ local root_mapping = {
 	{ "<leader><leader>e", "<cmd>:aboveleft Outline<cr>", desc = "outlin(e)" },
 	{ "<leader>q", "<cmd>q!<CR>", desc = "Quit" },
 	{ "<leader>K", "<cmd>:LegendaryRepeat<CR>", desc = "Repeat last (K)command" },
-	{ "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
+	-- { "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
 }
 
 local database = {
@@ -206,7 +206,10 @@ local mapping_n = utils.extend_lists(
 	find_mapping.mapping_n,
 	search_mapping.mapping_n,
 	ai_mapping.mapping_n,
-	replace_mapping.mapping_n
+	replace_mapping.mapping_n,
+	{
+		{ "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
+	}
 )
 
 local mapping_v = {
