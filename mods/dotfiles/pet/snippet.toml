@@ -30,3 +30,8 @@
   command = "nix-search --details <package> | head -50"
   tag = ['nix', 'search', 'package']
 
+# [[snippets]]
+#   description = "update nixpkgs in home manager flake"
+#   command = "nixpkgup"
+#   tag = ['nix', 'home manager', 'flake', 'update']
+

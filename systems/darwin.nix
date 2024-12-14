@@ -25,7 +25,7 @@
     # app store apps
     masApps = {
       Xcode = 497799835;
-      magnet = 441258766;
+      # magnet = 441258766;
       # "Apple Configurator" = 1037126344;
     };
     # anything installed with brew cask
@@ -43,7 +43,7 @@
     ];
     # anything installed with brew (non-casks)
     brews = [
-      "mongodb-community"
+      # "mongodb-community"
       # "procmux"
       # "mkcert"
       # "mongodb-atlas-cli"

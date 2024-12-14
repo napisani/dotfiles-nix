@@ -38,6 +38,13 @@
     };
   };
 
+  home.file = {
+    "global_python_scripts" = {
+      source = config.lib.file.mkOutOfStoreSymlink
+        "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/global_python_scripts";
+    };
+  };
+
   home.file.".aider.model.settings.yml".source =
     ./dotfiles/.aider.model.settings.yml;
   home.file.".bashrc.d".source = ./dotfiles/.bashrc.d;

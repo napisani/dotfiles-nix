@@ -8,6 +8,7 @@ with pkgs-unstable; [
   mypy
   ruff
   yapf
+  uv
 
   (pkgs-unstable.python312.withPackages (p: [
     p.ipython # interactive shell

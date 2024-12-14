@@ -133,3 +133,4 @@ function cdpr() {
 # diff two files in WebStorm
 alias wsdiff='function _wsdiff() { /Applications/WebStorm.app/Contents/MacOS/webstorm diff "$1" "$2"; }; _wsdiff'
 
+alias nixpkgup='cdhomeman && nix flake lock --update-input nixpkgs-unstable; nix flake lock --update-input nixpkgs'
