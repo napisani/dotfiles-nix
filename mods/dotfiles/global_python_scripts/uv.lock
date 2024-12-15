@@ -654,10 +654,14 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "aider-chat" },
+    { name = "pyyaml" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "aider-chat" }]
+requires-dist = [
+    { name = "aider-chat" },
+    { name = "pyyaml" },
+]
 
 [[package]]
 name = "grep-ast"

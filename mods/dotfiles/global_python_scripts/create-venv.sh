@@ -14,7 +14,9 @@ if [ ! -d "$SCRIPT_DIR/.venv" ]; then
 	source "$SCRIPT_DIR/.venv/bin/activate"
 
 	# Install the requirements
+	pushd "$SCRIPT_DIR"
 	uv sync
+	popd
 
 	# Deactivate the venv
 	deactivate
