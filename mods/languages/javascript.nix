@@ -11,7 +11,7 @@ with pkgs; [
   pkgs-unstable.oxlint
 
   # vuejs
-  nodePackages.vls
+  # nodePackages.vls
   # html/css/js
   nodePackages.vscode-langservers-extracted
 
