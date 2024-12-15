@@ -9,12 +9,13 @@ with pkgs-unstable; [
   ruff
   yapf
   uv
+  python312
 
-  (pkgs-unstable.python312.withPackages (p: [
-    p.ipython # interactive shell
-    p.pipx
-    # p.tiktoken
-  ]))
+  # (pkgs-unstable.python312.withPackages (p: [
+  #   p.ipython # interactive shell
+  #   p.pipx
+  #   # p.tiktoken
+  # ]))
   rye
 ]
 
