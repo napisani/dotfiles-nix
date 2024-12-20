@@ -28,7 +28,44 @@ function M.live_grep_from_root(opts)
 	opts.vimgrep_arguments = vimgrep_arguments
 	opts.search_dirs = opts.search_dirs or {}
 	opts.search_dirs = utils.merge_list(opts.search_dirs, dir_opts)
-	builtin.live_grep(opts)
+
+	-- builtin.live_grep(opts)
+	local finder = finders.new_async_job({
+		command_generator = function(prompt)
+			if not prompt or prompt == "" then
+				return nil
+			end
+
+			local pieces = vim.split(prompt, "@@")
+			local args = vim.deepcopy(vimgrep_arguments)
+			if pieces[1] then
+				-- grep search regex
+				table.insert(args, "-e")
+				table.insert(args, pieces[1])
+			end
+
+			if pieces[2] then
+				-- glob search
+				table.insert(args, "-g")
+				table.insert(args, pieces[2])
+			end
+
+			return args
+		end,
+		entry_maker = make_entry.gen_from_vimgrep(opts),
+		cwd = opts.cwd,
+		search_dirs = opts.search_dirs,
+	})
+
+	pickers
+		.new(opts, {
+			debounce = 100,
+			prompt_title = "Live Grep",
+			finder = finder,
+			previewer = conf.grep_previewer(opts),
+			sorter = require("telescope.sorters").empty(),
+		})
+		:find()
 end
 
 function M.live_grep_qflist(opts)

@@ -94,7 +94,6 @@ M.picker_layout = {
 -- use a `.ignore` file at the root of the project and use
 -- syntax like
 -- !*.env.* # this will force .env files to be included in all searches
-
 M.ignore_globs = {
 	"--iglob",
 	"!.git",
