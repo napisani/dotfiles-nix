@@ -3,6 +3,17 @@ local utils = require("user.utils")
 local builtin = require("telescope.builtin")
 
 local M = {}
+local send_to_qf_list = function(prompt_bufnr)
+	local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
+	local multi_selections = picker:get_multi_selection()
+
+	if #multi_selections > 0 then
+		actions.send_selected_to_qflist(prompt_bufnr)
+	else
+		actions.send_to_qflist(prompt_bufnr)
+	end
+	actions.open_qflist()
+end
 
 M.default_mappings = {
 	i = {
@@ -23,10 +34,10 @@ M.default_mappings = {
 		["<PageDown>"] = actions.results_scrolling_down,
 		["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
 		["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
-		["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
-		["<M-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
+		["<C-q>"] = send_to_qf_list,
 		["<C-l>"] = actions.complete_tag,
 		["<C-_>"] = actions.which_key, -- keys from pressing <C-/>
+		["<C-f>"] = actions.to_fuzzy_refine,
 	},
 	n = {
 		["<esc>"] = actions.close,
@@ -37,8 +48,8 @@ M.default_mappings = {
 		["<C-t>"] = actions.select_tab,
 		["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
 		["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
-		["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
-		["<M-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
+		["<C-q>"] = send_to_qf_list,
+		["<C-f>"] = actions.to_fuzzy_refine,
 		["j"] = actions.move_selection_next,
 		["k"] = actions.move_selection_previous,
 		["n"] = actions.cycle_history_next,
