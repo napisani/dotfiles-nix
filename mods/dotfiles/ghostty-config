@@ -1,3 +1,5 @@
+
+# examples https://github.com/search?q=path%3Aghostty%2Fconfig&type=code
 theme = tokyonight
 font-family = "MesloLGSDZ Nerd Font Mono"
 font-style = "Regular"
@@ -6,3 +8,4 @@ font-style-italic = "Italic"
 font-style-bold-italic = "Bold Italic"
 font-size = 12
 font-thicken = true
+
