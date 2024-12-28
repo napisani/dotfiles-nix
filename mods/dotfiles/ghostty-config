@@ -2,6 +2,7 @@
 # examples https://github.com/search?q=path%3Aghostty%2Fconfig&type=code
 # Theme
 theme = tokyonight
+#theme = catppuccin-mocha
 
 # Font
 font-family = "Symbols Nerd Font Mono"
