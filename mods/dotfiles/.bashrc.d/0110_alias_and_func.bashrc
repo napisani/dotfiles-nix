@@ -134,3 +134,15 @@ function cdpr() {
 alias wsdiff='function _wsdiff() { /Applications/WebStorm.app/Contents/MacOS/webstorm diff "$1" "$2"; }; _wsdiff'
 
 alias nixpkgup='cdhomeman && nix flake lock --update-input nixpkgs-unstable; nix flake lock --update-input nixpkgs'
+
+function nix-update-home-packages() {
+  cdhomeman
+  nix flake lock \
+  --update-input nixpkgs-unstable \
+  --update-input nixpkgs \
+  --update-input home-manager \
+  --update-input procmux \
+  --update-input secret_inject \
+  --update-input animal_rescue \
+  --update-input scrollbacktamer
+}

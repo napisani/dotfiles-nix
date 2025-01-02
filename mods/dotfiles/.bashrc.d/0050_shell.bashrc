@@ -10,3 +10,7 @@ export VISUAL="nvim"
 ulimit -n 65536 
 
 
+export SBTAMER_EDITOR='nvim +"term cat %s"  +"execute \":normal! G\""'
+export SBTAMER_TERMINATOR='.*❯.*' 
+
+

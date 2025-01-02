@@ -9,58 +9,28 @@
     home-manager.url = "github:nix-community/home-manager/release-24.05"; # ...
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    # nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-24.05-darwin";
-    # nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-24.05-darwin";
-    # nix-darwin = {
-    #   url = "github:lnl7/nix-darwin";
-    #   inputs.nixpkgs.follows = "nixpkgs-darwin";
-    # };
-    # nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-24.05";
-
-    # Manages configs links things into your home directory
-    # home-manager = {
-    #   url = "github:nix-community/home-manager/master";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
-
     nixpkgs-unstable = { url = "github:nixos/nixpkgs/nixpkgs-unstable"; };
 
     # Controls system level software and settings including fonts
     darwin.url = "github:lnl7/nix-darwin";
     darwin.inputs.nixpkgs.follows = "nixpkgs";
 
-    # nixos-nixpkgs = {
-    #   url = "github:nixos/nixpkgs/nixos-24.05";
-    #   follows = "nixpkgs";
-    # };
-
-    # procmux.url =
-    #   "github:napisani/procmux/e18accb8fdab8fdb72b75febeb91ab0f93637f3a";
-
-    procmux.url =
-      "github:napisani/procmux/ab479fa499fb35b040c2230ac52d5958b05b1934";
+    procmux.url = "github:napisani/procmux";
     procmux.inputs.nixpkgs.follows = "nixpkgs";
-
-    # neovim 0.9.5
-    neovim_dep.url =
-      "github:NixOS/nixpkgs/1a9df4f74273f90d04e621e8516777efcec2802a";
-
-    golang_dep.url =
-      "github:NixOS/nixpkgs/c0b7a892fb042ede583bdaecbbdc804acb85eabe";
 
     nixhub_dep.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
-    secret_inject.url =
-      "github:napisani/secret_inject/58be3ae97e2e55aef6b4255ec3e3f387f307973a";
+    secret_inject.url = "github:napisani/secret_inject";
 
-    animal_rescue.url =
-      "github:napisani/animal-rescue/321b2e7de5a915d30526ee083fb23b98fbf10cb5";
+    animal_rescue.url = "github:napisani/animal-rescue";
+
+    scrollbacktamer.url = "github:napisani/scrollbacktamer";
 
   };
 
   outputs = { flake-utils, nixpkgs, nixpkgs-unstable, home-manager, darwin
-    , procmux, secret_inject, animal_rescue, neovim_dep, golang_dep, nixhub_dep
-    , ... }@inputs:
+    , procmux, secret_inject, animal_rescue, nixhub_dep, scrollbacktamer, ...
+    }@inputs:
     let
       allSystems = [ "x86_64-linux" "aarch64-darwin" ];
       inputsBySystem = builtins.listToAttrs (map (system: {
@@ -74,14 +44,15 @@
               config.allowUnfree = true;
             };
             procmux = procmux;
-            neovim_dep = inputs.neovim_dep.legacyPackages."${system}";
-            golang_dep = inputs.golang_dep.legacyPackages."${system}";
+            # neovim_dep = inputs.neovim_dep.legacyPackages."${system}";
+            # golang_dep = inputs.golang_dep.legacyPackages."${system}";
             secret_inject = secret_inject;
             animal_rescue = animal_rescue;
             nixhub_dep = import inputs.nixhub_dep {
               inherit system;
               config.allowUnfree = true;
             };
+            scrollbacktamer = scrollbacktamer;
             overlays = [
               # import ./packages/node/node-packages.nix
               # inputs.neovim-nightly-overlay.overlay

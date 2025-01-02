@@ -53,9 +53,9 @@
     sessionVariables = { SHELL = "${pkgs.bashInteractive}/bin/bash"; };
     shellAliases = {
       nixswitchup =
-        "pushd ~/.config/home-manager; git pull && sudo nixos-rebuild --flake .#supermicro switch --impure ; popd";
+        "pushd ~/.config/home-manager; git pull && sudo nixos-rebuild --show-trace --flake .#supermicro switch --impure ; popd";
       nixswitch =
-        "pushd ~/.config/home-manager; sudo nixos-rebuild --flake .#supermicro switch --impure ; popd";
+        "pushd ~/.config/home-manager; sudo nixos-rebuild --show-trace --flake .#supermicro switch --impure ; popd";
       nixup =
         "pushd ~/.config/home-manager; sudo nix flake update; sudo nixswitch; popd";
     };
