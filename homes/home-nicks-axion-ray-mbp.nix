@@ -3,6 +3,11 @@
     pkgs-unstable.mongosh
     pkgs-unstable.mongodb-tools
     pkgs-unstable.jira-cli-go
+    (pkgs-unstable.google-cloud-sdk.withExtraComponents
+      (with pkgs-unstable.google-cloud-sdk.components; [
+        gke-gcloud-auth-plugin
+        log-streaming
+      ]))
   ];
 
   home.sessionVariables = {
@@ -16,3 +21,4 @@
   #     # my-scripts
   #   ];
 }
+

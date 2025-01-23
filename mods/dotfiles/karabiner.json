@@ -905,7 +905,8 @@
                       "^com\\.apple\\.Terminal",
                       "^com\\.googlecode\\.iterm2",
                       "^io\\.alacritty",
-                      "^org\\.alacritty"
+                      "^org\\.alacritty",
+                      "^com\\.mitchellh\\.ghostty"
                     ]
                   }
                 ]
@@ -929,7 +930,8 @@
                       "^com\\.apple\\.Terminal",
                       "^com\\.googlecode\\.iterm2",
                       "^io\\.alacritty",
-                      "^org\\.alacritty"
+                      "^org\\.alacritty",
+                      "^com\\.mitchellh\\.ghostty"
                     ]
                   }
                 ]
@@ -958,7 +960,8 @@
                       "^com\\.apple\\.Terminal",
                       "^com\\.googlecode\\.iterm2",
                       "^io\\.alacritty",
-                      "^org\\.alacritty"
+                      "^org\\.alacritty",
+                      "^com\\.mitchellh\\.ghostty"
                     ]
                   }
                 ]
@@ -987,7 +990,8 @@
                       "^com\\.apple\\.Terminal",
                       "^com\\.googlecode\\.iterm2",
                       "^io\\.alacritty",
-                      "^org\\.alacritty"
+                      "^org\\.alacritty",
+                      "^com\\.mitchellh\\.ghostty"
                     ]
                   }
                 ]

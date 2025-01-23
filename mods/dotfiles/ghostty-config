@@ -1,0 +1,19 @@
+
+# examples https://github.com/search?q=path%3Aghostty%2Fconfig&type=code
+# Theme
+theme = tokyonight
+#theme = catppuccin-mocha
+
+# Font
+font-family = "Symbols Nerd Font Mono"
+font-family = "MesloLGSDZ Nerd Font Mono"
+font-size = 12
+font-thicken = true
+
+
+# Keybindings
+keybind = ctrl+shift+c=copy_to_clipboard
+keybind = ctrl+v=paste_from_clipboard
+
+# Mouse
+mouse-hide-while-typing = true

@@ -1,4 +1,4 @@
-{ pkgs, pkgs-unstable, neovim_dep, config, ... }:
+{ pkgs, pkgs-unstable,  config, ... }:
 let langPackages = import ./languages/all.nix { inherit pkgs pkgs-unstable; };
 in {
   programs.neovim = {

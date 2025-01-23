@@ -5,6 +5,7 @@ const allStandardApps :string[] = [
   "^com\\.googlecode\\.iterm2",
   "^io\\.alacritty",
   "^org\\.alacritty",
+  "^com\\.mitchellh\\.ghostty",
   // "^com\\.jetbrains\\..*"
 ]
 const ifAnyStandardApp = ifApp(allStandardApps, "any standard app").unless()

@@ -16,6 +16,11 @@ local commands = {
 		":Lazy",
 		description = package_group .. "Lazy",
 	},
+
+	{
+		":TSUpdate",
+		description = package_group .. "TreeSitter Update",
+	},
 }
 
 return {

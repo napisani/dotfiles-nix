@@ -11,6 +11,7 @@
       "skype"
       "cryptomator"
       "nikitabobko/tap/aerospace"
+      "ghostty"
       # "diffusionbee" 
     ];
     # anything installed with brew (non-casks)

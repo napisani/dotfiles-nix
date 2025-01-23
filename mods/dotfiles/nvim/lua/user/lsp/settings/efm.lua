@@ -28,7 +28,6 @@ local cspell = require("efmls-configs.linters.cspell")
 local google_java_format = require("efmls-configs.formatters.google_java_format")
 local gleam_format = require("efmls-configs.formatters.gleam_format")
 
-
 local project_lint_config = utils.get_project_config().lint or {}
 
 local biome_custom_format = vim.tbl_extend("force", biome, {
@@ -48,6 +47,13 @@ local function get_js_linters()
 	if next(project_lint_config) == nil then
 		table.insert(linters, eslint_d_lint)
 		table.insert(linters, eslint_d_format)
+		local file = io.open("/tmp/output.txt", "w")
+		if file then
+			file:write(vim.inspect(prettier))
+			file:close()
+		else
+			print("Error: Unable to open file for writing")
+		end
 		return linters
 	end
 	for _, value in ipairs(project_lint_config) do
@@ -85,7 +91,7 @@ local languages = {
 	jsonc = { fixjson, jq_lint, jq_format },
 	python = { isort, ruff_format, ruff_lint },
 	java = { google_java_format },
-	gleam = { gleam_format},
+	gleam = { gleam_format },
 }
 
 -- add linters to all languages
