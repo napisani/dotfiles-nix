@@ -109,5 +109,9 @@ fdisk /dev/sdb
 zpool create -O compression=on -O mountpoint=none -O xattr=sa -O acltype=posixacl -o ashift=12 storagepool mirror /dev/sda1 /dev/sdb1
 
 zfs create -o mountpoint=legacy storagepool/storage
+sudo zfs set acltype=posixacl storagepool/storage
+sudo zfs set aclinherit=passthrough  storagepool/storage
+sudo zfs set aclmode=passthrough  storagepool/storage
+sudo zfs get acltype,aclinherit,aclmode storagepool/storage
 mount -t zfs storagepool/storage /media/storage
 ```
