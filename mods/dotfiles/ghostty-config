@@ -4,9 +4,11 @@
 theme = tokyonight
 #theme = catppuccin-mocha
 
-# Font
+# Font get available with `ghostty +list-fonts`
 font-family = "Symbols Nerd Font Mono"
 font-family = "MesloLGSDZ Nerd Font Mono"
+#font-family = "MesloLGS Nerd Font Mono"
+#font-family = "JetBrainsMono Nerd Font Mono"
 font-size = 12
 font-thicken = true
 

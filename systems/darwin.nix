@@ -58,7 +58,9 @@
   };
   fonts.fontDir.enable = true; # DANGER
   fonts.fonts = [
-    (pkgs.nerdfonts.override { fonts = [ "Meslo" "NerdFontsSymbolsOnly" ]; })
+    (pkgs.nerdfonts.override {
+      fonts = [ "Meslo" "JetBrainsMono" "NerdFontsSymbolsOnly" ];
+    })
   ];
 
   system.defaults = {
