@@ -44,6 +44,7 @@ end
 require("user.dap.typescript")
 require("user.dap.rust")
 require("user.dap.python")
+require("user.dap.go")
 
 dap_vscode.load_launchjs(utils.get_debugger_launch_file(), {
 	["pwa-node"] = { "javascript", "typescript" },

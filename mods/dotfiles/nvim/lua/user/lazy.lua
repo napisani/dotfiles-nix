@@ -1,4 +1,5 @@
 -- Bootstrap lazy.nvim
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
 	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -20,6 +21,9 @@ vim.opt.rtp:prepend(lazypath)
 -- This is also a good place to setup other settings (vim.opt)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+
+vim.g.nvim_dadbod_bg_port = "4545"
+vim.g.nvim_dadbod_bg_log_file = "/tmp/nvim-dadbod-dbg.log"
 
 -- Setup lazy.nvim
 require("lazy").setup({
@@ -414,15 +418,8 @@ require("lazy").setup({
 		{
 			"napisani/nvim-dadbod-bg",
 			-- dir = "/Users/nick/code/nvim-dadbod-ext",
-			config = function()
-				vim.cmd([[
-        let g:nvim_dadbod_bg_port = '4545'
-        let g:nvim_dadbod_bg_log_file= '/tmp/nvim-dadbod-dbg.log'
-      ]])
-			end,
 			build = "./install.sh",
 		},
-
 		-- Neovim dev plugins
 		{
 			"folke/lazydev.nvim",
