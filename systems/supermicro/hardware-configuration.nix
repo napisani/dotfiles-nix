@@ -17,6 +17,11 @@
     fsType = "ext4";
   };
 
+  fileSystems."/media/temp" = {
+    device = "/dev/disk/by-uuid/6e4ebf4b-9fa8-438f-bd10-747bbd8c3128";
+    fsType = "ext4";
+  };
+
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/C700-7B4B";
     fsType = "vfat";
