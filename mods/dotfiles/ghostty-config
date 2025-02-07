@@ -5,9 +5,9 @@ theme = tokyonight
 #theme = catppuccin-mocha
 
 # Font get available with `ghostty +list-fonts`
-font-family = "Symbols Nerd Font Mono"
-font-family = "MesloLGSDZ Nerd Font Mono"
-#font-family = "MesloLGS Nerd Font Mono"
+#font-family = "Symbols Nerd Font Mono"
+#font-family = "MesloLGSDZ Nerd Font Mono"
+font-family = "MesloLGS Nerd Font Mono"
 #font-family = "JetBrainsMono Nerd Font Mono"
 font-size = 12
 font-thicken = true
@@ -16,6 +16,7 @@ font-thicken = true
 # Keybindings
 keybind = ctrl+shift+c=copy_to_clipboard
 keybind = ctrl+v=paste_from_clipboard
+keybind = performable:ctrl+c=copy_to_clipboard
 
 # Mouse
 mouse-hide-while-typing = true

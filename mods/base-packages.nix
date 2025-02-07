@@ -20,7 +20,7 @@ in {
       pkgs.bitwarden-cli
       pet
       tree-sitter
-      # pkgs.ncdu
+      ncdu
       git-lfs
       discordo
       ngrok
@@ -47,6 +47,7 @@ in {
       #pkgs-unstable.python310Packages.tiktoken
       # custom_node_packages.opencommit
 
+      k9s
     ];
 
 }

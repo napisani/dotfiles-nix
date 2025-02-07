@@ -14,7 +14,8 @@ end
 local commands = utils.extend_lists(
 	require("user.legendary.package_manage").commands,
 	require("user.legendary.ai").commands,
-	require("user.legendary.lsp").commands
+	require("user.legendary.lsp").commands,
+	require("user.legendary.project").commands
 )
 
 require("legendary").setup({

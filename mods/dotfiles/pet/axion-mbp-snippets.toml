@@ -16,3 +16,17 @@
   tag = ["poetry", "insights", "service", "uvicorn"]
   output = ""
 
+
+[[snippets]]
+  description = "export home server kubectl"
+  command = "export KUBECONFIG=~/remote-k3s.yaml"
+  tag = ["kube", "export", "home", "server"]
+  output = ""
+
+
+[[snippets]]
+  description = "forward tmp-mongo pod port to local"
+  command = "kubectl port-forward pod/$(kubectl get pods -n home -l app=tmp-mongo -o jsonpath='{.items[0].metadata.name}') 27017:27017 -n home"
+  tag = ["kube", "export", "home", "server"]
+  output = ""
+
