@@ -7,6 +7,7 @@ in {
     languagePackages ++ [
       pkgs.bashInteractive
       bat
+      btop
       coreutils
       gnupg
       gnugrep
