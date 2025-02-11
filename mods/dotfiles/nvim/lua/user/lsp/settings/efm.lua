@@ -47,13 +47,14 @@ local function get_js_linters()
 	if next(project_lint_config) == nil then
 		table.insert(linters, eslint_d_lint)
 		table.insert(linters, eslint_d_format)
-		local file = io.open("/tmp/output.txt", "w")
-		if file then
-			file:write(vim.inspect(prettier))
-			file:close()
-		else
-			print("Error: Unable to open file for writing")
-		end
+		-- local file = io.open("/tmp/output.txt", "w")
+		-- if file then
+		-- 	file:write(vim.inspect(eslint_d_lint))
+		-- 	file:write(vim.inspect(eslint_d_format))
+		-- 	file:close()
+		-- else
+		-- 	print("Error: Unable to open file for writing")
+		-- end
 		return linters
 	end
 	for _, value in ipairs(project_lint_config) do

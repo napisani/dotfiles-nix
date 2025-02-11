@@ -417,7 +417,7 @@ require("lazy").setup({
 
 		{
 			"napisani/nvim-dadbod-bg",
-			-- dir = "/Users/nick/code/nvim-dadbod-ext",
+			-- dir = "/Users/nick/code/nvim-dadbod-bg",
 			build = "./install.sh",
 		},
 		-- Neovim dev plugins

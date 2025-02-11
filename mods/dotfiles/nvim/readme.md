@@ -56,6 +56,9 @@ local project_config = {
 		"eslint",
 		"prettier",
 	},
+
+	db_ui_save_location = "./sql_scripts_tmp",
+	db_ui_tmp_query_location = "/sql_scripts/",
 }
 
 _G.EXRC_M = {
@@ -79,3 +82,12 @@ create a file called `dbs.json`
 }
 ```
 
+
+## Include project specific search files
+
+To force certain files to be included per project
+use a `.ignore` file at the root of the project and use
+```bash
+# syntax like
+!*.env.* # this will force .env files to be included in all searches
+```

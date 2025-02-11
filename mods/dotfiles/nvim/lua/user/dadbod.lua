@@ -21,6 +21,13 @@ local function get_project_db_urls()
 	return conns
 end
 
+local project = utils.get_project_config()
+if project.db_ui_save_location ~= nil then
+	vim.g.db_ui_save_location = project.db_ui_save_location
+end
+if project.db_ui_tmp_query_location ~= nil then
+	vim.g.db_ui_tmp_query_location = project.db_ui_tmp_query_location
+end
+
 vim.g.dbs = get_project_db_urls()
 vim.g.db_ui_use_nerd_fonts = 1
-

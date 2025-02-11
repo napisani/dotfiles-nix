@@ -39,6 +39,8 @@ local database = {
 	{ "<leader>D", group = "Database" },
 	{ "<leader>Do", "<Cmd>DBUI<CR>", desc = "(o)pen" },
 	{ "<leader>Dq", "<Cmd>DBUIClose<CR>", desc = "(q)uit" },
+	{ "<leader>DW", "<plug>(DBUI_SaveQuery)", desc = "Save Query" },
+	{ "<leader>Dr", "DBUIRenameBuffer", desc = "Rename Buffer" },
 }
 
 local lazy_system = {

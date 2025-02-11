@@ -12,6 +12,9 @@ local default_config = {
 	},
 	autocmds = {},
 	commands = {},
+
+	db_ui_save_location = "~/.local/share/dbui",
+	db_ui_tmp_query_location = "/tmp/dbui",
 }
 
 local project_config = nil
