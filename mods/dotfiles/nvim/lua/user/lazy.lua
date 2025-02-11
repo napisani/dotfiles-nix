@@ -88,6 +88,16 @@ require("lazy").setup({
 				})
 			end,
 		},
+
+		-- {
+		-- 	"saghen/blink.cmp",
+
+		-- 	-- use a release tag to download pre-built binaries
+		-- 	version = "*",
+		-- 	opts = require("user.blink").opts,
+		-- 	opts_extend = require("user.blink").opts_extend,
+		-- },
+
 		-- buffer completions
 		{ "hrsh7th/cmp-buffer" },
 		-- path completions
