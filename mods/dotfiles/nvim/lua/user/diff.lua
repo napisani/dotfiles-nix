@@ -38,4 +38,5 @@ end, {
 	range = true,
 })
 
-
+-- improve the the diff presentation
+vim.o.diffopt = "internal,filler,closeoff,indent-heuristic,linematch:60,algorithm:histogram"
