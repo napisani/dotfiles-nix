@@ -436,11 +436,11 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1736108228,
-        "narHash": "sha256-F9f+cAsVCUKVZ4bBEm2Ak9YImLzOcYYSNnaMqi3tY7U=",
+        "lastModified": 1739724529,
+        "narHash": "sha256-48qwV4P+e4+x/N6RU8seBIR+8cfHqOY2FBWlnVSMgMM=",
         "owner": "napisani",
         "repo": "scrollbacktamer",
-        "rev": "4ec6d2d8633ad28e9195fa3e173f08895b60dd09",
+        "rev": "15b83ab58d5dbc36dbca5a99c2c107079f8aa880",
         "type": "github"
       },
       "original": {

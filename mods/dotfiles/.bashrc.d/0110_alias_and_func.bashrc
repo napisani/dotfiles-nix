@@ -146,3 +146,7 @@ function nix-update-home-packages() {
   --update-input animal_rescue \
   --update-input scrollbacktamer
 }
+
+
+alias stame='scrollbacktamer'
+alias stame-last='scrollbacktamer -last 1'

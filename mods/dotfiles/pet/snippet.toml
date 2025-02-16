@@ -35,6 +35,17 @@
   command = "nix-update-home-packages"
   tag = ['nix', 'update', 'flake', 'lock', 'home manager']
 
+[[snippets]]
+  description = "scrollbacktamer"
+  command = "stame"
+  tag = ['scrollback', 'tamer']
+
+[[snippets]]
+  description = "scrollbacktamer"
+  command = "stame-last"
+  tag = ['scrollback', 'tamer', 'last']
+
+
 
 # [[snippets]]
 #   description = "update nixpkgs in home manager flake"
