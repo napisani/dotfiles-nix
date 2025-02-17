@@ -44,7 +44,7 @@
     # anything installed with brew (non-casks)
     brews = [
       # "mongodb-community"
-      # "procmux"
+      "procmux"
       # "mkcert"
       # "mongodb-atlas-cli"
     ];

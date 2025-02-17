@@ -43,6 +43,13 @@ if command -v git &> /dev/null ; then
   export GIT_SSL_NO_VERIFY=true
   alias git-current-branch='git rev-parse --abbrev-ref HEAD'
   alias git-push-first='git push --set-upstream origin $(git-current-branch)'
+  alias gitp='git push'
+
+  alias gitcm='git commit -m'
+  alias gita='git add'
+  alias gitau='git add -u '
+
+
   
   function git-changed-files() {
       COMAPRE_TO="$1"

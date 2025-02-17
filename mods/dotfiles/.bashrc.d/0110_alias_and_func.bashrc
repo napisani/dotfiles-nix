@@ -107,6 +107,9 @@ function temp-git-clone() {
   git clone "$GIT_REPO" .
 }
 
+alias gitcm='git commit -m'
+alias gita='git add .'
+
 
 function project-root-dir() {
     local DIR="$(pwd)"
@@ -147,6 +150,9 @@ function nix-update-home-packages() {
   --update-input scrollbacktamer
 }
 
-
+# scrollbacktamer aliases
 alias stame='scrollbacktamer'
 alias stame-last='scrollbacktamer -last 1'
+
+
+

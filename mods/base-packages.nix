@@ -40,7 +40,8 @@ in {
       #pkgs.mysql80
       #pkgs.pulumi
 
-      procmux.packages.${pkgs.system}.default
+      # python3Packages.procmux
+      # procmux.packages.${pkgs.system}.default
       # for personal dashboards
       # pkgs.wtf
       # pkgs-unstable.nodePackages."node-inspector"
