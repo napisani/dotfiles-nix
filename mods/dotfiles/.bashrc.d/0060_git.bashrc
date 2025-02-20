@@ -45,7 +45,15 @@ if command -v git &> /dev/null ; then
   alias git-push-first='git push --set-upstream origin $(git-current-branch)'
   alias gitp='git push'
 
-  alias gitcm='git commit -m'
+  function gitcm() {
+      if [ $# -eq 0 ]; then
+          read -p "Enter commit message: " message
+      else
+          message="$1"
+      fi
+      git commit -m "$message"
+  }
+
   alias gita='git add'
   alias gitau='git add -u '
 

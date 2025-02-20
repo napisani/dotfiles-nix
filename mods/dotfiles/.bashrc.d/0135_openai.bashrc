@@ -33,5 +33,5 @@ function data_gpt() {
 	echo "$gpt" | jq -r '.choices[0].message.content'
 }
 
-alias chatai="nvim -c 'GpChatNew'"
-alias aichat="nvim -c 'GpChatNew'"
+alias chatai="nvim -c 'CodeCompanionChat"
+alias aichat="nvim -c 'CodeCompanionChat'"

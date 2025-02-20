@@ -37,7 +37,8 @@ require("user.neoscroll")
 require("user.github-search")
 
 require("user.search-rules")
-require("user.gp")
+-- require("user.gp")
+require("user.codecompanion")
 -- require "user.dbee"
 require("user.dadbod")
 -- require("user.firenvim")

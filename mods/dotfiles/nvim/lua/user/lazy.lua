@@ -252,7 +252,15 @@ require("lazy").setup({
 		{ "karb94/neoscroll.nvim" },
 		{ "hkupty/iron.nvim" },
 
-		{ "robitx/gp.nvim" },
+		-- { "robitx/gp.nvim" },
+		{
+			"olimorris/codecompanion.nvim",
+			config = true,
+			dependencies = {
+				"nvim-lua/plenary.nvim",
+				"nvim-treesitter/nvim-treesitter",
+			},
+		},
 		{
 			"stevearc/dressing.nvim",
 			event = "VeryLazy",
