@@ -69,46 +69,39 @@ require("lazy").setup({
 			keys = require("user.trouble").keys,
 		},
 
-		-- Colorschemes
-		-- { "folke/tokyonight.nvim" },
-		-- { "morhetz/gruvbox" },
-		-- { "shaunsingh/nord.nvim" },
 		{ "rebelot/kanagawa.nvim" },
 
-		-- Cmp
-		-- The completion plugin
 		{
-			"hrsh7th/nvim-cmp",
-			opts = function(_, opts)
-				opts.sources = opts.sources or {}
-				-- add lazydev source to the beginning of the list
-				table.insert(opts.sources, {
-					name = "lazydev",
-					group_index = 0, -- set group index to 0 to skip loading LuaLS completions
-				})
-			end,
+			"saghen/blink.cmp",
+
+			-- use a release tag to download pre-built binaries
+			version = "*",
+			opts = require("user.blink").opts,
+			opts_extend = require("user.blink").opts_extend,
 		},
 
+		-- CMP related
+		-- -- The completion plugin
 		-- {
-		-- 	"saghen/blink.cmp",
-
-		-- 	-- use a release tag to download pre-built binaries
-		-- 	version = "*",
-		-- 	opts = require("user.blink").opts,
-		-- 	opts_extend = require("user.blink").opts_extend,
+		-- 	"hrsh7th/nvim-cmp",
+		-- 	opts = function(_, opts)
+		-- 		opts.sources = opts.sources or {}
+		-- 		-- add lazydev source to the beginning of the list
+		-- 		table.insert(opts.sources, {
+		-- 			name = "lazydev",
+		-- 			group_index = 0, -- set group index to 0 to skip loading LuaLS completions
+		-- 		})
+		-- 	end,
 		-- },
 
-		-- buffer completions
-		{ "hrsh7th/cmp-buffer" },
-		-- path completions
-		{ "hrsh7th/cmp-path" },
-		-- snippet completions
-		{ "saadparwaiz1/cmp_luasnip" },
-		{ "hrsh7th/cmp-nvim-lsp" },
-		{ "hrsh7th/cmp-nvim-lua" },
-		-- { "hrsh7th/cmp-nvim-lsp-signature-help" },
-
-		-- { "erhickey/sig-window-nvim" },
+		-- -- buffer completions
+		-- { "hrsh7th/cmp-buffer" },
+		-- -- path completions
+		-- { "hrsh7th/cmp-path" },
+		-- -- snippet completions
+		-- { "saadparwaiz1/cmp_luasnip" },
+		-- { "hrsh7th/cmp-nvim-lsp" },
+		-- { "hrsh7th/cmp-nvim-lua" },
 
 		-- Snippets
 		--snippet engine
@@ -388,7 +381,7 @@ require("lazy").setup({
 
 		{ "jinh0/eyeliner.nvim" },
 
-		-- for better substitutions
+		-- for better substitutions/subverts
 		{
 			"johmsalas/text-case.nvim",
 			dependencies = { "nvim-telescope/telescope.nvim" },

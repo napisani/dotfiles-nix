@@ -380,7 +380,7 @@ auto-commits: false
 #detect-urls: true
 
 ## Specify which editor to use for the /editor command
-#editor: xxx
+editor: nvim 
 
 #################
 # Voice Settings:

@@ -42,7 +42,7 @@
   };
   home.file = {
     ".config/pet".source = ./dotfiles/pet;
-    ".aider.conf.yml".source = ./dotfiles/.aider.conf.yml;
+    ".aider.conf.yml".source = ./dotfiles/aider.conf.yml;
     ".aerospace.toml".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.aerospace.toml";
     "Library/Application Support/com.mitchellh.ghostty/config".source =
@@ -50,7 +50,7 @@
       "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/ghostty-config";
     "global_python_scripts".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/global_python_scripts";
-    ".aider.model.settings.yml".source = ./dotfiles/.aider.model.settings.yml;
+    ".aider.model.settings.yml".source = ./dotfiles/aider.model.settings.yml;
     ".bashrc.d".source = ./dotfiles/.bashrc.d;
     ".inputrc".source = ./dotfiles/.inputrc;
     ".ideavimrc".source = ./dotfiles/.ideavimrc;

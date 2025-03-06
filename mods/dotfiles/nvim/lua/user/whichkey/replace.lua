@@ -79,7 +79,7 @@ local visual_mappings = utils.extend_lists(
 		{ "<leader><leader>rB", prepare_search_replace(":Subs///gc", 4, true), desc = "(B)uffer ask" },
 		{ "<leader><leader>rQ", prepare_search_replace(":cdo Subs///gc", 4, true), desc = "(Q)uicklist ask" },
 		{ "<leader><leader>rb", prepare_search_replace(":Subs///g", 3, true), desc = "(b)uffer" },
-		{ "<leader><leader>rl", prepare_search_replace(":Subs///g", 3, true), desc = "(l)line" },
+		{ "<leader><leader>rl", "<cmd>normal! V<CR>:Subs///g<CR>", desc = "(l)line" },
 		{ "<leader><leader>rq", prepare_search_replace(":cdo Subs///g", 3, true), desc = "(q)uicklist" },
 
 		{ "<leader><leader>rV", prepare_search_replace(":Subs///gc", 4, false), desc = "(V)isual ask" },

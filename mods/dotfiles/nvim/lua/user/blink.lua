@@ -4,7 +4,18 @@ local M = {
 		-- 'super-tab' for mappings similar to vscode (tab to accept, arrow keys to navigate)
 		-- 'enter' for mappings similar to 'super-tab' but with 'enter' to accept
 		-- See the full "keymap" documentation for information on defining your own keymap.
-		keymap = { preset = "default" },
+		keymap = {
+			preset = "enter",
+			-- ["<CR>"] = { "select_and_accept" },
+		},
+
+		completion = {
+			list = {
+				selection = {
+					preselect = false,
+				},
+			},
+		},
 
 		appearance = {
 			-- Sets the fallback highlight groups to nvim-cmp's highlight groups
@@ -20,6 +31,14 @@ local M = {
 		-- elsewhere in your config, without redefining it, due to `opts_extend`
 		sources = {
 			default = { "lsp", "path", "snippets", "buffer" },
+			per_filetype = { codecompanion = { "context_nvim" } },
+			providers = {
+				context_nvim = {
+					enabled = true,
+					name = "context_nvim",
+					module = "context_nvim.blink_source",
+				},
+			},
 		},
 	},
 	opts_extend = { "sources.default" },

@@ -5,8 +5,25 @@ if not codecompanion then
 end
 codecompanion.setup({
 
+	adapters = {
+		copilot = function()
+			return require("codecompanion.adapters").extend("copilot", {
+				schema = {
+					model = {
+						default = "claude-3.7-sonnet",
+					},
+				},
+			})
+		end,
+	},
+
 	strategies = {
+		inline = {
+			-- adapter = "openai",
+		},
 		chat = {
+			-- adapter = "anthropic",
+
 			keymaps = {
 				send = {
 					modes = { n = { "<CR>", "<C-g>" }, i = "<C-g>" },
