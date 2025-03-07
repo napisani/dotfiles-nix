@@ -28,7 +28,13 @@ local root_mapping = {
 	{ '<leader>"', "<cmd>:split<cr>", desc = "Horizontal Split" },
 	{ "<leader>%", "<cmd>:vsplit<cr>", desc = "Vertical Split" },
 	{ "<leader>-", "<cmd>:Oil<cr>", desc = "(O)il" },
-	{ "<leader>e", "<cmd>NvimTreeToggle<cr>", desc = "Explorer" },
+	{
+		"<leader>e",
+		function()
+			require("user.snacks.find_files").toggle_explorer_tree()
+		end,
+		desc = "Explorer",
+	},
 	{ "<leader><leader>e", "<cmd>:aboveleft Outline<cr>", desc = "outlin(e)" },
 	{ "<leader>q", "<cmd>q!<CR>", desc = "Quit" },
 	{ "<leader>K", "<cmd>:LegendaryRepeat<CR>", desc = "Repeat last (K)command" },

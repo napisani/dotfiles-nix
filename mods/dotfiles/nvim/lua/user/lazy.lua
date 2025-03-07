@@ -131,7 +131,12 @@ require("lazy").setup({
 				})
 			end,
 		},
-
+		{
+			"folke/snacks.nvim",
+			priority = 1000,
+			lazy = false,
+			opts = require("user.snacks").opts,
+		},
 		-- for formatters and linters
 		{
 			"creativenull/efmls-configs-nvim",
@@ -149,6 +154,14 @@ require("lazy").setup({
 			"nvim-telescope/telescope-fzf-native.nvim",
 			build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
 		},
+		-- {
+		-- 	"nvim-telescope/telescope-frecency.nvim",
+		-- 	-- install the latest stable version
+		-- 	version = "*",
+		-- 	-- config = function()
+		-- 	--   require("telescope").load_extension "frecency"
+		-- 	-- end,
+		-- },
 
 		-- Treesitter
 		{
