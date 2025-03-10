@@ -1,22 +1,8 @@
 local Snacks = require("snacks")
 local utils = require("user.utils")
+local common = require("user.snacks.common")
 
 local M = {}
-
-function file_list_to_picker(file_list, opts)
-	opts = opts or {}
-	local items = {}
-	for _, file in ipairs(file_list) do
-		table.insert(items, {
-			file = file,
-		})
-	end
-	local all_opts = vim.tbl_extend("force", opts, {
-		items = items,
-	})
-
-	return Snacks.picker.pick(all_opts)
-end
 
 function M.git_changed_files(opts)
 	opts = opts or {}
@@ -26,7 +12,7 @@ function M.git_changed_files(opts)
 		cwd = cwd,
 		items = file_list,
 	})
-	return file_list_to_picker(file_list, all_opts)
+	return common.file_list_to_picker(file_list, all_opts)
 end
 
 M.git_changed_cmp_base_branch = function(opts)
@@ -45,7 +31,7 @@ M.git_changed_cmp_base_branch = function(opts)
 		items = files_list,
 		cwd = utils.get_root_dir(),
 	})
-	return file_list_to_picker(files_list, all_opts)
+	return common.file_list_to_picker(files_list, all_opts)
 end
 
 M.git_conflicted_files = function(opts)
@@ -62,7 +48,7 @@ M.git_conflicted_files = function(opts)
 		items = files_list,
 		cwd = utils.get_root_dir(),
 	})
-	return file_list_to_picker(files_list, all_opts)
+	return common.file_list_to_picker(files_list, all_opts)
 end
 
 return M

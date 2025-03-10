@@ -14,6 +14,13 @@ local mapping_n = {
 	{ "<leader>hG", "<cmd>lua require('nvim-github-codesearch').prompt()<cr>", desc = "(G)ithub Code Search" },
 	-- { "<leader>hR", "<cmd>lua require('user.telescope').live_grep_in_directory()<CR>", desc = "grep (in directory)" },
 	-- { "<leader>hd", "<cmd>lua require('user.telescope').live_grep_git_changed_files()<CR>", desc = "(d)iff git files" },
+	{
+		"<leader>hd",
+		function()
+			search_files.live_grep_git_changed_files()
+		end,
+		desc = "(d)iff git files",
+	},
 	-- { "<leader>hq", "<cmd>lua require('user.telescope').live_grep_qflist()<CR>", desc = "grep (q)uicklist" },
 	-- { "<leader>hr", "<cmd>lua require('user.telescope').live_grep_from_root()<CR>", desc = "grep from (r)oot" },
 
