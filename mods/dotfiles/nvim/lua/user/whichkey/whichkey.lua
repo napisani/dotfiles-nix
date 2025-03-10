@@ -6,8 +6,8 @@ local utils = require("user.utils")
 local primary_branch = utils.get_primary_git_branch()
 local prod_branch = utils.get_prod_git_branch()
 local replace_mapping = require("user.whichkey.replace")
-local find_mapping = require("user.whichkey.find")
-local search_mapping = require("user.whichkey.search")
+local find_mapping = require("user.whichkey.find_snacks")
+local search_mapping = require("user.whichkey.search_snacks")
 local ai_mapping = require("user.whichkey.ai")
 
 -- Shared mapping

@@ -163,7 +163,7 @@ M.content_ripgrep_base_cmd = utils.merge_list(M.ripgrep_base_cmd, {
 	"--smart-case",
 })
 
-function M.trimGitModificationIndicator(cmd_output)
+function M.trim_git_modification_indicator(cmd_output)
 	return cmd_output:match("[^%s]+$")
 end
 

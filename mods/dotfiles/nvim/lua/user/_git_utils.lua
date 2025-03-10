@@ -45,7 +45,7 @@ function M.get_primary_git_branch(default_branch)
 	return default_branch
 end
 
-local function trimGitModificationIndicator(cmd_output)
+local function trim_git_modification_indicator(cmd_output)
 	return cmd_output:match("[^%s]+$")
 end
 
@@ -78,7 +78,7 @@ function M.git_changed_files()
 			cwd = file_utils.get_root_dir(),
 			on_exit = function(job)
 				for _, cmd_output in ipairs(job:result()) do
-					table.insert(file_list, trimGitModificationIndicator(cmd_output))
+					table.insert(file_list, trim_git_modification_indicator(cmd_output))
 				end
 			end,
 		}):sync()

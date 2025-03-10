@@ -14,7 +14,7 @@ M.git_changed_files = function(opts)
 
 	local entry_maker = opts.entry_maker or make_entry.gen_from_file(opts)
 	opts.entry_maker = function(cmd_output)
-		cmd_output = common.trimGitModificationIndicator(cmd_output)
+		cmd_output = common.trim_git_modification_indicator(cmd_output)
 		return entry_maker(cmd_output)
 	end
 
@@ -56,8 +56,8 @@ M.git_changed_cmp_base_branch = function(opts)
 			utils.table_merge(common.picker_layout, {
 				prompt_title = "Git changed files compared to " .. base_branch,
 				previewer = conf.file_previewer(opts),
-				finder = finders.new_oneshot_job(cmd, opts),
-				sorter = conf.file_sorter(opts),
+        finder = finders.new_oneshot_job(cmd, opts), sorter =
+          conf.file_sorter(opts),
 			})
 		)
 		:find()
