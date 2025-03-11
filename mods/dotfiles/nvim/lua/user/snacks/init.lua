@@ -1,16 +1,21 @@
 local M = {}
+---@param opts snacks.Config?
+local get_opts = function(opts)
+	return opts
+end
 
-M.opts = {
+M.opts = get_opts({
 	-- your configuration comes here
 	-- or leave it empty to use the default settings
 	-- refer to the configuration section below
-	bigfile = { enabled = false },
+	bigfile = { enabled = true },
 	dashboard = { enabled = false },
 	explorer = { enabled = false },
 	indent = { enabled = false },
 	input = { enabled = false },
 	picker = {
 		enabled = true,
+		ui_select = true,
 		layout = function()
 			-- return vim.o.columns >= 120 and "my_picker" or "my_picker_vertical"
 			return "my_horizontal_picker"
@@ -39,7 +44,8 @@ M.opts = {
 			},
 		},
 	},
-	notifier = { enabled = false },
+
+	notifier = { enabled = true },
 	quickfile = { enabled = false },
 	scope = { enabled = false },
 	scroll = { enabled = false },
@@ -52,5 +58,5 @@ M.opts = {
 			backdrop = { transparent = false, blend = 99 }, -- This needs to be 99, 100 results in same behaviour as default setup
 		},
 	},
-}
+})
 return M

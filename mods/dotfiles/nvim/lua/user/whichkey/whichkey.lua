@@ -9,6 +9,7 @@ local replace_mapping = require("user.whichkey.replace")
 local find_mapping = require("user.whichkey.find_snacks")
 local search_mapping = require("user.whichkey.search_snacks")
 local ai_mapping = require("user.whichkey.ai")
+local Snacks = require("snacks")
 
 -- Shared mapping
 -- local surround = {
@@ -59,7 +60,13 @@ local lazy_system = {
 local quit = {
 	{ "<leader>Q", "<Cmd>:q<CR>", desc = "(Q)uit" },
 	{ "<leader>w", "<cmd>w!<CR>", desc = "(w)rite" },
-	{ "<leader>x", "<cmd>Bdelete!<CR>", desc = "Close Buffer" },
+	{
+		"<leader>x",
+		function()
+			Snacks.bufdelete()
+		end,
+		desc = "Close Buffer",
+	},
 }
 
 local repl = {
@@ -86,10 +93,19 @@ local buffers = {
 	{ "<leader>b", group = "buffers" },
 	{
 		"<leader>bo",
-		"<cmd>lua require('user.utils').close_all_buffers_except_current()<CR>",
+		function()
+			Snacks.bufdelete.other()
+		end,
 		desc = "(o)nly keep current Buffer",
 	},
-	{ "<leader>bq", "<cmd>Bdelete!<CR>", desc = "(q)uit Buffer" },
+
+	{
+		"<leader>bq",
+		function()
+			Snacks.bufdelete()
+		end,
+		desc = "(q)uit Buffer",
+	},
 
 	{
 		"<leader>bfy",
@@ -223,18 +239,6 @@ local mapping_n = utils.extend_lists(
 local mapping_v = {
 	mode = { "v" },
 	utils.extend_lists(find_mapping.mapping_v, search_mapping.mapping_v, {
-		{ "<leader>*", group = "CWord Under Cursor" },
-		{
-			"<leader>*f",
-			"<cmd>lua require('user.telescope').find_files_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
-			desc = "(f)ile by name",
-		},
-		{
-			"<leader>*h",
-			"<cmd>lua require('user.telescope').live_grep_from_root({default_text = vim.fn.expand('<cword>')})<CR>",
-			desc = "grep w(h)ole project",
-		},
-
 		{ "<leader>lc", "<Plug>ContextCommentary", desc = "(c)omment" },
 
 		-- changes

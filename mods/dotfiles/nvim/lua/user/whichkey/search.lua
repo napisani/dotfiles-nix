@@ -1,3 +1,4 @@
+-- Telescope deprecated
 local mapping_n = {
 
 	{ "<leader>h", group = "Search" },

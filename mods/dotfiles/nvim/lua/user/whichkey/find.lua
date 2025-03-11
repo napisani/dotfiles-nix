@@ -1,3 +1,4 @@
+-- Telescope deprecated
 local snacks_mappings = require("user.whichkey.find_snacks")
 local utils = require("user.utils")
 

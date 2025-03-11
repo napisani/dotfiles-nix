@@ -54,7 +54,6 @@ require("lazy").setup({
 		{ "akinsho/bufferline.nvim" },
 
 		-- for deleting buffers without closing windows
-		{ "moll/vim-bbye" },
 		{ "nvim-lualine/lualine.nvim" },
 
 		{ "lukas-reineke/indent-blankline.nvim" },
@@ -143,23 +142,15 @@ require("lazy").setup({
 			dependencies = { "neovim/nvim-lspconfig" },
 		},
 
-		-- Telescope
-		{ "nvim-telescope/telescope.nvim" },
-		{ "nvim-telescope/telescope-file-browser.nvim" },
-		{
-			"benfowler/telescope-luasnip.nvim",
-		},
-		{
-			"nvim-telescope/telescope-fzf-native.nvim",
-			build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
-		},
+		-- Telescope deprecated
+		-- { "nvim-telescope/telescope.nvim" },
+		-- { "nvim-telescope/telescope-file-browser.nvim" },
 		-- {
-		-- 	"nvim-telescope/telescope-frecency.nvim",
-		-- 	-- install the latest stable version
-		-- 	version = "*",
-		-- 	-- config = function()
-		-- 	--   require("telescope").load_extension "frecency"
-		-- 	-- end,
+		-- 	"benfowler/telescope-luasnip.nvim",
+		-- },
+		-- {
+		-- 	"nvim-telescope/telescope-fzf-native.nvim",
+		-- 	build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
 		-- },
 
 		-- Treesitter
@@ -266,14 +257,6 @@ require("lazy").setup({
 				"nvim-treesitter/nvim-treesitter",
 			},
 		},
-		{
-			"stevearc/dressing.nvim",
-			event = "VeryLazy",
-			config = function()
-				require("user.dressing").setup()
-			end,
-		},
-
 		-- {
 		-- 	"yetone/avante.nvim",
 		-- 	-- dir = "/Users/nick/code/avante.nvim",
