@@ -11,20 +11,26 @@ M.opts = {
 	input = { enabled = false },
 	picker = {
 		enabled = true,
-		layout = {
-			layout = {
-				backdrop = false,
-				width = 0.90,
-				min_width = 80,
-				height = 0.90,
-				min_height = 30,
-				box = "vertical",
-				border = "rounded",
-				title = "{title} {live} {flags}",
-				title_pos = "center",
-				{ win = "preview", title = "{preview}", height = 0.4, border = "bottom" },
-				{ win = "input", height = 1, border = "none" },
-				{ win = "list", border = "top" },
+		layout = function()
+			-- return vim.o.columns >= 120 and "my_picker" or "my_picker_vertical"
+			return "my_horizontal_picker"
+		end,
+		layouts = {
+			my_horizontal_picker = {
+				layout = {
+					backdrop = false,
+					width = 0.90,
+					min_width = 80,
+					height = 0.90,
+					min_height = 30,
+					box = "vertical",
+					border = "rounded",
+					title = "{title} {live} {flags}",
+					title_pos = "center",
+					{ win = "preview", title = "{preview}", height = 0.4, border = "bottom" },
+					{ win = "input", height = 1, border = "none" },
+					{ win = "list", border = "top" },
+				},
 			},
 		},
 		formatters = {

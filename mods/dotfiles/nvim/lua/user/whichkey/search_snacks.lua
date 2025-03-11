@@ -23,7 +23,6 @@ local mapping_n = {
 		end,
 		desc = "grep (q)uicklist",
 	},
-	-- { "<leader>hr", "<cmd>lua require('user.telescope').live_grep_from_root()<CR>", desc = "grep from (r)oot" },
 
 	{
 		"<leader>hD",
@@ -93,7 +92,17 @@ local mapping_v = {
 		desc = "grep from (r)oot",
 	},
 
-	-- { "<leader>/", '"4y/<c-r>4', desc = "search in buffer" },
+	{
+		"<leader>/",
+		function()
+			-- Yank the current visual selection into register 4
+			vim.cmd('normal! "4y')
+			-- Start search mode and paste register 4
+			local register_content = vim.fn.getreg("4")
+			vim.api.nvim_feedkeys("/" .. register_content, "n", false)
+		end,
+		desc = "search in buffer",
+	},
 }
 
 return {

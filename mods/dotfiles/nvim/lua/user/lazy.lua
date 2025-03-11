@@ -51,7 +51,6 @@ require("lazy").setup({
 		{ "JoosepAlviste/nvim-ts-context-commentstring" },
 		{ "kyazdani42/nvim-web-devicons" },
 		{ "echasnovski/mini.icons" },
-		{ "kyazdani42/nvim-tree.lua" },
 		{ "akinsho/bufferline.nvim" },
 
 		-- for deleting buffers without closing windows
