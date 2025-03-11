@@ -47,5 +47,4 @@ M.opts = {
 		},
 	},
 }
-
 return M
