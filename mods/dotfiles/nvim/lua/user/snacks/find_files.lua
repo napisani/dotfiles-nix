@@ -8,6 +8,7 @@ function M.find_path_files(opts)
 	local all_opts = vim.tbl_extend("force", opts, {
 		tree = true,
 		follow_file = true,
+		auto_close = true,
 	})
 	return Snacks.picker.explorer(all_opts)
 	-- TODO implement this

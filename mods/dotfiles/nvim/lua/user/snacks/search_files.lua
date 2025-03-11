@@ -17,16 +17,26 @@ function M.live_grep_from_root(opts)
 	return Snacks.picker.grep(all_opts)
 end
 
-function M.live_grep_git_changed_files(opts)
+function M.live_grep_qflist(opts)
 	opts = opts or {}
-	local file_list = utils.git_changed_files().get_files()
+	local list = vim.fn.getqflist({ all = true })
+	if list == nil or list.items == nil or vim.tbl_isempty(list.items) then
+		vim.notify("No items in quickfix list")
+		return
+	end
 	local all_opts = vim.tbl_extend("force", opts, {
 		cmd = cmd,
 		hidden = true,
 		ignored = false,
 		cwd = utils.get_root_dir(),
 	})
-	return common.live_grep_static_file_list(file_list, all_opts)
+	local file_list = {}
+	for _, item in ipairs(list.items) do
+		if item.text ~= nil then
+			table.insert(file_list, item.text)
+		end
+	end
+	common.live_grep_static_file_list(file_list, all_opts)
 end
 
 return M

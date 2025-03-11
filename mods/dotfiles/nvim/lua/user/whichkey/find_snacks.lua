@@ -2,7 +2,7 @@ local Snacks = require("snacks")
 local snacks_find_files = require("user.snacks.find_files")
 local snacks_git_files = require("user.snacks.git_files")
 local snacks_common = require("user.snacks.common")
-local paste_to_picker = snacks_common.paste_to_picker
+local paste_to_pattern = snacks_common.paste_to_pattern
 
 local mapping_n = {
 	{
@@ -112,7 +112,7 @@ local mapping_v = {
 	{
 		"<leader>fC",
 		function()
-			paste_to_picker(function(opts)
+			paste_to_pattern(function(opts)
 				return snacks_git_files.git_conflicted_files(opts)
 			end)
 		end,
@@ -121,7 +121,7 @@ local mapping_v = {
 	{
 		"<leader>fD",
 		function()
-			paste_to_picker(function(opts)
+			paste_to_pattern(function(opts)
 				return snacks_git_files.git_changed_cmp_base_branch(opts)
 			end)
 		end,
@@ -130,7 +130,7 @@ local mapping_v = {
 	{
 		"<leader>fM",
 		function()
-			paste_to_picker(function(opts)
+			paste_to_pattern(function(opts)
 				return Snacks.picker.man(opts)
 			end)
 		end,
@@ -141,7 +141,7 @@ local mapping_v = {
 	{
 		"<leader>fQ",
 		function()
-			paste_to_picker(function(opts)
+			paste_to_pattern(function(opts)
 				return Snacks.picker.help(opts)
 			end)
 		end,
@@ -161,7 +161,7 @@ local mapping_v = {
 	{
 		"<leader>fd",
 		function()
-			paste_to_picker(function(opts)
+			paste_to_pattern(function(opts)
 				return snacks_git_files.git_changed_files(opts)
 			end)
 		end,
@@ -170,7 +170,7 @@ local mapping_v = {
 	{
 		"<leader>fe",
 		function()
-			paste_to_picker(function(opts)
+			paste_to_pattern(function(opts)
 				return Snacks.picker.buffers(opts)
 			end)
 		end,
@@ -185,7 +185,7 @@ local mapping_v = {
 	{
 		"<leader>fp",
 		function()
-			paste_to_picker(function(opts)
+			paste_to_pattern(function(opts)
 				return snacks_find_files.find_path_files(opts)
 			end)
 		end,
@@ -195,7 +195,7 @@ local mapping_v = {
 	{
 		"<leader>fr",
 		function()
-			paste_to_picker(function(opts)
+			paste_to_pattern(function(opts)
 				return snacks_find_files.find_files_from_root(opts)
 			end)
 		end,
@@ -207,7 +207,7 @@ local mapping_v = {
 	{
 		"<leader>ft",
 		function()
-			paste_to_picker(function(opts)
+			paste_to_pattern(function(opts)
 				return Snacks.picker.git_files(opts)
 			end)
 		end,
