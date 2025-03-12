@@ -2,6 +2,7 @@ local Snacks = require("snacks")
 local snacks_find_files = require("user.snacks.find_files")
 local snacks_git_files = require("user.snacks.git_files")
 local snacks_common = require("user.snacks.common")
+local snacks_commands = require("user.snacks.commands.init")
 local paste_to_pattern = snacks_common.paste_to_pattern
 
 local mapping_n = {
@@ -45,12 +46,31 @@ local mapping_n = {
 		desc = "(R)egisters",
 	},
 
-	-- legendary commands
-	{ "<leader>fc", desc = "(c)ommands" },
-
-	-- todo Snacks.picker.commands() would be helpful to for showing the :commands
-	{ "<leader>fk", "<cmd>Legendary<cr>", desc = "legendary (k)commands" },
 	{ "<leader>fc", "<cmd>OverseerRun<CR>", desc = "project (c)ommands" },
+
+	{
+		"<leader>fl",
+		function()
+			snacks_commands.launch_command()
+		end,
+		desc = "(l)aunch",
+	},
+
+	{
+		"<leader>fk",
+		function()
+			Snacks.picker.commands()
+		end,
+		desc = "nvim (k)commands",
+	},
+
+	{
+		"<leader>fm",
+		function()
+			Snacks.picker.keymaps()
+		end,
+		desc = "key (m)appings",
+	},
 
 	{
 		"<leader>fd",
@@ -70,14 +90,6 @@ local mapping_n = {
 	-- TODO to legenedary
 	-- -- { "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Keymaps" },
 
-	-- TODO to legenedary
-	-- {
-	-- 	"<leader>fo",
-	-- 	function()
-	-- 		Snacks.picker.colorschemes()
-	-- 	end,
-	-- 	desc = "Colorschemes",
-	-- },
 	{
 		"<leader>fp",
 		function()
@@ -102,6 +114,14 @@ local mapping_n = {
 			Snacks.picker.git_files()
 		end,
 		desc = "gi(t) files",
+	},
+
+	{
+		"<leader>fP",
+		function()
+			Snacks.picker.pickers()
+		end,
+		desc = "(P)ickers",
 	},
 }
 
@@ -154,9 +174,23 @@ local mapping_v = {
 		end,
 		desc = "(R)egisters",
 	},
-	{ "<leader>fc", desc = "(c)ommands" },
-	{ "<leader>fk", "<cmd>Legendary<cr>", desc = "legendary (k)commands" },
+
 	{ "<leader>fc", "<cmd>OverseerRun<CR>", desc = "project (c)ommands" },
+	{
+		"<leader>fk",
+		function()
+			snacks_commands.commands_picker()
+		end,
+		desc = "(k)commands",
+	},
+
+	-- {
+	-- 	"<leader>fK",
+	-- 	function()
+	-- 		Snacks.picker.commands()
+	-- 	end,
+	-- 	desc = "nvim (K)commands",
+	-- },
 
 	{
 		"<leader>fd",
@@ -213,6 +247,16 @@ local mapping_v = {
 		end,
 		desc = "gi(t) files",
 	},
+
+	-- {
+	-- 	"<leader>fK",
+	-- 	function()
+	-- 		paste_to_pattern(function(opts)
+	-- 			return Snacks.picker.commands(opts)
+	-- 		end)
+	-- 	end,
+	-- 	desc = "nvim (K)commands",
+	-- },
 }
 return {
 	mapping_n = mapping_n,

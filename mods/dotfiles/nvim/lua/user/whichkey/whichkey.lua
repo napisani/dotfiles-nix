@@ -11,20 +11,6 @@ local search_mapping = require("user.whichkey.search_snacks")
 local ai_mapping = require("user.whichkey.ai")
 local Snacks = require("snacks")
 
--- Shared mapping
--- local surround = {
--- 	{ "<leader>s", group = "Surround" },
--- 	{ "<leader>sa", desc = "Add surrounding in Normal and Visual modes" },
--- 	{ "<leader>sd", desc = "Delete surrounding" },
--- 	{ "<leader>sf", desc = "Find surrounding (to the right)" },
--- 	{ "<leader>sF", desc = "Find surrounding (to the left)" },
--- 	{ "<leader>sh", desc = "Highlight surrounding" },
--- 	{ "<leader>sr", desc = "Replace surrounding" },
--- 	{ "<leader>sn", desc = "Update `n_lines`" },
--- 	{ "<leader>sl", desc = "Suffix to search with 'prev' method" },
--- 	{ "<leader>sn", desc = "Suffix to search with 'next' method" },
--- }
-
 local root_mapping = {
 	{ '<leader>"', "<cmd>:split<cr>", desc = "Horizontal Split" },
 	{ "<leader>%", "<cmd>:vsplit<cr>", desc = "Vertical Split" },
@@ -38,7 +24,7 @@ local root_mapping = {
 	},
 	{ "<leader><leader>e", "<cmd>:aboveleft Outline<cr>", desc = "outlin(e)" },
 	{ "<leader>q", "<cmd>q!<CR>", desc = "Quit" },
-	{ "<leader>K", "<cmd>:LegendaryRepeat<CR>", desc = "Repeat last (K)command" },
+	-- { "<leader>K", "<cmd>:LegendaryRepeat<CR>", desc = "Repeat last (K)command" },
 	-- { "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
 }
 
@@ -83,10 +69,6 @@ local repl = {
 
 local write_all = {
 	{ "<leader>W", "<cmd>:wa<cr>", desc = "(w)rite all" },
-}
-
-local alpha = {
-	{ "<leader>A", "<cmd>Alpha<cr>", desc = "Alpha" },
 }
 
 local buffers = {
@@ -153,7 +135,11 @@ local changes = {
 	{ "<leader>cfH", "<Cmd>:DiffviewOpen HEAD -- %<CR>", desc = "diff (H)ead" },
 	{ "<leader>cfM", "<Cmd>:DiffviewOpen " .. primary_branch .. " -- %<CR>", desc = "origin/" .. primary_branch },
 	{ "<leader>cfP", "<Cmd>:DiffviewOpen " .. prod_branch .. " -- %<CR>", desc = "origin/" .. prod_branch },
-	{ "<leader>cff", "<cmd>lua require('user.telescope').find_file_from_root_to_compare_to()<CR>", desc = "(f)ile" },
+	{
+		"<leader>cff",
+		"<cmd>lua require('user.snacks.compare').find_file_from_root_to_compare_to()<CR>",
+		desc = "(f)ile",
+	},
 	{ "<leader>cfh", "<Cmd>:DiffviewFileHistory --follow %<CR>", desc = "(h)istory" },
 	{ "<leader>cfm", "<Cmd>:DiffviewOpen " .. primary_branch .. " -- %<CR>", desc = primary_branch },
 	{ "<leader>cfp", "<Cmd>:DiffviewOpen " .. prod_branch .. " -- %<CR>", desc = prod_branch },
@@ -188,10 +174,8 @@ local debugging = {
 
 local git = {
 	{ "<leader>g", group = "Git" },
-	{ "<leader>gC", "<cmd>Telescope git_commits<cr>", desc = "Checkout commit" },
 	{ "<leader>gP", "<cmd>lua require 'gitsigns'.preview_hunk()<cr>", desc = "Preview Hunk" },
 	{ "<leader>gR", "<cmd>lua require 'gitsigns'.reset_buffer()<cr>", desc = "Reset Buffer" },
-	{ "<leader>gb", "<cmd>Telescope git_branches<cr>", desc = "Checkout branch" },
 	{ "<leader>gc", group = "Checkout" },
 	{ "<leader>gcM", "<Cmd>:G checkout " .. primary_branch .. " -- %<CR>", desc = "origin/(M)ain" },
 	{ "<leader>gcP", "<Cmd>:G checkout " .. prod_branch .. " -- %<CR>", desc = "origin/(P)rod" },
@@ -210,10 +194,10 @@ local git = {
 local lsp = {
 	{ "<leader>l", group = "LSP" },
 	{ "<leader>lR", "<cmd>:LspRestart<cr>", desc = "(R)estart LSPs" },
-	{ "<leader>lS", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", desc = "workspace (S)ymbols" },
+	-- { "<leader>lS", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", desc = "workspace (S)ymbols" },
 	-- { "<leader>la", "<cmd>lua vim.lsp.buf.code_action()<cr>", desc = "Code (a)ction" },
 	{ "<leader>la", "<cmd>lua require('tiny-code-action').code_action()<cr>", desc = "Code (a)ction" },
-	{ "<leader>ld", "<cmd>Telescope lsp_document_diagnostics<cr>", desc = "(d)ocument diagnostics" },
+	-- { "<leader>ld", "<cmd>Telescope lsp_document_diagnostics<cr>", desc = "(d)ocument diagnostics" },
 	{ "<leader>lf", "<cmd>lua vim.lsp.buf.format{ async=true, name = 'efm' }<cr>", desc = "(f)ormat" },
 	{ "<leader>li", desc = "organize (i)mports" },
 	{ "<leader>lj", "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", desc = "Next Diagnostic" },
@@ -222,8 +206,8 @@ local lsp = {
 	{ "<leader>ll", "<cmd>lua vim.lsp.codelens.run()<cr>", desc = "Codea(l)ens Action" },
 	{ "<leader>lq", "<cmd>lua vim.lsp.diagnostic.set_loclist()<cr>", desc = "(q)uickfix" },
 	{ "<leader>lr", "<cmd>lua vim.lsp.buf.rename()<cr>", desc = "(r)ename" },
-	{ "<leader>ls", "<cmd>Telescope lsp_document_symbols<cr>", desc = "document (s)ymbols" },
-	{ "<leader>lw", "<cmd>Telescope lsp_workspace_diagnostics<cr>", desc = "(w)orkspace diagnostics" },
+	-- { "<leader>ls", "<cmd>Telescope lsp_document_symbols<cr>", desc = "document (s)ymbols" },
+	-- { "<leader>lw", "<cmd>Telescope lsp_workspace_diagnostics<cr>", desc = "(w)orkspace diagnostics" },
 }
 
 local mapping_n = utils.extend_lists(
@@ -257,13 +241,11 @@ which_key.setup({})
 
 local shared_mapping = {
 	root_mapping,
-	-- surround,
 	database,
 	lazy_system,
 	quit,
 	repl,
 	write_all,
-	alpha,
 	buffers,
 	overseer,
 	changes,

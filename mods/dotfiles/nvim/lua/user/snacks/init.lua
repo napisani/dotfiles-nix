@@ -5,14 +5,37 @@ local get_opts = function(opts)
 end
 
 M.opts = get_opts({
-	-- your configuration comes here
-	-- or leave it empty to use the default settings
-	-- refer to the configuration section below
 	bigfile = { enabled = true },
-	dashboard = { enabled = false },
+
+	dashboard = {
+		enabled = true,
+		preset = {
+
+			header = [[
+              __
+  ___     ___    ___   __  __ /\_\    ___ ___    
+ / _ `\  / __`\ / __`\/\ \/\ \\/\ \  / __` __`\  
+/\ \/\ \/\  __//\ \_\ \ \ \_/ |\ \ \/\ \/\ \/\ \ 
+\ \_\ \_\ \____\ \____/\ \___/  \ \_\ \_\ \_\ \_\
+ \/_/\/_/\/____/\/___/  \/__/    \/_/\/_/\/_/\/_/
+]],
+		},
+	},
+
 	explorer = { enabled = false },
-	indent = { enabled = false },
-	input = { enabled = false },
+
+	indent = {
+		enabled = false,
+		indent = {
+			char = "▏",
+		},
+		animate = {
+			enabled = false,
+		},
+	},
+
+	input = { enabled = true },
+
 	picker = {
 		enabled = true,
 		ui_select = true,
@@ -40,16 +63,35 @@ M.opts = get_opts({
 		},
 		formatters = {
 			file = {
-				truncate = 130, -- truncate the file path to (roughly) this length
+				truncate = 80, -- truncate the file path to (roughly) this length
+			},
+		},
+		win = {
+			input = {
+				keys = {
+					["p"] = {
+						"history_back",
+						mode = { "n" },
+					},
+					["n"] = {
+						"history_forward",
+						mode = { "n" },
+					},
+				},
 			},
 		},
 	},
 
 	notifier = { enabled = true },
+
 	quickfile = { enabled = false },
+
 	scope = { enabled = false },
-	scroll = { enabled = false },
+
+	scroll = { enabled = true },
+
 	statuscolumn = { enabled = false },
+
 	words = { enabled = false },
 
 	zen = {

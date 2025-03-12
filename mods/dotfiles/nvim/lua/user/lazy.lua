@@ -31,16 +31,6 @@ require("lazy").setup({
 		-- -- import your plugins
 		-- { import = "plugins" },
 
-		{
-			"mrjones2014/legendary.nvim",
-			-- since legendary.nvim handles all your keymaps/commands,
-			-- its recommended to load legendary.nvim before other plugins
-			priority = 10000,
-			lazy = false,
-			-- sqlite is only needed if you want to use frecency sorting
-			-- dependencies = { 'kkharji/sqlite.lua' }
-		},
-
 		-- Useful lua functions used by lots of plugins
 		{ "nvim-lua/plenary.nvim" },
 
@@ -53,12 +43,10 @@ require("lazy").setup({
 		{ "echasnovski/mini.icons" },
 		{ "akinsho/bufferline.nvim" },
 
-		-- for deleting buffers without closing windows
 		{ "nvim-lualine/lualine.nvim" },
 
 		{ "lukas-reineke/indent-blankline.nvim" },
 
-		{ "goolord/alpha-nvim" },
 		{ "folke/which-key.nvim" },
 		{
 			"folke/trouble.nvim",
@@ -116,11 +104,11 @@ require("lazy").setup({
 		},
 		{ "williamboman/mason-lspconfig.nvim" },
 
+		-- TODO come back and see if i still need this
 		{
 			"rachartier/tiny-code-action.nvim",
 			dependencies = {
 				{ "nvim-lua/plenary.nvim" },
-				{ "nvim-telescope/telescope.nvim" },
 			},
 			event = "LspAttach",
 			config = function()
@@ -177,9 +165,6 @@ require("lazy").setup({
 			},
 		},
 
-		-- vim.notify notifications
-		{ "rcarriga/nvim-notify" },
-
 		-- Rust tools
 		{ "simrat39/rust-tools.nvim" },
 
@@ -225,7 +210,8 @@ require("lazy").setup({
 		{ "norcalli/nvim-colorizer.lua" },
 
 		-- Install neoscopes.
-		{ "smartpde/neoscopes" },
+		-- Telescope deperecated
+		-- { "smartpde/neoscopes" },
 
 		-- { "napisani/neoscopes" }
 		-- ('/Users/nick/code/neoscopes')
@@ -245,7 +231,7 @@ require("lazy").setup({
 		-- 	end,
 		-- },
 
-		{ "karb94/neoscroll.nvim" },
+		-- { "karb94/neoscroll.nvim" },
 		{ "hkupty/iron.nvim" },
 
 		-- { "robitx/gp.nvim" },
@@ -394,22 +380,6 @@ require("lazy").setup({
 			"stevearc/overseer.nvim",
 			opts = {},
 		},
-
-		-- {
-		-- 	"folke/noice.nvim",
-		-- 	event = "VeryLazy",
-		-- 	opts = {
-		-- 		-- add any options here
-		-- 	},
-		-- 	dependencies = {
-		-- 		-- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
-		-- 		"MunifTanjim/nui.nvim",
-		-- 		-- OPTIONAL:
-		-- 		--   `nvim-notify` is only needed, if you want to use the notification view.
-		-- 		--   If not available, we use `mini` as the fallback
-		-- 		"rcarriga/nvim-notify",
-		-- 	},
-		-- },
 
 		-- {
 		--   '/Users/nick/code/nvim-dadbod-ext',

@@ -30,6 +30,8 @@ require("kanagawa").setup({
 	-- compile = true,
 	overrides = function(colors)
 		local theme = colors.theme
+		local utils = require("user.utils")
+		utils.debug_log(theme)
 		return {
 			NormalFloat = { bg = "none" },
 			FloatBorder = { bg = "none" },
@@ -51,6 +53,7 @@ require("kanagawa").setup({
 
 			SnacksPickerDir = { fg = colors.theme.ui.fg },
 			SnacksPickerFile = { fg = colors.theme.ui.fg },
+			SnacksIndentScope = { fg = colors.palette.springViolet1 },
 		}
 	end,
 })

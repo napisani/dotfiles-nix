@@ -9,7 +9,10 @@ local M = {}
 function M.find_path_files(opts)
 	opts = opts or {}
 	local all_opts = vim.tbl_extend("force", opts, {
+		cmd = "rg",
 		tree = true,
+		hidden = true,
+		ignored = false,
 		follow_file = true,
 		auto_close = true,
 		layout = { preset = "my_horizontal_picker", preview = false },
@@ -33,9 +36,12 @@ end
 
 M.toggle_explorer_tree = function()
 	Snacks.picker.explorer({
+		cmd = "rg",
 		tree = true,
 		follow_file = true,
 		auto_close = true,
+		hidden = true,
+		ignored = false,
 		layout = { preset = "sidebar", preview = false },
 	})
 end
