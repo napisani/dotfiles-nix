@@ -12,7 +12,7 @@ npairs.setup({
 		javascript = { "string", "template_string" },
 		java = false,
 	},
-	disable_filetype = { "TelescopePrompt", "spectre_panel" },
+	disable_filetype = { "TelescopePrompt", "spectre_panel", "snacks_picker_input" },
 	fast_wrap = {
 		map = "<M-e>",
 		chars = { "{", "[", "(", '"', "'" },

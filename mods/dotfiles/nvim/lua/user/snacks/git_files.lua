@@ -1,4 +1,3 @@
-local Snacks = require("snacks")
 local utils = require("user.utils")
 local common = require("user.snacks.common")
 

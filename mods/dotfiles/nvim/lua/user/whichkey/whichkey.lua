@@ -3,13 +3,13 @@ if not status_ok then
 	return
 end
 local utils = require("user.utils")
-local primary_branch = utils.get_primary_git_branch()
-local prod_branch = utils.get_prod_git_branch()
 local replace_mapping = require("user.whichkey.replace")
 local find_mapping = require("user.whichkey.find_snacks")
 local search_mapping = require("user.whichkey.search_snacks")
 local ai_mapping = require("user.whichkey.ai")
 local Snacks = require("snacks")
+local git = require("user.whichkey.git")
+local changes = require("user.whichkey.changes")
 
 local root_mapping = {
 	{ '<leader>"', "<cmd>:split<cr>", desc = "Horizontal Split" },
@@ -118,36 +118,6 @@ local overseer = {
 	{ "<leader>oq", "<cmd>:OverseerClose<CR>", desc = "(q)uit" },
 }
 
-local changes = {
-	{ "<leader>c", group = "Changes" },
-	{ "<leader>cB", "<Cmd>:G blame<CR>", desc = "Blame" },
-	{ "<leader>cH", "<Cmd>:DiffviewOpen HEAD<CR>", desc = "diff (H)ead" },
-	{ "<leader>ch", "<Cmd>:DiffViewFileHistory<CR>", desc = "(h)istory" },
-	{ "<leader>cM", "<Cmd>:DiffviewOpen origin/" .. primary_branch .. "<CR>", desc = "origin/" .. primary_branch },
-	{ "<leader>cP", "<Cmd>:DiffviewOpen origin/" .. prod_branch .. "<CR>", desc = "origin/" .. prod_branch },
-	{ "<leader>cm", "<Cmd>:DiffviewOpen " .. primary_branch .. "<CR>", desc = primary_branch },
-	{ "<leader>cp", "<Cmd>:DiffviewOpen " .. prod_branch .. "<CR>", desc = prod_branch },
-	{ "<leader>co", "<Cmd>:DiffviewOpen<CR>", desc = "Open" },
-	{ "<leader>cq", "<Cmd>:DiffviewClose<CR>", desc = "DiffviewClose" },
-	{ "<leader>cx", '<Cmd>call feedkeys("dx")<CR>', desc = "Choose DELETE" },
-
-	{ "<leader>cf", group = "(F)ile" },
-	{ "<leader>cfH", "<Cmd>:DiffviewOpen HEAD -- %<CR>", desc = "diff (H)ead" },
-	{ "<leader>cfM", "<Cmd>:DiffviewOpen " .. primary_branch .. " -- %<CR>", desc = "origin/" .. primary_branch },
-	{ "<leader>cfP", "<Cmd>:DiffviewOpen " .. prod_branch .. " -- %<CR>", desc = "origin/" .. prod_branch },
-	{
-		"<leader>cff",
-		"<cmd>lua require('user.snacks.compare').find_file_from_root_to_compare_to()<CR>",
-		desc = "(f)ile",
-	},
-	{ "<leader>cfh", "<Cmd>:DiffviewFileHistory --follow %<CR>", desc = "(h)istory" },
-	{ "<leader>cfm", "<Cmd>:DiffviewOpen " .. primary_branch .. " -- %<CR>", desc = primary_branch },
-	{ "<leader>cfp", "<Cmd>:DiffviewOpen " .. prod_branch .. " -- %<CR>", desc = prod_branch },
-
-	-- changes
-	{ "<leader>cfc", "<cmd>CompareClipboard<cr>", desc = "compare (c)lipboard" },
-}
-
 local debugging = {
 	{ "<leader>d", group = "Debug" },
 	{
@@ -170,25 +140,6 @@ local debugging = {
 	{ "<leader>do", "<Cmd>lua require'dapui'.open()<CR>", desc = "open debugger" },
 	{ "<leader>dq", "<Cmd>lua require'dapui'.close()<CR>", desc = "close debugger" },
 	{ "<leader>dr", "<Cmd>lua require'dap'.repl.open()<CR>", desc = "open REPL" },
-}
-
-local git = {
-	{ "<leader>g", group = "Git" },
-	{ "<leader>gP", "<cmd>lua require 'gitsigns'.preview_hunk()<cr>", desc = "Preview Hunk" },
-	{ "<leader>gR", "<cmd>lua require 'gitsigns'.reset_buffer()<cr>", desc = "Reset Buffer" },
-	{ "<leader>gc", group = "Checkout" },
-	{ "<leader>gcM", "<Cmd>:G checkout " .. primary_branch .. " -- %<CR>", desc = "origin/(M)ain" },
-	{ "<leader>gcP", "<Cmd>:G checkout " .. prod_branch .. " -- %<CR>", desc = "origin/(P)rod" },
-	{ "<leader>gch", "<Cmd>:G checkout HEAD -- %<CR>", desc = "HEAD" },
-	{ "<leader>gcm", "<Cmd>:G checkout " .. primary_branch .. " -- %<CR>", desc = "(m)ain" },
-	{ "<leader>gcp", "<Cmd>:G checkout " .. prod_branch .. " -- %<CR>", desc = "(p)rod" },
-	{ "<leader>gl", "<cmd>lua require 'gitsigns'.blame_line()<cr>", desc = "Blame" },
-	{ "<leader>gn", "<cmd>lua require 'gitsigns'.next_hunk()<cr>", desc = "Next Hunk" },
-	{ "<leader>go", "<Cmd>:Neogit<CR>", desc = "Open neogit" },
-	{ "<leader>gp", "<cmd>lua require 'gitsigns'.prev_hunk()<cr>", desc = "Prev Hunk" },
-	{ "<leader>gr", "<cmd>lua require 'gitsigns'.reset_hunk()<cr>", desc = "Reset Hunk" },
-	{ "<leader>gs", "<cmd>lua require 'gitsigns'.stage_hunk()<cr>", desc = "Stage Hunk" },
-	{ "<leader>gu", "<cmd>lua require 'gitsigns'.undo_stage_hunk()<cr>", desc = "Undo Stage Hunk" },
 }
 
 local lsp = {
@@ -215,6 +166,8 @@ local mapping_n = utils.extend_lists(
 	search_mapping.mapping_n,
 	ai_mapping.mapping_n,
 	replace_mapping.mapping_n,
+	git.mapping_n,
+	changes.mapping_n,
 	{
 		{ "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
 	}
@@ -224,16 +177,7 @@ local mapping_v = {
 	mode = { "v" },
 	utils.extend_lists(find_mapping.mapping_v, search_mapping.mapping_v, {
 		{ "<leader>lc", "<Plug>ContextCommentary", desc = "(c)omment" },
-
-		-- changes
-		{ "<leader>c", group = "Changes" },
-		{ "<leader>cc", "<esc><cmd>CompareClipboardSelection<cr>", desc = "compare (c)lipboard" },
-		{
-			"<leader>ch",
-			"<Esc><Cmd>'<,'>DiffviewFileHistory --follow<CR>",
-			desc = "(h)istory",
-		},
-	}, ai_mapping.mapping_v, replace_mapping.mapping_v),
+	}, git.mapping_v, changes.mapping_v, ai_mapping.mapping_v, replace_mapping.mapping_v),
 }
 
 -- Register mapping
@@ -248,9 +192,9 @@ local shared_mapping = {
 	write_all,
 	buffers,
 	overseer,
-	changes,
 	debugging,
-	git,
+	git.mapping_shared,
+	changes.mapping_shared,
 	lsp,
 }
 

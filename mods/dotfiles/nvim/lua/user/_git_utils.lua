@@ -6,6 +6,7 @@ end
 
 local project_utils = require("user._project_utils")
 local file_utils = require("user._file_utils")
+local git_ref = nil
 
 local M = {}
 
@@ -24,6 +25,17 @@ end
 
 function M.get_prod_git_branch()
 	return project_utils.get_project_config().branches.prod
+end
+
+function M.set_git_ref(ref)
+	git_ref = ref
+end
+
+function M.get_git_ref()
+	if git_ref == nil then
+		M.set_git_ref(M.get_primary_git_branch())
+	end
+	return git_ref
 end
 
 function M.get_primary_git_branch(default_branch)

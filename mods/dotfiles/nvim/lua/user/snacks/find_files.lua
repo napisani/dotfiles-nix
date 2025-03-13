@@ -6,6 +6,7 @@ local find_opts = {
 	ignored = false,
 }
 local M = {}
+
 function M.find_path_files(opts)
 	opts = opts or {}
 	local all_opts = vim.tbl_extend("force", opts, {
