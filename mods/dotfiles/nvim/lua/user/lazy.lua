@@ -31,16 +31,6 @@ require("lazy").setup({
 		-- -- import your plugins
 		-- { import = "plugins" },
 
-		{
-			"mrjones2014/legendary.nvim",
-			-- since legendary.nvim handles all your keymaps/commands,
-			-- its recommended to load legendary.nvim before other plugins
-			priority = 10000,
-			lazy = false,
-			-- sqlite is only needed if you want to use frecency sorting
-			-- dependencies = { 'kkharji/sqlite.lua' }
-		},
-
 		-- Useful lua functions used by lots of plugins
 		{ "nvim-lua/plenary.nvim" },
 
@@ -49,18 +39,14 @@ require("lazy").setup({
 
 		{ "tpope/vim-commentary" },
 		{ "JoosepAlviste/nvim-ts-context-commentstring" },
-		{ "kyazdani42/nvim-web-devicons" },
+		{ "nvim-tree/nvim-web-devicons", opts = {} },
 		{ "echasnovski/mini.icons" },
-		{ "kyazdani42/nvim-tree.lua" },
 		{ "akinsho/bufferline.nvim" },
 
-		-- for deleting buffers without closing windows
-		{ "moll/vim-bbye" },
 		{ "nvim-lualine/lualine.nvim" },
 
 		{ "lukas-reineke/indent-blankline.nvim" },
 
-		{ "goolord/alpha-nvim" },
 		{ "folke/which-key.nvim" },
 		{
 			"folke/trouble.nvim",
@@ -118,11 +104,11 @@ require("lazy").setup({
 		},
 		{ "williamboman/mason-lspconfig.nvim" },
 
+		-- TODO come back and see if i still need this
 		{
 			"rachartier/tiny-code-action.nvim",
 			dependencies = {
 				{ "nvim-lua/plenary.nvim" },
-				{ "nvim-telescope/telescope.nvim" },
 			},
 			event = "LspAttach",
 			config = function()
@@ -131,7 +117,12 @@ require("lazy").setup({
 				})
 			end,
 		},
-
+		{
+			"folke/snacks.nvim",
+			priority = 1000,
+			lazy = false,
+			opts = require("user.snacks").opts,
+		},
 		-- for formatters and linters
 		{
 			"creativenull/efmls-configs-nvim",
@@ -139,16 +130,16 @@ require("lazy").setup({
 			dependencies = { "neovim/nvim-lspconfig" },
 		},
 
-		-- Telescope
-		{ "nvim-telescope/telescope.nvim" },
-		{ "nvim-telescope/telescope-file-browser.nvim" },
-		{
-			"benfowler/telescope-luasnip.nvim",
-		},
-		{
-			"nvim-telescope/telescope-fzf-native.nvim",
-			build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
-		},
+		-- Telescope deprecated
+		-- { "nvim-telescope/telescope.nvim" },
+		-- { "nvim-telescope/telescope-file-browser.nvim" },
+		-- {
+		-- 	"benfowler/telescope-luasnip.nvim",
+		-- },
+		-- {
+		-- 	"nvim-telescope/telescope-fzf-native.nvim",
+		-- 	build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
+		-- },
 
 		-- Treesitter
 		{
@@ -173,9 +164,6 @@ require("lazy").setup({
 				"nvim-telescope/telescope.nvim", -- optional
 			},
 		},
-
-		-- vim.notify notifications
-		{ "rcarriga/nvim-notify" },
 
 		-- Rust tools
 		{ "simrat39/rust-tools.nvim" },
@@ -222,7 +210,8 @@ require("lazy").setup({
 		{ "norcalli/nvim-colorizer.lua" },
 
 		-- Install neoscopes.
-		{ "smartpde/neoscopes" },
+		-- Telescope deperecated
+		-- { "smartpde/neoscopes" },
 
 		-- { "napisani/neoscopes" }
 		-- ('/Users/nick/code/neoscopes')
@@ -242,7 +231,7 @@ require("lazy").setup({
 		-- 	end,
 		-- },
 
-		{ "karb94/neoscroll.nvim" },
+		-- { "karb94/neoscroll.nvim" },
 		{ "hkupty/iron.nvim" },
 
 		-- { "robitx/gp.nvim" },
@@ -254,14 +243,6 @@ require("lazy").setup({
 				"nvim-treesitter/nvim-treesitter",
 			},
 		},
-		{
-			"stevearc/dressing.nvim",
-			event = "VeryLazy",
-			config = function()
-				require("user.dressing").setup()
-			end,
-		},
-
 		-- {
 		-- 	"yetone/avante.nvim",
 		-- 	-- dir = "/Users/nick/code/avante.nvim",
@@ -399,22 +380,6 @@ require("lazy").setup({
 			"stevearc/overseer.nvim",
 			opts = {},
 		},
-
-		-- {
-		-- 	"folke/noice.nvim",
-		-- 	event = "VeryLazy",
-		-- 	opts = {
-		-- 		-- add any options here
-		-- 	},
-		-- 	dependencies = {
-		-- 		-- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
-		-- 		"MunifTanjim/nui.nvim",
-		-- 		-- OPTIONAL:
-		-- 		--   `nvim-notify` is only needed, if you want to use the notification view.
-		-- 		--   If not available, we use `mini` as the fallback
-		-- 		"rcarriga/nvim-notify",
-		-- 	},
-		-- },
 
 		-- {
 		--   '/Users/nick/code/nvim-dadbod-ext',

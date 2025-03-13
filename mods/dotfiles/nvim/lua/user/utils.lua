@@ -92,4 +92,27 @@ function M.close_all_buffers_except_current()
 	end
 end
 
+function M.debug_log(data, file_path)
+	file_path = file_path or "/tmp/nvim.log"
+
+	-- Convert data to string if it's not already
+	local content
+	if type(data) ~= "string" then
+		content = vim.inspect(data)
+	else
+		content = data
+	end
+
+	-- Append to file
+	local file = io.open(file_path, "a")
+	if file then
+		file:write(os.date("[%Y-%m-%d %H:%M:%S] "))
+		file:write(content)
+		file:write("\n\n")
+		file:close()
+	else
+		vim.notify("Failed to write to log file", vim.log.levels.ERROR)
+	end
+end
+
 return M

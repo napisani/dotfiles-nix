@@ -1,5 +1,0 @@
--- local status_ok, search_rules = pcall(require, "nvim-search-rules")
--- if not status_ok then
---   vim.notify("nvim-search-rules not found ")
---   return
--- end

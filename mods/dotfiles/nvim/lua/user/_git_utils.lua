@@ -6,6 +6,7 @@ end
 
 local project_utils = require("user._project_utils")
 local file_utils = require("user._file_utils")
+local git_ref = nil
 
 local M = {}
 
@@ -24,6 +25,17 @@ end
 
 function M.get_prod_git_branch()
 	return project_utils.get_project_config().branches.prod
+end
+
+function M.set_git_ref(ref)
+	git_ref = ref
+end
+
+function M.get_git_ref()
+	if git_ref == nil then
+		M.set_git_ref(M.get_primary_git_branch())
+	end
+	return git_ref
 end
 
 function M.get_primary_git_branch(default_branch)
@@ -45,7 +57,7 @@ function M.get_primary_git_branch(default_branch)
 	return default_branch
 end
 
-local function trimGitModificationIndicator(cmd_output)
+local function trim_git_modification_indicator(cmd_output)
 	return cmd_output:match("[^%s]+$")
 end
 
@@ -78,7 +90,7 @@ function M.git_changed_files()
 			cwd = file_utils.get_root_dir(),
 			on_exit = function(job)
 				for _, cmd_output in ipairs(job:result()) do
-					table.insert(file_list, trimGitModificationIndicator(cmd_output))
+					table.insert(file_list, trim_git_modification_indicator(cmd_output))
 				end
 			end,
 		}):sync()

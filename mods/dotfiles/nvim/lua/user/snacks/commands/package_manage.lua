@@ -21,6 +21,11 @@ local commands = {
 		":TSUpdate",
 		description = package_group .. "TreeSitter Update",
 	},
+
+	{
+		":KanagawaCompile",
+		description = package_group .. "Compile Kanagawa",
+	},
 }
 
 return {
