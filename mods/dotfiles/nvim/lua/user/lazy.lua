@@ -215,11 +215,10 @@ require("lazy").setup({
 
 		-- { "napisani/neoscopes" }
 		-- ('/Users/nick/code/neoscopes')
-		-- ('/Users/nick/code/nvim-github-codesearch')
-		{
-			"napisani/nvim-github-codesearch",
-			-- build = "direnv allow && make"
-		},
+		-- {
+		-- 	"napisani/nvim-github-codesearch",
+		-- 	-- build = "direnv allow && make"
+		-- },
 
 		-- copilot
 		{ "github/copilot.vim" },

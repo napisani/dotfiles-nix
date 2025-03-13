@@ -2,18 +2,36 @@
   description = "Home Manager configuration";
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-24.11-darwin";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nil.url = "github:oxalica/nil";
+    darwin = {
+      url = "github:lnl7/nix-darwin/nix-darwin-24.11";
+      inputs.nixpkgs.follows = "nixpkgs-darwin";
+    };
+    home-manager = {
+      url = "github:nix-community/home-manager/release-24.11";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # For using new modules before the realease of the next nixos version
+    home-manager-master = {
+      url = "github:nix-community/home-manager/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # Where we get most of our software. Giant mono repo with recipes
     # called derivations that say how to build software.
     # nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-24.05-darwin";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
-    home-manager.url = "github:nix-community/home-manager/release-24.05"; # ...
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    nixpkgs-unstable = { url = "github:nixos/nixpkgs/nixpkgs-unstable"; };
+    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    # home-manager.url = "github:nix-community/home-manager/release-24.11"; # ...
+    # home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    # nixpkgs-unstable = { url = "github:nixos/nixpkgs/nixpkgs-unstable"; };
 
     # Controls system level software and settings including fonts
-    darwin.url = "github:lnl7/nix-darwin";
-    darwin.inputs.nixpkgs.follows = "nixpkgs";
+    # darwin.url = "github:lnl7/nix-darwin/nix-darwin-24.11";
+    # darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     procmux.url = "github:napisani/procmux";
     procmux.inputs.nixpkgs.follows = "nixpkgs";

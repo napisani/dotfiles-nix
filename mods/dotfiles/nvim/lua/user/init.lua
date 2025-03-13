@@ -34,7 +34,7 @@ require("user.autocommands")
 require("user.nvim-dap")
 -- require("user.neoscroll")
 -- require("user.iron")
-require("user.github-search")
+-- require("user.github-search")
 
 -- require("user.search-rules")
 -- require("user.gp")

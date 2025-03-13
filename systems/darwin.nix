@@ -3,7 +3,9 @@
   programs = {
     bash = {
       enable = true;
-      enableCompletion = true;
+      completion = {
+        enable = true;
+      }; 
     };
   };
 
@@ -53,11 +55,11 @@
   };
   environment = {
     shells = [ pkgs.bash ];
-    loginShell = pkgs.bash;
+    # loginShell = pkgs.bash;
     systemPackages = with pkgs; [ bashInteractive coreutils gnugrep ];
   };
-  fonts.fontDir.enable = true; # DANGER
-  fonts.fonts = [
+  # fonts.fontDir.enable = true; # DANGER
+  fonts.packages = [
     (pkgs.nerdfonts.override {
       fonts = [ "Meslo" "JetBrainsMono" "NerdFontsSymbolsOnly" ];
     })
@@ -82,8 +84,9 @@
     #};
   };
   nix = {
-    package = pkgs.nixFlakes;
-    extraOptions = lib.optionalString (config.nix.package == pkgs.nixFlakes)
+    package = pkgs.nixVersions.stable;
+    extraOptions =
+      lib.optionalString (config.nix.package == pkgs.nixVersions.stable)
       "experimental-features = nix-command flakes";
   };
   system = {

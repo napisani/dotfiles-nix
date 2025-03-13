@@ -18,13 +18,14 @@ in {
       wget
       #postman
       doppler
-      pkgs.bitwarden-cli
+      bitwarden-cli
       pet
       tree-sitter
       ncdu
       git-lfs
       discordo
       ngrok
+      fd
 
       # search for packages on nixos
       nix-search-cli
