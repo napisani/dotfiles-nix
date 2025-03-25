@@ -21,7 +21,7 @@ local normal_mappings = {
 	{ "<leader>cf", group = "(F)ile" },
 	{ "<leader>cfH", "<Cmd>:DiffviewOpen HEAD -- %<CR>", desc = "diff (H)ead" },
 	{
-		"<leader>cfm",
+		"<leader>cfr",
 		function()
 			local ref = utils.get_git_ref()
 			vim.cmd("DiffviewOpen " .. ref .. " -- %")

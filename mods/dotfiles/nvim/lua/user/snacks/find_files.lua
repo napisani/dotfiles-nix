@@ -40,7 +40,7 @@ M.toggle_explorer_tree = function()
 		cmd = "rg",
 		tree = true,
 		follow_file = true,
-		auto_close = true,
+		auto_close = false,
 		hidden = true,
 		ignored = false,
 		layout = { preset = "sidebar", preview = false },

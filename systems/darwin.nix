@@ -48,7 +48,7 @@
       # "mongodb-community"
       "procmux"
       # "mkcert"
-      # "mongodb-atlas-cli"
+      "mongodb-atlas-cli"
     ];
     # any custom taps / repos
     taps = [ "napisani/procmux" "homebrew/cask-versions" "mongodb/brew" ];

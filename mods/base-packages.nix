@@ -26,6 +26,7 @@ in {
       discordo
       ngrok
       fd
+      duckdb
 
       # search for packages on nixos
       nix-search-cli

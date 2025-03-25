@@ -31,7 +31,7 @@ local M = {
 		-- elsewhere in your config, without redefining it, due to `opts_extend`
 		sources = {
 			default = { "lsp", "path", "snippets", "buffer" },
-			per_filetype = { codecompanion = { "context_nvim" } },
+			per_filetype = { codecompanion = { "context_nvim" }, snacks_input = { "context_nvim" } },
 			providers = {
 				context_nvim = {
 					enabled = true,
