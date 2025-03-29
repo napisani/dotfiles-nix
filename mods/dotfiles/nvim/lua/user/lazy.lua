@@ -20,7 +20,7 @@ vim.opt.rtp:prepend(lazypath)
 -- loading lazy.nvim so that mappings are correct.
 -- This is also a good place to setup other settings (vim.opt)
 vim.g.mapleader = " "
-vim.g.maplocalleader = " "
+vim.g.maplocalleader = ";"
 
 vim.g.nvim_dadbod_bg_port = "4545"
 vim.g.nvim_dadbod_bg_log_file = "/tmp/nvim-dadbod-dbg.log"

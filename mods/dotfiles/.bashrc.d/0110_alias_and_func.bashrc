@@ -79,11 +79,11 @@ function color-test {
   awk -v term_cols="${width:-$(tput cols || echo 80)}" -v term_lines="${height:-1}" 'BEGIN{
       s="/\\";
       total_cols=term_cols*term_lines;
-      for (colnum = 0; colnum<total_cols; colnum++) {
-          r = 255-(colnum*255/total_cols);
-          g = (colnum*510/total_cols);
-          b = (colnum*255/total_cols);
-          if (g>255) g = 510-g;
+      for (colnum=0; colnum<total_cols; colnum++) {
+          r=255-(colnum*255/total_cols);
+          g=(colnum*510/total_cols);
+          b=(colnum*255/total_cols);
+          if (g>255) g=510-g;
           printf "\033[48;2;%d;%d;%dm", r,g,b;
           printf "\033[38;2;%d;%d;%dm", 255-r,255-g,255-b;
           printf "%s\033[0m", substr(s,colnum%2+1,1);
@@ -154,5 +154,10 @@ function nix-update-home-packages() {
 alias stame='scrollbacktamer'
 alias stame-last='scrollbacktamer -last 1'
 
-
+alias nix-clean="sudo nix-collect-garbage -d";
+alias nix-home-clean="home-manager expire-generations -d";
+alias nix-orphans="nix store gc && sudo nix store optimize";
+alias nix-wipe= "sudo nix profile wipe-history";
+alias nix-hm-clean-old="home-manager remove-generations old";
+alias nix-system-clean="nix-clean && nix-home-clean && nix-orphans && nix-wipe && nix-hm-clean-old";
 
