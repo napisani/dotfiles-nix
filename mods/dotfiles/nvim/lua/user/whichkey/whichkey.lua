@@ -10,6 +10,7 @@ local ai_mapping = require("user.whichkey.ai")
 local Snacks = require("snacks")
 local git = require("user.whichkey.git")
 local changes = require("user.whichkey.changes")
+local repl = require("user.whichkey.repl")
 
 local root_mapping = {
 	{ '<leader>"', "<cmd>:split<cr>", desc = "Horizontal Split" },
@@ -53,18 +54,6 @@ local quit = {
 		end,
 		desc = "Close Buffer",
 	},
-}
-
-local repl = {
-	{ "<leader>R", group = "REPL" },
-	{ "<leader>Rc", desc = "send motion / visual send" },
-	{ "<leader>Rf", desc = "send (f)ile" },
-	{ "<leader>Rl", desc = "send (l)ine" },
-	{ "<leader>Rmc", desc = "mark motion/visual" },
-	{ "<leader>Rmd", desc = "(d)elete mark" },
-	{ "<leader>Ro", "<cmd>:IronRepl<cr>", desc = "(O)pen REPL" },
-	{ "<leader>Rq", desc = "(q)uit repl" },
-	{ "<leader>Rx", desc = "clear repl" },
 }
 
 local write_all = {
@@ -168,6 +157,7 @@ local mapping_n = utils.extend_lists(
 	replace_mapping.mapping_n,
 	git.mapping_n,
 	changes.mapping_n,
+	repl.mapping_n,
 	{
 		{ "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
 	}
@@ -177,7 +167,7 @@ local mapping_v = {
 	mode = { "v" },
 	utils.extend_lists(find_mapping.mapping_v, search_mapping.mapping_v, {
 		{ "<leader>lc", "<Plug>ContextCommentary", desc = "(c)omment" },
-	}, git.mapping_v, changes.mapping_v, ai_mapping.mapping_v, replace_mapping.mapping_v),
+	}, git.mapping_v, changes.mapping_v, ai_mapping.mapping_v, replace_mapping.mapping_v, repl.mapping_v),
 }
 
 -- Register mapping
@@ -188,13 +178,13 @@ local shared_mapping = {
 	database,
 	lazy_system,
 	quit,
-	repl,
 	write_all,
 	buffers,
 	overseer,
 	debugging,
 	git.mapping_shared,
 	changes.mapping_shared,
+	ai_mapping.mapping_shared,
 	lsp,
 }
 
