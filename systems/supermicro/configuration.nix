@@ -28,6 +28,7 @@
   systemd.targets.hibernate.enable = false;
   systemd.targets.hybrid-sleep.enable = false;
 
+
   # enable zfs
   boot.supportedFilesystems = [ "zfs" ];
   boot.zfs.forceImportRoot = false;

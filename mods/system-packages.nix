@@ -7,6 +7,6 @@ let
     kubectl delete deployment mongo -n home
   '';
 in {
-  environment.systemPackages = with pkgs; [ tmux unzip wget kubectl kubekill ];
+  environment.systemPackages = with pkgs; [ tmux unzip wget kubectl kubekill inotify-tools ];
 
 }

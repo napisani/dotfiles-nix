@@ -43,6 +43,8 @@
   # };
 
   fileSystems."/media/storage" = {
+
+    # Your existing mount options here, plus:
     device = "storagepool/storage";
     fsType = "zfs";
   };
