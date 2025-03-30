@@ -154,10 +154,14 @@ function nix-update-home-packages() {
 alias stame='scrollbacktamer'
 alias stame-last='scrollbacktamer -last 1'
 
-alias nix-clean="sudo nix-collect-garbage -d";
-alias nix-home-clean="home-manager expire-generations -d";
-alias nix-orphans="nix store gc && sudo nix store optimize";
-alias nix-wipe= "sudo nix profile wipe-history";
-alias nix-hm-clean-old="home-manager remove-generations old";
-alias nix-system-clean="nix-clean && nix-home-clean && nix-orphans && nix-wipe && nix-hm-clean-old";
+
+
+nix_system_clean() {
+    sudo nix-collect-garbage -d
+    home-manager expire-generations -d
+    nix store gc && sudo nix store optimise
+    sudo nix profile wipe-history
+    home-manager remove-generations old
+    echo "Nix system cleaning complete!"
+}
 
