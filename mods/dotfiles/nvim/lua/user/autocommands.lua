@@ -66,6 +66,24 @@ vim.api.nvim_create_autocmd("FileType", {
 	end,
 })
 
+-- Define a function to set slime cell delimiters
+local function set_slime_cell_delimiter()
+	local filetype = vim.bo.filetype
+	if filetype == "javascript" then
+		vim.b.slime_cell_delimiter = "\\/\\/ --"
+	else
+		vim.b.slime_cell_delimiter = "# --"
+	end
+end
+
+-- Create an autocommand group for Slime cell delimiters
+vim.api.nvim_create_augroup("SlimeCellDelimiters", { clear = true })
+
+-- Add the autocommand to set the delimiter on file type change
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "*" },
+	callback = set_slime_cell_delimiter,
+})
 -- Autoformat
 -- augroup _lsp
 --   autocmd!
