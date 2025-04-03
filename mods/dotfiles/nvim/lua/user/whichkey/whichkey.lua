@@ -100,6 +100,14 @@ local buffers = {
 		end,
 		desc = "(y)ank filename",
 	},
+
+	{
+		"<leader>bpgo",
+		function()
+			Snacks.gitbrowse()
+		end,
+		desc = "(o)pen in browser",
+	},
 }
 
 local overseer = {
