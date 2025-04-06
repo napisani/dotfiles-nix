@@ -110,8 +110,9 @@ zpool create -O compression=on -O mountpoint=none -O xattr=sa -O acltype=posixac
 
 zfs create -o mountpoint=legacy storagepool/storage
 sudo zfs set acltype=posixacl storagepool/storage
-sudo zfs set aclinherit=passthrough  storagepool/storage
-sudo zfs set aclmode=passthrough  storagepool/storage
+sudo zfs set aclinherit=discard storagepool/storage
+sudo zfs set aclmode=discard storagepool/storage
 sudo zfs get acltype,aclinherit,aclmode storagepool/storage
+sudo zfs set aclmode=discard storagepool/storage
 mount -t zfs storagepool/storage /media/storage
 ```
