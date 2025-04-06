@@ -8,6 +8,8 @@ local utils = require("user.utils")
 local eslint_d_lint = require("efmls-configs.linters.eslint_d")
 local eslint_d_format = require("efmls-configs.formatters.eslint_d")
 
+local nvim_lsp = require("lspconfig")
+
 local prettier = require("efmls-configs.formatters.prettier")
 local stylua = require("efmls-configs.formatters.stylua")
 local fixjson = require("efmls-configs.formatters.fixjson")
@@ -42,11 +44,26 @@ local biome_custom_format = vim.tbl_extend("force", biome, {
 --   lintSource = "oxlint",
 -- }
 
+function is_deno_project()
+	local matcher = nvim_lsp.util.root_pattern("deno.json", "deno.jsonc")
+	local deno_found = matcher(vim.fn.expand("%:p"))
+	if deno_found then
+		return true
+	end
+	return false
+end
+
 local function get_js_linters()
+	local deno_found = is_deno_project()
 	local linters = {}
 	if next(project_lint_config) == nil then
-		table.insert(linters, eslint_d_lint)
-		table.insert(linters, eslint_d_format)
+		if deno_found then
+			table.insert(linters, deno_fmt)
+		else
+			table.insert(linters, eslint_d_lint)
+			table.insert(linters, eslint_d_format)
+		end
+
 		-- local file = io.open("/tmp/output.txt", "w")
 		-- if file then
 		-- 	file:write(vim.inspect(eslint_d_lint))

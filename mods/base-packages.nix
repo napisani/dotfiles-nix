@@ -39,6 +39,7 @@ in {
       animal_rescue.packages.${pkgs.system}.default
       scrollbacktamer.packages.${pkgs.system}.default
       lazydocker
+      tmuxp
       #pkgs.pscale
       #pkgs.mysql80
       #pkgs.pulumi

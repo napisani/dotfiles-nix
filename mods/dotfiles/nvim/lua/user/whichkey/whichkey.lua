@@ -12,6 +12,7 @@ local git = require("user.whichkey.git")
 local changes = require("user.whichkey.changes")
 local repl = require("user.whichkey.repl")
 local scopes = require("user.whichkey.scopes")
+local lsp = require("user.whichkey.lsp")
 
 local root_mapping = {
 	{ '<leader>"', "<cmd>:split<cr>", desc = "Horizontal Split" },
@@ -140,25 +141,6 @@ local debugging = {
 	{ "<leader>dr", "<Cmd>lua require'dap'.repl.open()<CR>", desc = "open REPL" },
 }
 
-local lsp = {
-	{ "<leader>l", group = "LSP" },
-	{ "<leader>lR", "<cmd>:LspRestart<cr>", desc = "(R)estart LSPs" },
-	-- { "<leader>lS", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", desc = "workspace (S)ymbols" },
-	-- { "<leader>la", "<cmd>lua vim.lsp.buf.code_action()<cr>", desc = "Code (a)ction" },
-	{ "<leader>la", "<cmd>lua require('tiny-code-action').code_action()<cr>", desc = "Code (a)ction" },
-	-- { "<leader>ld", "<cmd>Telescope lsp_document_diagnostics<cr>", desc = "(d)ocument diagnostics" },
-	{ "<leader>lf", "<cmd>lua vim.lsp.buf.format{ async=true, name = 'efm' }<cr>", desc = "(f)ormat" },
-	{ "<leader>li", desc = "organize (i)mports" },
-	{ "<leader>lj", "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", desc = "Next Diagnostic" },
-	{ "<leader>lk", "<cmd>lua vim.lsp.diagnostic.goto_prev()<cr>", desc = "Prev Diagnostic" },
-	{ "<leader>lh", "<cmd>lua require('user.lsp.handlers').toggle_inlay_hints()<cr>", desc = "inlay (h)ints" },
-	{ "<leader>ll", "<cmd>lua vim.lsp.codelens.run()<cr>", desc = "Codea(l)ens Action" },
-	{ "<leader>lq", "<cmd>lua vim.lsp.diagnostic.set_loclist()<cr>", desc = "(q)uickfix" },
-	{ "<leader>lr", "<cmd>lua vim.lsp.buf.rename()<cr>", desc = "(r)ename" },
-	-- { "<leader>ls", "<cmd>Telescope lsp_document_symbols<cr>", desc = "document (s)ymbols" },
-	-- { "<leader>lw", "<cmd>Telescope lsp_workspace_diagnostics<cr>", desc = "(w)orkspace diagnostics" },
-}
-
 local mapping_n = utils.extend_lists(
 	find_mapping.mapping_n,
 	search_mapping.mapping_n,
@@ -168,9 +150,7 @@ local mapping_n = utils.extend_lists(
 	changes.mapping_n,
 	repl.mapping_n,
 	scopes.mapping_n,
-	{
-		{ "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
-	}
+  lsp.mapping_n
 )
 
 local mapping_v = {
@@ -186,7 +166,8 @@ local mapping_v = {
 		ai_mapping.mapping_v,
 		replace_mapping.mapping_v,
 		repl.mapping_v,
-		scopes.mapping_v
+		scopes.mapping_v,
+    lsp.mapping_v
 	),
 }
 
@@ -206,7 +187,7 @@ local shared_mapping = {
 	changes.mapping_shared,
 	ai_mapping.mapping_shared,
 	scopes.mapping_shared,
-	lsp,
+  lsp.mapping_shared,
 }
 
 for _, mapping in ipairs(shared_mapping) do
