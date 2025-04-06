@@ -44,6 +44,9 @@
 
     scrollbacktamer.url = "github:napisani/scrollbacktamer";
 
+    # old_bitwarden.url =
+    #   "github:NixOS/nixpkgs/dd613136ee91f67e5dba3f3f41ac99ae89c5406b";
+
   };
 
   outputs = { flake-utils, nixpkgs, nixpkgs-unstable, home-manager, darwin
@@ -74,7 +77,6 @@
             overlays = [
               # import ./packages/node/node-packages.nix
               # inputs.neovim-nightly-overlay.overlay
-
 
             ];
 

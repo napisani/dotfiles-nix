@@ -3,6 +3,7 @@
 let
   languagePackages = import ./languages/all.nix { inherit pkgs pkgs-unstable; };
 in {
+
   home.packages = with pkgs-unstable;
     languagePackages ++ [
       pkgs.bashInteractive
@@ -18,7 +19,7 @@ in {
       wget
       #postman
       doppler
-      bitwarden-cli
+      # old_bitwarden.bitwarden-cli
       pet
       tree-sitter
       ncdu
