@@ -28,7 +28,6 @@
   systemd.targets.hibernate.enable = false;
   systemd.targets.hybrid-sleep.enable = false;
 
-
   # enable zfs
   boot.supportedFilesystems = [ "zfs" ];
   boot.zfs.forceImportRoot = false;
@@ -173,9 +172,9 @@
   services.cron = {
     enable = true;
     systemCronJobs = [
-      "0 1 * * *      root    k3s kubectl exec -n home `k3s kubectl get pods -n home | grep pgvector | awk '{ print $1 }'`  -- bash -c 'pg_dumpall -U homelab' > /media/storage/computer_backups/supermicro/pgvector_backup.sql"
-      "1 1 * * *      root    k3s kubectl exec -n home `k3s kubectl get pods -n home | grep postgres | awk '{ print $1 }'`  -- bash -c 'pg_dumpall -U homelab' > /media/storage/computer_backups/supermicro/postgres_backup.sql"
-      "2 1 * * *      root    k3s kubectl exec -n home `k3s kubectl get pods -n home | grep mongo | awk '{ print $1 }'` -- /usr/bin/mongodump --uri 'mongodb://localhost:27017' --archive  > /media/storage/computer_backups/supermicro/mongo_backup.dump"
+      "0 1 * * *      root    bash ~/.config/home-manager/mods/dotfiles/supermicro_scripts/backup_pgvector.sh"
+      "1 1 * * *      root    bash ~/.config/home-manager/mods/dotfiles/supermicro_scripts/backup_postgres.sh"
+      "2 1 * * *      root    bash ~/.config/home-manager/mods/dotfiles/supermicro_scripts/backup_mongo.sh"
       "10 1 * * *      root    rsync -rlv --delete /home/nick/ /media/storage/computer_backups/supermicro/home"
 
     ];
