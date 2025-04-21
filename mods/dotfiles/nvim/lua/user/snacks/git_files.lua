@@ -18,7 +18,7 @@ M.git_changed_cmp_base_branch = function(opts)
 	opts = opts or {}
 	opts.cwd = utils.get_root_dir()
 
-	local base_branch = utils.get_primary_git_branch()
+	local base_branch = utils.get_git_ref()
 	local cmd = { "git" }
 	local args = utils.git_changed_in_branch().get_git_args(base_branch)
 	for _, arg in ipairs(args) do

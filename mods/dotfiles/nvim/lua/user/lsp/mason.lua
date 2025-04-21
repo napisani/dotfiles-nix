@@ -63,7 +63,7 @@ mason_lspconfig.setup({
 local client_to_fix_import_fns = {}
 
 M.fix_all_imports = function()
-	local active_clients = vim.lsp.get_active_clients()
+	local active_clients = vim.lsp.get_clients()
 	for _, client in ipairs(active_clients) do
 		local client_name = client.name
 		local fn = client_to_fix_import_fns[client_name]

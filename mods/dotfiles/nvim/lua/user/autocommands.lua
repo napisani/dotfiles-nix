@@ -48,7 +48,7 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 		-- lsp_mason.fix_all_imports()
 
 		-- run formatters
-		local efm = vim.lsp.get_active_clients({ name = "efm", bufnr = ev.buf })
+		local efm = vim.lsp.get_clients({ name = "efm", bufnr = ev.buf })
 		if vim.tbl_isempty(efm) then
 			return
 		end

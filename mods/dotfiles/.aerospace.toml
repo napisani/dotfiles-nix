@@ -190,6 +190,14 @@ alt-space= 'mode service'
 
 # 'service' binding mode declaration.
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
+
+alt-shift-rightSquareBracket=['layout floating tiling', 'mode main']
+alt-shift-r = ['reload-config', 'mode main', 'flatten-workspace-tree', 'mode main'] 
+
+# [[on-window-detected]]
+#     check-further-callbacks = true
+#     run = 'layout floating'
+
 [mode.service.binding]
 esc = ['reload-config', 'mode main']
 r = ['flatten-workspace-tree', 'mode main'] # reset layout
@@ -212,3 +220,4 @@ alt-shift-l = ['join-with right', 'mode main']
 down = 'volume down'
 up = 'volume up'
 shift-down = ['volume set 0', 'mode main']
+

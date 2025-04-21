@@ -38,7 +38,8 @@
 -- }
 local mapping_n = {
 	{ "<leader>a", group = "(a)i" },
-	{ "<leader>aa", "<cmd>:CodeCompanionChat<cr>", desc = "(c)reate new chat" },
+	{ "<leader>aa", "<cmd>:CodeCompanionChat<cr>", desc = "(a)dd to chat" },
+	{ "<leader>aA", "<cmd>:CodeCompanionActions<cr>", desc = "(A)ctions" },
 	{ "<leader>ae", "<cmd>:CodeCompanion<cr>", desc = "(I)nline / rewrite results" },
 	{ "<leader>ao", "<cmd>:CodeCompanionChat Toggle<cr>", desc = "(o)pen existing chat" },
 	{ "<leader>aq", "<cmd>:CodeCompanionChat Toggle<cr>", desc = "(q)uit chat" },
@@ -60,6 +61,7 @@ local mapping_v = {
 	{ "<leader>a", group = "(a)i" },
 	-- { "<leader>ai", ":<C-u>'<,'>GpAppend<cr>", desc = "(a)ppend results" },
 	{ "<leader>aa", ":<C-u>'<,'>CodeCompanionChat Add<cr>", desc = "(c)reate new chat" },
+  { "<leader>aA", ":<C-u>'<,'>CodeCompanionActions<cr>", desc = "(A)ctions" },
 	{ "<leader>ae", ":<C-u>'<,'>CodeCompanion<cr>", desc = "(I)nline / rewrite" },
 	{ "<leader>ao", ":<C-u>'<,'>CodeCompanionChat Add<cr>", desc = "(o)pen existing chat" },
 	{ "<leader>aq", ":<C-u>'<,'>CodeCompanionChat Toggle<cr>", desc = "(q)uit chat" },

@@ -17,7 +17,7 @@ end
 
 function M.live_grep_git_changed_cmp_base_branch(opts)
 	opts = opts or {}
-	local base_branch = utils.get_primary_git_branch()
+	local base_branch = utils.get_git_ref()
 	local file_list = utils.git_changed_in_branch().get_files(base_branch)
 	local all_opts = vim.tbl_extend("force", opts, {
 		cmd = cmd,

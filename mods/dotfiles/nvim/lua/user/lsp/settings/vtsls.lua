@@ -1,15 +1,15 @@
 local vtsls = require("vtsls")
 local nvim_lsp = require("lspconfig")
 local fix_all_imports = function(bufnr)
-	-- vim.lsp.buf.code_action({ apply = true, context = { only = { "source.addMissingImports.ts" } } })
-	-- vim.lsp.buf.code_action({ apply = true, context = { only = { "source.removeUnusedImports.ts" } } })
-	vim.cmd("noautocmd write")
-	vtsls.commands.add_missing_imports(bufnr)
-	vim.cmd("noautocmd write")
-	-- vim.cmd("sleep 600m")
-	-- refresh the buffer from disk
-	vim.cmd("edit!")
-	vtsls.commands.remove_unused_imports(bufnr)
+	vim.lsp.buf.code_action({ apply = true, context = { only = { "source.addMissingImports.ts" } } })
+	vim.lsp.buf.code_action({ apply = true, context = { only = { "source.removeUnusedImports.ts" } } })
+	-- vim.cmd("noautocmd write")
+	-- vtsls.commands.add_missing_imports(bufnr)
+	-- vim.cmd("noautocmd write")
+	-- -- vim.cmd("sleep 600m")
+	-- -- refresh the buffer from disk
+	-- vim.cmd("edit!")
+	-- vtsls.commands.remove_unused_imports(bufnr)
 	-- vtsls.commands.organize_imports(bufnr)
 end
 
