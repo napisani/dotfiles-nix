@@ -4,17 +4,26 @@
       enable = true;
       enableBashIntegration = true;
     };
+
     bash = {
       enable = true;
-      profileExtra = ''
-        for file in ~/.bashrc.d/*.bashrc
-        do
-            file_only=$(basename "$file")
-            if ! grep -q "$file_only" ~/.bashrc.d/excludes.txt; then
-                source "$file"
-            fi
-        done
+
+      bashrcExtra = ''
+        source ${pkgs.blesh}/share/blesh/ble.sh
+         # [[ $- == *i* ]] && source "$(blesh-share)"/ble.sh --noattach
+
+         for file in ~/.bashrc.d/*.bashrc
+         do
+             file_only=$(basename "$file")
+             if ! grep -q "$file_only" ~/.bashrc.d/excludes.txt; then
+                 source "$file"
+             fi
+         done
+
+         # [[ ! ''${BLE_VERSION-} ]] || ble-attach
       '';
+
+      # profileExtra = "";
       shellAliases = {
         vim = "nvim";
         grep = "grep --color=auto";
@@ -66,6 +75,7 @@
       ./dotfiles/discordo-config.toml;
     ".config/starship.toml".source = ./dotfiles/starship.toml;
     ".config/.secret_inject.json".source = ./dotfiles/secret_inject.json;
+    ".blerc".source = ./dotfiles/.blerc;
   };
 }
 

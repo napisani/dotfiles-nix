@@ -7,6 +7,7 @@ in {
   home.packages = with pkgs-unstable;
     languagePackages ++ [
       pkgs.bashInteractive
+      blesh
       bat
       btop
       coreutils

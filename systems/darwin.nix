@@ -70,7 +70,7 @@
   environment = {
     shells = [ pkgs.bash ];
     # loginShell = pkgs.bash;
-    systemPackages = with pkgs; [ bashInteractive coreutils gnugrep ];
+    systemPackages = with pkgs; [ bashInteractive coreutils gnugrep blesh ];
   };
   # fonts.fontDir.enable = true; # DANGER
   fonts.packages = [
