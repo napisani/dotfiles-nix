@@ -1,12 +1,14 @@
 { pkgs, config, ... }: {
+
   programs = {
     fzf = {
       enable = true;
-      enableBashIntegration = true;
+      enableZshIntegration = true;
     };
-    bash = {
+    zsh = {
       enable = true;
       profileExtra = ''
+        export PATH="${pkgs.zsh}/bin:$PATH"
         for file in ~/.bashrc.d/*.bashrc
         do
             file_only=$(basename "$file")
@@ -15,6 +17,7 @@
             fi
         done
       '';
+
       shellAliases = {
         vim = "nvim";
         grep = "grep --color=auto";
@@ -35,7 +38,7 @@
     gh.enable = true;
     direnv = {
       enable = true;
-      enableBashIntegration = true;
+      enableZshIntegration = true;
       nix-direnv.enable = true;
     };
     starship.enable = true;
@@ -67,5 +70,9 @@
     ".config/starship.toml".source = ./dotfiles/starship.toml;
     ".config/.secret_inject.json".source = ./dotfiles/secret_inject.json;
   };
+
+  # home.sessionVariables.PATH = "${pkgs.zsh}/bin:"
+  #   + config.home.sessionVariables.PATH;
+  home.sessionVariables.SHELL = "${pkgs.zsh}/bin/zsh";
 }
 

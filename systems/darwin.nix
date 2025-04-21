@@ -68,9 +68,9 @@
     taps = [ "napisani/procmux" "homebrew/cask-versions" "mongodb/brew" ];
   };
   environment = {
-    shells = [ pkgs.bash ];
+    shells = [ pkgs.zsh ];
     # loginShell = pkgs.bash;
-    systemPackages = with pkgs; [ bashInteractive coreutils gnugrep ];
+    systemPackages = with pkgs; [ coreutils gnugrep ];
   };
   # fonts.fontDir.enable = true; # DANGER
   fonts.packages = [
