@@ -40,7 +40,7 @@ function M.find_path_files(opts)
 
 	local find_command = {
 		"ls",
-		"-Ap",
+		"-ap",
 		"--color=never",
 		parent_path,
 	}
@@ -56,7 +56,9 @@ function M.find_path_files(opts)
 				local items = {}
 				for _, v in ipairs(filtered) do
 					local file = parent_path .. "/" .. v
-					table.insert(items, { text = v, file = file })
+					if v ~= "." and v ~= "./" then
+            table.insert(items, { text = v, file = file })
+					end
 				end
 
 				local all_opts = vim.tbl_extend("force", opts, {
