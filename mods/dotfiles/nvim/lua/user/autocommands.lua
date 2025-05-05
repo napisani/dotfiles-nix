@@ -66,6 +66,19 @@ vim.api.nvim_create_autocmd("FileType", {
 	end,
 })
 
+-- add support for .env files
+vim.filetype.add({
+	extension = {
+		env = "sh",
+	},
+	filename = {
+		[".env"] = "sh",
+	},
+	pattern = {
+		["%.env%.[%w_.-]+"] = "sh",
+	},
+})
+
 -- Define a function to set slime cell delimiters
 local function set_slime_cell_delimiter()
 	local filetype = vim.bo.filetype
