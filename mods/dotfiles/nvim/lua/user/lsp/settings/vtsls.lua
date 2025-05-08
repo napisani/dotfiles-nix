@@ -7,8 +7,8 @@ local fix_all_imports = function(bufnr)
 	end
 
 	vtsls.commands.add_missing_imports(bufnr)
-	vtsls.commands.remove_unused_imports(bufnr)
-	vtsls.commands.organize_imports(bufnr)
+	--vtsls.commands.remove_unused_imports(bufnr)
+	--vtsls.commands.organize_imports(bufnr)
 end
 
 return {

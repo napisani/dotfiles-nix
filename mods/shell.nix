@@ -4,6 +4,13 @@
       enable = true;
       enableBashIntegration = true;
     };
+    atuin = {
+      enable = true;
+      settings = {
+        style = "compact";
+        sync_address = "https://atuin.napisani.xyz";
+      };
+    };
     bash = {
       enable = true;
       profileExtra = ''

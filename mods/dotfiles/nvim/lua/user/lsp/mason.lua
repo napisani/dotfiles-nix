@@ -36,7 +36,7 @@ local servers = {
 	tailwindcss = {},
 	taplo = {},
 	-- tsserver = { npm = "typescript-language-server", skip = true }, -- npm install -g typescript typescript-language-server
-	denols = {},
+	-- denols = {},
 	yamlls = {},
 	vtsls = {
 		npm = "@vtsls/language-server",
@@ -55,7 +55,9 @@ for server, _ in pairs(servers) do
 end
 
 mason.setup({})
+
 mason_lspconfig.setup({
+	automatic_enable = false,
 	ensure_installed = servers_only,
 	automatic_installation = true,
 })
