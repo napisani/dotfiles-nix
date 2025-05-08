@@ -33,6 +33,8 @@
   boot.zfs.forceImportRoot = false;
   networking.hostId = "14ad4931";
 
+  # Add the sysctl parameter for inotify max_user_instances
+  boot.kernel.sysctl = { "fs.inotify.max_user_instances" = 512; };
   # boot.loader.grub.efiSupport = true;
   # boot.loader.grub.efiInstallAsRemovable = true;
   # boot.loader.efi.efiSysMountPoint = "/boot/efi";
