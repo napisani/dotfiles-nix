@@ -61,11 +61,16 @@
     brews = [
       # "mongodb-community"
       "procmux"
+      "sst/tap/opencode"
       # "mkcert"
-      "mongodb-atlas-cli"
+      # "mongodb-atlas-cli"
     ];
     # any custom taps / repos
-    taps = [ "napisani/procmux" "homebrew/cask-versions" "mongodb/brew" ];
+    taps = [
+      "napisani/procmux"
+      "homebrew/cask-versions"
+      "mongodb/brew"
+    ];
   };
   environment = {
     shells = [ pkgs.bash ];
