@@ -66,11 +66,7 @@
       # "mongodb-atlas-cli"
     ];
     # any custom taps / repos
-    taps = [
-      "napisani/procmux"
-      "homebrew/cask-versions"
-      "mongodb/brew"
-    ];
+    taps = [ "napisani/procmux" "homebrew/cask-versions" "mongodb/brew" ];
   };
   environment = {
     shells = [ pkgs.bash ];

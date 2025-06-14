@@ -47,6 +47,7 @@ local mapping_n = {
 	{ "<leader>acl", ":ContextNvim add_line_lsp_daig<cr>", desc = "(l)sp diag to context" },
 	{ "<leader>acx", ":ContextNvim clear_manual<cr>", desc = "clear context" },
 	{ "<leader>ap", ":ContextNvim insert_prompt<cr>", desc = "insert (p)rompt" },
+	{ "<leader>aw", desc = "s(w)itch adapter" },
 
 	{ "<leader>tr", group = "(r)run" },
 	-- { "<leader>are", "<cmd>:GpExplain<cr>", desc = "(e)xplian" },
@@ -61,7 +62,7 @@ local mapping_v = {
 	{ "<leader>a", group = "(a)i" },
 	-- { "<leader>ai", ":<C-u>'<,'>GpAppend<cr>", desc = "(a)ppend results" },
 	{ "<leader>aa", ":<C-u>'<,'>CodeCompanionChat Add<cr>", desc = "(c)reate new chat" },
-  { "<leader>aA", ":<C-u>'<,'>CodeCompanionActions<cr>", desc = "(A)ctions" },
+	{ "<leader>aA", ":<C-u>'<,'>CodeCompanionActions<cr>", desc = "(A)ctions" },
 	{ "<leader>ae", ":<C-u>'<,'>CodeCompanion<cr>", desc = "(I)nline / rewrite" },
 	{ "<leader>ao", ":<C-u>'<,'>CodeCompanionChat Add<cr>", desc = "(o)pen existing chat" },
 	{ "<leader>aq", ":<C-u>'<,'>CodeCompanionChat Toggle<cr>", desc = "(q)uit chat" },

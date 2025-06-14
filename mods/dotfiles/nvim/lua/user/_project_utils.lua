@@ -15,6 +15,8 @@ local default_config = {
 
 	db_ui_save_location = "~/.local/share/dbui",
 	db_ui_tmp_query_location = "/tmp/dbui",
+
+  codecompanion = {}
 }
 
 local project_config = nil

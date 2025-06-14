@@ -3,6 +3,12 @@ if not codecompanion then
 	vim.notify("codecompanion not found", vim.log.levels.ERROR)
 	return
 end
+
+local project_utils = require("user._project_utils")
+local proj_conf = project_utils.get_project_config().codecompanion or {}
+
+local prompt_library = proj_conf.prompt_library or {}
+
 codecompanion.setup({
 
 	adapters = {
@@ -38,7 +44,20 @@ codecompanion.setup({
 				previous_chat = {
 					modes = { n = "[c" },
 				},
+
+				debug = {
+					modes = { n = "gD" },
+					description = "Debug the current chat",
+				},
+
+				goto_file_under_cursor = {
+					modes = { n = "gd" },
+				},
+				change_adapter = {
+					modes = { n = "<leader>aw" },
+				},
 			},
 		},
 	},
+	prompt_library = vim.tbl_extend("force", {}, prompt_library),
 })

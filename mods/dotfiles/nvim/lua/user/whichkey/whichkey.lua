@@ -14,6 +14,15 @@ local repl = require("user.whichkey.repl")
 local scopes = require("user.whichkey.scopes")
 local lsp = require("user.whichkey.lsp")
 
+local notification_mappings = {
+	{
+		"<leader>N",
+		function()
+			Snacks.notifier.show_history()
+		end,
+	},
+}
+
 local root_mapping = {
 	{ '<leader>"', "<cmd>:split<cr>", desc = "Horizontal Split" },
 	{ "<leader>%", "<cmd>:vsplit<cr>", desc = "Vertical Split" },
@@ -101,6 +110,18 @@ local buffers = {
 		end,
 		desc = "(y)ank filename",
 	},
+	{
+		"<leader>bpry",
+		function()
+			local buffer_path = vim.api.nvim_buf_get_name(0)
+			if buffer_path == "" then
+				return
+			end
+			local relative_path = vim.fn.fnamemodify(buffer_path, ":.")
+			vim.fn.setreg("+", relative_path)
+		end,
+		desc = "(y)ank relative path",
+	},
 
 	{
 		"<leader>bpgo",
@@ -150,7 +171,7 @@ local mapping_n = utils.extend_lists(
 	changes.mapping_n,
 	repl.mapping_n,
 	scopes.mapping_n,
-  lsp.mapping_n
+	lsp.mapping_n
 )
 
 local mapping_v = {
@@ -167,7 +188,7 @@ local mapping_v = {
 		replace_mapping.mapping_v,
 		repl.mapping_v,
 		scopes.mapping_v,
-    lsp.mapping_v
+		lsp.mapping_v
 	),
 }
 
@@ -183,11 +204,12 @@ local shared_mapping = {
 	buffers,
 	overseer,
 	debugging,
+	notification_mappings,
 	git.mapping_shared,
 	changes.mapping_shared,
 	ai_mapping.mapping_shared,
 	scopes.mapping_shared,
-  lsp.mapping_shared,
+	lsp.mapping_shared,
 }
 
 for _, mapping in ipairs(shared_mapping) do
