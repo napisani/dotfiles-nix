@@ -23,11 +23,16 @@
     };
   };
 
-  security.pam.enableSudoTouchIdAuth = true;
+  # Replace the deprecated option with the new one
+  security.pam.services.sudo_local.touchIdAuth = true;
+
   services = {
-    nix-daemon.enable = true;
+    # Remove the nix-daemon.enable line as it's now managed by nix.enable
     karabiner-elements.enable = true;
   };
+
+  # Add system.primaryUser to specify which user the user-specific options apply to
+  system.primaryUser = "nick"; # Replace with your actual username
 
   homebrew = {
     enable = true;
@@ -73,11 +78,18 @@
     # loginShell = pkgs.bash;
     systemPackages = with pkgs; [ bashInteractive coreutils gnugrep ];
   };
-  # fonts.fontDir.enable = true; # DANGER
+
+  # # fonts.fontDir.enable = true; # DANGER
+  # fonts.packages = [
+  #   (pkgs.nerdfonts.override {
+  #     fonts = [ "Meslo" "JetBrainsMono" "NerdFontsSymbolsOnly" ];
+  #   })
+  # ];
+
   fonts.packages = [
-    (pkgs.nerdfonts.override {
-      fonts = [ "Meslo" "JetBrainsMono" "NerdFontsSymbolsOnly" ];
-    })
+    pkgs.nerd-fonts.meslo-lg
+    pkgs.nerd-fonts.jetbrains-mono
+    pkgs.nerd-fonts.symbols-only
   ];
 
   system.defaults = {
@@ -103,6 +115,8 @@
     extraOptions =
       lib.optionalString (config.nix.package == pkgs.nixVersions.stable)
       "experimental-features = nix-command flakes";
+    # Make sure nix.enable is set to true (it's implicitly on by default)
+    enable = true;
   };
   system = {
     # dock = {
