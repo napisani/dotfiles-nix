@@ -25,7 +25,7 @@ in {
       ncdu
       git-lfs
       discordo
-      ngrok
+      # ngrok
       fd
       duckdb
 

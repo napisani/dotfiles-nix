@@ -251,6 +251,17 @@ require("lazy").setup({
 				"nvim-treesitter/nvim-treesitter",
 			},
 		},
+		{
+			"ravitemer/mcphub.nvim",
+			dependencies = {
+				"nvim-lua/plenary.nvim",
+			},
+			build = "npm install -g mcp-hub@latest", -- Installs `mcp-hub` node binary globally
+			config = function()
+				require("mcphub").setup()
+			end,
+		},
+
 		-- {
 		-- 	"yetone/avante.nvim",
 		-- 	-- dir = "/Users/nick/code/avante.nvim",
