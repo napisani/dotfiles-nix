@@ -11,7 +11,7 @@
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
     home-manager = {
-      url = "github:nix-community/home-manager/release-24.11";
+      url = "github:nix-community/home-manager/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # For using new modules before the realease of the next nixos version
