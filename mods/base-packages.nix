@@ -41,6 +41,7 @@ in {
       scrollbacktamer.packages.${pkgs.system}.default
       lazydocker
       tmuxp
+      nodemon
       #pkgs.pscale
       #pkgs.mysql80
       #pkgs.pulumi
