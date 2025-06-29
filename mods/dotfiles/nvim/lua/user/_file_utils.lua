@@ -33,14 +33,17 @@ function M.read_json_file(filename)
 end
 
 function M.read_yaml_file(filename)
-  if not M.file_exists(filename) then
-    return nil
-  end
+	if not M.file_exists(filename) then
+		return nil
+	end
 	local handle = io.popen(string.format("yq . %s --output-format json", filename))
 	if handle == nil then
 		return nil
 	end
 	local output = handle:read("*a")
+	if output == nil or output == "" then
+		return nil
+	end
 	handle:close()
 	return vim.fn.json_decode(output)
 end
