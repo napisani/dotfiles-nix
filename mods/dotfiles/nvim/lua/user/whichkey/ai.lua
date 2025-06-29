@@ -36,6 +36,12 @@
 -- 	{ "<leader>art", ":<C-u>'<,'>GpUnitTests<cr>", desc = "add (t)ests" },
 -- 	{ "<leader>as", "<cmd>:GpStop<cr>", desc = "(s)stop streaming results" },
 -- }
+
+local Snacks = require("snacks")
+local snacks_find_files = require("user.snacks.find_files")
+local snacks_git_files = require("user.snacks.git_files")
+local snacks_ai_context = require("user.snacks.ai_context_files")
+
 local mapping_n = {
 	{ "<leader>a", group = "(a)i" },
 	{ "<leader>aa", "<cmd>:CodeCompanionChat<cr>", desc = "(a)dd to chat" },
@@ -56,6 +62,62 @@ local mapping_n = {
 	-- { "<leader>as", "<cmd>:GpStop<cr>", desc = "(s)stop streaming results" },
 
 	{ "<leader>fa", "<cmd>:ContextNvim find_context_manual<cr>", desc = "(a)i contexts" },
+	{ "<leader>af", group = "(f)ind context" },
+
+	{
+		"<leader>afd",
+		function()
+			snacks_ai_context.add_file_to_chat(snacks_git_files.git_changed_files)
+		end,
+		desc = "(d)iff git files",
+	},
+
+	{
+		"<leader>afe",
+		function()
+			snacks_ai_context.add_file_to_chat(Snacks.picker.buffers)
+		end,
+		desc = "Buffers",
+	},
+
+	{
+		"<leader>afD",
+		function()
+			snacks_ai_context.add_file_to_chat(snacks_git_files.git_changed_cmp_base_branch)
+		end,
+		desc = "diff git (D)iff",
+	},
+
+	{
+		"<leader>afC",
+		function()
+			snacks_ai_context.add_file_to_chat(snacks_git_files.git_conflicted_files)
+		end,
+		desc = "(C)onflicted files",
+	},
+
+	{
+		"<leader>afr",
+		function()
+			snacks_ai_context.add_file_to_chat(snacks_find_files.find_files_from_root)
+		end,
+		desc = "files from (r)oot",
+	},
+
+	{
+		"<leader>aft",
+		function()
+			snacks_ai_context.add_file_to_chat(Snacks.picker.git_files)
+		end,
+		desc = "gi(t) files",
+	},
+	{
+		"<leader>afp",
+		function()
+			snacks_ai_context.add_file_to_chat(snacks_find_files.find_path_files)
+		end,
+		desc = "(p)ath files",
+	},
 }
 
 local mapping_v = {

@@ -102,7 +102,7 @@ local mapping_n = {
 		function()
 			snacks_find_files.find_files_from_root()
 		end,
-		desc = "(f)iles",
+		desc = "files from (r)oot",
 	},
 
 	-- TODO figure out how to what to do with snips, right now they are useless to me
