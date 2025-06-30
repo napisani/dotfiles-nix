@@ -6,6 +6,7 @@ in {
 
   home.packages = with pkgs-unstable;
     languagePackages ++ [
+      tmux
       pkgs.bashInteractive
       bat
       btop

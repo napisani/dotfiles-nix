@@ -33,12 +33,12 @@
         l = "ls -CF";
       };
     };
-    tmux = {
-      enable = true;
-      terminal = "xterm-256color";
-      secureSocket = false;
-      extraConfig = builtins.readFile ./dotfiles/.tmux.conf;
-    };
+    # tmux = {
+    #   enable = true;
+    #   terminal = "xterm-256color";
+    #   secureSocket = false;
+    #   # extraConfig = builtins.readFile ./dotfiles/.tmux.conf;
+    # };
     gh.enable = true;
     direnv = {
       enable = true;
@@ -58,6 +58,13 @@
       "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/ghostty-config";
     "global_python_scripts".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/global_python_scripts";
+
+    "shell_scripts".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/shell_scripts";
+
+    ".config/tmux/tmux.conf".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.tmux.conf";
+
     ".aider.model.settings.yml".source = ./dotfiles/aider.model.settings.yml;
     ".bashrc.d".source = ./dotfiles/.bashrc.d;
     ".inputrc".source = ./dotfiles/.inputrc;
@@ -75,5 +82,7 @@
     ".config/starship.toml".source = ./dotfiles/starship.toml;
     ".config/.secret_inject.json".source = ./dotfiles/secret_inject.json;
   };
+
+  home.sessionPath = [ "$HOME/shell_scripts" ];
 }
 
