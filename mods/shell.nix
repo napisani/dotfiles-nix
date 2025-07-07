@@ -64,6 +64,8 @@
 
     ".config/tmux/tmux.conf".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.tmux.conf";
+    ".config/opencode/config.json".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode-config.json"; 
 
     ".aider.model.settings.yml".source = ./dotfiles/aider.model.settings.yml;
     ".bashrc.d".source = ./dotfiles/.bashrc.d;

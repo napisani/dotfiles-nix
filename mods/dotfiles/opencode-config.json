@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": "kanagawa",
+  "model": "openai/o3-mini",
+  "autoshare": false,
+  "autoupdate": true,
+  "mcp": {
+    "tmuxmcp": {
+      "type": "local",
+      "command": [
+        "/Users/nick/code/tmux-mcp/bin/tmux-mcp"
+      ],
+      "enabled": true,
+      "environment": {}
+    }
+  }
+}
