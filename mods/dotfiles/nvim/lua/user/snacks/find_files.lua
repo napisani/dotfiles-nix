@@ -57,7 +57,7 @@ function M.find_path_files(opts)
 				for _, v in ipairs(filtered) do
 					local file = parent_path .. "/" .. v
 					if v ~= "." and v ~= "./" then
-            table.insert(items, { text = v, file = file })
+						table.insert(items, { text = v, file = file })
 					end
 				end
 
@@ -77,7 +77,11 @@ function M.find_path_files(opts)
 							local file_path = parent_path .. "/" .. item.text
 							local file_exists = vim.fn.filereadable(file_path) == 1
 							if file_exists then
-								vim.cmd("edit " .. file_path)
+								if opts.confirm then
+									opts.confirm(picker, item)
+								else
+									vim.cmd("edit " .. file_path)
+								end
 							else
 								vim.notify("File does not exist: " .. file_path, vim.log.levels.ERROR)
 							end

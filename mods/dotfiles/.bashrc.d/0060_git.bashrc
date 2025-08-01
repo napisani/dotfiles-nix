@@ -60,9 +60,14 @@ if command -v git &> /dev/null ; then
 
   
   function git-changed-files() {
+    # get only the file name (everything after the last space)
+    git status --porcelain=v2  -u | sed -E 's/^.*[[:space:]]+([^[:space:]]+)$/\1/' 
+  }
+
+  function git-changed-in-branch() {
       COMAPRE_TO="$1"
       COMPARE_TO=${COMPARE_TO:-'main'}
-      git diff --name-only "$COMPARE_TO"..."$(git-current-branch)"
+      git diff --name-only  --relative "$COMPARE_TO"..."$(git-current-branch)"
   }
 
   function git-checkout() {

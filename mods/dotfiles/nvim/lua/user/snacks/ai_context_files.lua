@@ -96,11 +96,8 @@ function M.add_file_to_chat(picker_fn, picker_opts)
 		}, { reference = id, visible = false })
 
 		-- Add file reference
-		chat.references:add({
-			id = id or "",
-			path = file_path,
-			source = "whichkey.file_command",
-		})
+		local source = "whichkey.file_command"
+		chat:add_context({ content = file_path, role = "user" }, source, id)
 
 		-- Notify user
 		util.notify(fmt("Added the `%s` file to the chat", vim.fn.fnamemodify(relative_path, ":t")))
