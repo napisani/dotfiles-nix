@@ -50,7 +50,8 @@
   home.file = {
     ".config/pet".source = ./dotfiles/pet;
     ".aider.conf.yml".source = ./dotfiles/aider.conf.yml;
-    ".config/mcphub/servers.json".source = ./dotfiles/mcphub-servers.json;
+    ".config/mcphub/servers.json".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/mcphub-servers.json";
     ".aerospace.toml".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.aerospace.toml";
     "Library/Application Support/com.mitchellh.ghostty/config".source =
