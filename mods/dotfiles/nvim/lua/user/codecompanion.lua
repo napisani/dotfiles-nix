@@ -10,30 +10,46 @@ local proj_conf = project_utils.get_project_config().codecompanion or {}
 local prompt_library = proj_conf.prompt_library or {}
 
 codecompanion.setup({
+	display = {
+		diff = {
+			enabled = true,
+			provider = "split",
+		},
+	},
 
 	adapters = {
-		copilot = function()
-			return require("codecompanion.adapters").extend("copilot", {
-				schema = {
-					model = {
-						default = "claude-3.7-sonnet",
+		http = {
+			copilot = function()
+				return require("codecompanion.http.adapters").extend("copilot", {
+					schema = {
+						model = {
+							default = "claude-3.7-sonnet",
+						},
 					},
-				},
-			})
-		end,
+				})
+			end,
 
-		gemini = function()
-			return require("codecompanion.adapters").extend("gemini", {
-				env = {
-					api_key = "cmd: echo $GEMINI_API_KEY",
-				},
-			})
-		end,
+			gemini = function()
+				return require("codecompanion.http.adapters").extend("gemini", {
+					env = {
+						api_key = "cmd: echo $GEMINI_API_KEY",
+					},
+				})
+			end,
+		},
 	},
 
 	strategies = {
 		inline = {
 			-- adapter = "openai",
+			keymaps = {
+				accept_change = {
+					modes = { n = "ga" },
+				},
+				reject_change = {
+					modes = { n = "gr" },
+				},
+			},
 		},
 		chat = {
 			-- adapter = "anthropic",
