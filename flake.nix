@@ -44,13 +44,15 @@
 
     scrollbacktamer.url = "github:napisani/scrollbacktamer";
 
+    proctmux.url = "github:napisani/proctmux";
+
     # old_bitwarden.url =
     #   "github:NixOS/nixpkgs/dd613136ee91f67e5dba3f3f41ac99ae89c5406b";
 
   };
 
   outputs = { flake-utils, nixpkgs, nixpkgs-unstable, home-manager, darwin
-    , procmux, secret_inject, animal_rescue, nixhub_dep, scrollbacktamer, ...
+    , procmux, secret_inject, animal_rescue, nixhub_dep, scrollbacktamer, proctmux, ...
     }@inputs:
     let
       allSystems = [ "x86_64-linux" "aarch64-darwin" ];
@@ -74,6 +76,7 @@
               config.allowUnfree = true;
             };
             scrollbacktamer = scrollbacktamer;
+            proctmux = proctmux;
             overlays = [
               # import ./packages/node/node-packages.nix
               # inputs.neovim-nightly-overlay.overlay

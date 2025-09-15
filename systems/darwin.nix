@@ -39,9 +39,9 @@
     caskArgs.no_quarantine = true;
     global.brewfile = true;
     onActivation = {
-      upgrade = true;
+      upgrade = false;
       cleanup = "zap";
-      autoUpdate = true;
+      autoUpdate = false;
     };
     # app store apps
     masApps = {

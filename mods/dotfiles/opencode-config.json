@@ -5,13 +5,27 @@
   "autoshare": false,
   "autoupdate": true,
   "mcp": {
-    "tmuxmcp": {
+    "context7": {
       "type": "local",
       "command": [
-        "/Users/nick/code/tmux-mcp/bin/tmux-mcp"
+        "npx",
+        "-y",
+        "@upstash/context7-mcp"
       ],
-      "enabled": true,
-      "environment": {}
+      "environment": {
+        "DEFAULT_MINIMUM_TOKENS": "6000"
+      },
+      "enabled": true
+    },
+    "atlassian": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "https://mcp.atlassian.com/v1/sse"
+      ],
+      "enabled": true
     }
   }
 }

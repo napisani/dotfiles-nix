@@ -1,5 +1,14 @@
 {
   "mcpServers": {
+    "atlassian": {
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.atlassian.com/v1/sse"
+      ],
+      "command": "npx",
+      "disabled": false
+    },
     "context7": {
       "args": [
         "-y",

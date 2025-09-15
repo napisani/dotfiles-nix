@@ -1,5 +1,5 @@
 { pkgs, pkgs-unstable, procmux, secret_inject, animal_rescue, scrollbacktamer
-, ... }:
+, proctmux, ... }:
 let
   languagePackages = import ./languages/all.nix { inherit pkgs pkgs-unstable; };
 in {
@@ -40,6 +40,7 @@ in {
       secret_inject.packages.${pkgs.system}.default
       animal_rescue.packages.${pkgs.system}.default
       scrollbacktamer.packages.${pkgs.system}.default
+      proctmux.packages.${pkgs.system}.default
       lazydocker
       tmuxp
       nodemon

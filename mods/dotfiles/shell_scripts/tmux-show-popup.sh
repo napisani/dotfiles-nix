@@ -17,5 +17,8 @@ if ! tmux has -t "$session" 2>/dev/null; then
 	session="$session_id"
 fi
 
-exec tmux attach -t "$session" >/dev/null
+# used because of an issue with the golang version of proctmux where it somehow
+# thinks it's already inside a tmux session, but if proctmux is not running, it doesn't
+unset TMUX
 
+exec tmux attach -t "$session" >/dev/null

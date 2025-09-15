@@ -20,7 +20,7 @@ codecompanion.setup({
 	adapters = {
 		http = {
 			copilot = function()
-				return require("codecompanion.http.adapters").extend("copilot", {
+				return require("codecompanion.adapters").extend("copilot", {
 					schema = {
 						model = {
 							default = "claude-3.7-sonnet",
@@ -30,7 +30,7 @@ codecompanion.setup({
 			end,
 
 			gemini = function()
-				return require("codecompanion.http.adapters").extend("gemini", {
+				return require("codecompanion.adapters").extend("gemini", {
 					env = {
 						api_key = "cmd: echo $GEMINI_API_KEY",
 					},
