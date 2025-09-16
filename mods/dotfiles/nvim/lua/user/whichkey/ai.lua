@@ -118,6 +118,13 @@ local mapping_n = {
 		end,
 		desc = "(p)ath files",
 	},
+	{
+		"<leader>aff",
+		function()
+			snacks_ai_context.add_current_buffer_to_chat()
+		end,
+		desc = "(f)ile current",
+	},
 }
 
 local mapping_v = {
