@@ -8,7 +8,7 @@ local utils = require("user.utils")
 local eslint_d_lint = require("efmls-configs.linters.eslint_d")
 local eslint_d_format = require("efmls-configs.formatters.eslint_d")
 
-local nvim_lsp = require("lspconfig")
+-- local nvim_lsp = require("lspconfig")
 
 local prettier = require("efmls-configs.formatters.prettier")
 local stylua = require("efmls-configs.formatters.stylua")
@@ -36,20 +36,12 @@ local biome_custom_format = vim.tbl_extend("force", biome, {
 	rootMarkers = { "biome.json" },
 })
 
--- local oxlint = {
---   lintCommand = "./node_modules/.bin/oxlint lint ${INPUT} | sed -z 's/\\n/ /g' | sed -r 's/\\x1B\\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g' ",
---   lintStdin = false,
---   lintFormats = { "%f:%l:%c]%m" },
---   lintIgnoreExitCode = true,
---   lintSource = "oxlint",
--- }
-
 function is_deno_project()
-	local matcher = nvim_lsp.util.root_pattern("deno.json", "deno.jsonc")
-	local deno_found = matcher(vim.fn.expand("%:p"))
-	if deno_found then
-		return true
-	end
+	-- local matcher = nvim_lsp.util.root_pattern("deno.json", "deno.jsonc")
+	-- local deno_found = matcher(vim.fn.expand("%:p"))
+	-- if deno_found then
+	-- 	return true
+	-- end
 	return false
 end
 

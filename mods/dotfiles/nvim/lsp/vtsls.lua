@@ -1,5 +1,5 @@
 local vtsls = require("vtsls")
-local nvim_lsp = require("lspconfig")
+-- local nvim_lsp = require("lspconfig")
 
 local fix_all_imports = function(bufnr)
 	if not bufnr then
@@ -14,7 +14,7 @@ end
 return {
 	-- in single file mode the root_dir is ignored, so this needs to be false
 	single_file_support = false,
-	root_dir = nvim_lsp.util.root_pattern("package.json"),
+	-- root_markers = { "package.json" },
 	settings = {
 		typescript = {
 			inlayHints = {
@@ -27,19 +27,15 @@ return {
 			},
 		},
 	},
-	server = {
 
-		on_attach = function(_client, bufnr)
-			local opts = {
-				noremap = true,
-				silent = true,
-				callback = function()
-					fix_all_imports(bufnr)
-				end,
-			}
-			vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>li", "", opts)
-		end,
-
-		fix_all_imports = fix_all_imports,
-	},
+	on_attach = function(_client, bufnr)
+		local opts = {
+			noremap = true,
+			silent = true,
+			callback = function()
+				fix_all_imports(bufnr)
+			end,
+		}
+		vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>li", "", opts)
+	end,
 }
