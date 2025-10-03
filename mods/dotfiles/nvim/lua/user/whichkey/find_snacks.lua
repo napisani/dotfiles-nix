@@ -1,6 +1,7 @@
 local Snacks = require("snacks")
 local snacks_find_files = require("user.snacks.find_files")
 local snacks_git_files = require("user.snacks.git_files")
+local snacks_proctmux = require("user.snacks.proctmux")
 local snacks_common = require("user.snacks.common")
 local snacks_commands = require("user.snacks.commands.init")
 local paste_to_pattern = snacks_common.paste_to_pattern
@@ -46,7 +47,13 @@ local mapping_n = {
 		desc = "(R)egisters",
 	},
 
-	{ "<leader>fc", "<cmd>OverseerRun<CR>", desc = "project (c)ommands" },
+	{
+		"<leader>fc",
+		function()
+			snacks_proctmux.show_procmux_commands()
+		end,
+		desc = "project (c)ommands",
+	},
 
 	{
 		"<leader>fl",
@@ -175,7 +182,13 @@ local mapping_v = {
 		desc = "(R)egisters",
 	},
 
-	{ "<leader>fc", "<cmd>OverseerRun<CR>", desc = "project (c)ommands" },
+	{
+		"<leader>fc",
+		function()
+			snacks_proctmux.show_procmux_commands()
+		end,
+		desc = "project (c)ommands",
+	},
 	{
 		"<leader>fk",
 		function()

@@ -397,10 +397,10 @@ require("lazy").setup({
 			lazy = false,
 		},
 
-		{
-			"stevearc/overseer.nvim",
-			opts = {},
-		},
+		-- {
+		-- 	"stevearc/overseer.nvim",
+		-- 	opts = {},
+		-- },
 
 		{
 			"jpalardy/vim-slime",

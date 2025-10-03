@@ -117,6 +117,12 @@
       "experimental-features = nix-command flakes";
     # Make sure nix.enable is set to true (it's implicitly on by default)
     enable = true;
+    gc = {
+      # Enable automatic garbage collection
+      automatic = true;
+      # Delete old generations to help reduce disk space usage
+      options = "--delete-older-than 30d";
+    };
   };
   system = {
     # dock = {

@@ -132,11 +132,11 @@ local buffers = {
 	},
 }
 
-local overseer = {
-	{ "<leader>o", group = "Overseer" },
-	{ "<leader>oo", "<cmd>:OverseerOpen<CR>", desc = "(O)pen" },
-	{ "<leader>oq", "<cmd>:OverseerClose<CR>", desc = "(q)uit" },
-}
+-- local overseer = {
+-- 	{ "<leader>o", group = "Overseer" },
+-- 	{ "<leader>oo", "<cmd>:OverseerOpen<CR>", desc = "(O)pen" },
+-- 	{ "<leader>oq", "<cmd>:OverseerClose<CR>", desc = "(q)uit" },
+-- }
 
 local debugging = {
 	{ "<leader>d", group = "Debug" },
@@ -202,7 +202,7 @@ local shared_mapping = {
 	quit,
 	write_all,
 	buffers,
-	overseer,
+	-- overseer,
 	debugging,
 	notification_mappings,
 	git.mapping_shared,

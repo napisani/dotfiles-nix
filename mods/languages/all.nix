@@ -7,10 +7,11 @@ let
 
   rustPackages = import ./rust.nix { inherit pkgs pkgs-unstable; };
 
-  ocamlPackages = import ./ocaml.nix { inherit pkgs pkgs-unstable; };
+  # ocamlPackages = import ./ocaml.nix { inherit pkgs pkgs-unstable; };
 
   javaPackages = import ./java.nix { inherit pkgs pkgs-unstable; };
-  gleamPackages = import ./gleam.nix { inherit pkgs pkgs-unstable; };
+
+  # gleamPackages = import ./gleam.nix { inherit pkgs pkgs-unstable; };
   cppPackages = import ./cpp.nix { inherit pkgs pkgs-unstable; };
 
   luaPackages = import ./lua.nix { inherit pkgs pkgs-unstable; };
@@ -18,7 +19,6 @@ let
   bashPackages = import ./bash.nix { inherit pkgs pkgs-unstable; };
   miscPackages = import ./misc.nix { inherit pkgs pkgs-unstable; };
 in with pkgs-unstable;
-jsPackages ++ pythonPackages ++ golangPackages ++ rustPackages ++ ocamlPackages
-++ gleamPackages ++ cppPackages ++ luaPackages ++ nixPackages ++ bashPackages
-++ miscPackages ++ javaPackages
+jsPackages ++ pythonPackages ++ golangPackages ++ rustPackages ++ cppPackages
+++ luaPackages ++ nixPackages ++ bashPackages ++ miscPackages ++ javaPackages
 
