@@ -1,7 +1,9 @@
+-- filepath: mods/dotfiles/nvim/lua/user/snacks/proctmux.lua
 local Snacks = require("snacks")
 local Job = require("plenary.job")
 local utils = require("user.utils")
 
+local base_cmd = "./bin/proctmux"
 local function parse_procmux_yaml()
 	local contents = nil
 	local filenames = {
@@ -31,7 +33,7 @@ local function parse_procmux_yaml()
 			name = "proctmux-start: " .. proc,
 			text = "proctmux-start: " .. proc,
 			file = "proctmux-start-" .. proc,
-			cmd = 'proctmux signal-start --name "' .. proc .. '"',
+			cmd = { base_cmd, "signal-start", proc },
 			cwd = utils.get_root_dir(),
 		})
 	end
@@ -40,7 +42,7 @@ local function parse_procmux_yaml()
 		name = "protcmux-restart-running",
 		text = "proctmux-restart-running",
 		file = "proctmux-restart-running",
-		cmd = "proctmux signal-restart-running",
+		cmd = { base_cmd, "signal-restart-running" },
 		cwd = utils.get_root_dir(),
 	})
 
@@ -48,7 +50,7 @@ local function parse_procmux_yaml()
 		name = "proctmux-stop-running",
 		text = "proctmux-stop-running",
 		file = "proctmux-stop-running",
-		cmd = "proctmux signal-stop-running",
+		cmd = { base_cmd, "signal-stop-running" },
 		cwd = utils.get_root_dir(),
 	})
 
@@ -56,20 +58,17 @@ local function parse_procmux_yaml()
 end
 
 local function run_command_in_background(cmd, cwd, name)
-	-- Split the command string into command and arguments
-	local parts = vim.split(cmd, " ")
-	local command = parts[1]
+	-- cmd is now a table with the command as the first element and arguments as the rest
+	local command = cmd[1]
 	local args = {}
 
-	-- Extract the rest as arguments
-	for i = 2, #parts do
-		-- Handle quoted arguments by removing quotes
-		local arg = parts[i]
-		if arg:sub(1, 1) == '"' and arg:sub(-1) == '"' then
-			arg = arg:sub(2, -2)
-		end
-		table.insert(args, arg)
+	-- Extract arguments from index 2 onwards
+	for i = 2, #cmd do
+		table.insert(args, cmd[i])
 	end
+
+	-- Create a string representation of the command for logging
+	local cmd_str = command .. " " .. table.concat(args, " ")
 
 	-- Notify that the command has started
 	vim.notify("Started command: " .. name, vim.log.levels.INFO)
