@@ -3,7 +3,24 @@ local Job = require("plenary.job")
 local utils = require("user.utils")
 
 local function parse_procmux_yaml()
-	local contents = utils.read_yaml_file("procmux.yaml")
+	local contents = nil
+	local filenames = {
+		"procmux.yaml",
+		"procmux.yml",
+		"proctmux.yaml",
+		"proctmux.yml",
+	}
+	for _, filename in ipairs(filenames) do
+		contents = utils.read_yaml_file(utils.join_path(utils.get_root_dir(), filename))
+		if contents then
+			break
+		end
+		contents = utils.read_yaml_file(utils.join_path(vim.fn.getcwd(), filename))
+		if contents then
+			break
+		end
+	end
+
 	if not contents or not contents.procs then
 		return {}
 	end
@@ -11,27 +28,27 @@ local function parse_procmux_yaml()
 	local commands = {}
 	for proc, _detail in pairs(contents.procs) do
 		table.insert(commands, {
-			name = "procmux-start: " .. proc,
-			text = "procmux-start: " .. proc,
-			file = "procmux-start-" .. proc,
-			cmd = 'procmux signal-start --name "' .. proc .. '"',
+			name = "proctmux-start: " .. proc,
+			text = "proctmux-start: " .. proc,
+			file = "proctmux-start-" .. proc,
+			cmd = 'proctmux signal-start --name "' .. proc .. '"',
 			cwd = utils.get_root_dir(),
 		})
 	end
 
 	table.insert(commands, {
-		name = "procmux-restart-running",
-		text = "procmux-restart-running",
-		file = "procmux-restart-running",
-		cmd = "procmux signal-restart-running",
+		name = "protcmux-restart-running",
+		text = "proctmux-restart-running",
+		file = "proctmux-restart-running",
+		cmd = "proctmux signal-restart-running",
 		cwd = utils.get_root_dir(),
 	})
 
 	table.insert(commands, {
-		name = "procmux-stop-running",
-		text = "procmux-stop-running",
-		file = "procmux-stop-running",
-		cmd = "procmux signal-stop-running",
+		name = "proctmux-stop-running",
+		text = "proctmux-stop-running",
+		file = "proctmux-stop-running",
+		cmd = "proctmux signal-stop-running",
 		cwd = utils.get_root_dir(),
 	})
 
@@ -85,8 +102,8 @@ local function show_procmux_commands()
 	-- Using Snacks.picker to create a picker with the commands
 	Snacks.picker.pick({
 		items = commands,
-		prompt = "Procmux Commands >",
-		confirm = function(item)
+		prompt = "Proctmux CMD > ",
+		confirm = function(_picker, item)
 			-- When an item is selected, run the command in background
 			run_command_in_background(item.cmd, item.cwd, item.name)
 		end,
