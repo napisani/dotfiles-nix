@@ -13,6 +13,7 @@ local changes = require("user.whichkey.changes")
 local repl = require("user.whichkey.repl")
 local scopes = require("user.whichkey.scopes")
 local lsp = require("user.whichkey.lsp")
+local global_mappings = require("user.whichkey.global")
 
 local notification_mappings = {
 	{
@@ -171,7 +172,8 @@ local mapping_n = utils.extend_lists(
 	changes.mapping_n,
 	repl.mapping_n,
 	scopes.mapping_n,
-	lsp.mapping_n
+	lsp.mapping_n,
+	global_mappings.mapping_n
 )
 
 local mapping_v = {
@@ -188,7 +190,8 @@ local mapping_v = {
 		replace_mapping.mapping_v,
 		repl.mapping_v,
 		scopes.mapping_v,
-		lsp.mapping_v
+		lsp.mapping_v,
+		global_mappings.mapping_v
 	),
 }
 
@@ -210,6 +213,7 @@ local shared_mapping = {
 	ai_mapping.mapping_shared,
 	scopes.mapping_shared,
 	lsp.mapping_shared,
+	global_mappings.mapping_shared,
 }
 
 for _, mapping in ipairs(shared_mapping) do

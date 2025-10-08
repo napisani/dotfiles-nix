@@ -1,9 +1,49 @@
--- filepath: mods/dotfiles/nvim/lua/user/snacks/proctmux.lua
 local Snacks = require("snacks")
 local Job = require("plenary.job")
 local utils = require("user.utils")
 
 local base_cmd = "./bin/proctmux"
+
+-- Function to get process status from proctmux
+local function get_process_status()
+	local output = {}
+	local success = false
+	local job = Job:new({
+		command = base_cmd,
+		args = { "signal-list" },
+		cwd = utils.get_root_dir(),
+		on_stdout = function(_, line)
+			table.insert(output, line)
+		end,
+		on_exit = function(_, exit_code)
+			success = exit_code == 0
+		end,
+	})
+
+	job:sync()
+
+	if not success or #output < 2 then
+		return {}
+	end
+
+	-- Parse the output into a table of process status
+	local process_status = {}
+	-- Skip the header line (NAME    STATUS)
+	for i = 2, #output do
+		local line = output[i]
+		if line and line:match("%S") then
+			local name, status = line:match("^(.-)%s+(%w+)%s*$")
+			if name and status then
+				-- Trim whitespace
+				name = name:gsub("^%s*(.-)%s*$", "%1")
+				process_status[name] = status
+			end
+		end
+	end
+
+	return process_status
+end
+
 local function parse_procmux_yaml()
 	local contents = nil
 	local filenames = {
@@ -27,19 +67,47 @@ local function parse_procmux_yaml()
 		return {}
 	end
 
+	-- Get the current status of all processes
+	local process_status = get_process_status()
 	local commands = {}
-	for proc, _detail in pairs(contents.procs) do
-		table.insert(commands, {
-			name = "proctmux-start: " .. proc,
-			text = "proctmux-start: " .. proc,
-			file = "proctmux-start-" .. proc,
-			cmd = { base_cmd, "signal-start", proc },
-			cwd = utils.get_root_dir(),
-		})
+
+	-- Add commands based on process status
+	for proc, _ in pairs(contents.procs) do
+		local status = process_status[proc] or "unknown"
+
+		if status == "stopped" or status == "unknown" then
+			-- Add start command for stopped processes
+			table.insert(commands, {
+				name = "proctmux-start: " .. proc,
+				text = "proctmux-start: " .. proc,
+				file = "proctmux-start-" .. proc,
+				cmd = { base_cmd, "signal-start", proc },
+				cwd = utils.get_root_dir(),
+			})
+		elseif status == "running" then
+			-- Add stop command for running processes
+			table.insert(commands, {
+				name = "proctmux-stop: " .. proc,
+				text = "proctmux-stop: " .. proc,
+				file = "proctmux-stop-" .. proc,
+				cmd = { base_cmd, "signal-stop", proc },
+				cwd = utils.get_root_dir(),
+			})
+
+			-- Add restart command for running processes
+			table.insert(commands, {
+				name = "proctmux-restart: " .. proc,
+				text = "proctmux-restart: " .. proc,
+				file = "proctmux-restart-" .. proc,
+				cmd = { base_cmd, "signal-restart", proc },
+				cwd = utils.get_root_dir(),
+			})
+		end
 	end
 
+	-- Add global commands for managing all processes
 	table.insert(commands, {
-		name = "protcmux-restart-running",
+		name = "proctmux-restart-running",
 		text = "proctmux-restart-running",
 		file = "proctmux-restart-running",
 		cmd = { base_cmd, "signal-restart-running" },
@@ -57,6 +125,7 @@ local function parse_procmux_yaml()
 	return commands
 end
 
+-- ... rest of the original file remains unchanged
 local function run_command_in_background(cmd, cwd, name)
 	-- cmd is now a table with the command as the first element and arguments as the rest
 	local command = cmd[1]
@@ -119,7 +188,7 @@ vim.schedule(function()
 	parse_procmux_yaml()
 end)
 
-M = {
+local M = {
 	show_procmux_commands = show_procmux_commands,
 }
 return M

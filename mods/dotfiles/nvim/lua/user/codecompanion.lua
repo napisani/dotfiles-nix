@@ -44,10 +44,10 @@ codecompanion.setup({
 			-- adapter = "openai",
 			keymaps = {
 				accept_change = {
-					modes = { n = "ga" },
+					modes = { n = "<leader>ma" },
 				},
 				reject_change = {
-					modes = { n = "gr" },
+					modes = { n = "<leader>mr" },
 				},
 			},
 		},
