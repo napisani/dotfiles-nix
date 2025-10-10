@@ -2,7 +2,7 @@ local Snacks = require("snacks")
 local Job = require("plenary.job")
 local utils = require("user.utils")
 
-local base_cmd = "./bin/proctmux"
+local base_cmd = "/Users/nick/code/proctmux/bin/proctmux"
 
 -- Function to get process status from proctmux
 local function get_process_status()
