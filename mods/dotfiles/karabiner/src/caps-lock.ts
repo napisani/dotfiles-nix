@@ -1,6 +1,9 @@
 import { FromKeyCode, map, ModifierKeyCode, rule, ToKeyCode } from "karabiner.ts";
+import { exitLeader } from "./tab";
 const hyperModifiers: ModifierKeyCode[] = ['right_command', 'right_control',  'right_shift', 'right_option']
 export const capsRules = [ 
+
+
   rule('CapsLock to Hyper').manipulators([
     map({
       key_code: "caps_lock", 
@@ -10,7 +13,7 @@ export const capsRules = [
       key_code: "right_shift", 
       modifiers: ["right_command", "right_control", "right_option"]
     })
-    .toIfAlone({key_code: "escape"})
+    .toIfAlone([{key_code: "escape"}, ...exitLeader()])
     .description("CapsLock = hyper (held), Escape (alone)"),
   ]),
 

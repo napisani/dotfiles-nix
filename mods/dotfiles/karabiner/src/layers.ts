@@ -1,5 +1,4 @@
 import { map, simlayer } from "karabiner.ts";
-import { formatWithOptions } from "util";
 
 
 
