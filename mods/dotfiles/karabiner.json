@@ -4276,6 +4276,30 @@
               {
                 "type": "basic",
                 "from": {
+                  "key_code": "k"
+                },
+                "to": [
+                  {
+                    "key_code": "2"
+                  },
+                  {
+                    "set_variable": {
+                      "name": "tab_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_leader",
+                    "value": "code"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
                   "key_code": "a"
                 },
                 "to": [
@@ -4445,27 +4469,6 @@
                 "type": "basic",
                 "from": {
                   "key_code": "i"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "tab_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "tab_leader",
-                    "value": "code"
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "k"
                 },
                 "to": [
                   {
@@ -8109,6 +8112,23 @@
                     "value": 1
                   }
                 ]
+              }
+            ]
+          },
+          {
+            "description": "escape -> grave_accent_and_tilde",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "escape"
+                },
+                "to": [
+                  {
+                    "key_code": "grave_accent_and_tilde"
+                  }
+                ],
+                "description": "escape -> grave_accent_and_tilde"
               }
             ]
           }

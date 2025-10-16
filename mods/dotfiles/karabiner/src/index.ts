@@ -1,23 +1,29 @@
+import "../polyfill.ts";
 import {
     map,
     rule,
     writeToProfile,
 } from 'karabiner.ts'
-import { writeContext } from './output'
-import { modifierSwapRules } from './modifierSwap'
-import { layerRules } from './layers'
+import { modifierSwapRules } from './modifierSwap.ts'
+import { layerRules } from './layers.ts'
 import { capsRules } from './hyper.ts'
-import { tabRules } from './system-leader.ts';
+import { systemLeaderRules } from './system-leader.ts';
+import { join } from "@std/path";
+
+const karabinerJsonPath = join(
+  Deno.env.get("HOME") || "",
+  '.config/home-manager/mods/dotfiles/karabiner.json',
+);
 
 writeToProfile({
   name: 'default', 
   dryRun: false, 
-  karabinerJsonPath: writeContext.karabinerConfigFile(),
+  karabinerJsonPath,
 }, [
   ...capsRules,
   ...modifierSwapRules,
   ...layerRules,
-  ...tabRules,
+  ...systemLeaderRules,
 
   rule('escape -> grave_accent_and_tilde').manipulators([
     map("escape").to("grave_accent_and_tilde")
@@ -25,5 +31,3 @@ writeToProfile({
   ]),
 
 ])
-
-

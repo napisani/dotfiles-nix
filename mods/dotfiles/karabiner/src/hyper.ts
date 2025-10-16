@@ -1,5 +1,5 @@
 import { FromKeyCode, map, ModifierKeyCode, rule, ToKeyCode } from "karabiner.ts";
-import { exitLeader } from "./tab";
+import { exitLeader } from "./system-leader.ts";
 const hyperModifiers: ModifierKeyCode[] = ['right_command', 'right_control',  'right_shift', 'right_option']
 export const capsRules = [ 
 

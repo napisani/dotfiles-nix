@@ -1,0 +1,30 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@std/internal@^1.0.10": "1.0.12",
+    "jsr:@std/path@1": "1.1.2",
+    "npm:karabiner.ts@^1.35.1": "1.35.1"
+  },
+  "jsr": {
+    "@std/internal@1.0.12": {
+      "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
+    },
+    "@std/path@1.1.2": {
+      "integrity": "c0b13b97dfe06546d5e16bf3966b1cadf92e1cc83e56ba5476ad8b498d9e3038",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    }
+  },
+  "npm": {
+    "karabiner.ts@1.35.1": {
+      "integrity": "sha512-ndykub6ifouFN6Mz4C6e6VWtCH70rBFmts7ci1QPWXUBOnbBV+aWUPKUcwttHxaLOdGCDlsBsqTSkMKVSUVmMA=="
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/path@1",
+      "npm:karabiner.ts@^1.35.1"
+    ]
+  }
+}

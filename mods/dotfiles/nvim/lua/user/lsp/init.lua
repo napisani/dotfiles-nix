@@ -12,7 +12,7 @@ vim.lsp.enable({
 	"lua_ls",
 	"cssls",
 	"bashls",
-	-- "denols",
+	"denols",
 	"pyright",
 	"ruff_lsp",
 	"yamlls",

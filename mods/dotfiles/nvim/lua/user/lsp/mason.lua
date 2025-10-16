@@ -18,6 +18,7 @@ local servers = {
 	"bashls",
 	"cssls",
 	"gopls",
+	"denols",
 	"docker_compose_language_service",
 	"dockerls",
 	"html",
@@ -52,6 +53,5 @@ M.fix_all_imports = function()
 		end
 	end
 end
-
 
 return M

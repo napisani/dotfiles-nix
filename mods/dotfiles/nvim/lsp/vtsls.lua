@@ -12,6 +12,17 @@ local fix_all_imports = function(bufnr)
 end
 
 return {
+	root_dir = function()
+    local is_deno = vim.fs.root(0, { "deno.json", "deno.jsonc" })
+    local is_ts = vim.fs.root(0, {
+				"tsconfig.json",
+				"jsconfig.json",
+				"package.json",
+				".git",
+			})
+
+		return  not is_deno and is_ts
+  end,
 	-- in single file mode the root_dir is ignored, so this needs to be false
 	single_file_support = false,
 	-- root_markers = { "package.json" },
