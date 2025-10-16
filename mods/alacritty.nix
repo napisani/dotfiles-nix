@@ -1,7 +1,5 @@
-
 {
-  programs.alacritty = {
-    enable = true;
-  };
-  home.file.".config/alacritty/alacritty.yml".source = ./dotfiles/alacritty.yml;
+  programs.alacritty = { enable = true; };
+  home.file.".config/alacritty/alacritty.toml".source =
+    ./dotfiles/alacritty.toml;
 }

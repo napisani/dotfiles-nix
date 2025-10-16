@@ -58,7 +58,7 @@
       "github"
       "lulu"
       "firefox@developer-edition"
-      "tailscale"
+      "tailscale-app"
       "obsidian"
       "stats"
     ];

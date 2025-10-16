@@ -32,12 +32,13 @@
     scrollbacktamer.url = "github:napisani/scrollbacktamer";
 
     proctmux.url = "github:napisani/proctmux";
+    mac-app-util.url = "github:hraban/mac-app-util";
 
   };
 
   outputs = { flake-utils, nixpkgs, nixpkgs-unstable, home-manager, darwin
     , procmux, secret_inject, animal_rescue, nixhub_dep, scrollbacktamer
-    , proctmux, ... }@inputs:
+    , proctmux, mac-app-util, ... }@inputs:
     let
       allSystems = [ "x86_64-linux" "aarch64-darwin" ];
       inputsBySystem = builtins.listToAttrs (map (system: {
@@ -83,8 +84,11 @@
                 useUserPackages = true;
                 extraSpecialArgs =
                   inputsBySystem."aarch64-darwin".extraSpecialArgs;
-                users.nick.imports =
-                  [ ./homes/macs.nix ./homes/home-nicks-mbp.nix ];
+                users.nick.imports = [
+                  mac-app-util.homeManagerModules.default
+                  ./homes/macs.nix
+                  ./homes/home-nicks-mbp.nix
+                ];
               };
             }
           ];
@@ -105,8 +109,11 @@
                 useUserPackages = true;
                 extraSpecialArgs =
                   inputsBySystem."aarch64-darwin".extraSpecialArgs;
-                users.nick.imports =
-                  [ ./homes/macs.nix ./homes/home-nicks-axion-ray-mbp.nix ];
+                users.nick.imports = [
+                  mac-app-util.homeManagerModules.default
+                  ./homes/macs.nix
+                  ./homes/home-nicks-axion-ray-mbp.nix
+                ];
               };
             }
           ];
