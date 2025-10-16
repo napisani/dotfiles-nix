@@ -51,10 +51,10 @@
     };
     # anything installed with brew cask
     casks = [
-      "eloston-chromium"
+      "ungoogled-chromium"
       "bitwarden"
       "caffeine"
-      "docker"
+      "docker-desktop"
       "github"
       "lulu"
       "firefox@developer-edition"

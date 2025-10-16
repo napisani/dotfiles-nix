@@ -1,4 +1,4 @@
-{ inputs, lib, config, pkgs, user, overlays, ... }: {
+{ inputs, lib, config, pkgs, user, overlays, pkgs-unstable, ... }: {
   imports = [
     # If you want to use home-manager modules from other flakes (such as nix-colors):
     # inputs.nix-colors.homeManagerModule
@@ -8,13 +8,7 @@
     ../mods/shell.nix
     ../mods/git.nix
     ../mods/gh.nix
-    # ../mods/rust.nix
-    # ../mods/javascript.nix
-    # ../mods/golang.nix
     ../mods/neovim.nix
-    # ../mods/secret_inject.nix
-    # ../mods/packer_plugin_manager.nix
-    # ../mods/alacritty.nix
   ];
 
   nixpkgs = {
@@ -38,7 +32,7 @@
     # homeDirectory = "/Users/nick";
   };
 
-  home.packages = with pkgs; [ gcc ];
+  home.packages = with pkgs-unstable; [ gcc ];
 
   # Add stuff for your user as you see fit:
   # programs.neovim.enable = true;

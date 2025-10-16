@@ -7,7 +7,7 @@ let
     kubectl delete deployment mongo -n home
   '';
 in {
-  environment.systemPackages = with pkgs; [
+  environment.systemPackages = with pkgs-unstable; [
     tmux
     unzip
     wget

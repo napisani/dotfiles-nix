@@ -14,24 +14,11 @@
       url = "github:nix-community/home-manager/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # For using new modules before the realease of the next nixos version
+    # For using new modules before the release of the next nixos version
     home-manager-master = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # Where we get most of our software. Giant mono repo with recipes
-    # called derivations that say how to build software.
-    # nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-24.05-darwin";
-
-    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
-    # home-manager.url = "github:nix-community/home-manager/release-24.11"; # ...
-    # home-manager.inputs.nixpkgs.follows = "nixpkgs";
-
-    # nixpkgs-unstable = { url = "github:nixos/nixpkgs/nixpkgs-unstable"; };
-
-    # Controls system level software and settings including fonts
-    # darwin.url = "github:lnl7/nix-darwin/nix-darwin-24.11";
-    # darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     procmux.url = "github:napisani/procmux";
     procmux.inputs.nixpkgs.follows = "nixpkgs";
@@ -46,14 +33,11 @@
 
     proctmux.url = "github:napisani/proctmux";
 
-    # old_bitwarden.url =
-    #   "github:NixOS/nixpkgs/dd613136ee91f67e5dba3f3f41ac99ae89c5406b";
-
   };
 
   outputs = { flake-utils, nixpkgs, nixpkgs-unstable, home-manager, darwin
-    , procmux, secret_inject, animal_rescue, nixhub_dep, scrollbacktamer, proctmux, ...
-    }@inputs:
+    , procmux, secret_inject, animal_rescue, nixhub_dep, scrollbacktamer
+    , proctmux, ... }@inputs:
     let
       allSystems = [ "x86_64-linux" "aarch64-darwin" ];
       inputsBySystem = builtins.listToAttrs (map (system: {
@@ -67,8 +51,6 @@
               config.allowUnfree = true;
             };
             procmux = procmux;
-            # neovim_dep = inputs.neovim_dep.legacyPackages."${system}";
-            # golang_dep = inputs.golang_dep.legacyPackages."${system}";
             secret_inject = secret_inject;
             animal_rescue = animal_rescue;
             nixhub_dep = import inputs.nixhub_dep {
@@ -77,11 +59,7 @@
             };
             scrollbacktamer = scrollbacktamer;
             proctmux = proctmux;
-            overlays = [
-              # import ./packages/node/node-packages.nix
-              # inputs.neovim-nightly-overlay.overlay
-
-            ];
+            overlays = [ ];
 
             user = "nick";
           };
@@ -161,9 +139,7 @@
       };
 
       defaultPackage = {
-        # x86_64-darwin = home-manager.defaultPackage.x86_64-darwin;
         aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;
-        # aarch64-linux = home-manager.defaultPackage.aarch64-linux;
       };
     };
 }

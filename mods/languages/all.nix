@@ -5,7 +5,7 @@ let
 
   golangPackages = import ./golang.nix { inherit pkgs pkgs-unstable; };
 
-  rustPackages = import ./rust.nix { inherit pkgs pkgs-unstable; };
+  # rustPackages = import ./rust.nix { inherit pkgs pkgs-unstable; };
 
   # ocamlPackages = import ./ocaml.nix { inherit pkgs pkgs-unstable; };
 
@@ -19,6 +19,6 @@ let
   bashPackages = import ./bash.nix { inherit pkgs pkgs-unstable; };
   miscPackages = import ./misc.nix { inherit pkgs pkgs-unstable; };
 in with pkgs-unstable;
-jsPackages ++ pythonPackages ++ golangPackages ++ rustPackages ++ cppPackages
-++ luaPackages ++ nixPackages ++ bashPackages ++ miscPackages ++ javaPackages
+jsPackages ++ pythonPackages ++ golangPackages ++ cppPackages ++ luaPackages
+++ nixPackages ++ bashPackages ++ miscPackages ++ javaPackages
 

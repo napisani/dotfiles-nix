@@ -7,11 +7,11 @@
     # anything installed with brew cask
     casks = [
       "slack"
-      "discord"
-      "skype"
+      # "discord"
+      # "skype"
       "mongodb-compass"
-      "nikitabobko/tap/aerospace"
-      "ghostty"
+      # "nikitabobko/tap/aerospace"
+      # "ghostty"
       # "diffusionbee" 
     ];
     # anything installed with brew (non-casks)

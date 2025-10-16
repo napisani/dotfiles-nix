@@ -10,8 +10,8 @@
       "discord"
       "skype"
       "cryptomator"
-      "nikitabobko/tap/aerospace"
-      "ghostty"
+      # "nikitabobko/tap/aerospace"
+      # "ghostty"
       # "diffusionbee" 
     ];
     # anything installed with brew (non-casks)

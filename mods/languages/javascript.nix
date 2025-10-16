@@ -1,6 +1,6 @@
 { pkgs, pkgs-unstable, ... }:
 
-with pkgs; [
+with pkgs-unstable; [
   pkgs-unstable.deno
   pkgs-unstable.nodejs_20
   nodePackages_latest.typescript

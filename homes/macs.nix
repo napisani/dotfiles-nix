@@ -14,12 +14,7 @@
     ../mods/shell.nix
     ../mods/git.nix
     ../mods/gh.nix
-    # ../mods/rust.nix
-    # ../mods/javascript.nix
-    # ../mods/golang.nix
     ../mods/neovim.nix
-    # ../mods/secret_inject.nix
-    # ../mods/packer_plugin_manager.nix
     ../mods/alacritty.nix
     ../mods/karabiner.nix
     ../mods/ui-packages.nix
@@ -46,11 +41,6 @@
     # homeDirectory = "/Users/nick";
   };
 
-  home.packages = with pkgs;
-    [
-      vi-mongo
-      # my-scripts
-    ];
 
   # Add stuff for your user as you see fit:
   # programs.neovim.enable = true;

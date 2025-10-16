@@ -6,8 +6,8 @@ import {
 import { writeContext } from './output'
 import { modifierSwapRules } from './modifierSwap'
 import { layerRules } from './layers'
-import { capsRules } from './caps-lock'
-import { tabRules } from './tab';
+import { capsRules } from './hyper.ts'
+import { tabRules } from './system-leader.ts';
 
 writeToProfile({
   name: 'default', 
