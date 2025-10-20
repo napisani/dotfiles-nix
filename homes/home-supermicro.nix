@@ -1,9 +1,9 @@
-{ inputs, lib, config, pkgs, user, overlays, pkgs-unstable, ... }: {
+{ inputs, lib, config, pkgs, user, overlays, ... }: {
   imports = [
-    # If you want to use home-manager modules from other flakes (such as nix-colors):
-    # inputs.nix-colors.homeManagerModule
+    # if you want to use home-manager modules from other flakes (such as nix-colors):
+    # inputs.nix-colors.homemanagermodule
 
-    # You can also split up your configuration and import pieces of it here:
+    # you can also split up your configuration and import pieces of it here:
     ../mods/base-packages.nix
     ../mods/shell.nix
     ../mods/git.nix
@@ -12,27 +12,27 @@
   ];
 
   nixpkgs = {
-    # You can add overlays here
+    # you can add overlays here
     overlays = overlays;
 
-    # Configure your nixpkgs instance
+    # configure your nixpkgs instance
     config = {
-      # Disable if you don't want unfree packages
-      allowUnfree = true;
-      # Workaround for https://github.com/nix-community/home-manager/issues/2942
-      allowUnfreePredicate = (_: true);
-      # packageOverrides = pkgs: rec {
-      # secret_inject = pkgs.callPackage ../mods/secret_inject.nix { };
+      # disable if you don't want unfree packages
+      allowunfree = true;
+      # workaround for https://github.com/nix-community/home-manager/issues/2942
+      allowunfreepredicate = (_: true);
+      # packageoverrides = pkgs: rec {
+      # secret_inject = pkgs.callpackage ../mods/secret_inject.nix { };
       # };
     };
   };
 
   home = {
     username = user;
-    # homeDirectory = "/Users/nick";
+    # homedirectory = "/users/nick";
   };
 
-  home.packages = with pkgs-unstable; [ gcc ];
+  home.packages = with pkgs; [ gcc ];
 
   # Add stuff for your user as you see fit:
   # programs.neovim.enable = true;
