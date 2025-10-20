@@ -61,6 +61,7 @@
       "tailscale-app"
       "obsidian"
       "stats"
+      "rectangle"
     ];
     # anything installed with brew (non-casks)
     brews = [

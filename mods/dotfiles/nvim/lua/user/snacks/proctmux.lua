@@ -125,8 +125,8 @@ local function parse_procmux_yaml()
 	return commands
 end
 
--- ... rest of the original file remains unchanged
-local function run_command_in_background(cmd, cwd, name)
+local function run_command_in_background(cmd, cwd, name, picker)
+
 	-- cmd is now a table with the command as the first element and arguments as the rest
 	local command = cmd[1]
 	local args = {}
@@ -154,6 +154,8 @@ local function run_command_in_background(cmd, cwd, name)
 			-- Send notification when the command completes
 			vim.schedule(function()
 				vim.notify("Command " .. name .. " " .. status .. " (exit code: " .. exit_code .. ")", level)
+
+				picker:close()
 			end)
 		end,
 	}):start()
@@ -171,9 +173,9 @@ local function show_procmux_commands()
 	Snacks.picker.pick({
 		items = commands,
 		prompt = "Proctmux CMD > ",
-		confirm = function(_picker, item)
+		confirm = function(picker, item)
 			-- When an item is selected, run the command in background
-			run_command_in_background(item.cmd, item.cwd, item.name)
+			run_command_in_background(item.cmd, item.cwd, item.name, picker)
 		end,
 	})
 end
