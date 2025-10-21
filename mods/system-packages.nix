@@ -1,4 +1,4 @@
-{ pkgs, pkgs-unstable, procmux, secret_inject, ... }:
+{ pkgs,  procmux, secret_inject, ... }:
 let
   kubekill = pkgs.writeScriptBin "killkube.sh" ''
     #!/usr/bin/env bash
@@ -7,7 +7,7 @@ let
     kubectl delete deployment mongo -n home
   '';
 in {
-  environment.systemPackages = with pkgs-unstable; [
+  environment.systemPackages = with pkgs; [
     tmux
     unzip
     wget
