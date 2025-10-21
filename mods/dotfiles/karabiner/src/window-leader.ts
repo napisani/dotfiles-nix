@@ -1,4 +1,4 @@
-import { type FromKeyParam, rule, to$, toSetVar } from "karabiner.ts";
+import { type FromKeyParam, rule, to$, toKey, toSetVar } from "karabiner.ts";
 import { buildLeaderKeyRule, LeaderNode, windowLeader } from "./leader-utils.ts";
 
 
@@ -141,14 +141,16 @@ const leaderTree: LeaderNode[] = [
   {
     key: "n", // tmux next-window
     value: "window_next_display",
-    mutation: to$('open -g "rectangle://execute-action?name=next-display"'),
+    // mutation: to$('open -g "rectangle://execute-action?name=next-display"'),
+    mutation: toKey('f4', 'left_control'),
   },
   {
     key: "p", // tmux previous-window
     value: "window_prev_display",
-    mutation: to$(
-      'open -g "rectangle://execute-action?name=previous-display"',
-    ),
+    // mutation: to$(
+    //   'open -g "rectangle://execute-action?name=previous-display"',
+    // ),
+    mutation: toKey('tab', ['left_command', 'left_shift']),
   },
   // Third layouts (similar to tmux layouts)
   // {

@@ -8167,7 +8167,10 @@
                 },
                 "to": [
                   {
-                    "shell_command": "open -g \"rectangle://execute-action?name=next-display\""
+                    "key_code": "f4",
+                    "modifiers": [
+                      "left_control"
+                    ]
                   },
                   {
                     "set_variable": {
@@ -8197,7 +8200,11 @@
                 },
                 "to": [
                   {
-                    "shell_command": "open -g \"rectangle://execute-action?name=previous-display\""
+                    "key_code": "tab",
+                    "modifiers": [
+                      "left_command",
+                      "left_shift"
+                    ]
                   },
                   {
                     "set_variable": {
