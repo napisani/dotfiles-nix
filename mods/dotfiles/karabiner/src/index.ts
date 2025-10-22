@@ -6,6 +6,7 @@ import { capsRules } from "./hyper.ts";
 import { systemLeaderRules } from "./system-leader.ts";
 import { join } from "@std/path";
 import { windowLeaderRules } from "./window-leader.ts";
+import { tabWindowManagerRules } from "./window-layer.ts";
 
 const karabinerJsonPath = join(
   Deno.env.get("HOME") || "",
@@ -21,7 +22,8 @@ writeToProfile({
   ...modifierSwapRules,
   ...layerRules,
   ...systemLeaderRules,
-  ...windowLeaderRules,
+  // ...windowLeaderRules,
+    ...tabWindowManagerRules,
 
   rule("escape -> grave_accent_and_tilde").manipulators([
     map("escape").to("grave_accent_and_tilde")

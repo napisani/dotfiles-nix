@@ -19,13 +19,6 @@ end
 local dap_virtual_text_status_ok, dap_virtual_text = pcall(require, "nvim-dap-virtual-text")
 local utils = require("user.utils")
 
--- # Sign
--- vim.fn.sign_define("DapBreakpoint", { text = "🟥", texthl = "", linehl = "", numhl = "" })
--- vim.fn.sign_define("DapBreakpointCondition", { text = "🟧", texthl = "", linehl = "", numhl = "" })
--- vim.fn.sign_define("DapLogPoint", { text = "🟩", texthl = "", linehl = "", numhl = "" })
--- vim.fn.sign_define("DapStopped", { text = "👉", texthl = "", linehl = "", numhl = "" })
--- vim.fn.sign_define("DapBreakpointRejected", { text = "⬜", texthl = "", linehl = "", numhl = "" })
-
 -- # DAP Virtual Text
 dap_virtual_text.setup({})
 
@@ -42,7 +35,6 @@ dap.listeners.before.event_exited["dapui_config"] = function()
 end
 
 require("user.dap.typescript")
-require("user.dap.rust")
 require("user.dap.python")
 require("user.dap.go")
 

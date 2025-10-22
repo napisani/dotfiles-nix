@@ -5,6 +5,13 @@ require("mason-nvim-dap").setup({
 	ensure_installed = { "python", "lldb", "node2", "chrome", "js" },
 })
 
+vim.lsp.config("eslint", {
+	single_file_support = true,
+	settings = {
+		packageManager = "yarn", -- or 'npm'
+	},
+})
+
 vim.lsp.enable({
 	"efm",
 	"gopls",
@@ -16,8 +23,16 @@ vim.lsp.enable({
 	"pyright",
 	"ruff_lsp",
 	"yamlls",
-	"vtsls",
 })
+
+-- For now, i need to completely disable vtsls for any projects that are
+-- using deno, to avoid conflicts.
+-- for some reason, the root_dir function and root_markers config options
+-- are not working as expected for vtsls.
+local is_deno = vim.fs.root(0, { "deno.json", "deno.jsonc" })
+if not is_deno then
+	vim.lsp.enable({ "vtsls" })
+end
 
 vim.diagnostic.config({
 	virtual_lines = false,

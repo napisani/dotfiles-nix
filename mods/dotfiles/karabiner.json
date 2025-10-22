@@ -4194,10 +4194,10 @@
                 "from": {
                   "simultaneous": [
                     {
-                      "key_code": "a"
+                      "key_code": "tab"
                     },
                     {
-                      "key_code": "s"
+                      "key_code": "q"
                     }
                   ]
                 },
@@ -5917,6 +5917,1677 @@
               {
                 "type": "basic",
                 "from": {
+                  "key_code": "w"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": "window"
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "z"
+                },
+                "to": [
+                  {
+                    "shell_command": "open -g \"rectangle://execute-action?name=maximize\""
+                  },
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "a"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "b"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "c"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "d"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "e"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "g"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "h"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "i"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "j"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "k"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "l"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "m"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "n"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "o"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "p"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "q"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "r"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "s"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "t"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "u"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "v"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "w"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "x"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "y"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "1"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "2"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "3"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "4"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "5"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "6"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "7"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "8"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "9"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "0"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f1"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f2"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f3"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f4"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f5"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f6"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f7"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f8"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f9"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f10"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f11"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f12"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f13"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f14"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f15"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f16"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f17"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f18"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f19"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f20"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "volume_down"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "volume_up"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "mute"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "volume_decrement"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "volume_increment"
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "system_leader",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "set_variable": {
+                      "name": "window_leader",
+                      "value": 0
+                    }
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "system_leader",
+                    "value": "window"
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
                   "key_code": "a"
                 },
                 "to": [
@@ -6458,33 +8129,6 @@
                 "type": "basic",
                 "from": {
                   "key_code": "v"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "system_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "w"
                 },
                 "to": [
                   {
@@ -7537,239 +9181,40 @@
             ]
           },
           {
-            "description": "Window Leader Key",
+            "description": "Tab Key: Dual Role (Tab/Window Management)",
             "manipulators": [
               {
                 "type": "basic",
                 "from": {
-                  "simultaneous": [
-                    {
-                      "key_code": "a"
-                    },
-                    {
-                      "key_code": "w"
-                    }
-                  ]
-                },
-                "parameters": {
-                  "basic.simultaneous_threshold_milliseconds": 250
+                  "key_code": "tab"
                 },
                 "to": [
                   {
                     "set_variable": {
-                      "name": "window_leader",
+                      "name": "tab_window_mode_active",
                       "value": 1
                     }
                   }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "escape"
-                },
-                "to": [
+                ],
+                "to_if_alone": [
                   {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
+                    "key_code": "tab"
                   }
                 ],
-                "conditions": [
+                "to_after_key_up": [
                   {
-                    "type": "variable_unless",
-                    "name": "window_leader",
-                    "value": 0
+                    "set_variable": {
+                      "name": "tab_window_mode_active",
+                      "value": 0
+                    }
                   }
                 ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "quote"
-                },
-                "to": [
-                  {
-                    "shell_command": "open -g \"rectangle://execute-action?name=top-half\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "5"
-                },
-                "to": [
-                  {
-                    "shell_command": "open -g \"rectangle://execute-action?name=left-half\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "left_arrow"
-                },
-                "to": [
-                  {
-                    "shell_command": "open -g \"rectangle://execute-action?name=left-half\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "down_arrow"
-                },
-                "to": [
-                  {
-                    "shell_command": "open -g \"rectangle://execute-action?name=bottom-half\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "up_arrow"
-                },
-                "to": [
-                  {
-                    "shell_command": "open -g \"rectangle://execute-action?name=top-half\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "right_arrow"
-                },
-                "to": [
-                  {
-                    "shell_command": "open -g \"rectangle://execute-action?name=right-half\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
+              }
+            ]
+          },
+          {
+            "description": "Tab Window Management Actions",
+            "manipulators": [
               {
                 "type": "basic",
                 "from": {
@@ -7778,24 +9223,12 @@
                 "to": [
                   {
                     "shell_command": "open -g \"rectangle://execute-action?name=left-half\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -7808,24 +9241,12 @@
                 "to": [
                   {
                     "shell_command": "open -g \"rectangle://execute-action?name=bottom-half\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -7838,24 +9259,12 @@
                 "to": [
                   {
                     "shell_command": "open -g \"rectangle://execute-action?name=top-half\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -7868,24 +9277,12 @@
                 "to": [
                   {
                     "shell_command": "open -g \"rectangle://execute-action?name=right-half\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -7893,29 +9290,25 @@
               {
                 "type": "basic",
                 "from": {
-                  "key_code": "h"
+                  "key_code": "h",
+                  "modifiers": {
+                    "mandatory": [
+                      "right_shift"
+                    ],
+                    "optional": [
+                      "any"
+                    ]
+                  }
                 },
                 "to": [
                   {
                     "shell_command": "open -g \"rectangle://execute-action?name=first-two-thirds\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -7923,29 +9316,25 @@
               {
                 "type": "basic",
                 "from": {
-                  "key_code": "j"
+                  "key_code": "j",
+                  "modifiers": {
+                    "mandatory": [
+                      "right_shift"
+                    ],
+                    "optional": [
+                      "any"
+                    ]
+                  }
                 },
                 "to": [
                   {
                     "shell_command": "open -g \"rectangle://execute-action?name=last-two-thirds\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -7953,29 +9342,25 @@
               {
                 "type": "basic",
                 "from": {
-                  "key_code": "k"
+                  "key_code": "k",
+                  "modifiers": {
+                    "mandatory": [
+                      "right_shift"
+                    ],
+                    "optional": [
+                      "any"
+                    ]
+                  }
                 },
                 "to": [
                   {
                     "shell_command": "open -g \"rectangle://execute-action?name=first-two-thirds\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -7983,29 +9368,25 @@
               {
                 "type": "basic",
                 "from": {
-                  "key_code": "l"
+                  "key_code": "l",
+                  "modifiers": {
+                    "mandatory": [
+                      "right_shift"
+                    ],
+                    "optional": [
+                      "any"
+                    ]
+                  }
                 },
                 "to": [
                   {
                     "shell_command": "open -g \"rectangle://execute-action?name=last-two-thirds\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -8018,24 +9399,12 @@
                 "to": [
                   {
                     "shell_command": "open -g \"rectangle://execute-action?name=top-left\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -8048,24 +9417,12 @@
                 "to": [
                   {
                     "shell_command": "open -g \"rectangle://execute-action?name=top-right\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -8078,24 +9435,12 @@
                 "to": [
                   {
                     "shell_command": "open -g \"rectangle://execute-action?name=bottom-left\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -8108,24 +9453,12 @@
                 "to": [
                   {
                     "shell_command": "open -g \"rectangle://execute-action?name=bottom-right\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -8138,24 +9471,12 @@
                 "to": [
                   {
                     "shell_command": "open -g \"rectangle://execute-action?name=maximize\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -8167,28 +9488,16 @@
                 },
                 "to": [
                   {
-                    "key_code": "f4",
+                    "key_code": "tab",
                     "modifiers": [
-                      "left_control"
+                      "left_command"
                     ]
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]
@@ -8205,1383 +9514,12 @@
                       "left_command",
                       "left_shift"
                     ]
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "conditions": [
                   {
                     "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "equal_sign"
-                },
-                "to": [
-                  {
-                    "shell_command": "open -g \"rectangle://execute-action?name=almost-maximize\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "c"
-                },
-                "to": [
-                  {
-                    "shell_command": "open -g \"rectangle://execute-action?name=center\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "t"
-                },
-                "to": [
-                  {
-                    "shell_command": "open -g \"rectangle://execute-action?name=tile-all\""
-                  },
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "a"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "b"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "d"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "e"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "g"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "i"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "m"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "o"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "q"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "r"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "s"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "u"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "v"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "w"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "x"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "y"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "6"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "7"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "8"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "9"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "0"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f1"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f2"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f3"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f4"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f5"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f6"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f7"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f8"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f9"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f10"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f11"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f12"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f13"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f14"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f15"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f16"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f17"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f18"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f19"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "f20"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "volume_down"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "volume_up"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "mute"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "volume_decrement"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "volume_increment"
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "system_leader",
-                      "value": 0
-                    }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "window_leader",
+                    "name": "tab_window_mode_active",
                     "value": 1
                   }
                 ]

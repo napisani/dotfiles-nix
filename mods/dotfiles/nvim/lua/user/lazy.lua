@@ -66,29 +66,6 @@ require("lazy").setup({
 			opts_extend = require("user.blink").opts_extend,
 		},
 
-		-- CMP related
-		-- -- The completion plugin
-		-- {
-		-- 	"hrsh7th/nvim-cmp",
-		-- 	opts = function(_, opts)
-		-- 		opts.sources = opts.sources or {}
-		-- 		-- add lazydev source to the beginning of the list
-		-- 		table.insert(opts.sources, {
-		-- 			name = "lazydev",
-		-- 			group_index = 0, -- set group index to 0 to skip loading LuaLS completions
-		-- 		})
-		-- 	end,
-		-- },
-
-		-- -- buffer completions
-		-- { "hrsh7th/cmp-buffer" },
-		-- -- path completions
-		-- { "hrsh7th/cmp-path" },
-		-- -- snippet completions
-		-- { "saadparwaiz1/cmp_luasnip" },
-		-- { "hrsh7th/cmp-nvim-lsp" },
-		-- { "hrsh7th/cmp-nvim-lua" },
-
 		-- Snippets
 		--snippet engine
 		{ "L3MON4D3/LuaSnip" },
@@ -130,17 +107,6 @@ require("lazy").setup({
 			dependencies = { "neovim/nvim-lspconfig" },
 		},
 
-		-- Telescope deprecated
-		-- { "nvim-telescope/telescope.nvim" },
-		-- { "nvim-telescope/telescope-file-browser.nvim" },
-		-- {
-		-- 	"benfowler/telescope-luasnip.nvim",
-		-- },
-		-- {
-		-- 	"nvim-telescope/telescope-fzf-native.nvim",
-		-- 	build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
-		-- },
-
 		-- Treesitter
 		{
 			"nvim-treesitter/nvim-treesitter",
@@ -165,23 +131,10 @@ require("lazy").setup({
 			},
 		},
 
-		-- Rust tools
-		{ "simrat39/rust-tools.nvim" },
 
 		-- java
 		{ "nvim-java/nvim-java" },
 
-		-- vim-rooter - ensures that when opening files/dirs vim's CWD remains the root of the project
-		-- use{
-		-- 	"notjedi/nvim-rooter.lua",
-		--
-		-- }
-
-		-- VIM movement addons
-		-- {
-		-- 	"echasnovski/mini.surround",
-		-- 	version = "*",
-		-- },
 		{
 			"kylechui/nvim-surround",
 			version = "*", -- Use for stability; omit to use `main` branch for the latest features
@@ -209,17 +162,6 @@ require("lazy").setup({
 		-- hex colors to actual colors (for css)
 		{ "norcalli/nvim-colorizer.lua" },
 
-		-- Install neoscopes.
-		-- Telescope deperecated
-		-- { "smartpde/neoscopes" },
-
-		-- { "napisani/neoscopes" }
-		-- ('/Users/nick/code/neoscopes')
-		-- {
-		-- 	"napisani/nvim-github-codesearch",
-		-- 	-- build = "direnv allow && make"
-		-- },
-
 		-- copilot
 		{ "github/copilot.vim" },
 
@@ -229,26 +171,6 @@ require("lazy").setup({
 		-- 	keys = require("user.sidekick").keys,
 		-- },
 
-		-- {
-		-- 	"supermaven-inc/supermaven-nvim",
-		-- 	config = function()
-		-- 		require("supermaven-nvim").setup({})
-		-- 	end,
-		-- },
-
-		-- { "karb94/neoscroll.nvim" },
-
-		-- {
-		-- 	"benlubas/molten-nvim",
-		-- 	version = "^1.0.0", -- use version <2.0.0 to avoid breaking changes
-		-- 	build = ":UpdateRemotePlugins",
-		-- 	init = function()
-		-- 		-- this is an example, not a default. Please see the readme for more configuration options
-		-- 		vim.g.molten_output_win_max_height = 12
-		-- 	end,
-		-- },
-
-		-- { "robitx/gp.nvim" },
 		{
 			"olimorris/codecompanion.nvim",
 			config = true,
@@ -270,76 +192,13 @@ require("lazy").setup({
 			end,
 		},
 
-		-- {
-		-- 	"yetone/avante.nvim",
-		-- 	-- dir = "/Users/nick/code/avante.nvim",
-		-- 	event = "VeryLazy",
-		-- 	lazy = false,
-		-- 	version = false, -- set this if you want to always pull the latest change
-		-- 	opts = require("user.avante"),
-		-- 	-- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-		-- 	build = "make",
-		-- 	-- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
-		-- 	dependencies = {
-		-- 		"nvim-treesitter/nvim-treesitter",
-		-- 		"stevearc/dressing.nvim",
-		-- 		"nvim-lua/plenary.nvim",
-		-- 		"MunifTanjim/nui.nvim",
-		-- 		--- The below dependencies are optional,
-		-- 		"nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-		-- 		"zbirenbaum/copilot.lua", -- for providers='copilot'
-		-- 		{
-		-- 			-- support for image pasting
-		-- 			"HakonHarnes/img-clip.nvim",
-		-- 			event = "VeryLazy",
-		-- 			opts = {
-		-- 				-- recommended settings
-		-- 				default = {
-		-- 					embed_image_as_base64 = false,
-		-- 					prompt_for_file_name = false,
-		-- 					drag_and_drop = {
-		-- 						insert_mode = true,
-		-- 					},
-		-- 					-- required for Windows users
-		-- 					use_absolute_path = true,
-		-- 				},
-		-- 			},
-		-- 		},
-		-- 		{
-		-- 			-- Make sure to set this up properly if you have lazy=true
-		-- 			"MeanderingProgrammer/render-markdown.nvim",
-		-- 			opts = {
-		-- 				file_types = { "markdown", "Avante" },
-		-- 			},
-		-- 			ft = { "markdown", "Avante" },
-		-- 		},
-		-- 	},
-		-- },
-
 		{
 			"napisani/context-nvim",
-			-- dir = "/Users/nick/code/context-nvim",
-			-- name = "context-nvim",
-			-- dev = true,
 		},
 
-		-- ({
-		-- "kndndrj/nvim-dbee",
-		--   -- "/Users/nick/code/nvim-dbee",
-		-- dependencies = {
-		--   "MunifTanjim/nui.nvim",
+		-- {
+		-- 	"yioneko/nvim-vtsls",
 		-- },
-		-- build = function()
-		--   -- Install tries to automatically detect the install method.
-		--   -- if it fails, try calling it with one of these parameters:
-		--   --    "curl", "wget", "bitsadmin", "go"
-		--   require("dbee").install()
-		-- end,
-		-- })
-
-		{
-			"yioneko/nvim-vtsls",
-		},
 
 		{
 			"tpope/vim-dadbod",
@@ -391,11 +250,6 @@ require("lazy").setup({
 			-- available after the first executing of it or after a keymap of text-case.nvim has been used.
 			lazy = false,
 		},
-
-		-- {
-		-- 	"stevearc/overseer.nvim",
-		-- 	opts = {},
-		-- },
 
 		{
 			"jpalardy/vim-slime",

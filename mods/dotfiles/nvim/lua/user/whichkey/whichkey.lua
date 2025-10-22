@@ -15,15 +15,6 @@ local scopes = require("user.whichkey.scopes")
 local lsp = require("user.whichkey.lsp")
 local global_mappings = require("user.whichkey.global")
 
-local notification_mappings = {
-	{
-		"<leader>N",
-		function()
-			Snacks.notifier.show_history()
-		end,
-	},
-}
-
 local root_mapping = {
 	{ '<leader>"', "<cmd>:split<cr>", desc = "Horizontal Split" },
 	{ "<leader>%", "<cmd>:vsplit<cr>", desc = "Vertical Split" },
@@ -54,6 +45,15 @@ local lazy_system = {
 	{ "<leader>Pm", "<cmd>Mason<cr>", desc = "(m)ason" },
 	{ "<leader>Ps", "<cmd>Lazy<cr>", desc = "(s)ync packages" },
 	{ "<leader>Pt", "<cmd>TSUpdate<cr>", desc = "(t)reesitter update" },
+	{ "<leader>Pl", "<cmd>LspInfo<cr>", desc = "(l)sp" },
+	{ "<leader>PM", "<cmd>messages<cr>", desc = "(M)essages" },
+	{
+		"<leader>PN",
+		desc = "(N)otifications",
+		function()
+			Snacks.notifier.show_history()
+		end,
+	},
 }
 
 local quit = {
@@ -207,7 +207,6 @@ local shared_mapping = {
 	buffers,
 	-- overseer,
 	debugging,
-	notification_mappings,
 	git.mapping_shared,
 	changes.mapping_shared,
 	ai_mapping.mapping_shared,

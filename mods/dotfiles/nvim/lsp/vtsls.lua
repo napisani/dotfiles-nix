@@ -1,33 +1,54 @@
-local vtsls = require("vtsls")
--- local nvim_lsp = require("lspconfig")
-
-local fix_all_imports = function(bufnr)
-	if not bufnr then
-		bufnr = vim.api.nvim_get_current_buf()
-	end
-
-	vtsls.commands.add_missing_imports(bufnr)
-	--vtsls.commands.remove_unused_imports(bufnr)
-	--vtsls.commands.organize_imports(bufnr)
+local cmd = { "vtsls", "--stdio" }
+if vim.fn.has("win32") == 1 then
+	cmd = { "cmd.exe", "/C", unpack(cmd) }
 end
 
-return {
-	root_dir = function()
-    local is_deno = vim.fs.root(0, { "deno.json", "deno.jsonc" })
-    local is_ts = vim.fs.root(0, {
-				"tsconfig.json",
-				"jsconfig.json",
-				"package.json",
-				".git",
-			})
+local source_action_kinds = {
+	organize_imports = "source.organizeImports",
+	sort_imports = "source.sortImports",
+	remove_unused_imports = "source.removeUnusedImports",
+	fix_all = "source.fixAll.ts",
+	remove_unused = "source.removeUnused.ts",
+	add_missing_imports = "source.addMissingImports.ts",
+}
 
-		return  not is_deno and is_ts
-  end,
-	-- in single file mode the root_dir is ignored, so this needs to be false
+local action_table = setmetatable({}, {
+	---@param action lsp.CodeActionKind Actions not of this kind are filtered out by the client before being shown
+	---@return function
+	__index = function(_, action)
+		return function()
+			vim.lsp.buf.code_action({
+				apply = true,
+				context = {
+					only = { action },
+					diagnostics = {},
+				},
+			})
+		end
+	end,
+})
+
+return {
+	cmd = cmd,
+	init_options = {
+		hostInfo = "neovim",
+	},
+	filetypes = {
+		"javascript",
+		"javascriptreact",
+		"javascript.jsx",
+		"typescript",
+		"typescriptreact",
+		"typescript.tsx",
+	},
+
+	root_markers = { "package-lock.json", "yarn.lock", "pnpm-lock.yaml" },
+	workspace_required = true,
+
 	single_file_support = false,
-	-- root_markers = { "package.json" },
 	settings = {
 		typescript = {
+			updateImportsOnFileMove = "always",
 			inlayHints = {
 				parameterNames = { enabled = "all" },
 				parameterTypes = { enabled = true },
@@ -37,16 +58,28 @@ return {
 				enumMemberValues = { enabled = true },
 			},
 		},
+		javascript = {
+			updateImportsOnFileMove = "always",
+		},
+		vtsls = {
+			enableMoveToFileCodeAction = true,
+		},
 	},
-
-	on_attach = function(_client, bufnr)
-		local opts = {
-			noremap = true,
-			silent = true,
-			callback = function()
-				fix_all_imports(bufnr)
-			end,
-		}
-		vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>li", "", opts)
+	on_attach = function(client, bufnr)
+		vim.keymap.set("n", "<leader>li", function()
+			-- local params = {
+			-- 	command = source_action_kinds.add_missing_imports,
+			-- 	arguments = { vim.api.nvim_buf_get_name(0) },
+			-- }
+			-- client.request("workspace/executeCommand", params, nil, bufnr)
+			vim.lsp.buf.code_action({
+				apply = true,
+				context = { only = { "source.addMissingImports.ts" }, diagnostics = {} },
+			})
+			vim.lsp.buf.code_action({
+				apply = true,
+				context = { only = { "source.removeUnusedImports.ts" }, diagnostics = {} },
+			})
+		end, { buffer = bufnr, desc = "Add missing imports" })
 	end,
 }
