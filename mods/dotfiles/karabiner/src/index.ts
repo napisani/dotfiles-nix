@@ -23,7 +23,7 @@ writeToProfile({
   ...layerRules,
   ...systemLeaderRules,
   // ...windowLeaderRules,
-    ...tabWindowManagerRules,
+  ...tabWindowManagerRules,
 
   rule("escape -> grave_accent_and_tilde").manipulators([
     map("escape").to("grave_accent_and_tilde")

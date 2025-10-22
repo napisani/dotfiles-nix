@@ -36,20 +36,11 @@ local biome_custom_format = vim.tbl_extend("force", biome, {
 	rootMarkers = { "biome.json" },
 })
 
-function is_deno_project()
-	-- local matcher = nvim_lsp.util.root_pattern("deno.json", "deno.jsonc")
-	-- local deno_found = matcher(vim.fn.expand("%:p"))
-	-- if deno_found then
-	-- 	return true
-	-- end
-	return false
-end
-
+local is_deno = vim.fs.root(0, { "deno.json", "deno.jsonc" })
 local function get_js_linters()
-	local deno_found = is_deno_project()
 	local linters = {}
 	if next(project_lint_config) == nil then
-		if deno_found then
+		if is_deno then
 			table.insert(linters, deno_fmt)
 		else
 			table.insert(linters, eslint_d_lint)

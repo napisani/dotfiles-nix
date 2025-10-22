@@ -49,7 +49,7 @@ export type LeaderNode = {
  * @returns Array of manipulators and manipulator builders
  */
 function buildLeaderManipulators(
-  leaderVariable:  string,
+  leaderVariable: string,
   nodes: LeaderNode[],
   parentValue: string | number = 1,
 ): Manipulator[] {
