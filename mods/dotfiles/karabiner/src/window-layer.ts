@@ -1,4 +1,4 @@
-import { map, rule, to$, toKey, toSetVar } from "karabiner.ts";
+import {  rule, to$ } from "karabiner.ts";
 
 // Variable name for managing the tab key state
 const TAB_WINDOW_MODE = "tab_window_mode_active";
