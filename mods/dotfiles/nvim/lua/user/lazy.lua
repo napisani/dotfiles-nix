@@ -131,7 +131,6 @@ require("lazy").setup({
 			},
 		},
 
-
 		-- java
 		{ "nvim-java/nvim-java" },
 
@@ -165,11 +164,11 @@ require("lazy").setup({
 		-- copilot
 		{ "github/copilot.vim" },
 
-		-- {
-		-- 	"folke/sidekick.nvim",
-		-- 	opts = require("user.sidekick").opts,
-		-- 	keys = require("user.sidekick").keys,
-		-- },
+		{
+			"folke/sidekick.nvim",
+			opts = require("user.sidekick").opts,
+			keys = require("user.sidekick").keys,
+		},
 
 		{
 			"olimorris/codecompanion.nvim",

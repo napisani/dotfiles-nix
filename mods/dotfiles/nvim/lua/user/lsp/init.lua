@@ -19,7 +19,6 @@ vim.lsp.enable({
 	"lua_ls",
 	"cssls",
 	"bashls",
-	"denols",
 	"pyright",
 	"ruff_lsp",
 	"yamlls",
@@ -30,7 +29,10 @@ vim.lsp.enable({
 -- for some reason, the root_dir function and root_markers config options
 -- are not working as expected for vtsls.
 local is_deno = vim.fs.root(0, { "deno.json", "deno.jsonc" })
-if not is_deno then
+
+if is_deno then
+	vim.lsp.enable({ "denols" })
+else
 	vim.lsp.enable({ "vtsls" })
 end
 
