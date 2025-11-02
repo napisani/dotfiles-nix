@@ -94,8 +94,10 @@
     pkgs.nerd-fonts.jetbrains-mono
     pkgs.nerd-fonts.symbols-only
   ];
-
   system.defaults = {
+    # disable liquid glass effect
+    universalaccess.reduceTransparency = true;
+
     finder.AppleShowAllExtensions = true;
     finder._FXShowPosixPathInTitle = true;
     # When performing a search, search the current folder by default
