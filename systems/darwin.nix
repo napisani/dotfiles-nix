@@ -96,7 +96,7 @@
   ];
   system.defaults = {
     # disable liquid glass effect
-    universalaccess.reduceTransparency = true;
+    # universalaccess.reduceTransparency = true;
 
     finder.AppleShowAllExtensions = true;
     finder._FXShowPosixPathInTitle = true;
