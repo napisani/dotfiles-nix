@@ -28,6 +28,15 @@ codecompanion.setup({
 					},
 				})
 			end,
+			githubmodels = function()
+				return require("codecompanion.adapters").extend("githubmodels", {
+					schema = {
+						model = {
+							default = "gpt-4.1",
+						},
+					},
+				})
+			end,
 
 			gemini = function()
 				return require("codecompanion.adapters").extend("gemini", {
@@ -40,8 +49,9 @@ codecompanion.setup({
 	},
 
 	strategies = {
+		cmd = { adapter = "githubmodels" },
 		inline = {
-			-- adapter = "openai",
+			adapter = "githubmodels",
 			keymaps = {
 				accept_change = {
 					modes = { n = "<leader>ma" },
@@ -52,7 +62,7 @@ codecompanion.setup({
 			},
 		},
 		chat = {
-			-- adapter = "anthropic",
+			adapter = "githubmodels",
 
 			keymaps = {
 				send = {

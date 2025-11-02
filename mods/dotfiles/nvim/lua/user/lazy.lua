@@ -164,10 +164,32 @@ require("lazy").setup({
 		-- copilot
 		{ "github/copilot.vim" },
 
+		-- 		{
+		-- 			"folke/sidekick.nvim",
+		-- 			opts = require("user.sidekick").opts,
+		-- 			keys = require("user.sidekick").keys,
+		-- 		},
 		{
-			"folke/sidekick.nvim",
-			opts = require("user.sidekick").opts,
-			keys = require("user.sidekick").keys,
+			"sudo-tee/opencode.nvim",
+			config = function()
+				require("opencode").setup(require("user.opencode"))
+			end,
+			dependencies = {
+				"nvim-lua/plenary.nvim",
+				{
+					"MeanderingProgrammer/render-markdown.nvim",
+					opts = {
+						anti_conceal = { enabled = false },
+						file_types = { "markdown", "opencode_output" },
+					},
+					ft = { "markdown", "Avante", "copilot-chat", "opencode_output" },
+				},
+				-- Optional, for file mentions and commands completion, pick only one
+				"saghen/blink.cmp",
+
+				-- Optional, for file mentions picker, pick only one
+				"folke/snacks.nvim",
+			},
 		},
 
 		{

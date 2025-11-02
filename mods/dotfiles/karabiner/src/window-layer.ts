@@ -1,4 +1,4 @@
-import {  rule, to$ } from "karabiner.ts";
+import { rule, to$ } from "karabiner.ts";
 
 // Variable name for managing the tab key state
 const TAB_WINDOW_MODE = "tab_window_mode_active";
@@ -10,7 +10,10 @@ const tabKeyRule = rule("Tab Key: Dual Role (Tab/Window Management)")
     {
       type: "basic",
       from: { key_code: "tab" },
-      to: [{ set_variable: { name: TAB_WINDOW_MODE, value: 1 } }],
+      to: [
+        { set_variable: { name: TAB_WINDOW_MODE, value: 1 } },
+        // { key_code: "right_shift", modifiers: ["right_command", "right_control", "right_option"] }
+      ],
       to_if_alone: [{ key_code: "tab" }],
       to_after_key_up: [{ set_variable: { name: TAB_WINDOW_MODE, value: 0 } }],
     },
@@ -120,14 +123,18 @@ const windowManagementRules = rule("Tab Window Management Actions")
     // Display navigation
     {
       type: "basic",
-      from: { key_code: "n" },
-      to: [{ key_code: "tab", modifiers: ["left_command"] }],
-      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
-    },
-    {
-      type: "basic",
-      from: { key_code: "p" },
-      to: [{ key_code: "tab", modifiers: ["left_command", "left_shift"] }],
+      from: { key_code: "w" },
+      to: [
+        {
+          key_code: "tab",
+          modifiers: [
+            "right_command",
+            "right_control",
+            "right_option",
+            "right_shift",
+          ],
+        },
+      ],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     // // Balance windows

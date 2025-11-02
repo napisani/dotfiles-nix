@@ -2,18 +2,18 @@
   # as of 2025-03-26 karabiner-elements version 15 is not working correctly with nix-darwin 
   # this overlay is a workaround to use version 14.13.0, it can be removed once version 15 is working
   # https://github.com/LnL7/nix-darwin/issues/1041
-  nixpkgs.overlays = [
-    (self: super: {
-      karabiner-elements = super.karabiner-elements.overrideAttrs (old: {
-        version = "14.13.0";
+  # nixpkgs.overlays = [
+  #   (self: super: {
+  #     karabiner-elements = super.karabiner-elements.overrideAttrs (old: {
+  #       version = "14.13.0";
 
-        src = super.fetchurl {
-          inherit (old.src) url;
-          hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
-        };
-      });
-    })
-  ];
+  #       src = super.fetchurl {
+  #         inherit (old.src) url;
+  #         hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
+  #       };
+  #     });
+  #   })
+  # ];
 
   documentation.enable = false;
   programs = {
@@ -28,7 +28,7 @@
 
   services = {
     # Remove the nix-daemon.enable line as it's now managed by nix.enable
-    karabiner-elements.enable = true;
+    # karabiner-elements.enable = true;
   };
 
   # Add system.primaryUser to specify which user the user-specific options apply to
@@ -62,6 +62,8 @@
       "obsidian"
       "stats"
       "rectangle"
+      "karabiner-elements"
+      "alt-tab"
     ];
     # anything installed with brew (non-casks)
     brews = [

@@ -19,7 +19,8 @@ vim.lsp.enable({
 	"lua_ls",
 	"cssls",
 	"bashls",
-	"pyright",
+	-- "pyright",
+	"basedpyright",
 	"ruff_lsp",
 	"yamlls",
 })

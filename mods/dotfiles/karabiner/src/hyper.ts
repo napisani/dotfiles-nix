@@ -36,9 +36,10 @@ export const capsRules = [
     }).description("Hyper + space = tmux prefix/leader"),
   ]),
 
-  ...("abcdefghijklmnopqrstuvwxyz".split(""))
+  ...[...("abcdefghijklmnopqrstuvwxyz".split("")), "quote"]
     .filter((key) => !["j", "k", "l", "h"].includes(key))
     .map((key) => {
+    console.log(`Creating Hyper + ${key} rule`);
       return (rule(`Hyper + ${key} = ctl + ${key}`).manipulators([
         map({
           key_code: key as FromKeyCode,
@@ -49,6 +50,8 @@ export const capsRules = [
         }).description(`Hyper + ${key} = ctl + ${key}`),
       ]));
     }),
+
+
 
   rule("Hyper + hjkl to arrow keys").manipulators([
     map({
@@ -79,22 +82,7 @@ export const capsRules = [
       "key_code": "down_arrow",
     }).description("Hyper + j = down arrow"),
   ]),
-  rule("Hyper + shift n/p - switch tabs").manipulators([
-    map({
-      key_code: "p",
-      modifiers: { mandatory: [...hyperModifiers, "left_shift"] },
-    }).to({
-      "key_code": "tab",
-      "modifiers": ["left_shift", "left_command"],
-    }).description("Hyper + shift + p = switch to previous tab"),
-    map({
-      key_code: "n",
-      modifiers: { mandatory: [...hyperModifiers, "left_shift"] },
-    }).to({
-      "key_code": "tab",
-      "modifiers": ["left_command"],
-    }).description("Hyper + shift + n = switch to next tab"),
-  ]),
+
   rule("Hyper + 4 = select screenshot").manipulators([
     map({
       key_code: "4",

@@ -15,6 +15,7 @@ local scopes = require("user.whichkey.scopes")
 local lsp = require("user.whichkey.lsp")
 local global_mappings = require("user.whichkey.global")
 
+
 local root_mapping = {
 	{ '<leader>"', "<cmd>:split<cr>", desc = "Horizontal Split" },
 	{ "<leader>%", "<cmd>:vsplit<cr>", desc = "Vertical Split" },
@@ -216,9 +217,9 @@ local shared_mapping = {
 }
 
 for _, mapping in ipairs(shared_mapping) do
-	for _, mapping in ipairs(mapping) do
-		table.insert(mapping_n, mapping)
-		table.insert(mapping_v, mapping)
+	for _, m in ipairs(mapping) do
+		table.insert(mapping_n, m)
+		table.insert(mapping_v, m)
 	end
 end
 

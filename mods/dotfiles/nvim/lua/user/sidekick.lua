@@ -20,16 +20,26 @@ return {
 			expr = true,
 			desc = "Goto/Apply Next Edit Suggestion",
 		},
+
+		-- {
+		-- 	"<c-w>",
+		-- 	function()
+		-- 		require("sidekick.cli").toggle()
+		-- 	end,
+		-- 	desc = "Sidekick Toggle",
+		-- 	mode = { "n", "t", "i", "x" },
+		-- },
+
 		{
-			"<c-o>",
+			"<leader>oq",
 			function()
 				require("sidekick.cli").toggle()
 			end,
-			desc = "Sidekick Toggle",
-			mode = { "n", "t", "i", "x" },
+			desc = "Sidekick Toggle CLI",
 		},
+
 		{
-			"<leader>oa",
+			"<leader>oo",
 			function()
 				require("sidekick.cli").toggle()
 			end,

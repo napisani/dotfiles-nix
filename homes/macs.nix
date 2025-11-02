@@ -16,7 +16,6 @@
     ../mods/gh.nix
     ../mods/neovim.nix
     ../mods/alacritty.nix
-    ../mods/karabiner.nix
     ../mods/ui-packages.nix
   ];
 
