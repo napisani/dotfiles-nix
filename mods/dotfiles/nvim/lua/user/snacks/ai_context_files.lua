@@ -39,7 +39,19 @@ local function coerce_and_validate_selection(selection)
 	return selection
 end
 
-local function add_file_to_chat_internal(file_info, chat, source)
+-- Find a visible OpenCode window (returns win, buf, ft or nil)
+local function find_opencode_window()
+	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+		local buf = vim.api.nvim_win_get_buf(win)
+		local ft = vim.bo[buf].filetype
+		if ft == "opencode" or ft == "opencode_input" or ft == "opencode_output" then
+			return win, buf, ft
+		end
+	end
+	return nil
+end
+
+local function add_file_to_codecompanion_chat_internal(file_info, chat, source)
 	local fmt = string.format
 	local file_path = file_info.file_path
 	local relative_path = file_info.relative_path
@@ -108,7 +120,7 @@ local function add_file_to_chat_internal(file_info, chat, source)
 	return true
 end
 
-local function add_file_name_ref_to_chat(file_info, chat)
+local function add_file_name_ref_to_codecompanion_chat(file_info, chat)
 	-- Insert the name of the file into the chat buffer at the current cursor position
 	if vim.api.nvim_get_current_buf() ~= chat.bufnr then
 		return
@@ -128,6 +140,24 @@ end
 
 -- Public functions
 function M.add_current_buffer_to_chat()
+	-- Prefer OpenCode if visible
+	local win = select(1, find_opencode_window())
+	if win then
+		local bufnr = vim.api.nvim_get_current_buf()
+		local file_path = vim.api.nvim_buf_get_name(bufnr)
+		if file_path == "" then
+			vim.notify("Current buffer has no file name", vim.log.levels.ERROR)
+			return
+		end
+		local opencode_context = require("opencode.context")
+		require("opencode.ui.mention").mention(function(mention_cb)
+			mention_cb(file_path)
+			opencode_context.add_file(file_path)
+		end)
+		return
+	end
+
+	-- Fallback to CodeCompanion
 	local chat = get_active_chat()
 	if not chat then
 		return
@@ -136,62 +166,79 @@ function M.add_current_buffer_to_chat()
 	-- Get current buffer information
 	local bufnr = vim.api.nvim_get_current_buf()
 	local file_path = vim.api.nvim_buf_get_name(bufnr)
-
 	if file_path == "" then
 		vim.notify("Current buffer has no file name", vim.log.levels.ERROR)
 		return
 	end
 
-	local file_info = {
-		file_path = file_path,
-		relative_path = vim.fn.fnamemodify(file_path, ":."),
-	}
-
+	local file_info = { file_path = file_path, relative_path = vim.fn.fnamemodify(file_path, ":.") }
 	-- Use current buffer number for accessing current content
 	file_info.bufnr = bufnr
 
-	if add_file_to_chat_internal(file_info, chat, "current_buffer") then
-		add_file_name_ref_to_chat(file_info, chat)
+	if add_file_to_codecompanion_chat_internal(file_info, chat, "current_buffer") then
+		add_file_name_ref_to_codecompanion_chat(file_info, chat)
 	end
 end
 
 function M.add_file_to_chat(picker_fn, picker_opts)
-	local chat = get_active_chat()
-	if not chat then
-		return
-	end
-
+	local win = select(1, find_opencode_window())
 	picker_opts = picker_opts or {}
+
+	local function add_with_opencode(selection)
+		local ok, oc = pcall(require, "opencode.context")
+		if not (ok and oc and type(oc.add_file) == "function") then
+			vim.notify("OpenCode context not available", vim.log.levels.ERROR)
+			return
+		end
+		local function add_one(sel)
+			local fi = coerce_and_validate_selection(sel)
+			if fi then
+				oc.add_file(fi.file_path)
+			end
+		end
+		if type(selection) == "table" and #selection > 0 then
+			for _, s in ipairs(selection) do
+				add_one(s)
+			end
+		else
+			add_one(selection)
+		end
+	end
 
 	-- Launch snacks.nvim picker
 	local all_opts = vim.tbl_extend("force", picker_opts, {
 		multi_select = true,
 		confirm = function(picker)
-			-- Get the selected items
 			local selection = picker:selected({ fallback = true })
 			picker:close()
+
+			if win then
+				add_with_opencode(selection)
+				return
+			end
+
+			local chat = get_active_chat()
+			if not chat then
+				return
+			end
+
 			if type(selection) == "table" and #selection > 0 then
-				-- Multiple files selected
-				for _, selected_item in ipairs(selection) do
-					local file_info = coerce_and_validate_selection(selected_item)
-					if file_info then
-						add_file_to_chat_internal(file_info, chat)
+				for _, sel in ipairs(selection) do
+					local fi = coerce_and_validate_selection(sel)
+					if fi then
+						add_file_to_codecompanion_chat_internal(fi, chat)
 					end
 				end
-
-				for _, selected_item in ipairs(selection) do
-					local file_info = coerce_and_validate_selection(selected_item)
-					if file_info then
-						add_file_name_ref_to_chat(file_info, chat)
+				for _, sel in ipairs(selection) do
+					local fi = coerce_and_validate_selection(sel)
+					if fi then
+						add_file_name_ref_to_codecompanion_chat(fi, chat)
 					end
 				end
 			else
-				-- Single file selected
-				local file_info = coerce_and_validate_selection(selection)
-				if file_info then
-					if add_file_to_chat_internal(file_info, chat) then
-						add_file_name_ref_to_chat(file_info, chat)
-					end
+				local fi = coerce_and_validate_selection(selection)
+				if fi and add_file_to_codecompanion_chat_internal(fi, chat) then
+					add_file_name_ref_to_codecompanion_chat(fi, chat)
 				end
 			end
 		end,

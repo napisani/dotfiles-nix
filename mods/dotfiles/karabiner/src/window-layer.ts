@@ -137,6 +137,32 @@ const windowManagementRules = rule("Tab Window Management Actions")
       ],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
+
+    // Minimize window (Cmd+M)
+    {
+      type: "basic",
+      from: { key_code: "m" },
+      to: [
+        {
+          key_code: "m",
+          modifiers: ["left_command"],
+        },
+      ],
+      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
+    },
+
+    // Close window (Cmd+W)
+    {
+      type: "basic",
+      from: { key_code: "x" },
+      to: [
+        {
+          key_code: "w",
+          modifiers: ["left_command"],
+        },
+      ],
+      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
+    },
     // // Balance windows
     // {
     //   type: "basic",
