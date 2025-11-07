@@ -68,6 +68,12 @@
     ".config/opencode/config.json".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode-config.json";
 
+    ".config/opencode/command".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/command";
+
+    ".config/opencode/agent".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/agent";
+
     ".config/karabiner/karabiner.json".source =
       config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/karabiner.json";
