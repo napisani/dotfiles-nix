@@ -6,10 +6,7 @@ local utils = require("user.utils")
 local replace_mapping = require("user.whichkey.replace")
 local find_mapping = require("user.whichkey.find_snacks")
 local search_mapping = require("user.whichkey.search_snacks")
-local ai_mapping = require("user.whichkey.ai")
 local Snacks = require("snacks")
-local git = require("user.whichkey.git")
-local changes = require("user.whichkey.changes")
 local repl = require("user.whichkey.repl")
 local scopes = require("user.whichkey.scopes")
 local lsp = require("user.whichkey.lsp")
@@ -168,10 +165,7 @@ local debugging = {
 local mapping_n = utils.extend_lists(
 	find_mapping.mapping_n,
 	search_mapping.mapping_n,
-	ai_mapping.mapping_n,
 	replace_mapping.mapping_n,
-	git.mapping_n,
-	changes.mapping_n,
 	repl.mapping_n,
 	scopes.mapping_n,
 	lsp.mapping_n,
@@ -187,9 +181,6 @@ local mapping_v = {
 		{
 			{ "<leader>lc", "<Plug>ContextCommentary", desc = "(c)omment" },
 		},
-		git.mapping_v,
-		changes.mapping_v,
-		ai_mapping.mapping_v,
 		replace_mapping.mapping_v,
 		repl.mapping_v,
 		scopes.mapping_v,
@@ -211,9 +202,6 @@ local shared_mapping = {
 	buffers,
 	-- overseer,
 	debugging,
-	git.mapping_shared,
-	changes.mapping_shared,
-	ai_mapping.mapping_shared,
 	scopes.mapping_shared,
 	lsp.mapping_shared,
 	global_mappings.mapping_shared,

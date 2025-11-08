@@ -1,11 +1,17 @@
 # Agent Guidelines for Neovim Configuration
 
 ## Testing & Validation
-- **No automated tests**: This is a configuration repository; validation happens by launching nvim
-- **Test config**: Open `nvim` and check for errors; run `:checkhealth` to verify plugin/LSP status
-- **Plugin management**: Use `:Lazy` to manage plugins; `:Lazy sync` to install/update
-- **LSP status**: Check with `:LspInfo`, `:Mason` for language server management
-- **Tree-sitter**: Update parsers with `:TSUpdate`
+```bash
+# Test plugin module loading
+nvim --headless -c "lua require('user.plugins.category.name')" -c "qa"
+
+# Test keymap discovery
+nvim --headless -c "lua local p = require('user.whichkey.plugins'); print(vim.inspect(p.get_all_plugin_keymaps()))" -c "qa"
+
+# Test full config
+nvim --headless -c "checkhealth" -c "qa"
+```
+
 
 ## Code Style & Conventions
 - **Language**: Lua for configuration (legacy VimScript in init.vim is minimal)
@@ -32,3 +38,44 @@
 - **EFM LSP**: Handles formatters/linters via efmls-configs (prettier, eslint, ruff, etc.)
 - **DAP**: Debugger configs per language in `dap/` directory (python.lua, go.lua, typescript.lua)
 - **Utility modules**: Helper functions in `_file_utils.lua`, `_git_utils.lua`, `_project_utils.lua`, `_collection_utils.lua`
+## Neovim Plugin Development
+
+### Adding New Plugins
+When adding new neovim plugins, follow this workflow:
+
+1. **Install the plugin** in `mods/dotfiles/nvim/lua/user/core/lazy.lua`
+2. **Create a plugin module** in `mods/dotfiles/nvim/lua/user/plugins/<category>/<name>.lua`
+   - Categories: `ai`, `code`, `database`, `debug`, `editing`, `git`, `navigation`, `ui`, `util`
+3. **Register in plugin_registry.lua** - Add the module path to the `M.modules` array in the appropriate position
+   - **IMPORTANT**: Order matters! Some plugins must load early (e.g., `ui.notify`, `ui.colorscheme`)
+   - Place new plugins in a logical position based on their dependencies
+4. **Implement the module**:
+   ```lua
+   local M = {}
+   
+   function M.setup()
+     -- Plugin configuration
+   end
+   
+   function M.get_keymaps()  -- Optional, for automatic keymap registration
+     return {
+       normal = {
+         { "<leader>xx", "<cmd>Command<cr>", desc = "Description" },
+       },
+     }
+   end
+   
+   return M
+   ```
+
+### Plugin Registry System
+- **Registry location**: `mods/dotfiles/nvim/lua/user/plugin_registry.lua`
+- **Purpose**: Single source of truth for all plugin modules
+- **Used by**: 
+  - `init.lua` - Calls `setup()` on each module in order
+  - `whichkey/plugins.lua` - Discovers and loads keymaps from modules
+- **Maintains load order**: Critical plugins (colorscheme, notify) load first
+- **Keymap detection**: Automatic - modules with `get_keymaps()` are automatically discovered
+- **No manual flags**: System dynamically detects which modules export keymaps at runtime
+
+
