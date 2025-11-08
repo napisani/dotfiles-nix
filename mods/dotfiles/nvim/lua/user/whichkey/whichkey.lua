@@ -14,6 +14,7 @@ local repl = require("user.whichkey.repl")
 local scopes = require("user.whichkey.scopes")
 local lsp = require("user.whichkey.lsp")
 local global_mappings = require("user.whichkey.global")
+local plugin_keymaps = require("user.whichkey.plugins")
 
 
 local root_mapping = {
@@ -174,7 +175,8 @@ local mapping_n = utils.extend_lists(
 	repl.mapping_n,
 	scopes.mapping_n,
 	lsp.mapping_n,
-	global_mappings.mapping_n
+	global_mappings.mapping_n,
+	plugin_keymaps.get_normal_keymaps()
 )
 
 local mapping_v = {
@@ -192,7 +194,8 @@ local mapping_v = {
 		repl.mapping_v,
 		scopes.mapping_v,
 		lsp.mapping_v,
-		global_mappings.mapping_v
+		global_mappings.mapping_v,
+		plugin_keymaps.get_visual_keymaps()
 	),
 }
 

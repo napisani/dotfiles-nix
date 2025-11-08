@@ -1,3 +1,64 @@
+# Neovim Configuration
+
+## Plugin Architecture
+
+### Modular Plugin System
+Plugins are organized in a modular structure under `lua/user/plugins/` with automatic keymap discovery:
+
+**Directory Structure:**
+```
+lua/user/plugins/
+├── ai/           # AI and code completion plugins
+├── code/         # Code editing and treesitter
+├── database/     # Database plugins (dadbod, etc.)
+├── debug/        # Debugging plugins (nvim-dap)
+├── editing/      # Editing enhancements (autopairs, comments)
+├── git/          # Git integration (gitsigns, neogit, diffview)
+├── navigation/   # Navigation plugins (hop, oil, tmux-nav)
+├── ui/           # UI plugins (lualine, bufferline, etc.)
+└── util/         # Utility plugins
+```
+
+**Plugin Module Pattern:**
+Each plugin module can export:
+- `setup()` - Called during initialization to configure the plugin
+- `get_keymaps()` - Returns keymaps that are automatically registered with which-key
+
+**Adding a New Plugin:**
+1. Install the plugin in `lua/user/core/lazy.lua`
+2. Create a module in `lua/user/plugins/<category>/<name>.lua`
+3. Register the module path in `lua/user/plugin_registry.lua` (maintains load order)
+4. Implement `setup()` and optionally `get_keymaps()`
+
+**Plugin Registry:**
+- **Location**: `lua/user/plugin_registry.lua`
+- **Single source of truth** for all plugin modules
+- **Maintains load order** - critical plugins (colorscheme, notify) load first
+- **Used by**: 
+  - `init.lua` - Calls `setup()` on modules
+  - `whichkey/plugins.lua` - Discovers keymaps automatically
+
+**Keymap Format:**
+```lua
+function M.get_keymaps()
+  return {
+    normal = {
+      { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Open diffview" },
+    },
+    visual = {
+      -- visual mode keymaps
+    },
+    shared = {
+      -- keymaps for both normal and visual modes
+    },
+  }
+end
+```
+
+Keymaps are automatically discovered and registered - no manual configuration needed!
+
+## Useful Commands
+
 :LspInfo  -- show info about currently connected LSP server 
 :LspInstallInfo -- show language servers that are installed / install new ones
 :messages - show all vim.notify("test")

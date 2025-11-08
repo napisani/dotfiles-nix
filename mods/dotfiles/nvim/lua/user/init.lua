@@ -3,37 +3,39 @@ vim.opt.exrc = true
 -- Also enable secure mode when using exrc for security
 vim.opt.secure = true
 
-local exrc_manager = require("user.exrc_manager")
+-- Load project-local config early
+local exrc_manager = require("user.plugins.util.exrc_manager")
 exrc_manager.source_local_config()
+
+-- Core configuration
 require("user.options")
 require("user.keymaps")
-require("user.diff")
 require("user.lazy")
-require("user.notify")
-require("user.colorscheme")
-require("user.colorizer")
 require("user.lsp")
-require("user.gitsigns")
-require("user.neogit")
-require("user.hop")
-require("user.treesitter")
-require("user.autopairs")
-require("user.comment")
-require("user.nvim-tree")
-require("user.bufferline")
-require("user.lualine")
-require("user.outline")
-require("user.indentline")
-require("user.whichkey.whichkey")
-require("user.autocommands")
-require("user.nvim-dap")
--- require("user.github-search")
-require("user.codecompanion")
-require("user.dadbod")
-require("user.tmux-nav")
-require("user.oil")
-require("user.eyeliner")
--- require("user.overseer")
-require("user.context_nvim")
 
+-- Initialize modular plugins from registry
+-- The registry maintains proper load order (e.g., colorscheme and notify load early)
+local registry = require("user.plugin_registry")
+local plugin_modules = registry.get_all_modules()
+
+for _, module_path in ipairs(plugin_modules) do
+	local ok, plugin = pcall(require, "user.plugins." .. module_path)
+	if ok and type(plugin.setup) == "function" then
+		plugin.setup()
+	end
+end
+
+-- Which-key setup (loads all keymaps including from modular plugins)
+require("user.whichkey.whichkey")
+
+-- Autocommands load after which-key
+require("user.autocommands")
+
+-- Non-modular plugins (still using old structure)
+require("user.diff")
+
+-- Finalize exrc manager setup
 exrc_manager.setup()
+
+-- GitHub search (optional, commented out)
+-- require("user.github-search")

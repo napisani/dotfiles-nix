@@ -1,54 +1,16 @@
-local gitsigns = require("gitsigns")
-local compare = require("user.snacks.compare")
+-- DEPRECATED: This module is now empty
+--
+-- All git keymaps have been moved to their respective plugin modules:
+-- - Gitsigns keymaps: lua/user/plugins/git/gitsigns.lua (get_keymaps function)
+-- - Neogit keymaps: lua/user/plugins/git/neogit.lua (get_keymaps function)
+--
+-- Plugin keymaps are automatically loaded by lua/user/whichkey/plugins.lua
+-- which scans all plugin modules and extracts their get_keymaps() functions.
+--
+-- These empty tables are kept to maintain compatibility with the main whichkey.lua
+-- which imports this module.
 
-local shared_mappings = {
-	{ "<leader>g", group = "Git" },
-
-	{
-		"<leader>gr",
-		function()
-			compare.establish_git_ref()
-		end,
-		desc = "set (r)ef",
-	},
-
-	{
-		"<leader>gR",
-		function()
-			compare.establish_git_ref(true)
-		end,
-		desc = "set (R)ef commit",
-	},
-
-	{
-		"<leader>gl",
-		function()
-			gitsigns.blame_line()
-		end,
-		desc = "Blame",
-	},
-	{
-		"<leader>gn",
-		function()
-			gitsigns.next_hunk()
-		end,
-		desc = "Next Hunk",
-	},
-	{
-		"<leader>go",
-		function()
-			vim.cmd(":Neogit")
-		end,
-		desc = "Open neogit",
-	},
-	{
-		"<leader>gp",
-		function()
-			gitsigns.prev_hunk()
-		end,
-		desc = "Prev Hunk",
-	},
-}
+local shared_mappings = {}
 local normal_mappings = {}
 local visual_mappings = {}
 
