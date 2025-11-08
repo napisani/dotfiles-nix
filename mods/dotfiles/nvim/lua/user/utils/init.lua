@@ -1,8 +1,8 @@
 local vim = vim
-local _file_utils = require("user._file_utils")
-local _collection_utils = require("user._collection_utils")
-local _project_utils = require("user._project_utils")
-local _git_utils = require("user._git_utils")
+local file_utils = require("user.utils.file_utils")
+local collection_utils = require("user.utils.collection_utils")
+local project_utils = require("user.utils.project_utils")
+local git_utils = require("user.utils.git_utils")
 local M = {}
 
 local _combine_utils = function(util_modules)
@@ -14,35 +14,11 @@ local _combine_utils = function(util_modules)
 end
 
 _combine_utils({
-	_file_utils,
-	_collection_utils,
-	_project_utils,
-	_git_utils,
+	file_utils,
+	collection_utils,
+	project_utils,
+	git_utils,
 })
-
-function M.is_npm_package_installed(package)
-	local package_json = M.read_package_json()
-	if not package_json then
-		return false
-	end
-
-	if package_json.dependencies and package_json.dependencies[package] then
-		return true
-	end
-
-	if package_json.devDependencies and package_json.devDependencies[package] then
-		return true
-	end
-
-	return false
-end
-
--- Useful function for debugging
--- Print the given items
-function M.print(...)
-	local objects = vim.tbl_map(vim.inspect, { ... })
-	print(unpack(objects))
-end
 
 function M.python_path()
 	if os.getenv("VIRTUAL_ENV") ~= nil then
@@ -69,10 +45,6 @@ function M.get_db_connections()
 end
 
 function M.connection_to_golang_string(conn)
-	-- if conn['adapter'] ~= "mysql" then
-	--   vim.notify("Only mysql is supported", vim.log.levels.ERROR)
-	--   return nil
-	-- end
 	local user = conn["user"]
 	local password = conn["password"]
 	local database = conn["database"]
@@ -80,16 +52,6 @@ function M.connection_to_golang_string(conn)
 	local port = conn["port"] or 3306
 	local conn_string = user .. ":" .. password .. "@tcp(" .. host .. ":" .. port .. ")/" .. database
 	return conn_string
-end
-
-function M.close_all_buffers_except_current()
-	local current_bufnr = vim.api.nvim_get_current_buf()
-	local buflist = vim.api.nvim_list_bufs()
-	for _, bufnr in ipairs(buflist) do
-		if bufnr ~= current_bufnr then
-			vim.api.nvim_buf_delete(bufnr, { force = true })
-		end
-	end
 end
 
 function M.debug_log(data, file_path)
@@ -116,3 +78,4 @@ function M.debug_log(data, file_path)
 end
 
 return M
+

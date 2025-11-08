@@ -1,4 +1,4 @@
-local file_utils = require("user._file_utils")
+local file_utils = require("user.utils.file_utils")
 local M = {}
 
 local default_config = {
@@ -33,10 +33,6 @@ function M.get_project_config()
 
 	project_config = default_config
 	return project_config
-end
-
-function M.reset_project_config_cache()
-	project_config = nil
 end
 
 function M.get_debugger_launch_file()

@@ -4,28 +4,11 @@ if not plenary_ok then
 	return
 end
 
-local project_utils = require("user._project_utils")
-local file_utils = require("user._file_utils")
+local project_utils = require("user.utils.project_utils")
+local file_utils = require("user.utils.file_utils")
 local git_ref = nil
 
 local M = {}
-
-function M.git_dir_path()
-	local handle = io.popen("git rev-parse --show-toplevel 2> /dev/null")
-	if handle ~= nil then
-		local result = handle:read("*a")
-		for line in result:gmatch("[^\r\n]+") do
-			return line
-		end
-		handle:close()
-	end
-	-- Change the current dir in neovim.
-	-- Run `git pull`, etc.
-end
-
-function M.get_prod_git_branch()
-	return project_utils.get_project_config().branches.prod
-end
 
 function M.set_git_ref(ref)
 	git_ref = ref

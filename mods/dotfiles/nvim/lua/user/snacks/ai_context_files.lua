@@ -2,7 +2,7 @@ local codecompanion = require("codecompanion")
 local config = require("codecompanion.config")
 local util = require("codecompanion.utils")
 local path = require("plenary.path")
-local file_utils = require("user._file_utils")
+local file_utils = require("user.utils.file_utils")
 
 local M = {}
 

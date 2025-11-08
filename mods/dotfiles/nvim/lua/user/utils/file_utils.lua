@@ -2,22 +2,6 @@ local M = {}
 
 M.path_sep = "/"
 
-function M.home_directory()
-	return os.getenv("HOME")
-end
-
-function M.temp_directory()
-	return os.getenv("TMPDIR") or os.getenv("TEMP") or os.getenv("TMP") or "/tmp"
-end
-
-function M.create_temp_directory(prefix)
-	local temp_dir = M.temp_directory()
-	local temp_name = os.tmpname()
-	local temp_path = temp_dir .. "/" .. prefix .. temp_name
-	vim.fn.mkdir(temp_path, "p")
-	return temp_path
-end
-
 function M.file_exists(name)
 	local f = io.open(name, "r")
 	return f ~= nil and io.close(f)
@@ -59,18 +43,6 @@ function M.read_file_to_string(filename)
 	return nil
 end
 
-function M.file_string_to_lines(str)
-	local lines = {}
-	for s in str:gmatch("[^\r\n]+") do
-		table.insert(lines, s)
-	end
-	return lines
-end
-
-function M.file_safe_name(name)
-	return name:gsub("[^%w_-]", "_")
-end
-
 function M.join_path(...)
 	local parts = { ... }
 	return table.concat(parts, M.path_sep)
@@ -88,12 +60,6 @@ end
 
 function M.read_package_json()
 	return M.read_json_file("package.json")
-end
-
-function M.write_string_to_file(filename, content)
-	local fd = io.open(filename, "w")
-	fd:write(content)
-	fd:close()
 end
 
 return M
