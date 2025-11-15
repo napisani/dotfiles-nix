@@ -2,6 +2,7 @@ local search_files = require("user.snacks.search_files")
 local git_search = require("user.snacks.git_search")
 local snacks_common = require("user.snacks.common")
 local paste_to_search = snacks_common.paste_to_search
+local Snacks = require("snacks")
 local mapping_n = {
 
 	{ "<leader>h", group = "Search" },
@@ -38,6 +39,14 @@ local mapping_n = {
 			search_files.live_grep_from_root()
 		end,
 		desc = "grep from (r)oot",
+	},
+
+	{
+		"<leader>hs",
+		function()
+			return Snacks.picker.lsp_symbols()
+		end,
+		desc = "lsp (s)ymbols",
 	},
 }
 
@@ -90,6 +99,16 @@ local mapping_v = {
 			end)
 		end,
 		desc = "grep from (r)oot",
+	},
+
+	{
+		"<leader>hs",
+		function()
+			paste_to_search(function(opts)
+				return Snacks.picker.lsp_symbols(opts)
+			end)
+		end,
+		desc = "lsp (s)ymbols",
 	},
 
 	{

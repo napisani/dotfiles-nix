@@ -25,7 +25,20 @@
         "mcp-remote",
         "https://mcp.atlassian.com/v1/sse"
       ],
-      "enabled": false
+      "enabled": true
+    },
+    "mongodb": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mongodb-mcp-server@latest",
+        "--readOnly"
+      ],
+      "environment": {
+        "MDB_MCP_CONNECTION_STRING": "mongodb://localhost:27017/?directConnection=true"
+      }
     }
-  }
+  },
+  "tools": {}
 }
