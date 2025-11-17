@@ -62,4 +62,27 @@ function M.read_package_json()
 	return M.read_json_file("package.json")
 end
 
+-- Convert an absolute file path to a path relative to the root directory
+-- @param file_path string: Absolute path to the file
+-- @param root_dir string|nil: Root directory (defaults to get_root_dir())
+-- @return string: Relative path from root, or original path if not under root
+function M.get_relative_to_root(file_path, root_dir)
+	root_dir = root_dir or M.get_root_dir()
+	
+	-- Ensure root_dir doesn't have trailing slash
+	if root_dir:sub(-1) == M.path_sep then
+		root_dir = root_dir:sub(1, -2)
+	end
+	
+	-- Check if file_path starts with root_dir
+	if file_path:sub(1, #root_dir) == root_dir then
+		-- File is under root_dir, make it relative
+		-- +2 to skip the root_dir and the path separator
+		return file_path:sub(#root_dir + 2)
+	end
+	
+	-- File is outside root_dir, return as-is
+	return file_path
+end
+
 return M

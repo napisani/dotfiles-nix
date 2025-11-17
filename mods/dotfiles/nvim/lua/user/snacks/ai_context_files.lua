@@ -57,6 +57,10 @@ local function add_file_to_codecompanion_chat_internal(file_info, chat, source)
 	local relative_path = file_info.relative_path
 	local bufnr = file_info.bufnr
 
+	local context_path = file_path
+	-- Calculate relative path from root directory for context
+	-- local context_path = file_utils.get_relative_to_root(file_path)
+
 	-- Get file content
 	local content
 	if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
@@ -112,7 +116,7 @@ local function add_file_to_codecompanion_chat_internal(file_info, chat, source)
 	}, { reference = id, visible = false })
 
 	-- Add file reference to context
-	chat:add_context({ content = file_path, role = "user" }, source or "file_command", id)
+	chat:add_context({ content = context_path, role = "user" }, source or "file_command", id)
 
 	-- Notify user
 	util.notify(fmt("Added the `%s` file to the chat", vim.fn.fnamemodify(relative_path, ":t")))
@@ -127,6 +131,7 @@ local function add_file_name_ref_to_codecompanion_chat(file_info, chat)
 	end
 
 	local relative_path = file_info.relative_path
+	vim.notify("Inserting file reference: " .. relative_path, vim.log.levels.DEBUG)
 
 	-- insert the file name at the current cursor position
 	vim.api.nvim_buf_set_lines(
@@ -149,10 +154,11 @@ function M.add_current_buffer_to_chat()
 			vim.notify("Current buffer has no file name", vim.log.levels.ERROR)
 			return
 		end
+		local context_path = file_utils.get_relative_to_root(file_path)
 		local opencode_context = require("opencode.context")
 		require("opencode.ui.mention").mention(function(mention_cb)
-			mention_cb(file_path)
-			opencode_context.add_file(file_path)
+			mention_cb(context_path)
+			opencode_context.add_file(context_path)
 		end)
 		return
 	end
