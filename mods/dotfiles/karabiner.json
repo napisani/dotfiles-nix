@@ -2063,7 +2063,7 @@
                 "from": {
                   "simultaneous": [
                     {
-                      "key_code": "s"
+                      "key_code": "d"
                     },
                     {
                       "key_code": "h"
@@ -2109,7 +2109,7 @@
                 "from": {
                   "simultaneous": [
                     {
-                      "key_code": "s"
+                      "key_code": "d"
                     },
                     {
                       "key_code": "j"
@@ -2155,7 +2155,7 @@
                 "from": {
                   "simultaneous": [
                     {
-                      "key_code": "s"
+                      "key_code": "d"
                     },
                     {
                       "key_code": "k"
@@ -2201,7 +2201,7 @@
                 "from": {
                   "simultaneous": [
                     {
-                      "key_code": "s"
+                      "key_code": "d"
                     },
                     {
                       "key_code": "l"
@@ -4086,6 +4086,311 @@
                       {
                         "set_variable": {
                           "name": "number layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "description": "Simlayer - control layer",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "h",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "h",
+                    "modifiers": [
+                      "left_control"
+                    ]
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "control layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "j",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "j",
+                    "modifiers": [
+                      "left_control"
+                    ]
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "control layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "k",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "k",
+                    "modifiers": [
+                      "left_control"
+                    ]
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "control layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "l",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "l",
+                    "modifiers": [
+                      "left_control"
+                    ]
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "control layer",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "control layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "h",
+                    "modifiers": [
+                      "left_control"
+                    ]
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "s"
+                    },
+                    {
+                      "key_code": "h"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "control layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "control layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "j",
+                    "modifiers": [
+                      "left_control"
+                    ]
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "s"
+                    },
+                    {
+                      "key_code": "j"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "control layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "control layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "k",
+                    "modifiers": [
+                      "left_control"
+                    ]
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "s"
+                    },
+                    {
+                      "key_code": "k"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "control layer",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "basic",
+                "parameters": {
+                  "basic.simultaneous_threshold_milliseconds": 200
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "control layer",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key_code": "l",
+                    "modifiers": [
+                      "left_control"
+                    ]
+                  }
+                ],
+                "from": {
+                  "simultaneous": [
+                    {
+                      "key_code": "s"
+                    },
+                    {
+                      "key_code": "l"
+                    }
+                  ],
+                  "simultaneous_options": {
+                    "detect_key_down_uninterruptedly": true,
+                    "key_down_order": "strict",
+                    "key_up_order": "strict_inverse",
+                    "key_up_when": "any",
+                    "to_after_key_up": [
+                      {
+                        "set_variable": {
+                          "name": "control layer",
                           "value": 0
                         }
                       }

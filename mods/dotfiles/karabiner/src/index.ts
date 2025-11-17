@@ -29,3 +29,19 @@ writeToProfile({
       .description("escape -> grave_accent_and_tilde"),
   ]),
 ]);
+
+// create symlink to karabiner.json in ~/.config/karabiner/karabiner.json
+const karabinerConfigPath = join(
+  Deno.env.get("HOME") || "",
+  ".config/karabiner/karabiner.json",
+);
+
+try {
+  await Deno.remove(karabinerConfigPath);
+} catch {
+  // ignore
+}
+await Deno.symlink(karabinerJsonPath, karabinerConfigPath);
+console.log(
+  `Created symlink from ${karabinerConfigPath} to ${karabinerJsonPath}`,
+);

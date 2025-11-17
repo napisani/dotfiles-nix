@@ -23,7 +23,7 @@ export const layerRules = [
     map("n").to({ key_code: "8", modifiers: ["left_shift"] }), // *
   ]),
 
-  simlayer("s", "arrows layer").manipulators([
+  simlayer("d", "arrows layer").manipulators([
     map("h").to({ key_code: "left_arrow" }),
     map("j").to({ key_code: "down_arrow" }),
     map("k").to({ key_code: "up_arrow" }),
@@ -75,4 +75,11 @@ export const layerRules = [
   // simlayer('e', 'emoji layer').manipulators([
   //   map(';').to({key_code: 'spacebar', modifiers: ['left_command', 'left_control']}),
   // ])
+
+  simlayer("s", "control layer").manipulators([
+    map("h").to({ key_code: "h", modifiers: ["left_control"] }),
+    map("j").to({ key_code: "j", modifiers: ["left_control"] }),
+    map("k").to({ key_code: "k", modifiers: ["left_control"] }),
+    map("l").to({ key_code: "l", modifiers: ["left_control"] }),
+  ]),
 ];
