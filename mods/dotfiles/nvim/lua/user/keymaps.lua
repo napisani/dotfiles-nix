@@ -23,9 +23,21 @@ keymap("n", "<S-l>", ":bnext<CR>", opts)
 keymap("n", "<S-h>", ":bprevious<CR>", opts)
 
 -- Visual --
+-- this used to work before opencode.nvim
 -- Stay in indent mode
-keymap("v", "<", "<gv", opts)
-keymap("v", ">", ">gv", opts)
+-- keymap("v", "<", "<gv", opts)
+-- keymap("v", ">", ">gv", opts)
+
+-- Stay in indent mode (fixed) works with opencode.nvim
+vim.keymap.set("v", ">", function()
+	vim.cmd("normal! >")
+	vim.cmd("normal! gv")
+end, { noremap = true, silent = true, desc = "Indent and keep selection" })
+
+vim.keymap.set("v", "<", function()
+	vim.cmd("normal! <")
+	vim.cmd("normal! gv")
+end, { noremap = true, silent = true, desc = "Unindent and keep selection" })
 
 -- Commentary - comment
 keymap("n", "<C-_>", ":Commentary<CR>", opts)

@@ -4,8 +4,7 @@ local M = {}
 local default_config = {
 	lint = {},
 	branches = {
-		main = "main",
-		prod = "production",
+		main = nil,
 	},
 	debug = {
 		launch_file = ".vscode/launch.json",

@@ -17,6 +17,15 @@
       },
       "enabled": true
     },
+    "axion_dev": {
+      "type": "local",
+      "command": [
+        "uxv",
+        "mcp-proxy",
+        "http://localhost:12008/metamcp/axion_dev/sse"
+      ],
+      "enabled": false
+    },
     "atlassian": {
       "type": "local",
       "command": [
@@ -25,7 +34,7 @@
         "mcp-remote",
         "https://mcp.atlassian.com/v1/sse"
       ],
-      "enabled": true
+      "enabled": false
     },
     "mongodb": {
       "type": "local",

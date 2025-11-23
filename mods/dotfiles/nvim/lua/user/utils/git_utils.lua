@@ -21,10 +21,13 @@ function M.get_git_ref()
 	return git_ref
 end
 
-function M.get_primary_git_branch(default_branch)
-	if default_branch == nil then
-		default_branch = project_utils.get_project_config().branches.main
+function M.get_primary_git_branch()
+	local override_branch = project_utils.get_project_config().branches.main
+	if override_branch ~= nil then
+		vim.notify("Using overridden primary git branch: " .. override_branch)
+		return override_branch
 	end
+	local default_branch = "main"
 	local status_ok, handle =
 		pcall(io.popen, "git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'")
 	if not status_ok then
@@ -35,7 +38,8 @@ function M.get_primary_git_branch(default_branch)
 		if result == nil or result:match("fatal") or result == "" then
 			return default_branch
 		end
-		return result:gsub("\n", "")
+		result = result:gsub("\n", "")
+		return result
 	end
 	return default_branch
 end
