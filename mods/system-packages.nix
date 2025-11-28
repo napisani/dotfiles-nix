@@ -13,6 +13,7 @@ in {
     wget
     kubectl
     kubekill
+    opencode
     # for fixing the backup disk occasionally
     # hfsplus
   ];
