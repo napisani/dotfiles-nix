@@ -47,25 +47,70 @@ function M.setup()
 	-- Configure DiffView with custom keymaps
 	local status_ok, diffview = pcall(require, "diffview")
 	if status_ok then
+		local actions = require("diffview.actions")
+
+		-- Shared refresh function
+		local refresh_diffview = function()
+			vim.cmd("DiffviewRefresh")
+			vim.notify("DiffView refreshed", vim.log.levels.INFO)
+		end
+
+		-- Shared merge keybindings (used in both view and file_panel)
+		local merge_keymaps = {
+			-- Individual conflict resolution (3-way merge)
+			{ "n", "<leader>mh", actions.conflict_choose("ours"), { desc = "Choose OURS (left)" } },
+			{ "n", "<leader>ml", actions.conflict_choose("theirs"), { desc = "Choose THEIRS (right)" } },
+			{ "n", "<leader>mb", actions.conflict_choose("base"), { desc = "Choose BASE" } },
+			{ "n", "<leader>ma", actions.conflict_choose("all"), { desc = "Choose ALL (both)" } },
+			{ "n", "<leader>mx", actions.conflict_choose("none"), { desc = "Choose NONE (delete)" } },
+
+			-- Whole file resolution (3-way merge)
+			{ "n", "<leader>mH", actions.conflict_choose_all("ours"), { desc = "Choose OURS for whole file" } },
+			{
+				"n",
+				"<leader>mL",
+				actions.conflict_choose_all("theirs"),
+				{ desc = "Choose THEIRS for whole file" },
+			},
+			{ "n", "<leader>mB", actions.conflict_choose_all("base"), { desc = "Choose BASE for whole file" } },
+			{ "n", "<leader>mA", actions.conflict_choose_all("all"), { desc = "Choose ALL for whole file" } },
+			{
+				"n",
+				"<leader>mX",
+				actions.conflict_choose_all("none"),
+				{ desc = "Choose NONE for whole file" },
+			},
+
+			-- 2-way diff operations (get/put changes)
+			{ "n", "<leader>mg", actions.diffget("ours"), { desc = "Get changes from other side" } },
+			{ "n", "<leader>mp", actions.diffput("ours"), { desc = "Put changes to other side" } },
+
+
+		}
+
+		-- Helper function to merge keymaps
+		local function build_keymaps(base_keymaps)
+			local result = vim.deepcopy(base_keymaps or {})
+			for _, keymap in ipairs(merge_keymaps) do
+				table.insert(result, keymap)
+			end
+			return result
+		end
+
 		diffview.setup({
 			keymaps = {
-				view = {
-					["<leader>e"] = function()
-						vim.cmd("DiffviewRefresh")
-						vim.notify("DiffView refreshed", vim.log.levels.INFO)
-					end,
-				},
-				file_panel = {
-					["<leader>e"] = function()
-						vim.cmd("DiffviewRefresh")
-						vim.notify("DiffView refreshed", vim.log.levels.INFO)
-					end,
-				},
+				view = build_keymaps({
+					-- Refresh binding
+					["<leader>e"] = refresh_diffview,
+				}),
+
+				file_panel = build_keymaps({
+					-- Refresh binding
+					["<leader>e"] = refresh_diffview,
+				}),
+
 				file_history_panel = {
-					["<leader>e"] = function()
-						vim.cmd("DiffviewRefresh")
-						vim.notify("DiffView refreshed", vim.log.levels.INFO)
-					end,
+					["<leader>e"] = refresh_diffview,
 				},
 			},
 		})

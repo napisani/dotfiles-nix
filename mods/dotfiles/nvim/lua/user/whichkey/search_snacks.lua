@@ -3,6 +3,14 @@ local git_search = require("user.snacks.git_search")
 local snacks_common = require("user.snacks.common")
 local paste_to_search = snacks_common.paste_to_search
 local Snacks = require("snacks")
+
+local method_search_opts = {
+	search = "Methods",
+	filter = {
+		default = { "Function", "Method" },
+	},
+}
+
 local mapping_n = {
 
 	{ "<leader>h", group = "Search" },
@@ -41,6 +49,13 @@ local mapping_n = {
 		desc = "grep from (r)oot",
 	},
 
+	{
+		"<leader>hm",
+		function()
+			return Snacks.picker.lsp_symbols(method_search_opts)
+		end,
+		desc = "lsp (s)ymbols",
+	},
 	{
 		"<leader>hs",
 		function()
@@ -101,6 +116,16 @@ local mapping_v = {
 		desc = "grep from (r)oot",
 	},
 
+	{
+		"<leader>hm",
+		function()
+			paste_to_search(function(opts)
+				local method_opts = vim.tbl_deep_extend("force", {}, opts or {}, method_search_opts)
+				return Snacks.picker.lsp_symbols(method_opts)
+			end)
+		end,
+		desc = "lsp (s)ymbols",
+	},
 	{
 		"<leader>hs",
 		function()
