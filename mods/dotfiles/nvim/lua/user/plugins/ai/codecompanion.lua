@@ -72,7 +72,7 @@ function M.setup()
             modes = { n = { "<CR>", "<C-g>" }, i = "<C-g>" },
           },
 
-          watch = {
+          sync_diffs = {
             modes = { n = "gW" },
           },
           next_chat = {

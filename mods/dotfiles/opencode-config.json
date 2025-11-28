@@ -17,15 +17,6 @@
       },
       "enabled": true
     },
-    "axion_dev": {
-      "type": "local",
-      "command": [
-        "uxv",
-        "mcp-proxy",
-        "http://localhost:12008/metamcp/axion_dev/sse"
-      ],
-      "enabled": false
-    },
     "atlassian": {
       "type": "local",
       "command": [
@@ -46,6 +37,18 @@
       ],
       "environment": {
         "MDB_MCP_CONNECTION_STRING": "mongodb://localhost:27017/?directConnection=true"
+      }
+    },
+    "postgres": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "postgres-mcp-server@latest",
+        "--readOnly"
+      ],
+      "environment": {
+        "PG_MCP_CONNECTION_STRING": "postgresql://postgres:postgres@localhost:5432/postgres"
       }
     }
   },

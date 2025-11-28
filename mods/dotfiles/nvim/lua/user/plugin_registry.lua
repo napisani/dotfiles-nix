@@ -36,7 +36,7 @@ M.modules = {
   "ui.colorizer",
   "ui.bufferline",
   "ui.lualine",
-  "ui.outline",
+  -- "ui.outline",
   "ui.indentline",
   -- AI plugins
   "ai.codecompanion",

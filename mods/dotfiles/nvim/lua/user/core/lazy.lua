@@ -252,9 +252,6 @@ require("lazy").setup({
 			"stevearc/oil.nvim",
 		},
 
-		{
-			"hedyhli/outline.nvim",
-		},
 
 		{ "jinh0/eyeliner.nvim" },
 

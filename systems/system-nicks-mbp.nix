@@ -1,5 +1,4 @@
 { config, pkgs, lib, ... }: {
-
   homebrew = {
     masApps = {
       # "Apple Configurator" = 1037126344;

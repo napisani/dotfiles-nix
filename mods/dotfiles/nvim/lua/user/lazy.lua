@@ -120,6 +120,12 @@ require("lazy").setup({
 			dependencies = "nvim-lua/plenary.nvim",
 		},
 
+		-- come back to this once it can replace diffview
+		-- {
+		-- 	"esmuellert/vscode-diff.nvim",
+		-- 	dependencies = { "MunifTanjim/nui.nvim" },
+		-- },
+
 		{
 
 			"NeogitOrg/neogit",

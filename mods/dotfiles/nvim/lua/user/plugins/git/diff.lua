@@ -43,6 +43,33 @@ function M.setup()
 
 	-- improve the the diff presentation
 	vim.o.diffopt = "internal,filler,closeoff,indent-heuristic,linematch:60,algorithm:histogram"
+
+	-- Configure DiffView with custom keymaps
+	local status_ok, diffview = pcall(require, "diffview")
+	if status_ok then
+		diffview.setup({
+			keymaps = {
+				view = {
+					["<leader>e"] = function()
+						vim.cmd("DiffviewRefresh")
+						vim.notify("DiffView refreshed", vim.log.levels.INFO)
+					end,
+				},
+				file_panel = {
+					["<leader>e"] = function()
+						vim.cmd("DiffviewRefresh")
+						vim.notify("DiffView refreshed", vim.log.levels.INFO)
+					end,
+				},
+				file_history_panel = {
+					["<leader>e"] = function()
+						vim.cmd("DiffviewRefresh")
+						vim.notify("DiffView refreshed", vim.log.levels.INFO)
+					end,
+				},
+			},
+		})
+	end
 end
 
 -- local function is_diffview_open()
