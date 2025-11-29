@@ -1,13 +1,15 @@
 {
   programs.git = {
     enable = true;
-    userName = "Nick Pisani";
-    userEmail = "napisani@yahoo.com";
     ignores = [ "*~" ".DS_Store" ".direnv" ".env.local" ".env" ".rgignore" ];
 
-    # `git dv [...args]`  for doing diffs with diffview
-    aliases = { dv = ''! args=$@; shift $#; nvim -c "DiffviewOpen $args"''; };
-    extraConfig = {
+    settings = {
+      user = {
+        name = "Nick Pisani";
+        email = "napisani@yahoo.com";
+      };
+      # `git dv [...args]`  for doing diffs with diffview
+      alias = { dv = ''! args=$@; shift $#; nvim -c "DiffviewOpen $args"''; };
       # https://blog.gitbutler.com/how-git-core-devs-configure-git/
       core = { editor = "nvim"; };
       push = {

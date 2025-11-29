@@ -2,20 +2,15 @@
   description = "Home Manager configuration";
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-25.05-darwin";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nil.url = "github:oxalica/nil";
     darwin = {
-      url = "github:lnl7/nix-darwin/nix-darwin-25.05";
+      url = "github:lnl7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    # For using new modules before the release of the next nixos version
-    home-manager-master = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -32,19 +27,18 @@
     scrollbacktamer.url = "github:napisani/scrollbacktamer";
 
     proctmux.url = "github:napisani/proctmux";
-    mac-app-util.url = "github:hraban/mac-app-util";
 
   };
 
   outputs = { flake-utils, nixpkgs, nixpkgs-unstable, home-manager, darwin
     , procmux, secret_inject, animal_rescue, nixhub_dep, scrollbacktamer
-    , proctmux, mac-app-util, ... }@inputs:
+    , proctmux, ... }@inputs:
     let
       allSystems = [ "x86_64-linux" "aarch64-darwin" ];
       inputsBySystem = builtins.listToAttrs (map (system: {
         name = system;
         value = {
-          system = system;
+          inherit system;
           extraSpecialArgs = {
             inherit inputs;
             pkgs-unstable = import nixpkgs-unstable {
@@ -60,7 +54,8 @@
             };
             scrollbacktamer = scrollbacktamer;
             proctmux = proctmux;
-            overlays = [ ];
+            overlays = [
+            ];
 
             user = "nick";
           };
@@ -85,7 +80,6 @@
                 extraSpecialArgs =
                   inputsBySystem."aarch64-darwin".extraSpecialArgs;
                 users.nick.imports = [
-                  mac-app-util.homeManagerModules.default
                   ./homes/macs.nix
                   ./homes/home-nicks-mbp.nix
                 ];
@@ -110,7 +104,6 @@
                 extraSpecialArgs =
                   inputsBySystem."aarch64-darwin".extraSpecialArgs;
                 users.nick.imports = [
-                  mac-app-util.homeManagerModules.default
                   ./homes/macs.nix
                   ./homes/home-nicks-axion-ray-mbp.nix
                 ];
