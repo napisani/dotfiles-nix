@@ -71,6 +71,7 @@
       # "mongodb-community"
       "procmux"
       "sst/tap/opencode"
+      "yabai"
       # "mkcert"
       # "mongodb-atlas-cli"
     ];
