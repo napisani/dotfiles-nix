@@ -1,145 +1,79 @@
 {
   description = "Home Manager configuration";
   inputs = {
-    flake-utils.url = "github:numtide/flake-utils";
+    # Core infrastructure
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nil.url = "github:oxalica/nil";
+    
     darwin = {
       url = "github:lnl7/nix-darwin/master";
-      inputs.nixpkgs.follows = "nixpkgs-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
+    
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    procmux.url = "github:napisani/procmux";
-    procmux.inputs.nixpkgs.follows = "nixpkgs";
+    # Development tools
+    nil.url = "github:oxalica/nil";
 
-    nixhub_dep.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-
-    secret_inject.url = "github:napisani/secret_inject";
-
-    animal_rescue.url = "github:napisani/animal-rescue";
-
-    scrollbacktamer.url = "github:napisani/scrollbacktamer";
-
+    # Custom packages
+    procmux = {
+      url = "github:napisani/procmux";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
     proctmux.url = "github:napisani/proctmux";
-
+    secret_inject.url = "github:napisani/secret_inject";
+    animal_rescue.url = "github:napisani/animal-rescue";
+    scrollbacktamer.url = "github:napisani/scrollbacktamer";
   };
 
-  outputs = { flake-utils, nixpkgs, nixpkgs-unstable, home-manager, darwin
-    , procmux, secret_inject, animal_rescue, nixhub_dep, scrollbacktamer
-    , proctmux, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, darwin, ... }@inputs:
     let
-      allSystems = [ "x86_64-linux" "aarch64-darwin" ];
-      inputsBySystem = builtins.listToAttrs (map (system: {
-        name = system;
-        value = {
-          inherit system;
-          extraSpecialArgs = {
-            inherit inputs;
-            pkgs-unstable = import nixpkgs-unstable {
-              inherit system;
-              config.allowUnfree = true;
-            };
-            procmux = procmux;
-            secret_inject = secret_inject;
-            animal_rescue = animal_rescue;
-            nixhub_dep = import inputs.nixhub_dep {
-              inherit system;
-              config.allowUnfree = true;
-            };
-            scrollbacktamer = scrollbacktamer;
-            proctmux = proctmux;
-            overlays = [
-            ];
-
-            user = "nick";
-          };
-        };
-      }) allSystems);
-
+      inherit (nixpkgs) lib;
+      builders = import ./lib/builders.nix {
+        inherit inputs nixpkgs home-manager lib self;
+      };
     in {
       darwinConfigurations = {
-        "nicks-mbp" = inputs.darwin.lib.darwinSystem {
+        "nicks-mbp" = builders.mkDarwinSystem {
           system = "aarch64-darwin";
+          hostname = "nicks-mbp";
+          username = "nick";
           modules = [
-            ({ config, pkgs, lib, user, ... }: {
-              users = { users.nick = { home = /Users/nick; }; };
-            })
-            ./systems/darwin.nix
-            ./systems/system-nicks-mbp.nix
-            home-manager.darwinModules.home-manager
-            {
-              home-manager = {
-                useGlobalPkgs = false;
-                useUserPackages = true;
-                extraSpecialArgs =
-                  inputsBySystem."aarch64-darwin".extraSpecialArgs;
-                users.nick.imports = [
-                  ./homes/macs.nix
-                  ./homes/home-nicks-mbp.nix
-                ];
-              };
-            }
+            ./systems/profiles/darwin-personal.nix
+          ];
+          homeModules = [
+            ./homes/home-nicks-mbp.nix
           ];
         };
 
-        "nicks-axion-ray-mbp" = inputs.darwin.lib.darwinSystem {
+        "nicks-axion-ray-mbp" = builders.mkDarwinSystem {
           system = "aarch64-darwin";
+          hostname = "nicks-axion-ray-mbp";
+          username = "nick";
           modules = [
-            ({ config, pkgs, lib, user, ... }: {
-              users = { users.nick = { home = /Users/nick; }; };
-            })
-            ./systems/darwin.nix
-            ./systems/system-nicks-axion-ray-mbp.nix
-            home-manager.darwinModules.home-manager
-            {
-              home-manager = {
-                useGlobalPkgs = false;
-                useUserPackages = true;
-                extraSpecialArgs =
-                  inputsBySystem."aarch64-darwin".extraSpecialArgs;
-                users.nick.imports = [
-                  ./homes/macs.nix
-                  ./homes/home-nicks-axion-ray-mbp.nix
-                ];
-              };
-            }
+            ./systems/profiles/darwin-work.nix
+          ];
+          homeModules = [
+            ./homes/home-nicks-axion-ray-mbp.nix
           ];
         };
       };
 
       nixosConfigurations = {
-        "supermicro" = nixpkgs-unstable.lib.nixosSystem {
+        "supermicro" = builders.mkNixOSSystem {
           system = "x86_64-linux";
-          pkgs = inputsBySystem."x86_64-linux".extraSpecialArgs.pkgs-unstable;
+          hostname = "supermicro";
+          username = "nick";
           modules = [
-            home-manager.nixosModules.home-manager
             ./systems/supermicro/configuration.nix
-
-            {
-              home-manager = {
-                useGlobalPkgs = false;
-                useUserPackages = true;
-                extraSpecialArgs =
-                  inputsBySystem."x86_64-linux".extraSpecialArgs;
-                users.nick.imports = [ ./homes/home-supermicro.nix ];
-              };
-            }
           ];
-          specialArgs = {
-            inherit inputs;
-            user = "nick";
-          };
+          homeModules = [
+            ./homes/home-supermicro.nix
+          ];
         };
-      };
-
-      defaultPackage = {
-        aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;
       };
     };
 }
