@@ -72,23 +72,11 @@ function M.setup()
             modes = { n = { "<CR>", "<C-g>" }, i = "<C-g>" },
           },
 
-          sync_diffs = {
-            modes = { n = "gW" },
-          },
           next_chat = {
             modes = { n = "]c" },
           },
           previous_chat = {
             modes = { n = "[c" },
-          },
-
-          debug = {
-            modes = { n = "gD" },
-            description = "Debug the current chat",
-          },
-
-          goto_file_under_cursor = {
-            modes = { n = "gd" },
           },
           change_adapter = {
             modes = { n = "<leader>aw" },
