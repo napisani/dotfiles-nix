@@ -51,6 +51,7 @@
     };
     # anything installed with brew cask
     casks = [
+      "alacritty"
       "ungoogled-chromium"
       "bitwarden"
       "caffeine"

@@ -15,7 +15,6 @@
     ../mods/git.nix
     ../mods/gh.nix
     ../mods/neovim.nix
-    ../mods/alacritty.nix
     ../mods/ui-packages.nix
   ];
 

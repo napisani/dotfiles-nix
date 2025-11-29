@@ -78,6 +78,10 @@
       config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/karabiner.json";
 
+    ".config/alacritty/alacritty.toml".source =
+      config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/alacritty.toml";
+
     ".aider.model.settings.yml".source = ./dotfiles/aider.model.settings.yml;
     ".bashrc.d".source = ./dotfiles/.bashrc.d;
     ".inputrc".source = ./dotfiles/.inputrc;
