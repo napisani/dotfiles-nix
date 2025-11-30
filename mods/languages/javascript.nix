@@ -2,7 +2,7 @@
 
 with pkgs-unstable; [
   pkgs-unstable.deno
-  pkgs-unstable.nodejs_20
+  pkgs-unstable.nodejs
   nodePackages_latest.typescript
   nodePackages.typescript-language-server
   nodePackages_latest.eslint_d
