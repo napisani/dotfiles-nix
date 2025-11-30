@@ -41,6 +41,7 @@ M.modules = {
   -- AI plugins
   "ai.codecompanion",
   "ai.context_nvim",
+  "ai.code_explain",
   -- Database plugins
   "database.dadbod",
   -- Navigation plugins (remaining)
