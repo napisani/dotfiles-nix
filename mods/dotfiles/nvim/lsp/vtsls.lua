@@ -65,21 +65,5 @@ return {
 			enableMoveToFileCodeAction = true,
 		},
 	},
-	on_attach = function(client, bufnr)
-		vim.keymap.set("n", "<leader>li", function()
-			-- local params = {
-			-- 	command = source_action_kinds.add_missing_imports,
-			-- 	arguments = { vim.api.nvim_buf_get_name(0) },
-			-- }
-			-- client.request("workspace/executeCommand", params, nil, bufnr)
-			vim.lsp.buf.code_action({
-				apply = true,
-				context = { only = { "source.addMissingImports.ts" }, diagnostics = {} },
-			})
-			vim.lsp.buf.code_action({
-				apply = true,
-				context = { only = { "source.removeUnusedImports.ts" }, diagnostics = {} },
-			})
-		end, { buffer = bufnr, desc = "Add missing imports" })
-	end,
 }
+
