@@ -78,11 +78,11 @@
       config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/karabiner.json";
 
-    ".yabairc" = {
-      source = config.lib.file.mkOutOfStoreSymlink
-        "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.yabairc";
-      executable = true;
-    };
+    # ".yabairc" = {
+    #   source = config.lib.file.mkOutOfStoreSymlink
+    #     "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.yabairc";
+    #   executable = true;
+    # };
 
     ".config/alacritty/alacritty.toml".source =
       config.lib.file.mkOutOfStoreSymlink
