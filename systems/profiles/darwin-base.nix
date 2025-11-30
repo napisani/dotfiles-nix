@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }: {
   documentation.enable = false;
-  
+
   programs = {
     bash = {
       enable = true;
@@ -21,11 +21,9 @@
       cleanup = "zap";
       autoUpdate = false;
     };
-    
-    masApps = {
-      Xcode = 497799835;
-    };
-    
+
+    masApps = { Xcode = 497799835; };
+
     # Base casks that all Macs should have
     casks = [
       "alacritty"
@@ -38,18 +36,19 @@
       "stats"
       "rectangle"
       "karabiner-elements"
-      "alt-tab"
     ];
-    
+
     # Base brews that all Macs should have
-    brews = [
-      "procmux"
-      "sst/tap/opencode"
+    brews = [ "procmux" "sst/tap/opencode" "koekeishiya/formulae/yabai" ];
+
+    taps = [
+      "napisani/procmux"
+      "homebrew/cask-versions"
+      "mongodb/brew"
+      "koekeishiya/formulae"
     ];
-    
-    taps = [ "napisani/procmux" "homebrew/cask-versions" "mongodb/brew" ];
   };
-  
+
   environment = {
     shells = [ pkgs.bash ];
     systemPackages = with pkgs; [ bashInteractive coreutils gnugrep ];
@@ -60,7 +59,7 @@
     pkgs.nerd-fonts.jetbrains-mono
     pkgs.nerd-fonts.symbols-only
   ];
-  
+
   system.defaults = {
     finder.AppleShowAllExtensions = true;
     finder._FXShowPosixPathInTitle = true;
@@ -68,12 +67,12 @@
     finder.ShowPathbar = true;
     finder.QuitMenuItem = true;
     finder.ShowStatusBar = true;
-    
+
     NSGlobalDomain.AppleShowAllExtensions = true;
     NSGlobalDomain.AppleInterfaceStyle = "Dark";
     NSGlobalDomain."com.apple.swipescrolldirection" = false;
   };
-  
+
   nix = {
     package = pkgs.nixVersions.stable;
     extraOptions =
@@ -85,6 +84,6 @@
       options = "--delete-older-than 30d";
     };
   };
-  
+
   system.stateVersion = 4;
 }
