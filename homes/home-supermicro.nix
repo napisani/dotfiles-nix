@@ -52,6 +52,8 @@
         "pushd ~/.config/home-manager; sudo nixos-rebuild --show-trace --flake .#supermicro switch --impure ; popd";
       nixup =
         "pushd ~/.config/home-manager; sudo nix flake update; sudo nixswitch; popd";
+      nixclean =
+        "echo 'Collecting garbage...'; nix-collect-garbage -d && echo 'Optimizing store...'; nix store optimise && echo 'Cleaning up old profiles...'; sudo nix-collect-garbage -d && echo 'Done! Space freed.'";
     };
   };
 
