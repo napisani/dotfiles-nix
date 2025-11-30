@@ -74,9 +74,11 @@
     ".config/opencode/agent".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/agent";
 
-    ".config/karabiner/karabiner.json".source =
-      config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/karabiner.json";
+    ".config/karabiner/karabiner.json" = {
+      source = config.lib.file.mkOutOfStoreSymlink
+        "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/karabiner.json";
+      force = true;
+    };
 
     ".yabairc" = {
       source = ./dotfiles/yabairc;
