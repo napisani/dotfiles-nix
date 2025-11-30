@@ -1,192 +1,227 @@
 import { rule, to$ } from "karabiner.ts";
 
-// Variable name for managing the tab key state
-const TAB_WINDOW_MODE = "tab_window_mode_active";
+const yabaiBin = "/opt/homebrew/bin/yabai";
 
-// Define the tab key rule - acts as a normal tab when pressed alone
-// and activates window management mode when held
-const tabKeyRule = rule("Tab Key: Dual Role (Tab/Window Management)")
+const TAB_WINDOW_MODE = "tab_window_mode_active";
+const TAB_Q_NESTED_MODE = "tab_q_nested_mode_active";
+
+const tabKeyRule = rule("Tab Key: Dual Role (Tab/Yabai Management)")
   .manipulators([
     {
       type: "basic",
       from: { key_code: "tab" },
       to: [
         { set_variable: { name: TAB_WINDOW_MODE, value: 1 } },
-        // { key_code: "right_shift", modifiers: ["right_command", "right_control", "right_option"] }
       ],
       to_if_alone: [{ key_code: "tab" }],
       to_after_key_up: [{ set_variable: { name: TAB_WINDOW_MODE, value: 0 } }],
     },
   ]);
 
-// Create window management actions
-const windowManagementRules = rule("Tab Window Management Actions")
+const yabaiPrimaryRules = rule("Tab: Yabai Primary Actions")
   .manipulators([
-    // Window navigation with hjkl
     {
       type: "basic",
       from: { key_code: "h" },
-      to: [to$('open -g "rectangle://execute-action?name=left-half"')],
+      to: [to$(`${yabaiBin} -m window --focus west`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     {
       type: "basic",
       from: { key_code: "j" },
-      to: [to$('open -g "rectangle://execute-action?name=bottom-half"')],
+      to: [to$(`${yabaiBin} -m window --focus south`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     {
       type: "basic",
       from: { key_code: "k" },
-      to: [to$('open -g "rectangle://execute-action?name=top-half"')],
+      to: [to$(`${yabaiBin} -m window --focus north`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     {
       type: "basic",
       from: { key_code: "l" },
-      to: [to$('open -g "rectangle://execute-action?name=right-half"')],
+      to: [to$(`${yabaiBin} -m window --focus east`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
+    {
+      type: "basic",
+      from: { key_code: "n" },
+      to: [to$(`${yabaiBin} -m space --focus next || ${yabaiBin} -m space --focus first`)],
+      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
+    },
+    {
+      type: "basic",
+      from: { key_code: "p" },
+      to: [to$(`${yabaiBin} -m space --focus prev || ${yabaiBin} -m space --focus last`)],
+      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
+    },
+    {
+      type: "basic",
+      from: { key_code: "m" },
+      to: [to$(`${yabaiBin} -m window --focus largest`)],
+      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
+    },
+    {
+      type: "basic",
+      from: { key_code: "r" },
+      to: [to$(`${yabaiBin} -m window --focus recent`)],
+      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
+    },
+    {
+      type: "basic",
+      from: { key_code: "spacebar" },
+      to: [to$(`${yabaiBin} -m window --toggle zoom-fullscreen`)],
+      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
+    },
+    {
+      type: "basic",
+      from: { key_code: "b" },
+      to: [to$(`${yabaiBin} -m space --balance`)],
+      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
+    },
+    {
+      type: "basic",
+      from: { key_code: "q" },
+      to: [
+        { set_variable: { name: TAB_Q_NESTED_MODE, value: 1 } },
+      ],
+      to_after_key_up: [{ set_variable: { name: TAB_Q_NESTED_MODE, value: 0 } }],
+      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
+    },
+  ]);
 
-    // Resize windows
+const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
+  .manipulators([
+    {
+      type: "basic",
+      from: { key_code: "h" },
+      to: [to$(`${yabaiBin} -m window --swap west`)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
+    },
+    {
+      type: "basic",
+      from: { key_code: "j" },
+      to: [to$(`${yabaiBin} -m window --swap south`)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
+    },
+    {
+      type: "basic",
+      from: { key_code: "k" },
+      to: [to$(`${yabaiBin} -m window --swap north`)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
+    },
+    {
+      type: "basic",
+      from: { key_code: "l" },
+      to: [to$(`${yabaiBin} -m window --swap east`)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
+    },
     {
       type: "basic",
       from: {
         key_code: "h",
-        modifiers: { mandatory: ["right_shift"], optional: ["any"] },
+        modifiers: { mandatory: ["shift"] },
       },
-      to: [to$('open -g "rectangle://execute-action?name=first-two-thirds"')],
-      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
+      to: [to$(`${yabaiBin} -m window --warp west`)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
     },
     {
       type: "basic",
       from: {
         key_code: "j",
-        modifiers: { mandatory: ["right_shift"], optional: ["any"] },
+        modifiers: { mandatory: ["shift"] },
       },
-      to: [to$('open -g "rectangle://execute-action?name=last-two-thirds"')],
-      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
+      to: [to$(`${yabaiBin} -m window --warp south`)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
     },
     {
       type: "basic",
       from: {
         key_code: "k",
-        modifiers: { mandatory: ["right_shift"], optional: ["any"] },
+        modifiers: { mandatory: ["shift"] },
       },
-      to: [to$('open -g "rectangle://execute-action?name=first-two-thirds"')],
-      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
+      to: [to$(`${yabaiBin} -m window --warp north`)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
     },
     {
       type: "basic",
       from: {
         key_code: "l",
-        modifiers: { mandatory: ["right_shift"], optional: ["any"] },
+        modifiers: { mandatory: ["shift"] },
       },
-      to: [to$('open -g "rectangle://execute-action?name=last-two-thirds"')],
-      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
-    },
-
-    // // Corner positions
-    {
-      type: "basic",
-      from: { key_code: "1" },
-      to: [to$('open -g "rectangle://execute-action?name=top-left"')],
-      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
-    },
-    {
-      type: "basic",
-      from: { key_code: "2" },
-      to: [to$('open -g "rectangle://execute-action?name=top-right"')],
-      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
-    },
-    {
-      type: "basic",
-      from: { key_code: "3" },
-      to: [to$('open -g "rectangle://execute-action?name=bottom-left"')],
-      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
-    },
-    {
-      type: "basic",
-      from: { key_code: "4" },
-      to: [to$('open -g "rectangle://execute-action?name=bottom-right"')],
-      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
-    },
-
-    // // Full screen and maximize
-    {
-      type: "basic",
-      from: { key_code: "z" },
-      to: [to$('open -g "rectangle://execute-action?name=maximize"')],
-      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
-    },
-
-    // Display navigation
-    {
-      type: "basic",
-      from: { key_code: "w" },
-      to: [
-        {
-          key_code: "tab",
-          modifiers: [
-            "right_command",
-            "right_control",
-            "right_option",
-            "right_shift",
-          ],
-        },
+      to: [to$(`${yabaiBin} -m window --warp east`)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
       ],
-      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
-
-    // Minimize window (Cmd+M)
     {
       type: "basic",
-      from: { key_code: "m" },
-      to: [
-        {
-          key_code: "m",
-          modifiers: ["left_command"],
-        },
+      from: { key_code: "n" },
+      to: [to$(`${yabaiBin} -m window --space next && ${yabaiBin} -m space --focus next`)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
       ],
-      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
-
-    // Close window (Cmd+W)
     {
       type: "basic",
-      from: { key_code: "x" },
-      to: [
-        {
-          key_code: "w",
-          modifiers: ["left_command"],
-        },
+      from: { key_code: "p" },
+      to: [to$(`${yabaiBin} -m window --space prev && ${yabaiBin} -m space --focus prev`)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
       ],
-      conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
-    // // Balance windows
-    // {
-    //   type: "basic",
-    //   from: { key_code: "equal_sign" }, // "=" key
-    //   to: [to$('open -g "rectangle://execute-action?name=almost-maximize"')],
-    //   conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }]
-    // },
-
-    // // Center window
-    // {
-    //   type: "basic",
-    //   from: { key_code: "c" },
-    //   to: [to$('open -g "rectangle://execute-action?name=center"')],
-    //   conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }]
-    // },
-
-    // // Tile/cascade
-    // {
-    //   type: "basic",
-    //   from: { key_code: "t" },
-    //   to: [to$('open -g "rectangle://execute-action?name=tile-all"')],
-    //   conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }]
-    // }
+    {
+      type: "basic",
+      from: { key_code: "spacebar" },
+      to: [to$(`${yabaiBin} -m window --toggle float`)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
+    },
+    {
+      type: "basic",
+      from: { key_code: "s" },
+      to: [to$(`${yabaiBin} -m window --toggle split`)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
+    },
+    {
+      type: "basic",
+      from: { key_code: "c" },
+      to: [to$(`${yabaiBin} -m space --create`)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
+    },
   ]);
 
-// Export all rules
-export const tabWindowManagerRules = [tabKeyRule, windowManagementRules];
+export const tabWindowManagerRules = [tabKeyRule, yabaiPrimaryRules, yabaiNestedRules];
