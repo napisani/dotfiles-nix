@@ -1,11 +1,11 @@
 import { rule, to$ } from "karabiner.ts";
 
-const yabaiBin = "/opt/homebrew/bin/yabai";
+const riftBin = "/opt/homebrew/bin/rift-cli";
 
 const TAB_WINDOW_MODE = "tab_window_mode_active";
 const TAB_Q_NESTED_MODE = "tab_q_nested_mode_active";
 
-const tabKeyRule = rule("Tab Key: Dual Role (Tab/Yabai Management)")
+const tabKeyRule = rule("Tab Key: Dual Role (Tab/Rift Management)")
   .manipulators([
     {
       type: "basic",
@@ -18,66 +18,66 @@ const tabKeyRule = rule("Tab Key: Dual Role (Tab/Yabai Management)")
     },
   ]);
 
-const yabaiPrimaryRules = rule("Tab: Yabai Primary Actions")
+const riftPrimaryRules = rule("Tab: Rift Primary Actions")
   .manipulators([
     {
       type: "basic",
       from: { key_code: "h" },
-      to: [to$(`${yabaiBin} -m window --focus west`)],
+      to: [to$(`${riftBin} execute window focus left`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     {
       type: "basic",
       from: { key_code: "j" },
-      to: [to$(`${yabaiBin} -m window --focus south`)],
+      to: [to$(`${riftBin} execute window focus down`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     {
       type: "basic",
       from: { key_code: "k" },
-      to: [to$(`${yabaiBin} -m window --focus north`)],
+      to: [to$(`${riftBin} execute window focus up`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     {
       type: "basic",
       from: { key_code: "l" },
-      to: [to$(`${yabaiBin} -m window --focus east`)],
+      to: [to$(`${riftBin} execute window focus right`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     {
       type: "basic",
       from: { key_code: "n" },
-      to: [to$(`${yabaiBin} -m space --focus next || ${yabaiBin} -m space --focus first`)],
+      to: [to$(`${riftBin} execute workspace next true`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     {
       type: "basic",
       from: { key_code: "p" },
-      to: [to$(`${yabaiBin} -m space --focus prev || ${yabaiBin} -m space --focus last`)],
+      to: [to$(`${riftBin} execute workspace prev true`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     {
       type: "basic",
       from: { key_code: "m" },
-      to: [to$(`${yabaiBin} -m window --focus largest`)],
+      to: [to$(`${riftBin} execute window focus-largest`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     {
       type: "basic",
       from: { key_code: "r" },
-      to: [to$(`${yabaiBin} -m window --focus recent`)],
+      to: [to$(`${riftBin} execute window cycle-focus recent`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     {
       type: "basic",
       from: { key_code: "spacebar" },
-      to: [to$(`${yabaiBin} -m window --toggle zoom-fullscreen`)],
+      to: [to$(`${riftBin} execute window toggle-fullscreen`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     {
       type: "basic",
       from: { key_code: "b" },
-      to: [to$(`${yabaiBin} -m space --balance`)],
+      to: [to$(`${riftBin} execute layout balance`)],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
     {
@@ -91,12 +91,12 @@ const yabaiPrimaryRules = rule("Tab: Yabai Primary Actions")
     },
   ]);
 
-const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
+const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
   .manipulators([
     {
       type: "basic",
       from: { key_code: "h" },
-      to: [to$(`${yabaiBin} -m window --swap west`)],
+      to: [to$(`${riftBin} execute layout move-node left`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -105,7 +105,7 @@ const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
     {
       type: "basic",
       from: { key_code: "j" },
-      to: [to$(`${yabaiBin} -m window --swap south`)],
+      to: [to$(`${riftBin} execute layout move-node down`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -114,7 +114,7 @@ const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
     {
       type: "basic",
       from: { key_code: "k" },
-      to: [to$(`${yabaiBin} -m window --swap north`)],
+      to: [to$(`${riftBin} execute layout move-node up`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -123,7 +123,7 @@ const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
     {
       type: "basic",
       from: { key_code: "l" },
-      to: [to$(`${yabaiBin} -m window --swap east`)],
+      to: [to$(`${riftBin} execute layout move-node right`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -135,7 +135,7 @@ const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
         key_code: "h",
         modifiers: { mandatory: ["shift"] },
       },
-      to: [to$(`${yabaiBin} -m window --warp west`)],
+      to: [to$(`${riftBin} execute layout move-node left`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -147,7 +147,7 @@ const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
         key_code: "j",
         modifiers: { mandatory: ["shift"] },
       },
-      to: [to$(`${yabaiBin} -m window --warp south`)],
+      to: [to$(`${riftBin} execute layout move-node down`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -159,7 +159,7 @@ const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
         key_code: "k",
         modifiers: { mandatory: ["shift"] },
       },
-      to: [to$(`${yabaiBin} -m window --warp north`)],
+      to: [to$(`${riftBin} execute layout move-node up`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -171,7 +171,7 @@ const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
         key_code: "l",
         modifiers: { mandatory: ["shift"] },
       },
-      to: [to$(`${yabaiBin} -m window --warp east`)],
+      to: [to$(`${riftBin} execute layout move-node right`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -180,7 +180,7 @@ const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
     {
       type: "basic",
       from: { key_code: "n" },
-      to: [to$(`${yabaiBin} -m window --space next && ${yabaiBin} -m space --focus next`)],
+      to: [to$(`${riftBin} execute window move-to-workspace next true`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -189,7 +189,7 @@ const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
     {
       type: "basic",
       from: { key_code: "p" },
-      to: [to$(`${yabaiBin} -m window --space prev && ${yabaiBin} -m space --focus prev`)],
+      to: [to$(`${riftBin} execute window move-to-workspace prev true`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -198,7 +198,7 @@ const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
     {
       type: "basic",
       from: { key_code: "spacebar" },
-      to: [to$(`${yabaiBin} -m window --toggle float`)],
+      to: [to$(`${riftBin} execute window toggle-float`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -207,7 +207,7 @@ const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
     {
       type: "basic",
       from: { key_code: "s" },
-      to: [to$(`${yabaiBin} -m window --toggle split`)],
+      to: [to$(`${riftBin} execute layout toggle-split`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -216,7 +216,7 @@ const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
     {
       type: "basic",
       from: { key_code: "c" },
-      to: [to$(`${yabaiBin} -m space --create`)],
+      to: [to$(`${riftBin} execute workspace create`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -224,4 +224,4 @@ const yabaiNestedRules = rule("Tab+Q: Yabai Nested Actions")
     },
   ]);
 
-export const tabWindowManagerRules = [tabKeyRule, yabaiPrimaryRules, yabaiNestedRules];
+export const tabWindowManagerRules = [tabKeyRule, riftPrimaryRules, riftNestedRules];

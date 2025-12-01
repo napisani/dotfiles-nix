@@ -4405,7 +4405,7 @@
             ]
           },
           {
-            "description": "Tab Key: Dual Role (Tab/Yabai Management)",
+            "description": "Tab Key: Dual Role (Tab/Rift Management)",
             "manipulators": [
               {
                 "type": "basic",
@@ -4437,7 +4437,7 @@
             ]
           },
           {
-            "description": "Tab: Yabai Primary Actions",
+            "description": "Tab: Rift Primary Actions",
             "manipulators": [
               {
                 "type": "basic",
@@ -4446,7 +4446,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --focus west"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute window focus left"
                   }
                 ],
                 "conditions": [
@@ -4464,7 +4464,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --focus south"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute window focus down"
                   }
                 ],
                 "conditions": [
@@ -4482,7 +4482,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --focus north"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute window focus up"
                   }
                 ],
                 "conditions": [
@@ -4500,7 +4500,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --focus east"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute window focus right"
                   }
                 ],
                 "conditions": [
@@ -4518,7 +4518,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m space --focus next || /opt/homebrew/bin/yabai -m space --focus first"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute workspace next true"
                   }
                 ],
                 "conditions": [
@@ -4536,7 +4536,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m space --focus prev || /opt/homebrew/bin/yabai -m space --focus last"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute workspace prev true"
                   }
                 ],
                 "conditions": [
@@ -4554,7 +4554,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --focus largest"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute window focus-largest"
                   }
                 ],
                 "conditions": [
@@ -4572,7 +4572,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --focus recent"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute window cycle-focus recent"
                   }
                 ],
                 "conditions": [
@@ -4590,7 +4590,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --toggle zoom-fullscreen"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute window toggle-fullscreen"
                   }
                 ],
                 "conditions": [
@@ -4608,7 +4608,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m space --balance"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout balance"
                   }
                 ],
                 "conditions": [
@@ -4651,7 +4651,7 @@
             ]
           },
           {
-            "description": "Tab+Q: Yabai Nested Actions",
+            "description": "Tab+Q: Rift Nested Actions",
             "manipulators": [
               {
                 "type": "basic",
@@ -4660,7 +4660,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --swap west"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node left"
                   }
                 ],
                 "conditions": [
@@ -4683,7 +4683,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --swap south"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node down"
                   }
                 ],
                 "conditions": [
@@ -4706,7 +4706,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --swap north"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node up"
                   }
                 ],
                 "conditions": [
@@ -4729,7 +4729,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --swap east"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node right"
                   }
                 ],
                 "conditions": [
@@ -4757,7 +4757,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --warp west"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node left"
                   }
                 ],
                 "conditions": [
@@ -4785,7 +4785,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --warp south"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node down"
                   }
                 ],
                 "conditions": [
@@ -4813,7 +4813,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --warp north"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node up"
                   }
                 ],
                 "conditions": [
@@ -4841,7 +4841,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --warp east"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node right"
                   }
                 ],
                 "conditions": [
@@ -4864,7 +4864,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --space next && /opt/homebrew/bin/yabai -m space --focus next"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute window move-to-workspace next true"
                   }
                 ],
                 "conditions": [
@@ -4887,7 +4887,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --space prev && /opt/homebrew/bin/yabai -m space --focus prev"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute window move-to-workspace prev true"
                   }
                 ],
                 "conditions": [
@@ -4910,7 +4910,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --toggle float"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute window toggle-float"
                   }
                 ],
                 "conditions": [
@@ -4933,7 +4933,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m window --toggle split"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout toggle-split"
                   }
                 ],
                 "conditions": [
@@ -4956,7 +4956,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/yabai -m space --create"
+                    "shell_command": "/opt/homebrew/bin/rift-cli execute workspace create"
                   }
                 ],
                 "conditions": [

@@ -39,7 +39,12 @@
     ];
 
     # Base brews that all Macs should have
-    brews = [ "procmux" "sst/tap/opencode" "koekeishiya/formulae/yabai" ];
+    brews = [
+      "procmux"
+      "sst/tap/opencode"
+      "koekeishiya/formulae/yabai"
+      "acsandmann/tap/rift"
+    ];
 
     taps = [
       "napisani/procmux"

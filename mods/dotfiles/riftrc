@@ -1,0 +1,33 @@
+[settings]
+animate = true
+animation_duration = 0.25
+animation_fps = 120.0
+animation_easing = "ease_in_out_cubic"
+hot_reload = true
+
+mouse_follows_focus = false
+focus_follows_mouse = false
+mouse_hides_on_focus = false
+
+[settings.layout]
+mode = "traditional"
+
+[settings.layout.stack]
+stack_offset = 40.0
+
+[settings.layout.gaps.outer]
+top = 10
+left = 5
+bottom = 10
+right = 5
+
+[settings.layout.gaps.inner]
+horizontal = 8
+vertical = 8
+
+[virtual_workspaces]
+enabled = true
+default_workspace_count = 4
+workspace_names = ["Main", "Dev", "Web", "Misc"]
+
+[keys]

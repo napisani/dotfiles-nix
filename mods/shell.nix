@@ -85,6 +85,9 @@
       executable = true;
     };
 
+    ".config/rift/config.toml".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/riftrc";
+
     ".config/alacritty/alacritty.toml".source =
       config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/alacritty.toml";
