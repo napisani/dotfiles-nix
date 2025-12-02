@@ -3,6 +3,7 @@
 with pkgs-unstable; [
   pkgs-unstable.deno
   pkgs-unstable.nodejs
+  pkgs-unstable.bun
   nodePackages_latest.typescript
   nodePackages.typescript-language-server
   nodePackages_latest.eslint_d

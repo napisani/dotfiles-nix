@@ -4,6 +4,7 @@ if not status_ok then
 	return
 end
 
+local fs = require("efmls-configs.fs")
 local utils = require("user.utils")
 local eslint_d_lint = require("efmls-configs.linters.eslint_d")
 local eslint_d_format = require("efmls-configs.formatters.eslint_d")
@@ -32,16 +33,25 @@ local gleam_format = require("efmls-configs.formatters.gleam_format")
 
 local project_lint_config = utils.get_project_config().lint or {}
 
-local biome_custom_format = vim.tbl_extend("force", biome, {
-	rootMarkers = { "biome.json" },
-})
+local biome_custom_format = {
+	formatCommand = string.format(
+		"%s %s",
+		fs.executable("biome", fs.Scope.NODE),
+		"check --write --stdin-file-path '${INPUT}'"
+	),
+	formatStdin = true,
+	rootMarkers = { "rome.json", "biome.json", "Biomefile" },
+}
 
 local is_deno = vim.fs.root(0, { "deno.json", "deno.jsonc" })
+local is_biome = vim.fs.root(0, biome_custom_format.rootMarkers)
 local function get_js_linters()
 	local linters = {}
 	if next(project_lint_config) == nil then
 		if is_deno then
 			table.insert(linters, deno_fmt)
+		elseif is_biome then
+			table.insert(linters, biome_custom_format)
 		else
 			table.insert(linters, eslint_d_lint)
 			table.insert(linters, eslint_d_format)
