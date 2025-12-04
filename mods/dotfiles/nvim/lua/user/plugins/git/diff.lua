@@ -84,8 +84,6 @@ function M.setup()
 			-- 2-way diff operations (get/put changes)
 			{ "n", "<leader>mg", actions.diffget("ours"), { desc = "Get changes from other side" } },
 			{ "n", "<leader>mp", actions.diffput("ours"), { desc = "Put changes to other side" } },
-
-
 		}
 
 		-- Helper function to merge keymaps
@@ -98,6 +96,24 @@ function M.setup()
 		end
 
 		diffview.setup({
+
+			hooks = {
+        -- attempt to improve diffs to allow inner highlighting
+				diff_buf_win_enter = function(bufnr, winid, ctx)
+					if ctx.layout_name:match("^diff2") then
+						if ctx.symbol == "a" then
+							vim.opt_local.winhl = table.concat({
+								"DiffAdd:DiffviewDiffAddAsDelete",
+								"DiffDelete:DiffviewDiffDelete",
+							}, ",")
+						elseif ctx.symbol == "b" then
+							vim.opt_local.winhl = table.concat({
+								"DiffDelete:DiffviewDiffDelete",
+							}, ",")
+						end
+					end
+				end,
+			},
 			keymaps = {
 				view = build_keymaps({
 					-- Refresh binding

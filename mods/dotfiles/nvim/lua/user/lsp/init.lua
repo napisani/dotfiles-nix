@@ -22,9 +22,9 @@ vim.lsp.enable({
 	"bashls",
 	-- "pyright",
 	"basedpyright",
-	"ruff_lsp",
+	"ruff",
 	"yamlls",
-	-- "learnls",
+--	"learnls",
 })
 
 -- For now, i need to completely disable vtsls for any projects that are
