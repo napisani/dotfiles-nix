@@ -6,6 +6,20 @@ local file_utils = require("user.utils.file_utils")
 
 local M = {}
 
+-- Load OpenCode modules (may be nil if not available)
+local opencode_context = nil
+local opencode_mention = nil
+do
+	local ok, oc = pcall(require, "opencode.context")
+	if ok then
+		opencode_context = oc
+	end
+	local ok_mention, mention = pcall(require, "opencode.ui.mention")
+	if ok_mention then
+		opencode_mention = mention
+	end
+end
+
 -- Shared helper functions
 local function get_active_chat()
 	local chat = codecompanion.last_chat()
@@ -16,16 +30,50 @@ local function get_active_chat()
 	return chat
 end
 
+local function get_current_file_path()
+	local bufnr = vim.api.nvim_get_current_buf()
+	local file_path = vim.api.nvim_buf_get_name(bufnr)
+	if file_path == "" then
+		vim.notify("Current buffer has no file name", vim.log.levels.ERROR)
+		return nil, nil
+	end
+	return file_path, bufnr
+end
+
+-- Process selection array or single item with a callback
+local function process_selection(selection, callback)
+	if type(selection) == "table" and #selection > 0 then
+		for _, sel in ipairs(selection) do
+			callback(sel)
+		end
+	else
+		callback(selection)
+	end
+end
+
 local function coerce_and_validate_selection(selection)
 	if type(selection) ~= "table" then
 		vim.notify("Invalid selection type: " .. type(selection), vim.log.levels.ERROR)
 		return nil
 	end
-	if not selection.file or selection.file == "" then
-		vim.notify("No file selected", vim.log.levels.ERROR)
+
+	-- Normalize: try multiple possible field names from different pickers
+	-- Priority: _path (Snacks internal) > file > path > filename
+	local file = selection._path
+		or selection.file
+		or selection.path
+		or selection.filename
+		or (selection.item and (selection.item._path or selection.item.path or selection.item.file or selection.item.filename))
+
+	if not file or file == "" then
+		vim.notify(
+			"No file found in selection. Keys: " .. table.concat(vim.tbl_keys(selection), ", "),
+			vim.log.levels.ERROR
+		)
 		return nil
 	end
 
+	selection.file = file -- normalize to 'file' field
 	selection.cwd = selection.cwd or file_utils.get_root_dir()
 	-- if the path starts with a slash, it is an absolute path
 	if selection.file:sub(1, 1) == "/" then
@@ -145,18 +193,20 @@ end
 
 -- Public functions
 function M.add_current_buffer_to_chat()
+	local file_path, bufnr = get_current_file_path()
+	if not file_path then
+		return
+	end
+
 	-- Prefer OpenCode if visible
 	local win = select(1, find_opencode_window())
 	if win then
-		local bufnr = vim.api.nvim_get_current_buf()
-		local file_path = vim.api.nvim_buf_get_name(bufnr)
-		if file_path == "" then
-			vim.notify("Current buffer has no file name", vim.log.levels.ERROR)
+		if not (opencode_context and opencode_mention) then
+			vim.notify("OpenCode modules not available", vim.log.levels.ERROR)
 			return
 		end
 		local context_path = file_utils.get_relative_to_root(file_path)
-		local opencode_context = require("opencode.context")
-		require("opencode.ui.mention").mention(function(mention_cb)
+		opencode_mention.mention(function(mention_cb)
 			mention_cb(context_path)
 			opencode_context.add_file(context_path)
 		end)
@@ -169,17 +219,11 @@ function M.add_current_buffer_to_chat()
 		return
 	end
 
-	-- Get current buffer information
-	local bufnr = vim.api.nvim_get_current_buf()
-	local file_path = vim.api.nvim_buf_get_name(bufnr)
-	if file_path == "" then
-		vim.notify("Current buffer has no file name", vim.log.levels.ERROR)
-		return
-	end
-
-	local file_info = { file_path = file_path, relative_path = vim.fn.fnamemodify(file_path, ":.") }
-	-- Use current buffer number for accessing current content
-	file_info.bufnr = bufnr
+	local file_info = {
+		file_path = file_path,
+		relative_path = vim.fn.fnamemodify(file_path, ":."),
+		bufnr = bufnr,
+	}
 
 	if add_file_to_codecompanion_chat_internal(file_info, chat, "current_buffer") then
 		add_file_name_ref_to_codecompanion_chat(file_info, chat)
@@ -190,67 +234,89 @@ function M.add_file_to_chat(picker_fn, picker_opts)
 	local win = select(1, find_opencode_window())
 	picker_opts = picker_opts or {}
 
+	-- Helper to add files to OpenCode
 	local function add_with_opencode(selection)
-		local ok, oc = pcall(require, "opencode.context")
-		if not (ok and oc and type(oc.add_file) == "function") then
-			vim.notify("OpenCode context not available", vim.log.levels.ERROR)
+		if not (opencode_context and opencode_mention) then
+			vim.notify("OpenCode modules not available", vim.log.levels.ERROR)
 			return
 		end
-		local function add_one(sel)
+		
+		-- Collect all file paths
+		local file_paths = {}
+		process_selection(selection, function(sel)
 			local fi = coerce_and_validate_selection(sel)
 			if fi then
-				oc.add_file(fi.file_path)
+				local context_path = file_utils.get_relative_to_root(fi.file_path)
+				table.insert(file_paths, context_path)
 			end
-		end
-		if type(selection) == "table" and #selection > 0 then
-			for _, s in ipairs(selection) do
-				add_one(s)
+		end)
+		
+		-- Add files to OpenCode context using the mention API
+		opencode_mention.mention(function(mention_cb)
+			for _, context_path in ipairs(file_paths) do
+				mention_cb(context_path)
+				opencode_context.add_file(context_path)
 			end
-		else
-			add_one(selection)
-		end
+		end)
 	end
 
-	-- Launch snacks.nvim picker
-	local all_opts = vim.tbl_extend("force", picker_opts, {
-		multi_select = true,
-		confirm = function(picker)
-			local selection = picker:selected({ fallback = true })
-			picker:close()
+	-- Helper to add files to CodeCompanion
+	local function add_with_codecompanion(selection)
+		local chat = get_active_chat()
+		if not chat then
+			return
+		end
 
-			if win then
-				add_with_opencode(selection)
-				return
-			end
-
-			local chat = get_active_chat()
-			if not chat then
-				return
-			end
-
-			if type(selection) == "table" and #selection > 0 then
-				for _, sel in ipairs(selection) do
-					local fi = coerce_and_validate_selection(sel)
-					if fi then
-						add_file_to_codecompanion_chat_internal(fi, chat)
-					end
-				end
-				for _, sel in ipairs(selection) do
-					local fi = coerce_and_validate_selection(sel)
-					if fi then
-						add_file_name_ref_to_codecompanion_chat(fi, chat)
-					end
-				end
-			else
-				local fi = coerce_and_validate_selection(selection)
-				if fi and add_file_to_codecompanion_chat_internal(fi, chat) then
+		process_selection(selection, function(sel)
+			local fi = coerce_and_validate_selection(sel)
+			if fi then
+				if add_file_to_codecompanion_chat_internal(fi, chat) then
 					add_file_name_ref_to_codecompanion_chat(fi, chat)
 				end
 			end
-		end,
-	})
+		end)
+	end
 
-	picker_fn(all_opts)
+	-- Custom confirm callback that handles multi-select
+	local function custom_confirm_action(picker)
+		-- Get the actual picker object from Snacks
+		local Snacks = require("snacks")
+		local active_pickers = Snacks.picker.get()
+		if not active_pickers or #active_pickers == 0 then
+			vim.notify("No active pickers found", vim.log.levels.ERROR)
+			return
+		end
+		
+		local active_picker = active_pickers[1]
+		local selection = active_picker:selected({ fallback = true })
+		active_picker:close()
+
+		if win then
+			add_with_opencode(selection)
+		else
+			add_with_codecompanion(selection)
+		end
+	end
+
+	-- Register our custom action
+	picker_opts.actions = picker_opts.actions or {}
+	picker_opts.actions.custom_file_confirm = custom_confirm_action
+	
+	-- Override the confirm key to use our custom action
+	picker_opts.win = picker_opts.win or {}
+	picker_opts.win.input = picker_opts.win.input or {}
+	picker_opts.win.input.keys = picker_opts.win.input.keys or {}
+	picker_opts.win.input.keys["<CR>"] = { "custom_file_confirm", mode = { "n", "i" } }
+	
+	picker_opts.win.list = picker_opts.win.list or {}
+	picker_opts.win.list.keys = picker_opts.win.list.keys or {}
+	picker_opts.win.list.keys["<CR>"] = "custom_file_confirm"
+	
+	-- Enable multi-select
+	picker_opts.multi_select = true
+
+	-- Call the picker function
+	picker_fn(picker_opts)
 end
 
 return M

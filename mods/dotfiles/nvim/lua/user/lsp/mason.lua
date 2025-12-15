@@ -21,6 +21,7 @@ local servers = {
 	"denols",
 	"docker_compose_language_service",
 	"dockerls",
+	"elixirls",
 	"html",
 	"jsonls",
 	"lua_ls",

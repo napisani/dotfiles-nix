@@ -5,6 +5,7 @@
     casks = [
       "slack"
       "mongodb-compass"
+      "docker-desktop"
     ];
     
     brews = [];

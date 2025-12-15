@@ -18,7 +18,8 @@ let
   nixPackages = import ./nix.nix { inherit pkgs pkgs-unstable; };
   bashPackages = import ./bash.nix { inherit pkgs pkgs-unstable; };
   miscPackages = import ./misc.nix { inherit pkgs pkgs-unstable; };
+  elixirPackages = import ./elixir.nix { inherit pkgs pkgs-unstable; };
 in with pkgs-unstable;
 jsPackages ++ pythonPackages ++ golangPackages ++ cppPackages ++ luaPackages
-++ nixPackages ++ bashPackages ++ miscPackages ++ javaPackages
+++ nixPackages ++ bashPackages ++ miscPackages ++ javaPackages ++ elixirPackages
 

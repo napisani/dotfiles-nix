@@ -135,7 +135,9 @@ function M.get_keymaps()
       {
         "<leader>afe",
         function()
-          snacks_ai_context.add_file_to_chat(Snacks.picker.buffers)
+          snacks_ai_context.add_file_to_chat(function(opts)
+            return Snacks.picker.buffers(opts)
+          end)
         end,
         desc = "Buffers",
       },
@@ -167,7 +169,9 @@ function M.get_keymaps()
       {
         "<leader>aft",
         function()
-          snacks_ai_context.add_file_to_chat(Snacks.picker.git_files)
+          snacks_ai_context.add_file_to_chat(function(opts)
+            return Snacks.picker.git_files(opts)
+          end)
         end,
         desc = "gi(t) files",
       },

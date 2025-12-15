@@ -29,7 +29,10 @@ M.base = {
 		desc = "Format",
 		method = "textDocument/formatting",
 	},
-	{ key = "<leader>ll", action = vim.lsp.codelens.run, desc = "Run CodeLens", method = "textDocument/codeLens" },
+	{ key = "<leader>ll", action = function()
+    vim.lsp.codelens.refresh()
+    vim.lsp.codelens.run()
+  end, desc = "Run CodeLens", method = "textDocument/codeLens" },
 	{
 		key = "gl",
 		action = function()
