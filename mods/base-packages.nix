@@ -37,8 +37,10 @@ in {
       lazydocker
       tmuxp
       nodemon
+      mise
+ 
+       k9s
 
-      k9s
     ];
 
 }

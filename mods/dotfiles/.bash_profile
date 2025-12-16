@@ -1,6 +1,7 @@
 
 # SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 SCRIPT_DIR="$HOME"
+
 for file in ~/.bashrc.d/*.bashrc
 do
     file_only=$(basename "$file")

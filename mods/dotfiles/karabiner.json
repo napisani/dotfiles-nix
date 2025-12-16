@@ -4446,7 +4446,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute window focus left"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window focus --direction left"
                   }
                 ],
                 "conditions": [
@@ -4454,6 +4454,11 @@
                     "type": "variable_if",
                     "name": "tab_window_mode_active",
                     "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
                   }
                 ]
               },
@@ -4464,7 +4469,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute window focus down"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window focus --direction down"
                   }
                 ],
                 "conditions": [
@@ -4472,6 +4477,11 @@
                     "type": "variable_if",
                     "name": "tab_window_mode_active",
                     "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
                   }
                 ]
               },
@@ -4482,7 +4492,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute window focus up"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window focus --direction up"
                   }
                 ],
                 "conditions": [
@@ -4490,6 +4500,11 @@
                     "type": "variable_if",
                     "name": "tab_window_mode_active",
                     "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
                   }
                 ]
               },
@@ -4500,7 +4515,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute window focus right"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window focus --direction right"
                   }
                 ],
                 "conditions": [
@@ -4508,6 +4523,11 @@
                     "type": "variable_if",
                     "name": "tab_window_mode_active",
                     "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
                   }
                 ]
               },
@@ -4518,7 +4538,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute workspace next true"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute workspace next"
                   }
                 ],
                 "conditions": [
@@ -4526,6 +4546,11 @@
                     "type": "variable_if",
                     "name": "tab_window_mode_active",
                     "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
                   }
                 ]
               },
@@ -4536,7 +4561,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute workspace prev true"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute workspace prev"
                   }
                 ],
                 "conditions": [
@@ -4544,6 +4569,11 @@
                     "type": "variable_if",
                     "name": "tab_window_mode_active",
                     "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
                   }
                 ]
               },
@@ -4554,7 +4584,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute window focus-largest"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window next"
                   }
                 ],
                 "conditions": [
@@ -4562,6 +4592,11 @@
                     "type": "variable_if",
                     "name": "tab_window_mode_active",
                     "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
                   }
                 ]
               },
@@ -4572,7 +4607,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute window cycle-focus recent"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window prev"
                   }
                 ],
                 "conditions": [
@@ -4580,42 +4615,11 @@
                     "type": "variable_if",
                     "name": "tab_window_mode_active",
                     "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "spacebar"
-                },
-                "to": [
-                  {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute window toggle-fullscreen"
-                  }
-                ],
-                "conditions": [
+                  },
                   {
                     "type": "variable_if",
-                    "name": "tab_window_mode_active",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "b"
-                },
-                "to": [
-                  {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout balance"
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "tab_window_mode_active",
-                    "value": 1
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
                   }
                 ]
               },
@@ -4660,7 +4664,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node left"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout move-node left"
                   }
                 ],
                 "conditions": [
@@ -4683,7 +4687,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node down"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout move-node down"
                   }
                 ],
                 "conditions": [
@@ -4706,7 +4710,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node up"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout move-node up"
                   }
                 ],
                 "conditions": [
@@ -4729,7 +4733,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node right"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout move-node right"
                   }
                 ],
                 "conditions": [
@@ -4748,16 +4752,11 @@
               {
                 "type": "basic",
                 "from": {
-                  "key_code": "h",
-                  "modifiers": {
-                    "mandatory": [
-                      "shift"
-                    ]
-                  }
+                  "key_code": "y"
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node left"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout join-window left"
                   }
                 ],
                 "conditions": [
@@ -4776,16 +4775,11 @@
               {
                 "type": "basic",
                 "from": {
-                  "key_code": "j",
-                  "modifiers": {
-                    "mandatory": [
-                      "shift"
-                    ]
-                  }
+                  "key_code": "u"
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node down"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout join-window up"
                   }
                 ],
                 "conditions": [
@@ -4804,16 +4798,11 @@
               {
                 "type": "basic",
                 "from": {
-                  "key_code": "k",
-                  "modifiers": {
-                    "mandatory": [
-                      "shift"
-                    ]
-                  }
+                  "key_code": "i"
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node up"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout join-window down"
                   }
                 ],
                 "conditions": [
@@ -4832,16 +4821,11 @@
               {
                 "type": "basic",
                 "from": {
-                  "key_code": "l",
-                  "modifiers": {
-                    "mandatory": [
-                      "shift"
-                    ]
-                  }
+                  "key_code": "o"
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout move-node right"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout join-window right"
                   }
                 ],
                 "conditions": [
@@ -4864,7 +4848,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute window move-to-workspace next true"
+                    "shell_command": "workspace_data=$(/Users/nick/code/rift/target/release/rift-cli query workspaces)\ntarget=$(RIFT_DIRECTION=next RIFT_WS_JSON=\"$workspace_data\" /usr/bin/env python3 <<'PY'\nimport json, os, sys\n\ndirection = os.environ.get(\"RIFT_DIRECTION\", \"next\")\nworkspace_json = os.environ.get(\"RIFT_WS_JSON\", \"[]\")\n\ndata = json.loads(workspace_json)\nif not data:\n    raise SystemExit(1)\n\nordered = sorted(data, key=lambda ws: ws.get(\"index\", 0))\nactive_idx = next((i for i, ws in enumerate(ordered) if ws.get(\"is_active\")), 0)\n\nif direction == \"next\":\n    indices = list(range(active_idx + 1, len(ordered))) + list(range(0, active_idx))\nelse:\n    indices = list(range(active_idx - 1, -1, -1)) + list(range(len(ordered) - 1, active_idx, -1))\n\nif indices:\n    target_idx = indices[0]\nelse:\n    target_idx = active_idx\n\ntarget = ordered[target_idx].get(\"index\")\nif target is not None:\n    print(target, end=\"\")\nPY\n)\nif [ -n \"$target\" ]; then\n  /Users/nick/code/rift/target/release/rift-cli execute workspace move-window \"$target\"\nfi"
                   }
                 ],
                 "conditions": [
@@ -4887,7 +4871,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute window move-to-workspace prev true"
+                    "shell_command": "workspace_data=$(/Users/nick/code/rift/target/release/rift-cli query workspaces)\ntarget=$(RIFT_DIRECTION=prev RIFT_WS_JSON=\"$workspace_data\" /usr/bin/env python3 <<'PY'\nimport json, os, sys\n\ndirection = os.environ.get(\"RIFT_DIRECTION\", \"next\")\nworkspace_json = os.environ.get(\"RIFT_WS_JSON\", \"[]\")\n\ndata = json.loads(workspace_json)\nif not data:\n    raise SystemExit(1)\n\nordered = sorted(data, key=lambda ws: ws.get(\"index\", 0))\nactive_idx = next((i for i, ws in enumerate(ordered) if ws.get(\"is_active\")), 0)\n\nif direction == \"next\":\n    indices = list(range(active_idx + 1, len(ordered))) + list(range(0, active_idx))\nelse:\n    indices = list(range(active_idx - 1, -1, -1)) + list(range(len(ordered) - 1, active_idx, -1))\n\nif indices:\n    target_idx = indices[0]\nelse:\n    target_idx = active_idx\n\ntarget = ordered[target_idx].get(\"index\")\nif target is not None:\n    print(target, end=\"\")\nPY\n)\nif [ -n \"$target\" ]; then\n  /Users/nick/code/rift/target/release/rift-cli execute workspace move-window \"$target\"\nfi"
                   }
                 ],
                 "conditions": [
@@ -4910,7 +4894,53 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute window toggle-float"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window toggle-float"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "m"
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window toggle-fullscreen-within-gaps"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "b"
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout toggle-orientation"
                   }
                 ],
                 "conditions": [
@@ -4933,7 +4963,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute layout toggle-split"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout toggle-stack"
                   }
                 ],
                 "conditions": [
@@ -4956,7 +4986,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/opt/homebrew/bin/rift-cli execute workspace create"
+                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute workspace create"
                   }
                 ],
                 "conditions": [
