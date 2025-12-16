@@ -4580,52 +4580,6 @@
               {
                 "type": "basic",
                 "from": {
-                  "key_code": "m"
-                },
-                "to": [
-                  {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window next"
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "tab_window_mode_active",
-                    "value": 1
-                  },
-                  {
-                    "type": "variable_if",
-                    "name": "tab_q_nested_mode_active",
-                    "value": 0
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
-                  "key_code": "r"
-                },
-                "to": [
-                  {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window prev"
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "tab_window_mode_active",
-                    "value": 1
-                  },
-                  {
-                    "type": "variable_if",
-                    "name": "tab_q_nested_mode_active",
-                    "value": 0
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
                   "key_code": "q"
                 },
                 "to": [
@@ -4664,7 +4618,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout move-node left"
+                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout move-node --direction left; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout move-node left\nfi"
                   }
                 ],
                 "conditions": [
@@ -4687,7 +4641,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout move-node down"
+                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout move-node --direction down; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout move-node down\nfi"
                   }
                 ],
                 "conditions": [
@@ -4710,7 +4664,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout move-node up"
+                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout move-node --direction up; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout move-node up\nfi"
                   }
                 ],
                 "conditions": [
@@ -4733,7 +4687,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout move-node right"
+                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout move-node --direction right; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout move-node right\nfi"
                   }
                 ],
                 "conditions": [
@@ -4756,7 +4710,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout join-window left"
+                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout join-window --direction left; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout join-window left\nfi"
                   }
                 ],
                 "conditions": [
@@ -4779,7 +4733,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout join-window up"
+                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout join-window --direction up; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout join-window up\nfi"
                   }
                 ],
                 "conditions": [
@@ -4802,7 +4756,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout join-window down"
+                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout join-window --direction down; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout join-window down\nfi"
                   }
                 ],
                 "conditions": [
@@ -4825,7 +4779,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout join-window right"
+                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout join-window --direction right; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout join-window right\nfi"
                   }
                 ],
                 "conditions": [
@@ -4913,7 +4867,7 @@
               {
                 "type": "basic",
                 "from": {
-                  "key_code": "m"
+                  "key_code": "z"
                 },
                 "to": [
                   {

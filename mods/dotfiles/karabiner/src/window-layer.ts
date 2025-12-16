@@ -11,11 +11,19 @@ const windowFocus = (direction: "left" | "right" | "up" | "down") =>
 const workspaceSwitch = (direction: "next" | "prev") =>
   to$(`${riftBin} execute workspace ${direction}`);
 
-const layoutMoveNode = (direction: "left" | "right" | "up" | "down") =>
-  to$(`${riftBin} execute layout move-node ${direction}`);
+const withDirectionalFallback = (subcommand: string) =>
+  (direction: "left" | "right" | "up" | "down") =>
+    to$(
+      `if ${riftBin} execute ${subcommand} --direction ${direction}; then
+  :
+else
+  ${riftBin} execute ${subcommand} ${direction}
+fi`,
+    );
 
-const layoutJoinWindow = (direction: "left" | "right" | "up" | "down") =>
-  to$(`${riftBin} execute layout join-window ${direction}`);
+const layoutMoveNode = withDirectionalFallback("layout move-node");
+
+const layoutJoinWindow = withDirectionalFallback("layout join-window");
 
 const workspaceMoveWindow = (direction: "next" | "prev") =>
   to$(
@@ -51,7 +59,6 @@ PY
 if [ -n "$target" ]; then
   ${riftBin} execute workspace move-window "$target"
 fi`,
-
   );
 
 const tabKeyRule = rule("Tab Key: Dual Role (Tab/Rift Management)")
@@ -118,24 +125,6 @@ const riftPrimaryRules = rule("Tab: Rift Primary Actions")
       type: "basic",
       from: { key_code: "p" },
       to: [workspaceSwitch("prev")],
-      conditions: [
-        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
-        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 0 },
-      ],
-    },
-    {
-      type: "basic",
-      from: { key_code: "m" },
-      to: [to$(`${riftBin} execute window next`)],
-      conditions: [
-        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
-        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 0 },
-      ],
-    },
-    {
-      type: "basic",
-      from: { key_code: "r" },
-      to: [to$(`${riftBin} execute window prev`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 0 },
@@ -257,7 +246,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     },
     {
       type: "basic",
-      from: { key_code: "m" },
+      from: { key_code: "z" },
       to: [to$(`${riftBin} execute window toggle-fullscreen-within-gaps`)],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
