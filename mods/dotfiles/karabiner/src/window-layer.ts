@@ -280,6 +280,32 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
       ],
     },
+    {
+      type: "basic",
+      from: { key_code: "m" },
+      to: [
+        to$(
+          "/usr/bin/osascript -e 'tell application \"System Events\" to keystroke \"m\" using {command down}'",
+        ),
+      ],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
+    },
+    {
+      type: "basic",
+      from: { key_code: "x" },
+      to: [
+        to$(
+          "/usr/bin/osascript -e 'tell application \"System Events\" to keystroke \"w\" using {command down}'",
+        ),
+      ],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
+    },
   ]);
 
 export const tabWindowManagerRules = [

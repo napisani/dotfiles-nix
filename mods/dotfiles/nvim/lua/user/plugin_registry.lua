@@ -40,6 +40,7 @@ M.modules = {
   "ui.indentline",
   -- AI plugins
   "ai.codecompanion",
+  "ai.opencode",
   "ai.context_nvim",
   "ai.code_explain",
   -- Database plugins

@@ -178,7 +178,7 @@ require("lazy").setup({
 		{
 			"sudo-tee/opencode.nvim",
 			config = function()
-				require("opencode").setup(require("user.opencode"))
+				require("user.plugins.ai.opencode").setup()
 			end,
 			dependencies = {
 				"nvim-lua/plenary.nvim",
@@ -286,6 +286,16 @@ require("lazy").setup({
 				vim.g.slime_bracketed_paste = 1
 			end,
 		},
+
+		-- {
+		-- 	dir = "/Users/nick/code/nvim-github-codesearch",
+      -- config = function()
+        -- require("github-codesearch").setup({
+          -- -- Your configuration comes here
+          -- -- or leave it empty to use the default settings
+        -- })
+      -- end,
+		-- },
 
 		-- {
 		--   '/Users/nick/code/nvim-dadbod-ext',
