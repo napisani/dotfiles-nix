@@ -60,6 +60,18 @@
             ./homes/home-nicks-axion-ray-mbp.nix
           ];
         };
+
+        "maclab" = builders.mkDarwinSystem {
+          system = "x86_64-darwin";
+          hostname = "maclab";
+          username = "nick";
+          modules = [
+            ./systems/profiles/darwin-personal.nix
+          ];
+          homeModules = [
+            ./homes/home-maclab.nix
+          ];
+        };
       };
 
       nixosConfigurations = {

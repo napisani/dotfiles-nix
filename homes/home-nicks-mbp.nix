@@ -2,6 +2,6 @@
 
   home.sessionVariables = {
     MACHINE_NAME = "nicks-mbp";
-    # PET_ADDL_SNIPPETS = "/Users/nick/.config/pet/nick-mbp-snippets.toml";
+    PET_ADDL_SNIPPETS = "/Users/nick/.config/pet/nick-mbp-snippets.toml";
   };
 }
