@@ -289,12 +289,12 @@ require("lazy").setup({
 
 		-- {
 		-- 	dir = "/Users/nick/code/nvim-github-codesearch",
-      -- config = function()
-        -- require("github-codesearch").setup({
-          -- -- Your configuration comes here
-          -- -- or leave it empty to use the default settings
-        -- })
-      -- end,
+		-- 	config = function()
+		-- 		require("github-codesearch").setup({
+		-- 			-- Your configuration comes here
+		-- 			-- or leave it empty to use the default settings
+		-- 		})
+		-- 	end,
 		-- },
 
 		-- {

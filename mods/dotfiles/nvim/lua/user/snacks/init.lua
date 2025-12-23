@@ -123,7 +123,7 @@ M.opts = get_opts({
 
 	scope = { enabled = false },
 
-	scroll = { enabled = true },
+	scroll = { enabled = false },
 
 	statuscolumn = { enabled = false },
 

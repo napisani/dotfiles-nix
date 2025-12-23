@@ -1,7 +1,8 @@
-{ pkgs, pkgs-unstable, procmux, secret_inject, animal_rescue, scrollbacktamer
+{ config, pkgs, pkgs-unstable, procmux, secret_inject, animal_rescue, scrollbacktamer
 , proctmux, ... }:
 let
   languagePackages = import ./languages/all.nix { inherit pkgs pkgs-unstable; };
+  system = pkgs.stdenv.hostPlatform.system;
 in {
 
   home.packages = with pkgs-unstable;
@@ -30,15 +31,15 @@ in {
       # search for packages on nixos
       nix-search-cli
 
-      secret_inject.packages.${pkgs.system}.default
-      animal_rescue.packages.${pkgs.system}.default
-      scrollbacktamer.packages.${pkgs.system}.default
-      proctmux.packages.${pkgs.system}.default
+      secret_inject.packages.${system}.default
+      animal_rescue.packages.${system}.default
+      scrollbacktamer.packages.${system}.default
+      proctmux.packages.${system}.default
       lazydocker
       tmuxp
       nodemon
       mise
- 
+   
        k9s
 
     ];
