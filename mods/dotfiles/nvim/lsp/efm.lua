@@ -30,6 +30,7 @@ local nixfmt = require("efmls-configs.formatters.nixfmt")
 local cspell = require("efmls-configs.linters.cspell")
 local google_java_format = require("efmls-configs.formatters.google_java_format")
 local gleam_format = require("efmls-configs.formatters.gleam_format")
+local mix = require("efmls-configs.formatters.mix")
 
 local project_lint_config = utils.get_project_config().lint or {}
 
@@ -103,6 +104,7 @@ local languages = {
 	python = { isort, ruff_format, ruff_lint },
 	java = { google_java_format },
 	gleam = { gleam_format },
+	elixir = { mix },
 }
 
 -- add linters to all languages
