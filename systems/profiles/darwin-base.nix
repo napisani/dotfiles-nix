@@ -34,7 +34,7 @@
       "tailscale-app"
       "obsidian"
       "stats"
-      "rectangle"
+      # "rectangle"
       "karabiner-elements"
     ];
 
