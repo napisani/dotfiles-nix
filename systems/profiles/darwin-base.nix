@@ -48,7 +48,7 @@
 
     taps = [
       # "napisani/procmux"
-      "homebrew/cask-versions"
+      # "homebrew/cask-versions"
       "mongodb/brew"
       "koekeishiya/formulae"
     ];
