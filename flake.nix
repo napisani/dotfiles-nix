@@ -3,12 +3,12 @@
   inputs = {
     # Core infrastructure
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    
+
     darwin = {
       url = "github:lnl7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
+
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -22,7 +22,7 @@
       url = "github:napisani/procmux";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
+
     proctmux.url = "github:napisani/proctmux";
     secret_inject.url = "github:napisani/secret_inject";
     animal_rescue.url = "github:napisani/animal-rescue";
@@ -41,37 +41,24 @@
           system = "aarch64-darwin";
           hostname = "nicks-mbp";
           username = "nick";
-          modules = [
-            ./systems/profiles/darwin-personal.nix
-          ];
-          homeModules = [
-            ./homes/home-nicks-mbp.nix
-          ];
+          modules = [ ./systems/profiles/darwin-personal.nix ];
+          homeModules = [ ./homes/home-nicks-mbp.nix ];
         };
 
         "nicks-axion-ray-mbp" = builders.mkDarwinSystem {
           system = "aarch64-darwin";
           hostname = "nicks-axion-ray-mbp";
           username = "nick";
-          modules = [
-            ./systems/profiles/darwin-work.nix
-          ];
-          homeModules = [
-            ./homes/home-nicks-axion-ray-mbp.nix
-          ];
+          modules = [ ./systems/profiles/darwin-work.nix ];
+          homeModules = [ ./homes/home-nicks-axion-ray-mbp.nix ];
         };
 
         "maclab" = builders.mkDarwinSystem {
           system = "x86_64-darwin";
           hostname = "maclab";
           username = "nick";
-          modules = [
-            ./systems/profiles/darwin-personal.nix
-            ./systems/profiles/darwin-maclab.nix
-          ];
-          homeModules = [
-            ./homes/home-maclab.nix
-          ];
+          modules = [ ./systems/profiles/darwin-maclab.nix ];
+          homeModules = [ ./homes/home-maclab.nix ];
         };
       };
 
@@ -80,12 +67,8 @@
           system = "x86_64-linux";
           hostname = "supermicro";
           username = "nick";
-          modules = [
-            ./systems/supermicro/configuration.nix
-          ];
-          homeModules = [
-            ./homes/home-supermicro.nix
-          ];
+          modules = [ ./systems/supermicro/configuration.nix ];
+          homeModules = [ ./homes/home-supermicro.nix ];
         };
       };
     };
