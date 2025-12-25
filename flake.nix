@@ -67,6 +67,7 @@
           username = "nick";
           modules = [
             ./systems/profiles/darwin-personal.nix
+            ./systems/profiles/darwin-maclab.nix
           ];
           homeModules = [
             ./homes/home-maclab.nix
