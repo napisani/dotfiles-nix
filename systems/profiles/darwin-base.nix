@@ -90,5 +90,5 @@
     };
   };
 
-  system.stateVersion = 6;
+  system.stateVersion = 4;
 }
