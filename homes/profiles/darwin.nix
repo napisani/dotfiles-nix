@@ -1,4 +1,11 @@
-{ ... }: {
+{ pkgs, rift, ... }:
+let
+  system = pkgs.stdenv.hostPlatform.system;
+in {
+  home.packages = [
+    rift.packages.${system}.default
+  ];
+
   programs.bash = {
     shellAliases = {
       nixswitchup =

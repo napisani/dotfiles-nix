@@ -11,9 +11,9 @@ rec {
       config.allowUnfree = true;
     };
     # Make custom packages available directly
-    inherit (inputs) procmux proctmux secret_inject animal_rescue scrollbacktamer;
+    inherit (inputs) procmux proctmux secret_inject animal_rescue scrollbacktamer rift;
     customPackages = {
-      inherit (inputs) procmux proctmux secret_inject animal_rescue scrollbacktamer;
+      inherit (inputs) procmux proctmux secret_inject animal_rescue scrollbacktamer rift;
     };
     overlays = [];
     user = "nick";

@@ -27,6 +27,11 @@
     secret_inject.url = "github:napisani/secret_inject";
     animal_rescue.url = "github:napisani/animal-rescue";
     scrollbacktamer.url = "github:napisani/scrollbacktamer";
+
+    rift = {
+      url = "github:napisani/rift/main-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, darwin, ... }@inputs:

@@ -43,7 +43,6 @@
       # "procmux"
       # "sst/tap/opencode"
       "koekeishiya/formulae/yabai"
-      "acsandmann/tap/rift"
     ];
 
     taps = [
