@@ -1,6 +1,6 @@
 import { rule, to$ } from "karabiner.ts";
 
-const riftBin = "/Users/nick/code/rift/target/release/rift-cli";
+const riftBin = "/etc/profiles/per-user/nick/bin/rift-cli";
 
 const TAB_WINDOW_MODE = "tab_window_mode_active";
 const TAB_Q_NESTED_MODE = "tab_q_nested_mode_active";
@@ -11,8 +11,8 @@ const windowFocus = (direction: "left" | "right" | "up" | "down") =>
 const workspaceSwitch = (direction: "next" | "prev") =>
   to$(`${riftBin} execute workspace ${direction}`);
 
-const withDirectionalFallback = (subcommand: string) =>
-  (direction: "left" | "right" | "up" | "down") =>
+const withDirectionalFallback =
+  (subcommand: string) => (direction: "left" | "right" | "up" | "down") =>
     to$(
       `if ${riftBin} execute ${subcommand} --direction ${direction}; then
   :
@@ -284,9 +284,10 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
       type: "basic",
       from: { key_code: "m" },
       to: [
-        to$(
-          "/usr/bin/osascript -e 'tell application \"System Events\" to keystroke \"m\" using {command down}'",
-        ),
+        {
+          key_code: "m",
+          modifiers: ["left_command"],
+        },
       ],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
@@ -297,9 +298,10 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
       type: "basic",
       from: { key_code: "x" },
       to: [
-        to$(
-          "/usr/bin/osascript -e 'tell application \"System Events\" to keystroke \"w\" using {command down}'",
-        ),
+        {
+          key_code: "w",
+          modifiers: ["left_command"],
+        },
       ],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },

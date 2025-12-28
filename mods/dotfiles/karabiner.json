@@ -4446,7 +4446,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window focus --direction left"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus --direction left"
                   }
                 ],
                 "conditions": [
@@ -4469,7 +4469,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window focus --direction down"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus --direction down"
                   }
                 ],
                 "conditions": [
@@ -4492,7 +4492,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window focus --direction up"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus --direction up"
                   }
                 ],
                 "conditions": [
@@ -4515,7 +4515,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window focus --direction right"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus --direction right"
                   }
                 ],
                 "conditions": [
@@ -4538,7 +4538,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute workspace next"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute workspace next"
                   }
                 ],
                 "conditions": [
@@ -4561,7 +4561,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute workspace prev"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute workspace prev"
                   }
                 ],
                 "conditions": [
@@ -4618,7 +4618,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout move-node --direction left; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout move-node left\nfi"
+                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node --direction left; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node left\nfi"
                   }
                 ],
                 "conditions": [
@@ -4641,7 +4641,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout move-node --direction down; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout move-node down\nfi"
+                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node --direction down; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node down\nfi"
                   }
                 ],
                 "conditions": [
@@ -4664,7 +4664,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout move-node --direction up; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout move-node up\nfi"
+                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node --direction up; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node up\nfi"
                   }
                 ],
                 "conditions": [
@@ -4687,7 +4687,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout move-node --direction right; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout move-node right\nfi"
+                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node --direction right; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node right\nfi"
                   }
                 ],
                 "conditions": [
@@ -4710,7 +4710,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout join-window --direction left; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout join-window left\nfi"
+                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window --direction left; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window left\nfi"
                   }
                 ],
                 "conditions": [
@@ -4733,7 +4733,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout join-window --direction up; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout join-window up\nfi"
+                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window --direction up; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window up\nfi"
                   }
                 ],
                 "conditions": [
@@ -4756,7 +4756,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout join-window --direction down; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout join-window down\nfi"
+                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window --direction down; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window down\nfi"
                   }
                 ],
                 "conditions": [
@@ -4779,7 +4779,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /Users/nick/code/rift/target/release/rift-cli execute layout join-window --direction right; then\n  :\nelse\n  /Users/nick/code/rift/target/release/rift-cli execute layout join-window right\nfi"
+                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window --direction right; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window right\nfi"
                   }
                 ],
                 "conditions": [
@@ -4802,7 +4802,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "workspace_data=$(/Users/nick/code/rift/target/release/rift-cli query workspaces)\ntarget=$(RIFT_DIRECTION=next RIFT_WS_JSON=\"$workspace_data\" /usr/bin/env python3 <<'PY'\nimport json, os, sys\n\ndirection = os.environ.get(\"RIFT_DIRECTION\", \"next\")\nworkspace_json = os.environ.get(\"RIFT_WS_JSON\", \"[]\")\n\ndata = json.loads(workspace_json)\nif not data:\n    raise SystemExit(1)\n\nordered = sorted(data, key=lambda ws: ws.get(\"index\", 0))\nactive_idx = next((i for i, ws in enumerate(ordered) if ws.get(\"is_active\")), 0)\n\nif direction == \"next\":\n    indices = list(range(active_idx + 1, len(ordered))) + list(range(0, active_idx))\nelse:\n    indices = list(range(active_idx - 1, -1, -1)) + list(range(len(ordered) - 1, active_idx, -1))\n\nif indices:\n    target_idx = indices[0]\nelse:\n    target_idx = active_idx\n\ntarget = ordered[target_idx].get(\"index\")\nif target is not None:\n    print(target, end=\"\")\nPY\n)\nif [ -n \"$target\" ]; then\n  /Users/nick/code/rift/target/release/rift-cli execute workspace move-window \"$target\"\nfi"
+                    "shell_command": "workspace_data=$(/etc/profiles/per-user/nick/bin/rift-cli query workspaces)\ntarget=$(RIFT_DIRECTION=next RIFT_WS_JSON=\"$workspace_data\" /usr/bin/env python3 <<'PY'\nimport json, os, sys\n\ndirection = os.environ.get(\"RIFT_DIRECTION\", \"next\")\nworkspace_json = os.environ.get(\"RIFT_WS_JSON\", \"[]\")\n\ndata = json.loads(workspace_json)\nif not data:\n    raise SystemExit(1)\n\nordered = sorted(data, key=lambda ws: ws.get(\"index\", 0))\nactive_idx = next((i for i, ws in enumerate(ordered) if ws.get(\"is_active\")), 0)\n\nif direction == \"next\":\n    indices = list(range(active_idx + 1, len(ordered))) + list(range(0, active_idx))\nelse:\n    indices = list(range(active_idx - 1, -1, -1)) + list(range(len(ordered) - 1, active_idx, -1))\n\nif indices:\n    target_idx = indices[0]\nelse:\n    target_idx = active_idx\n\ntarget = ordered[target_idx].get(\"index\")\nif target is not None:\n    print(target, end=\"\")\nPY\n)\nif [ -n \"$target\" ]; then\n  /etc/profiles/per-user/nick/bin/rift-cli execute workspace move-window \"$target\"\nfi"
                   }
                 ],
                 "conditions": [
@@ -4825,7 +4825,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "workspace_data=$(/Users/nick/code/rift/target/release/rift-cli query workspaces)\ntarget=$(RIFT_DIRECTION=prev RIFT_WS_JSON=\"$workspace_data\" /usr/bin/env python3 <<'PY'\nimport json, os, sys\n\ndirection = os.environ.get(\"RIFT_DIRECTION\", \"next\")\nworkspace_json = os.environ.get(\"RIFT_WS_JSON\", \"[]\")\n\ndata = json.loads(workspace_json)\nif not data:\n    raise SystemExit(1)\n\nordered = sorted(data, key=lambda ws: ws.get(\"index\", 0))\nactive_idx = next((i for i, ws in enumerate(ordered) if ws.get(\"is_active\")), 0)\n\nif direction == \"next\":\n    indices = list(range(active_idx + 1, len(ordered))) + list(range(0, active_idx))\nelse:\n    indices = list(range(active_idx - 1, -1, -1)) + list(range(len(ordered) - 1, active_idx, -1))\n\nif indices:\n    target_idx = indices[0]\nelse:\n    target_idx = active_idx\n\ntarget = ordered[target_idx].get(\"index\")\nif target is not None:\n    print(target, end=\"\")\nPY\n)\nif [ -n \"$target\" ]; then\n  /Users/nick/code/rift/target/release/rift-cli execute workspace move-window \"$target\"\nfi"
+                    "shell_command": "workspace_data=$(/etc/profiles/per-user/nick/bin/rift-cli query workspaces)\ntarget=$(RIFT_DIRECTION=prev RIFT_WS_JSON=\"$workspace_data\" /usr/bin/env python3 <<'PY'\nimport json, os, sys\n\ndirection = os.environ.get(\"RIFT_DIRECTION\", \"next\")\nworkspace_json = os.environ.get(\"RIFT_WS_JSON\", \"[]\")\n\ndata = json.loads(workspace_json)\nif not data:\n    raise SystemExit(1)\n\nordered = sorted(data, key=lambda ws: ws.get(\"index\", 0))\nactive_idx = next((i for i, ws in enumerate(ordered) if ws.get(\"is_active\")), 0)\n\nif direction == \"next\":\n    indices = list(range(active_idx + 1, len(ordered))) + list(range(0, active_idx))\nelse:\n    indices = list(range(active_idx - 1, -1, -1)) + list(range(len(ordered) - 1, active_idx, -1))\n\nif indices:\n    target_idx = indices[0]\nelse:\n    target_idx = active_idx\n\ntarget = ordered[target_idx].get(\"index\")\nif target is not None:\n    print(target, end=\"\")\nPY\n)\nif [ -n \"$target\" ]; then\n  /etc/profiles/per-user/nick/bin/rift-cli execute workspace move-window \"$target\"\nfi"
                   }
                 ],
                 "conditions": [
@@ -4848,7 +4848,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window toggle-float"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window toggle-float"
                   }
                 ],
                 "conditions": [
@@ -4871,7 +4871,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute window toggle-fullscreen-within-gaps"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window toggle-fullscreen-within-gaps"
                   }
                 ],
                 "conditions": [
@@ -4894,7 +4894,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout toggle-orientation"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout toggle-orientation"
                   }
                 ],
                 "conditions": [
@@ -4917,7 +4917,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute layout toggle-stack"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout toggle-stack"
                   }
                 ],
                 "conditions": [
@@ -4940,7 +4940,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/Users/nick/code/rift/target/release/rift-cli execute workspace create"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute workspace create"
                   }
                 ],
                 "conditions": [
@@ -4963,7 +4963,10 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/usr/bin/osascript -e 'tell application \"System Events\" to keystroke \"m\" using {command down}'"
+                    "key_code": "m",
+                    "modifiers": [
+                      "left_command"
+                    ]
                   }
                 ],
                 "conditions": [
@@ -4986,7 +4989,10 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/usr/bin/osascript -e 'tell application \"System Events\" to keystroke \"w\" using {command down}'"
+                    "key_code": "w",
+                    "modifiers": [
+                      "left_command"
+                    ]
                   }
                 ],
                 "conditions": [

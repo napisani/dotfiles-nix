@@ -2,9 +2,9 @@
   homebrew = {
     masApps = { };
 
-    casks = [ "slack" "discord" "cryptomator" "docker-desktop" ];
+    casks = [ "slack" "discord" "cryptomator" "docker-desktop" "bambu-studio" ];
 
-    brews = [ "helm" ];
+    brews = [ "helm" "opencode"];
 
     taps = [ ];
   };
