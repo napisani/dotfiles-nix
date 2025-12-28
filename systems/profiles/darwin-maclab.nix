@@ -4,7 +4,14 @@
   homebrew = {
     masApps = { };
 
-    casks = [ "slack" "discord" "cryptomator" "docker-desktop" "bambu-studio" ];
+    casks = [
+      "slack"
+      "discord"
+      "cryptomator"
+      "docker-desktop"
+      "bambu-studio"
+      "bluebubbles"
+    ];
 
     brews = [
       "helm"
