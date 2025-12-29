@@ -8,7 +8,7 @@
       "docker-desktop"
     ];
     
-    brews = [];
+    brews = ["opencode"];
     
     taps = [];
   };

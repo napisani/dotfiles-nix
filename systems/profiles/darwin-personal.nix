@@ -4,7 +4,7 @@
 
     casks = [ "slack" "discord" "cryptomator" "docker-desktop" "bambu-studio" ];
 
-    brews = [ "helm" "opencode"];
+    brews = [ "helm" ];
 
     taps = [ ];
   };

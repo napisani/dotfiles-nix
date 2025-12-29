@@ -31,6 +31,7 @@
       "bitwarden"
       "caffeine"
       "firefox@developer-edition"
+      "brave-browser"
       "tailscale-app"
       "obsidian"
       "stats"
@@ -43,6 +44,7 @@
       # "procmux"
       # "sst/tap/opencode"
       "koekeishiya/formulae/yabai"
+      "opencode"
     ];
 
     taps = [

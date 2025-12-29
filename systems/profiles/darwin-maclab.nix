@@ -16,7 +16,6 @@
     brews = [
       "helm"
 
-      "opencode"
     ];
 
     taps = [ ];
