@@ -110,6 +110,13 @@
     ".config/.secret_inject.json".source = ./dotfiles/secret_inject.json;
   };
 
-  home.sessionPath = [ "$HOME/shell_scripts" ];
+  # this is a cross-shell way to add to PATH
+  # but becahse of brew using shellenv being called in the 
+  # .baskrc we can't use this to add to the PATH (it gets overwritten)
+  # home.sessionPath = [
+  #   # this supports `uv tool install <x>`
+  #   "${config.home.homeDirectory}/.local/bin"
+  #   "${config.home.homeDirectory}/shell_scripts"
+  # ];
 }
 
