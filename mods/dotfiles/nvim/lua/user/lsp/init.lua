@@ -24,7 +24,7 @@ vim.lsp.enable({
 	"basedpyright",
 	"ruff",
 	"yamlls",
-	"elixirls",
+	"expert",
 	-- "learnls",
 })
 

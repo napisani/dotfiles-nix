@@ -25,7 +25,7 @@
         "mcp-remote",
         "https://mcp.atlassian.com/v1/sse"
       ],
-      "enabled": false 
+      "enabled": false
     },
     "mongodb": {
       "type": "local",
@@ -50,6 +50,10 @@
       "environment": {
         "PG_MCP_CONNECTION_STRING": "postgresql://postgres:postgres@localhost:5432/postgres"
       }
+    },
+    "gh_codesearch": {
+      "type": "remote",
+      "url": "https://mcp.grep.app"
     }
   },
   "tools": {}
