@@ -8,7 +8,8 @@ LOG_FILE="/var/log/backup.sh.log"
 
 # Define backup pairs in "source:target" format. Order is preserved.
 BACKUP_PAIRS=(
-	"/home/nick:${STORAGE_MOUNT_POINT}/computer_backups/supermicro/home"
+	"/home/nick/local_kube_data:${STORAGE_MOUNT_POINT}/computer_backups/supermicro/local_kube_data"
+	"/home/nick/local_kube_config:${STORAGE_MOUNT_POINT}/computer_backups/supermicro/home/local_kube_config"
 	"${STORAGE_MOUNT_POINT}:${BACKUP_MOUNT_POINT}/storage"
 )
 
