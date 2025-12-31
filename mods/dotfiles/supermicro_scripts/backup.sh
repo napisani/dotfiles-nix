@@ -60,10 +60,12 @@ notify() {
 		return 0
 	fi
 
-	local payload
-	payload="$(date -Is) ${TAG} [${status}] ${message}"
+	local timestamp
+	timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 
-	curl -fsS --data-urlencode "message=${payload}" "${NTFY_TOPIC}" >/dev/null 2>&1 || log_warn "Failed to send notification: ${payload}"
+	local payload="${timestamp} ${TAG} [${status}] ${message}"
+
+	curl -fsS -H "Content-Type: text/plain; charset=utf-8" --data-raw "${payload}" "${NTFY_TOPIC}" >/dev/null 2>&1 || log_warn "Failed to send notification: ${payload}"
 }
 
 log() {
