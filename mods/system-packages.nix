@@ -15,7 +15,7 @@ in {
     kubekill
     opencode
     # for fixing the backup disk occasionally
-    # hfsplus
+    hfsplus
   ];
 
 }
