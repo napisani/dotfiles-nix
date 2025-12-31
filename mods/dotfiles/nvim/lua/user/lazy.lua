@@ -133,7 +133,7 @@ require("lazy").setup({
 				"nvim-lua/plenary.nvim", -- required
 				"sindrets/diffview.nvim", -- optional - Diff integration
 
-				"nvim-telescope/telescope.nvim", -- optional
+				"folke/snacks.nvim", -- optional
 			},
 		},
 
@@ -267,10 +267,8 @@ require("lazy").setup({
 		-- for better substitutions/subverts
 		{
 			"johmsalas/text-case.nvim",
-			dependencies = { "nvim-telescope/telescope.nvim" },
 			config = function()
 				require("textcase").setup({})
-				require("telescope").load_extension("textcase")
 			end,
 			-- If you want to use the interactive feature of the `Subs` command right away, text-case.nvim
 			-- has to be loaded on startup. Otherwise, the interactive feature of the `Subs` will only be

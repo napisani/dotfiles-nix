@@ -25,7 +25,7 @@ Each plugin module can export:
 - `get_keymaps()` - Returns keymaps that are automatically registered with which-key
 
 **Adding a New Plugin:**
-1. Install the plugin in `lua/user/core/lazy.lua`
+1. Install the plugin in `lua/user/lazy.lua`
 2. Create a module in `lua/user/plugins/<category>/<name>.lua`
 3. Register the module path in `lua/user/plugin_registry.lua` (maintains load order)
 4. Implement `setup()` and optionally `get_keymaps()`

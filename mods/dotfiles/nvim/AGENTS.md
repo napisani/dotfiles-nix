@@ -43,7 +43,7 @@ nvim --headless -c "checkhealth" -c "qa"
 ### Adding New Plugins
 When adding new neovim plugins, follow this workflow:
 
-1. **Install the plugin** in `mods/dotfiles/nvim/lua/user/core/lazy.lua`
+1. **Install the plugin** in `mods/dotfiles/nvim/lua/user/lazy.lua`
 2. **Create a plugin module** in `mods/dotfiles/nvim/lua/user/plugins/<category>/<name>.lua`
    - Categories: `ai`, `code`, `database`, `debug`, `editing`, `git`, `navigation`, `ui`, `util`
 3. **Register in plugin_registry.lua** - Add the module path to the `M.modules` array in the appropriate position

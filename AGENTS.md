@@ -118,7 +118,7 @@ nvim --headless -c "checkhealth" -c "qa"
 - **Error handling**: Always use `pcall()` when requiring plugins that might not be installed
 
 ### Architecture Patterns
-- **Plugin manager**: lazy.nvim - plugins defined in `lua/user/core/lazy.lua`
+- **Plugin manager**: lazy.nvim - plugins defined in `lua/user/lazy.lua`
 - **Plugin registry**: Centralized module registry in `lua/user/plugin_registry.lua`
 - **LSP setup**: Separate config files in `lsp/` directory for each language server
 - **Modular structure**: Each feature has its own file with `setup()` function
@@ -134,7 +134,7 @@ nvim --headless -c "checkhealth" -c "qa"
 - **Utility modules**: Helper functions in `utils/` (file_utils, git_utils, project_utils, collection_utils)
 
 ### Adding New Plugins
-1. **Install the plugin** in `lua/user/core/lazy.lua`
+1. **Install the plugin** in `lua/user/lazy.lua`
 2. **Create a plugin module** in `lua/user/plugins/<category>/<name>.lua`
    - Categories: `ai`, `code`, `database`, `debug`, `editing`, `git`, `navigation`, `ui`, `util`
 3. **Register in plugin_registry.lua** - Add the module path to the `M.modules` array in the appropriate position
