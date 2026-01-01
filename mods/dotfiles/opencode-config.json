@@ -56,5 +56,9 @@
       "url": "https://mcp.grep.app"
     }
   },
-  "tools": {}
+  "tools": {},
+  "keybinds": {
+    "input_submit": "ctrl+g",
+    "input_newline": "return"
+  }
 }
