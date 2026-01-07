@@ -22,6 +22,9 @@ function M.setup()
 
 		adapters = {
 			http = {
+				opts = {
+					show_model_choices = true,
+				},
 				copilot = function()
 					return require("codecompanion.adapters").extend("copilot", {
 						schema = {
@@ -31,11 +34,55 @@ function M.setup()
 						},
 					})
 				end,
+				openai = function()
+					return require("codecompanion.adapters").extend("openai", {
+						schema = {
+							model = {
+								default = "gpt-4.1-mini",
+								choices = {
+									"gpt-4.1-mini",
+									"gpt-4.1",
+									"gpt-4o",
+									"gpt-4o-mini",
+								},
+							},
+						},
+					})
+				end,
+				openai_responses = function()
+					return require("codecompanion.adapters").extend("openai_responses", {
+						schema = {
+							model = {
+								default = "gpt-5.1-codex",
+								choices = {
+									"gpt-5.1-codex",
+									"gpt-5.1",
+									"gpt-4.1",
+									"gpt-4o",
+								},
+							},
+						},
+						available_tools = {
+							web_search = {
+								enabled = function(_)
+									return false
+								end,
+							},
+						},
+					})
+				end,
 				githubmodels = function()
 					return require("codecompanion.adapters").extend("githubmodels", {
 						schema = {
 							model = {
 								default = "gpt-4.1",
+								choices = {
+									"gpt-4.1",
+									"gpt-4.1-mini",
+									"claude-3.5-sonnet",
+									"github-copilot/claude-sonnet-4.5",
+									"github-copilot/claude-opus-4.5",
+								},
 							},
 						},
 					})
@@ -44,7 +91,43 @@ function M.setup()
 				gemini = function()
 					return require("codecompanion.adapters").extend("gemini", {
 						env = {
-							api_key = "cmd: echo $GEMINI_API_KEY",
+							api_key = "GEMINI_API_KEY",
+						},
+					})
+				end,
+			},
+			acp = {
+				opts = {
+					show_presets = false,
+				},
+				opencode = function()
+					return require("codecompanion.adapters").extend("opencode", {
+						commands = {
+							default = { "opencode", "acp" },
+							copilot_sonnet_4_5 = {
+								"opencode",
+								"acp",
+								"-m",
+								"github-copilot/claude-sonnet-4.5",
+							},
+							copilot_opus_4_5 = {
+								"opencode",
+								"acp",
+								"-m",
+								"github-copilot/claude-opus-4.5",
+							},
+							anthropic_sonnet_4_5 = {
+								"opencode",
+								"acp",
+								"-m",
+								"anthropic/claude-sonnet-4.5",
+							},
+							anthropic_opus_4_5 = {
+								"opencode",
+								"acp",
+								"-m",
+								"anthropic/claude-opus-4.5",
+							},
 						},
 					})
 				end,
@@ -54,7 +137,10 @@ function M.setup()
 		strategies = {
 			cmd = { adapter = "githubmodels" },
 			inline = {
-				adapter = "githubmodels",
+				adapter = {
+					name = "openai",
+					model = "gpt-4.1-mini",
+				},
 				keymaps = {
 					accept_change = {
 						modes = { n = "<leader>ma" },
@@ -65,7 +151,10 @@ function M.setup()
 				},
 			},
 			chat = {
-				adapter = "githubmodels",
+				adapter = {
+					name = "openai_responses",
+					model = "gpt-5.1-codex",
+				},
 
 				keymaps = {
 					send = {
@@ -80,6 +169,23 @@ function M.setup()
 					},
 					change_adapter = {
 						modes = { n = "<leader>aw" },
+					},
+					change_model = {
+						modes = { n = "<leader>aW" },
+						description = "Change model",
+						callback = function(chat)
+							local change_adapter = require("codecompanion.interactions.chat.keymaps.change_adapter")
+							if chat.adapter.type == "http" then
+								change_adapter.select_model(chat)
+							elseif chat.adapter.type == "acp" then
+								change_adapter.select_command(chat)
+							else
+								require("codecompanion.utils").notify(
+									"Current adapter does not support model selection",
+									vim.log.levels.WARN
+								)
+							end
+						end,
 					},
 				},
 			},
@@ -123,6 +229,7 @@ function M.get_keymaps()
 
 			{ "<leader>aq", "<cmd>:CodeCompanionChat Toggle<cr>", desc = "(q)uit chat" },
 			{ "<leader>aw", desc = "s(w)itch adapter" },
+			{ "<leader>aW", desc = "s(W)itch model" },
 
 			{ "<leader>af", group = "(f)ind context" },
 
