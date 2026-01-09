@@ -38,6 +38,37 @@ if command -v git &> /dev/null ; then
     cd "$DIR"
   }
 
+  function git-local-ignore() {
+    local root
+    root=$(project-root-dir)
+    if [ -z "$root" ]; then
+      return 1
+    fi
+
+    local file="$root/.gitignore_local"
+    if [ ! -f "$file" ]; then
+      touch "$file"
+    fi
+
+    local exclude="$root/.git/info/exclude"
+    mkdir -p "$root/.git/info"
+    if [ ! -f "$exclude" ]; then
+      touch "$exclude"
+    fi
+
+    if ! grep -qxF ".gitignore_local" "$exclude"; then
+      printf "%s\n" ".gitignore_local" >> "$exclude"
+    fi
+
+    git -C "$root" config --local core.excludesFile .gitignore_local
+
+    if [ -n "${EDITOR:-}" ]; then
+      "$EDITOR" "$file"
+    else
+      nvim "$file"
+    fi
+  }
+
 
   alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
   export GIT_SSL_NO_VERIFY=true
