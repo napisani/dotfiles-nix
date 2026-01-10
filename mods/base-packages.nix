@@ -1,5 +1,5 @@
-{ config, pkgs, pkgs-unstable, procmux, secret_inject, animal_rescue, scrollbacktamer
-, proctmux, ... }:
+{ config, pkgs, pkgs-unstable, procmux, secret_inject, animal_rescue
+, scrollbacktamer, proctmux, ... }:
 let
   languagePackages = import ./languages/all.nix { inherit pkgs pkgs-unstable; };
   system = pkgs.stdenv.hostPlatform.system;
@@ -35,12 +35,14 @@ in {
       animal_rescue.packages.${system}.default
       scrollbacktamer.packages.${system}.default
       proctmux.packages.${system}.default
-      lazydocker
       tmuxp
       nodemon
       mise
-   
-       k9s
+
+      k9s
+
+      lazysql
+      lazydocker
 
     ];
 
