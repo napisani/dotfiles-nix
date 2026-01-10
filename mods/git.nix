@@ -1,13 +1,4 @@
 {
-  xdg.configFile."git/template/config".text = builtins.concatStringsSep "\n" [
-    "[core]"
-    "    excludesFile = .gitignore_local"
-    ""
-  ];
-
-  xdg.configFile."git/template/info/exclude".text =
-    builtins.concatStringsSep "\n" [ ".gitignore_local" "" ];
-
   programs.git = {
     enable = true;
     ignores = [ "*~" ".DS_Store" ".direnv" ".env.local" ".env" ".rgignore" ];
@@ -29,10 +20,7 @@
       commit = { verbose = true; };
       branch = { sort = "-committerdate"; };
       column = { ui = "auto"; };
-      init = {
-        defaultBranch = "main";
-        templateDir = "~/.config/git/template";
-      };
+      init = { defaultBranch = "main"; };
       rebase = {
         updateRefs = true;
         autoSqaush = true;
