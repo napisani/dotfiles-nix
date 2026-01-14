@@ -60,5 +60,8 @@
   "keybinds": {
     "input_submit": "ctrl+g",
     "input_newline": "return"
-  }
+  },
+  "plugin": [
+    "opencode-antigravity-auth@beta"
+  ]
 }

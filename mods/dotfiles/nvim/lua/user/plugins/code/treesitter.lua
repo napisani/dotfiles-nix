@@ -63,7 +63,7 @@ function M.setup()
 			if ft == "" or indent_disable[ft] then
 				return
 			end
-			vim.bo[event.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+			vim.bo[event.buf].indentexpr = "nvim_treesitter#indent()"
 		end,
 	})
 
