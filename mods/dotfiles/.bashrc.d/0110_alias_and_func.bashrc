@@ -75,6 +75,25 @@ function kill-all() {
   ps aux | grep "$WHAT" | grep -v grep | awk '{print $2}' | xargs kill -9
 }
 
+rift-activate() {
+  for cmd in rift rift-cli; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+      echo "activate-rift-window-manager: '$cmd' not found in PATH" >&2
+      return 1
+    fi
+  done
+
+  pkill -f "[r]ift" >/dev/null 2>&1 || true
+
+  rift >/dev/null 2>&1 &
+  local rift_pid=$!
+  disown "$rift_pid" 2>/dev/null || true
+
+  sleep 1
+
+  rift-cli execute space toggle-activated
+}
+
 function color-test {
   awk -v term_cols="${width:-$(tput cols || echo 80)}" -v term_lines="${height:-1}" 'BEGIN{
       s="/\\";

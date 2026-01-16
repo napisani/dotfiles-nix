@@ -2,7 +2,7 @@
 with pkgs-unstable; [
   # Nix
   statix
-  nixfmt-classic
+  nixfmt
   nil
 
 ]
