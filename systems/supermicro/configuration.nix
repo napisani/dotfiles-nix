@@ -127,9 +127,9 @@
     enable = true;
     nmbd.enable = true;
     openFirewall = true;
-    workgroup = "WORKGROUP";
     securityType = "user";
     extraConfig = ''
+      workgroup = WORKGROUP
       map to guest = Bad User
       server min protocol = SMB2
     '';
