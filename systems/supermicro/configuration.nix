@@ -2,10 +2,16 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
-  imports = [ # Include the results of the hardware scan.
+  imports = [
+    # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ../../mods/system-packages.nix
     # ../mods/shell.nix
@@ -16,7 +22,10 @@
     # ../mods/golang.nix
     # ../mods/neovim.nix
   ];
-  networking.nameservers = [ "8.8.8.8" "9.9.9.9" ];
+  networking.nameservers = [
+    "8.8.8.8"
+    "9.9.9.9"
+  ];
   # Use the GRUB 2 boot loader.
   # boot.loader.grub.enable = true;
 
@@ -34,7 +43,9 @@
   networking.hostId = "14ad4931";
 
   # Add the sysctl parameter for inotify max_user_instances
-  boot.kernel.sysctl = { "fs.inotify.max_user_instances" = 512; };
+  boot.kernel.sysctl = {
+    "fs.inotify.max_user_instances" = 512;
+  };
   # boot.loader.grub.efiSupport = true;
   # boot.loader.grub.efiInstallAsRemovable = true;
   # boot.loader.efi.efiSysMountPoint = "/boot/efi";
@@ -81,8 +92,11 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.nick = {
     isNormalUser = true;
-    extraGroups =
-      [ "wheel" "docker" "kube-pods" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [
+      "wheel"
+      "docker"
+      "kube-pods"
+    ]; # Enable ‘sudo’ for the user.
     openssh.authorizedKeys.keys = [
       "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCtAGvt/B1nDT4FjDde2a5P91roW0QLqJU3aNrEdQ1zCcqPy+Hj39OXu1zc1i0TGOrZpBHReFqZn2Je8UAIzYpSqBSuxIiCFJvzsfkjeKF2HmWCECqBpNDxblp87DdoQv6sKqB9zroJ9CAnJS/+alLyNX2/JSNMvHt6dOQE5DF6QV3TlReEzFZx+E7nzOGDW7Ph6VhOzkqHNL6D68niOM0Slvj4wFTD+prZJe4Y5lFY6YI0y/UGvMqcnxicJhpiA5KqQgRrLqirtDI9MHk7sTxwVnGkOuBpn6sEZz+AncVhM37jhGvINN1FKiVAUP4iZ5cxAjHLhCI8yfCEy84ytSUEXWxwWO8uP7jHy0qCRO7cWhA7xSfHT7cGuGofY/MNgF85t2Bgj0NG36rtpd7XWj5QIn2S89c9MbIu+Zw9MYluHhyOsbi35KoC/e4HnJWtX2pe5TNwfi41wBWLkH1vET8cd9zLj7VT5SGiL0UhWA9As67G0jZ/1juGzJ/lj+DQBkU= olivetin@olivetin-f5bd7df78-5ncnp"
     ];
@@ -108,6 +122,31 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+
+  services.samba = {
+    enable = true;
+    nmbd.enable = true;
+    openFirewall = true;
+    workgroup = "WORKGROUP";
+    securityType = "user";
+    extraConfig = ''
+      map to guest = Bad User
+      server min protocol = SMB2
+    '';
+    shares = {
+      storage = {
+        path = "/media/storage";
+        comment = "Supermicro storage";
+        browseable = "yes";
+        "read only" = "no";
+        "guest ok" = "no";
+        "valid users" = "nick";
+        "force user" = "nick";
+        "create mask" = "0664";
+        "directory mask" = "0775";
+      };
+    };
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];

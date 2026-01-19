@@ -1,12 +1,24 @@
-{ config, pkgs, pkgs-unstable, procmux, secret_inject, animal_rescue
-, scrollbacktamer, proctmux, ... }:
+{
+  config,
+  pkgs,
+  pkgs-unstable,
+  procmux,
+  secret_inject,
+  animal_rescue,
+  scrollbacktamer,
+  proctmux,
+  ...
+}:
 let
   languagePackages = import ./languages/all.nix { inherit pkgs pkgs-unstable; };
   system = pkgs.stdenv.hostPlatform.system;
-in {
+in
+{
 
-  home.packages = with pkgs-unstable;
-    languagePackages ++ [
+  home.packages =
+    with pkgs-unstable;
+    languagePackages
+    ++ [
       tmux
       pkgs.bashInteractive
       bat
@@ -43,6 +55,7 @@ in {
 
       lazysql
       lazydocker
+      bitwarden-cli
 
     ];
 
