@@ -133,9 +133,11 @@
         "workgroup" = "WORKGROUP";
         "map to guest" = "Bad User";
         "server min protocol" = "SMB2";
+        "unix password sync" = "yes";
+        "pam password change" = "yes";
+        "obey pam restrictions" = "yes";
+        "passdb backend" = "tdbsam";
       };
-    };
-    shares = {
       storage = {
         path = "/media/storage";
         comment = "Supermicro storage";
