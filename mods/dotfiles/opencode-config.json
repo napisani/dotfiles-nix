@@ -62,6 +62,12 @@
     "input_newline": "return"
   },
   "plugin": [
-    "opencode-antigravity-auth@beta"
-  ]
+    "opencode-antigravity-auth@latest",
+    "yet-another-opencode-cursor-auth"
+  ],
+  "provider": {
+    "cursor": {
+      "name": "Cursor"
+    }
+  }
 }

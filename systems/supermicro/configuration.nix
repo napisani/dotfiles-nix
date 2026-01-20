@@ -128,11 +128,13 @@
     nmbd.enable = true;
     openFirewall = true;
     securityType = "user";
-    extraConfig = ''
-      workgroup = WORKGROUP
-      map to guest = Bad User
-      server min protocol = SMB2
-    '';
+    settings = {
+      global = {
+        "workgroup" = "WORKGROUP";
+        "map to guest" = "Bad User";
+        "server min protocol" = "SMB2";
+      };
+    };
     shares = {
       storage = {
         path = "/media/storage";
