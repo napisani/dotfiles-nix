@@ -1,4 +1,5 @@
-{ pkgs, config, ... }: {
+{ pkgs, config, ... }:
+{
   programs = {
     fzf = {
       enable = true;
@@ -50,33 +51,61 @@
   home.file = {
     ".config/pet".source = ./dotfiles/pet;
     ".aider.conf.yml".source = ./dotfiles/aider.conf.yml;
-    ".config/mcphub/servers.json".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/mcphub-servers.json";
-    ".aerospace.toml".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.aerospace.toml";
+    ".config/mcphub/servers.json".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/mcphub-servers.json";
+    ".aerospace.toml".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.aerospace.toml";
     "Library/Application Support/com.mitchellh.ghostty/config".source =
-      config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/ghostty-config";
-    "global_python_scripts".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/global_python_scripts";
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/ghostty-config";
+    "global_python_scripts".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/global_python_scripts";
 
-    "shell_scripts".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/shell_scripts";
+    "shell_scripts".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/shell_scripts";
 
-    ".config/tmux/tmux.conf".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.tmux.conf";
-    ".config/opencode/config.json".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode-config.json";
+    ".config/tmux/tmux.conf".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.tmux.conf";
+    ".config/opencode/config.json".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode-config.json";
 
-    ".config/opencode/command".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/command";
+    ".config/opencode/commands".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/commands";
 
-    ".config/opencode/agent".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/agent";
+    ".config/opencode/agents".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/agents";
+
+    ".config/opencode/modes".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/modes";
+
+    ".config/opencode/plugins".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/plugins";
+
+    ".config/opencode/themes".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/themes";
+
+    ".config/opencode/skills".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/skills";
+
+    ".opencode/agents".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/agents";
+
+    ".opencode/commands".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/commands";
+
+    ".opencode/modes".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/modes";
+
+    ".opencode/plugins".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/plugins";
+
+    ".opencode/themes".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/themes";
+
+    ".opencode/skills".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/skills";
 
     ".config/karabiner/karabiner.json" = {
-      source = config.lib.file.mkOutOfStoreSymlink
-        "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/karabiner.json";
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/karabiner.json";
       force = true;
     };
 
@@ -85,12 +114,11 @@
       executable = true;
     };
 
-    ".config/rift/config.toml".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/riftrc";
+    ".config/rift/config.toml".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/riftrc";
 
     ".config/alacritty/alacritty.toml".source =
-      config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/alacritty.toml";
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/alacritty.toml";
 
     ".aider.model.settings.yml".source = ./dotfiles/aider.model.settings.yml;
     ".bashrc.d".source = ./dotfiles/.bashrc.d;
@@ -104,14 +132,13 @@
       sha256 = "hW8mfwB8F9ZkTQ72WQp/1fy8KL1IIYMZBtZYIwZdMQc=";
     };
     ".config/discordo/config.toml".source = ./dotfiles/discordo-config.toml;
-    "/Library/Application Support/discordo/config.toml".source =
-      ./dotfiles/discordo-config.toml;
+    "/Library/Application Support/discordo/config.toml".source = ./dotfiles/discordo-config.toml;
     ".config/starship.toml".source = ./dotfiles/starship.toml;
     ".config/.secret_inject.json".source = ./dotfiles/secret_inject.json;
   };
 
   # this is a cross-shell way to add to PATH
-  # but becahse of brew using shellenv being called in the 
+  # but becahse of brew using shellenv being called in the
   # .baskrc we can't use this to add to the PATH (it gets overwritten)
   # home.sessionPath = [
   #   # this supports `uv tool install <x>`
@@ -119,4 +146,3 @@
   #   "${config.home.homeDirectory}/shell_scripts"
   # ];
 }
-

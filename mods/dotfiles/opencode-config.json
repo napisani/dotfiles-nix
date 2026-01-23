@@ -20,12 +20,18 @@
     "atlassian": {
       "type": "local",
       "command": [
-        "npx",
-        "-y",
-        "mcp-remote",
-        "https://mcp.atlassian.com/v1/sse"
+        "uvx",
+        "--python=3.12",
+        "mcp-atlassian",
+        "--no-jira-ssl-verify",
+        "--no-confluence-ssl-verify"
       ],
-      "enabled": false
+      "environment": {
+        "JIRA_URL": "https://axionray.atlassian.net",
+        "JIRA_USERNAME": "nick.pisani@axionray.com",
+        "JIRA_API_TOKEN": "{env:JIRA_API_TOKEN}"
+      },
+      "enabled": true
     },
     "mongodb": {
       "type": "local",
@@ -37,7 +43,8 @@
       ],
       "environment": {
         "MDB_MCP_CONNECTION_STRING": "mongodb://localhost:27017/?directConnection=true"
-      }
+      },
+      "enabled": false
     },
     "postgres": {
       "type": "local",
@@ -49,7 +56,8 @@
       ],
       "environment": {
         "PG_MCP_CONNECTION_STRING": "postgresql://postgres:postgres@localhost:5432/postgres"
-      }
+      },
+      "enabled": false
     },
     "gh_codesearch": {
       "type": "remote",
@@ -57,6 +65,13 @@
     }
   },
   "tools": {},
+  "command": {
+    "ticket-and-pr": {
+      "template": "You are compiling a concise status that links a Jira/GitHub ticket with its pull request details.\nInput context: $ARGUMENTS\nRespond with:\n- Ticket: include key, title, owner, current status, and blockers.\n- PR: summarize scope, testing status, and review/merge requirements.\n- Next Actions: bullet list of concrete steps for the assignee and reviewers.\nKeep it actionable and mention any missing info to request from the user.",
+      "description": "Summarize ticket + PR status and next steps",
+      "agent": "build"
+    }
+  },
   "keybinds": {
     "input_submit": "ctrl+g",
     "input_newline": "return"
@@ -67,7 +82,7 @@
   ],
   "provider": {
     "cursor": {
-      "name": "Cursor"
+      "name": "cursor"
     }
   }
 }
