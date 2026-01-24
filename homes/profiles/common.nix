@@ -1,4 +1,13 @@
-{ inputs, lib, config, pkgs, user, overlays, ... }: {
+{
+  inputs,
+  lib,
+  config,
+  pkgs,
+  user,
+  overlays,
+  ...
+}:
+{
   imports = [
     ../../mods/base-packages.nix
     ../../mods/shell.nix
@@ -6,6 +15,7 @@
     ../../mods/gh.nix
     ../../mods/neovim.nix
     ../../mods/ui-packages.nix
+    ../../mods/uvx.nix
   ];
 
   nixpkgs = {

@@ -8,10 +8,12 @@ if [ -z "$name" ]; then
 	name="scratch"
 fi
 
+current_path="$(tmux display-message -p '#{pane_current_path}')"
+
 session="_popup_$(tmux display -p '#S')_$name"
 
 if ! tmux has -t "$session" 2>/dev/null; then
-	session_id="$(tmux new-session -dP -s "$session" -F '#{session_id}')"
+	session_id="$(tmux new-session -dP -s "$session" -c "$current_path" -F '#{session_id}')"
 	tmux set-option -s -t "$session_id" key-table popup
 	tmux set-option -s -t "$session_id" status off
 	session="$session_id"

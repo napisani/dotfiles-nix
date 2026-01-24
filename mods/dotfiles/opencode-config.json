@@ -83,6 +83,21 @@
   "provider": {
     "cursor": {
       "name": "cursor"
+    },
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "ollama",
+      "options": {
+        "baseURL": "https://ollama.napisani.xyz/v1"
+      },
+      "models": {
+        "qwen3:1.7b": {
+          "name": "qwen3:1.7b"
+        },
+        "qwen3:0.6b": {
+          "name": "qwen3:0.6b"
+        }
+      }
     }
   }
 }
