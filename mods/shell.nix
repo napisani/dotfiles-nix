@@ -134,7 +134,16 @@
     ".config/discordo/config.toml".source = ./dotfiles/discordo-config.toml;
     "/Library/Application Support/discordo/config.toml".source = ./dotfiles/discordo-config.toml;
     ".config/starship.toml".source = ./dotfiles/starship.toml;
-    ".config/.secret_inject.json".source = ./dotfiles/secret_inject.json;
+    ".config/.secret_inject.json".source =
+      let
+        machineName = config.home.sessionVariables.MACHINE_NAME or "";
+        secretFile =
+          if machineName == "axion-mbp" then
+            ./dotfiles/axion_secret_inject.json
+          else
+            ./dotfiles/personal_secret_inject.json;
+      in
+      secretFile;
   };
 
   # this is a cross-shell way to add to PATH

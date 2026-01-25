@@ -55,7 +55,7 @@ in
 
       lazysql
       lazydocker
-      bitwarden-cli
+      # bitwarden-cli
 
     ];
 
