@@ -16,6 +16,7 @@
     ../../mods/neovim.nix
     ../../mods/ui-packages.nix
     ../../mods/uvx.nix
+    ../../mods/npmx.nix
   ];
 
   nixpkgs = {

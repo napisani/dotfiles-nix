@@ -1,6 +1,7 @@
 { pkgs, pkgs-unstable, ... }:
 
-with pkgs-unstable; [
+with pkgs-unstable;
+[
   pkgs-unstable.deno
   pkgs-unstable.nodejs
   pkgs-unstable.bun
@@ -22,6 +23,6 @@ with pkgs-unstable; [
   nodePackages.fixjson
   jq
 
-  # yaml 
+  # yaml
   yq
 ]

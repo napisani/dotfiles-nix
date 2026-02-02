@@ -29,7 +29,7 @@ M.modules = {
 	"code.treesitter",
 	"code.blink",
 	-- Editing plugins
-	"editing.autopairs",
+	-- "editing.autopairs",
 	"editing.comment",
 	"navigation.nvim-tree",
 	-- UI plugins (remaining)

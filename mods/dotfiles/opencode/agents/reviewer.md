@@ -1,7 +1,6 @@
 ---
 description: Reviews code for quality and best practices
 mode: subagent 
-model: cursor/opus-4.5-thinking
 temperature: 0.1
 tools:
   write: false

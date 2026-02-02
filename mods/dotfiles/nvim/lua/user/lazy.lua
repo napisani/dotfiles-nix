@@ -35,7 +35,7 @@ require("lazy").setup({
 		{ "nvim-lua/plenary.nvim" },
 
 		-- Autopairs, integrates with both cmp and treesitter
-		{ "windwp/nvim-autopairs" },
+		-- { "windwp/nvim-autopairs" },
 
 		{ "tpope/vim-commentary" },
 		{ "JoosepAlviste/nvim-ts-context-commentstring" },

@@ -1,7 +1,6 @@
 ---
 description: Create A PR with a new, currently non-existent, ticket 
 agent: axion-pr-opener 
-model: cursor/grok 
 ---
 
 Do the following, in this order:

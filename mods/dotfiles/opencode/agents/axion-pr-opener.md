@@ -1,7 +1,6 @@
 ---
 description: PR opener that manages ticket / pr metadata 
 mode: subagent 
-model: cursor/grok
 temperature: 0.1
 tools:
   write: false
