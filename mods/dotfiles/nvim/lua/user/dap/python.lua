@@ -3,18 +3,15 @@ local utils = require("user.utils")
 -- DAP python
 -- you must first: `pip install debugpy` into you current venv
 
+local function dap_root()
+	return utils.get_dap_root()
+end
+
 dap.adapters.python = {
 	type = "executable",
 	-- command = 'path/to/virtualenvs/debugpy/bin/python';
 	command = utils.python_path(),
 	args = { "-m", "debugpy.adapter" },
-	options = {
-		env = {
-			PYTHONPATH = "./",
-		}, -- Set the environment variables for the command
-		-- cwd = rooter.get_root_dir(), -- Set the working directory for the command
-		cwd = "/Users/nick/code/clearing-app2/api",
-	},
 }
 dap.adapters.generic_remote = function(callback, config)
 	local dap_conn_str = vim.fn.input("DAP server (empty cancels): ", "127.0.0.1:9001")
@@ -52,6 +49,7 @@ dap.configurations.python = {
 		name = "Generic remote",
 		request = "attach",
 		justMyCode = false,
+		cwd = dap_root,
 	},
 	{
 		type = "python",
@@ -61,9 +59,9 @@ dap.configurations.python = {
 		pythonPath = utils.python_path(),
 		justMyCode = false,
 		env = {
-			PYTHONPATH = "./",
+			PYTHONPATH = ".",
 		}, -- Set the environment variables for the command
-		cwd = "/Users/nick/code/clearing-app2/api",
+		cwd = dap_root,
 	},
 	{
 		type = "python",
@@ -76,20 +74,11 @@ dap.configurations.python = {
 			"run",
 			"--no-debugger",
 			"--no-reload",
-			"-h",
-			"0.0.0.0",
-			"-p",
-			"8080",
-			"--cert",
-			"localhost.pem",
-			"--key",
-			"localhost-key.pem",
 		},
 		env = {
-			DEVELOPMENT_NATIVE = "1",
 			FLASK_DEBUG = "1",
-			GOOGLE_APPLICATION_CREDENTIALS = "/Users/nick/code/clearing-app2/api/google-key.json",
 		},
+		cwd = dap_root,
 	},
 
 	{
@@ -105,5 +94,6 @@ dap.configurations.python = {
 			"3030",
 		},
 		subProcess = true,
+		cwd = dap_root,
 	},
 }

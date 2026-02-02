@@ -35,7 +35,10 @@ function M.setup()
 	dapui.setup({})
 
 	-- Auto-open/close DAP UI on debug session events
-	dap.listeners.after.event_initialized["dapui_config"] = function()
+	dap.listeners.before.attach["dapui_config"] = function()
+		dapui.open({})
+	end
+	dap.listeners.before.launch["dapui_config"] = function()
 		dapui.open({})
 	end
 	dap.listeners.before.event_terminated["dapui_config"] = function()
@@ -51,7 +54,8 @@ function M.setup()
 	require("user.dap.go")
 
 	-- Load launch.json configurations
-	dap_vscode.load_launchjs(utils.get_debugger_launch_file(), {
+	local dap_root = utils.get_dap_root()
+	dap_vscode.load_launchjs(utils.get_debugger_launch_file(dap_root), {
 		["pwa-node"] = { "javascript", "typescript" },
 		delve = { "go" },
 		python = { "python" },

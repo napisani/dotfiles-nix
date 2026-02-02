@@ -1,5 +1,9 @@
 local dap = require("dap")
 local utils = require("user.utils")
+
+local function dap_root()
+	return utils.get_dap_root()
+end
 -- DAP python
 -- you must first: `go install github.com/go-delve/delve/cmd/dlv@latest` into you current project
 
@@ -15,6 +19,7 @@ dap.configurations.go = {
 		name = "Debug", -- Configuration name
 		request = "launch",
 		program = "${file}", -- Start the program from the current file
+		cwd = dap_root,
 	},
 	{
 		type = "go",
@@ -22,6 +27,7 @@ dap.configurations.go = {
 		request = "launch",
 		mode = "test",
 		program = "${file}", -- Start with the current test file
+		cwd = dap_root,
 	},
 	{
 		type = "go",
@@ -29,5 +35,6 @@ dap.configurations.go = {
 		request = "launch",
 		mode = "test",
 		program = "./${relativeFileDirname}", -- Start from the package's directory
+		cwd = dap_root,
 	},
 }

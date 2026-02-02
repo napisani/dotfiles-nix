@@ -1,7 +1,7 @@
 require("user.lsp.mason")
 require("mason-nvim-dap").setup({
 	lazy = false,
-	ensure_installed = { "python", "lldb", "node2", "chrome", "js" },
+	ensure_installed = { "python", "lldb", "chrome", "js", "delve" },
 })
 
 require("user.lsp.attach").setup()
