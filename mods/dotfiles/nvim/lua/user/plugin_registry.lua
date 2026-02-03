@@ -42,7 +42,6 @@ M.modules = {
 	"ai.copilot",
 	"ai.codecompanion",
 	"ai.opencode",
-	"ai.context_nvim",
 	"ai.code_explain",
 	-- Database plugins
 	"database.dadbod",

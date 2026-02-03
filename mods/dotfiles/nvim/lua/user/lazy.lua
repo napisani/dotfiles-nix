@@ -213,10 +213,6 @@ require("lazy").setup({
 			end,
 		},
 
-		{
-			"napisani/context-nvim",
-		},
-
 		-- {
 		-- 	"yioneko/nvim-vtsls",
 		-- },

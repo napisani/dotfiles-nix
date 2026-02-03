@@ -31,14 +31,8 @@ local M = {
 		-- elsewhere in your config, without redefining it, due to `opts_extend`
 		sources = {
 			default = { "lsp", "path", "snippets", "buffer" },
-			per_filetype = { codecompanion = { "context_nvim" }, snacks_input = { "context_nvim" } },
-			providers = {
-				context_nvim = {
-					enabled = true,
-					name = "context_nvim",
-					module = "context_nvim.blink_source",
-				},
-			},
+			per_filetype = {},
+			providers = {},
 		},
 	},
 	opts_extend = { "sources.default" },
