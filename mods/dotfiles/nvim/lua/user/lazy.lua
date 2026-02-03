@@ -118,23 +118,15 @@ require("lazy").setup({
 		{ "lewis6991/gitsigns.nvim" },
 		{ "tpope/vim-fugitive" },
 		{
-			"sindrets/diffview.nvim",
-			dependencies = "nvim-lua/plenary.nvim",
+			"esmuellert/codediff.nvim",
+			dependencies = { "MunifTanjim/nui.nvim" },
+			cmd = "CodeDiff",
 		},
 
-		-- come back to this once it can replace diffview
-		-- {
-		-- 	"esmuellert/vscode-diff.nvim",
-		-- 	dependencies = { "MunifTanjim/nui.nvim" },
-		-- },
-
 		{
-
 			"NeogitOrg/neogit",
 			dependencies = {
 				"nvim-lua/plenary.nvim", -- required
-				"sindrets/diffview.nvim", -- optional - Diff integration
-
 				"folke/snacks.nvim", -- optional
 			},
 		},

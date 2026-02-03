@@ -44,138 +44,250 @@ function M.setup()
 	-- improve the the diff presentation
 	vim.o.diffopt = "internal,filler,closeoff,indent-heuristic,linematch:60,algorithm:histogram"
 
-	-- Configure DiffView with custom keymaps
-	local status_ok, diffview = pcall(require, "diffview")
-	if status_ok then
-		local actions = require("diffview.actions")
-
-		-- Shared refresh function
-		local refresh_diffview = function()
-			vim.cmd("DiffviewRefresh")
-			vim.notify("DiffView refreshed", vim.log.levels.INFO)
-		end
-
-		-- Shared merge keybindings (used in both view and file_panel)
-		local merge_keymaps = {
-			-- Individual conflict resolution (3-way merge)
-			{ "n", "<leader>mh", actions.conflict_choose("ours"), { desc = "Choose OURS (left)" } },
-			{ "n", "<leader>ml", actions.conflict_choose("theirs"), { desc = "Choose THEIRS (right)" } },
-			{ "n", "<leader>mb", actions.conflict_choose("base"), { desc = "Choose BASE" } },
-			{ "n", "<leader>ma", actions.conflict_choose("all"), { desc = "Choose ALL (both)" } },
-			{ "n", "<leader>mx", actions.conflict_choose("none"), { desc = "Choose NONE (delete)" } },
-
-			-- Whole file resolution (3-way merge)
-			{ "n", "<leader>mH", actions.conflict_choose_all("ours"), { desc = "Choose OURS for whole file" } },
-			{
-				"n",
-				"<leader>mL",
-				actions.conflict_choose_all("theirs"),
-				{ desc = "Choose THEIRS for whole file" },
-			},
-			{ "n", "<leader>mB", actions.conflict_choose_all("base"), { desc = "Choose BASE for whole file" } },
-			{ "n", "<leader>mA", actions.conflict_choose_all("all"), { desc = "Choose ALL for whole file" } },
-			{
-				"n",
-				"<leader>mX",
-				actions.conflict_choose_all("none"),
-				{ desc = "Choose NONE for whole file" },
-			},
-
-			-- 2-way diff operations (get/put changes)
-			{ "n", "<leader>mg", actions.diffget("ours"), { desc = "Get changes from other side" } },
-			{ "n", "<leader>mp", actions.diffput("ours"), { desc = "Put changes to other side" } },
-		}
-
-		-- Helper function to merge keymaps
-		local function build_keymaps(base_keymaps)
-			local result = vim.deepcopy(base_keymaps or {})
-			for _, keymap in ipairs(merge_keymaps) do
-				table.insert(result, keymap)
+	-- Helper function to check if we're in a CodeDiff view
+	local function is_in_codediff_view()
+		local current_tab = vim.api.nvim_get_current_tabpage()
+		local wins = vim.api.nvim_tabpage_list_wins(current_tab)
+		
+		for _, win in ipairs(wins) do
+			local buf = vim.api.nvim_win_get_buf(win)
+			local buf_name = vim.api.nvim_buf_get_name(buf)
+			local filetype = vim.bo[buf].filetype
+			
+			-- Check for CodeDiff indicators
+			if buf_name:match("codediff") or filetype == "codediff" then
+				return true
 			end
-			return result
+			
+			-- Check for CodeDiff window variable
+			local ok, is_codediff = pcall(vim.api.nvim_win_get_var, win, "codediff")
+			if ok and is_codediff then
+				return true
+			end
 		end
+		
+		return false
+	end
 
-		diffview.setup({
+	-- Refresh function for CodeDiff views
+	local function refresh_codediff()
+		if not is_in_codediff_view() then
+			vim.notify("No CodeDiff view open", vim.log.levels.INFO)
+			return
+		end
+		
+		-- Get all windows in current tab
+		local current_tab = vim.api.nvim_get_current_tabpage()
+		local wins = vim.api.nvim_tabpage_list_wins(current_tab)
+		local refreshed = false
+		
+		for _, win in ipairs(wins) do
+			local buf = vim.api.nvim_win_get_buf(win)
+			local buf_name = vim.api.nvim_buf_get_name(buf)
+			local buftype = vim.bo[buf].buftype
+			
+			-- Only reload buffers that are backed by actual files (not scratch/nofile buffers)
+			if buftype == "" and buf_name ~= "" then
+				-- Check if file is modified externally
+				local modified = vim.bo[buf].modified
+				if not modified then
+					-- Reload the buffer from disk
+					vim.api.nvim_buf_call(buf, function()
+						vim.cmd("checktime")
+					end)
+					refreshed = true
+				end
+			end
+		end
+		
+		if refreshed then
+			vim.notify("CodeDiff refreshed", vim.log.levels.INFO)
+		else
+			vim.notify("CodeDiff refresh: no file buffers to reload", vim.log.levels.INFO)
+		end
+	end
 
-			hooks = {
-        -- attempt to improve diffs to allow inner highlighting
-				diff_buf_win_enter = function(bufnr, winid, ctx)
-					if ctx.layout_name:match("^diff2") then
-						if ctx.symbol == "a" then
-							vim.opt_local.winhl = table.concat({
-								"DiffAdd:DiffviewDiffAddAsDelete",
-								"DiffDelete:DiffviewDiffDelete",
-							}, ",")
-						elseif ctx.symbol == "b" then
-							vim.opt_local.winhl = table.concat({
-								"DiffDelete:DiffviewDiffDelete",
-							}, ",")
-						end
-					end
-				end,
+	-- Create user commands for refreshing
+	vim.api.nvim_create_user_command("CodeDiffRefresh", refresh_codediff, {
+		desc = "Refresh CodeDiff view by reloading buffers from disk",
+	})
+	
+	-- Store the refresh function globally so keymaps can access it
+	_G.code_diff_refresh = refresh_codediff
+
+	-- Configure CodeDiff.nvim
+	local status_ok, codediff = pcall(require, "codediff")
+	if status_ok then
+		codediff.setup({
+			-- Highlight configuration
+			highlights = {
+				-- Line-level: accepts highlight group names or hex colors
+				line_insert = "DiffAdd", -- Line-level insertions
+				line_delete = "DiffDelete", -- Line-level deletions
+
+				-- Character-level: accepts highlight group names or hex colors
+				-- If specified, these override char_brightness calculation
+				char_insert = nil, -- Character-level insertions (nil = auto-derive)
+				char_delete = nil, -- Character-level deletions (nil = auto-derive)
+
+				-- Brightness multiplier (only used when char_insert/char_delete are nil)
+				-- nil = auto-detect based on background (1.4 for dark, 0.92 for light)
+				char_brightness = nil, -- Auto-adjust based on your colorscheme
+
+				-- Conflict sign highlights (for merge conflict views)
+				conflict_sign = nil, -- Unresolved: DiagnosticSignWarn -> #f0883e
+				conflict_sign_resolved = nil, -- Resolved: Comment -> #6e7681
+				conflict_sign_accepted = nil, -- Accepted: GitSignsAdd -> DiagnosticSignOk -> #3fb950
+				conflict_sign_rejected = nil, -- Rejected: GitSignsDelete -> DiagnosticSignError -> #f85149
 			},
+
+			-- Diff view behavior
+			diff = {
+				disable_inlay_hints = true, -- Disable inlay hints in diff windows for cleaner view
+				max_computation_time_ms = 5000, -- Maximum time for diff computation (VSCode default)
+				hide_merge_artifacts = false, -- Hide merge tool temp files (*.orig, *.BACKUP.*, *.BASE.*, *.LOCAL.*, *.REMOTE.*)
+				original_position = "left", -- Position of original (old) content: "left" or "right"
+				conflict_ours_position = "right", -- Position of ours (:2) in conflict view: "left" or "right"
+			},
+
+			-- Explorer panel configuration
+			explorer = {
+				position = "left", -- "left" or "bottom"
+				width = 40, -- Width when position is "left" (columns)
+				height = 15, -- Height when position is "bottom" (lines)
+				indent_markers = true, -- Show indent markers in tree view (│, ├, └)
+				initial_focus = "explorer", -- Initial focus: "explorer", "original", or "modified"
+				icons = {
+					folder_closed = "", -- Nerd Font folder icon (customize as needed)
+					folder_open = "", -- Nerd Font folder-open icon
+				},
+				view_mode = "list", -- "list" or "tree"
+				file_filter = {
+					ignore = {}, -- Glob patterns to hide (e.g., {"*.lock", "dist/*"})
+				},
+			},
+
+			-- History panel configuration (for :CodeDiff history)
+			history = {
+				position = "bottom", -- "left" or "bottom" (default: bottom)
+				width = 40, -- Width when position is "left" (columns)
+				height = 15, -- Height when position is "bottom" (lines)
+				initial_focus = "history", -- Initial focus: "history", "original", or "modified"
+				view_mode = "list", -- "list" or "tree" for files under commits
+			},
+
+			-- Keymaps in diff view
 			keymaps = {
-				view = build_keymaps({
-					-- Refresh binding
-					["<leader>e"] = refresh_diffview,
-				}),
-
-				file_panel = build_keymaps({
-					-- Refresh binding
-					["<leader>e"] = refresh_diffview,
-				}),
-
-				file_history_panel = {
-					["<leader>e"] = refresh_diffview,
+				view = {
+					quit = "q", -- Close diff tab
+					toggle_explorer = "<leader>b", -- Toggle explorer visibility (explorer mode only)
+					next_hunk = "]c", -- Jump to next change
+					prev_hunk = "[c", -- Jump to previous change
+					next_file = "]f", -- Next file in explorer/history mode
+					prev_file = "[f", -- Previous file in explorer/history mode
+					diff_get = "do", -- Get change from other buffer (like vimdiff)
+					diff_put = "dp", -- Put change to other buffer (like vimdiff)
+					open_in_prev_tab = "gf", -- Open current buffer in previous tab (or create one before)
+					toggle_stage = "-", -- Stage/unstage current file (works in explorer and diff buffers)
+				},
+				explorer = {
+					select = "<CR>", -- Open diff for selected file
+					hover = "K", -- Show file diff preview
+					refresh = "R", -- Refresh git status
+					toggle_view_mode = "i", -- Toggle between 'list' and 'tree' views
+					stage_all = "S", -- Stage all files
+					unstage_all = "U", -- Unstage all files
+					restore = "X", -- Discard changes (restore file)
+				},
+				history = {
+					select = "<CR>", -- Select commit/file or toggle expand
+					toggle_view_mode = "i", -- Toggle between 'list' and 'tree' views
+				},
+				conflict = {
+					accept_incoming = "<leader>ct", -- Accept incoming (theirs/left) change
+					accept_current = "<leader>co", -- Accept current (ours/right) change
+					accept_both = "<leader>cb", -- Accept both changes (incoming first)
+					discard = "<leader>cx", -- Discard both, keep base
+					next_conflict = "]x", -- Jump to next conflict
+					prev_conflict = "[x", -- Jump to previous conflict
+					diffget_incoming = "2do", -- Get hunk from incoming (left/theirs) buffer
+					diffget_current = "3do", -- Get hunk from current (right/ours) buffer
 				},
 			},
 		})
 	end
 end
 
--- local function is_diffview_open()
--- 	local ok, diffview_lib = pcall(require, "diffview.lib")
--- 	if not ok then
--- 		return false
--- 	end
--- 	return diffview_lib.get_current_view() ~= nil
--- end
-
--- local status_ok, gitsigns = pcall(require, "gitsigns")
--- if not status_ok then
--- 	vim.notify("gitsigns not found")
--- 	return
--- end
-
 function M.get_keymaps()
 	local utils = require("user.utils")
 
 	return {
 		normal = {
+			-- NOTE: <leader>e and <leader>E are defined in whichkey.lua
+			-- They will call _G.code_diff_refresh() when in a CodeDiff view
+			
 			{ "<leader>c", group = "Changes" },
 
 			{
 				"<leader>cr",
 				function()
-					vim.cmd("DiffviewOpen " .. utils.get_git_ref())
+					local ref = utils.get_git_ref()
+					vim.cmd("CodeDiff " .. ref)
 				end,
 				desc = "compare to ref",
 			},
 
 			{ "<leader>cB", "<Cmd>:G blame<CR>", desc = "Blame" },
-			{ "<leader>cH", "<Cmd>:DiffviewOpen HEAD<CR>", desc = "diff (H)ead" },
-			{ "<leader>ch", "<Cmd>:DiffviewFileHistory<CR>", desc = "(h)istory" },
-			{ "<leader>co", "<Cmd>:DiffviewOpen<CR>", desc = "Open" },
-			{ "<leader>cq", "<Cmd>:DiffviewClose<CR>", desc = "DiffviewClose" },
-			{ "<leader>cx", '<Cmd>call feedkeys("dx")<CR>', desc = "Choose DELETE" },
+			{ "<leader>cH", "<Cmd>:CodeDiff HEAD<CR>", desc = "diff (H)ead" },
+			{ "<leader>ch", "<Cmd>:CodeDiff history<CR>", desc = "(h)istory" },
+			{ "<leader>co", "<Cmd>:CodeDiff<CR>", desc = "Open" },
+			{
+				"<leader>cq",
+				function()
+					-- Check if we're in a CodeDiff view by looking for CodeDiff buffer variables
+					local in_codediff = false
+					local current_tab = vim.api.nvim_get_current_tabpage()
+					local wins = vim.api.nvim_tabpage_list_wins(current_tab)
+					
+					for _, win in ipairs(wins) do
+						local buf = vim.api.nvim_win_get_buf(win)
+						local buf_name = vim.api.nvim_buf_get_name(buf)
+						-- CodeDiff buffers typically have "codediff" in the name or are diff views
+						if buf_name:match("codediff") or vim.bo[buf].filetype == "codediff" then
+							in_codediff = true
+							break
+						end
+					end
+					
+					-- Also check if any window has the codediff variable set
+					for _, win in ipairs(wins) do
+						local ok, is_codediff = pcall(vim.api.nvim_win_get_var, win, "codediff")
+						if ok and is_codediff then
+							in_codediff = true
+							break
+						end
+					end
+					
+					if in_codediff then
+						-- Close the entire tabpage (CodeDiff opens in a new tab)
+						vim.cmd("tabclose")
+					else
+						-- Try to close normally if not in a CodeDiff view
+						vim.notify("No CodeDiff view open", vim.log.levels.INFO)
+					end
+				end,
+				desc = "Close CodeDiff view",
+			},
+			-- NOTE: <leader>cx is not available in CodeDiff (no direct "choose delete" action)
+			-- Use the conflict resolution keymaps instead: <leader>ct, <leader>co, <leader>cb, <leader>cx
 
 			{ "<leader>cf", group = "(F)ile" },
-			{ "<leader>cfH", "<Cmd>:DiffviewOpen HEAD -- %<CR>", desc = "diff (H)ead" },
+			{ "<leader>cfH", "<Cmd>:CodeDiff file HEAD<CR>", desc = "diff (H)ead" },
 			{
 				"<leader>cfr",
 				function()
 					local ref = utils.get_git_ref()
-					vim.cmd("DiffviewOpen " .. ref .. " -- %")
+					vim.cmd("CodeDiff file " .. ref)
 				end,
 				desc = "compare to ref",
 			},
@@ -184,7 +296,7 @@ function M.get_keymaps()
 				"<cmd>lua require('user.snacks.compare').find_file_from_root_to_compare_to()<CR>",
 				desc = "(f)ile",
 			},
-			{ "<leader>cfh", "<Cmd>:DiffviewFileHistory --follow %<CR>", desc = "(h)istory" },
+			{ "<leader>cfh", "<Cmd>:CodeDiff history HEAD~20 %<CR>", desc = "(h)istory" },
 
 			-- changes
 			{ "<leader>cfc", "<cmd>CompareClipboard<cr>", desc = "compare (c)lipboard" },
@@ -195,7 +307,12 @@ function M.get_keymaps()
 			{ "<leader>cc", "<esc><cmd>CompareClipboardSelection<cr>", desc = "compare (c)lipboard" },
 			{
 				"<leader>ch",
-				"<Esc><Cmd>'<,'>DiffviewFileHistory --follow<CR>",
+				function()
+					-- Get the selected range
+					local start_line = vim.fn.line("'<")
+					local end_line = vim.fn.line("'>")
+					vim.cmd("CodeDiff history HEAD~20 %")
+				end,
 				desc = "(h)istory",
 			},
 		},

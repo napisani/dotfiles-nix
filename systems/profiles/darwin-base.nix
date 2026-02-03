@@ -1,10 +1,18 @@
-{ config, pkgs, lib, ... }: {
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+{
   documentation.enable = false;
 
   programs = {
     bash = {
       enable = true;
-      completion = { enable = true; };
+      completion = {
+        enable = true;
+      };
     };
   };
 
@@ -22,10 +30,13 @@
       autoUpdate = false;
     };
 
-    masApps = { Xcode = 497799835; };
+    masApps = {
+      Xcode = 497799835;
+    };
 
     # Base casks that all Macs should have
     casks = [
+      "ollama"
       "alacritty"
       "ungoogled-chromium"
       "bitwarden"
@@ -57,7 +68,11 @@
 
   environment = {
     shells = [ pkgs.bash ];
-    systemPackages = with pkgs; [ bashInteractive coreutils gnugrep ];
+    systemPackages = with pkgs; [
+      bashInteractive
+      coreutils
+      gnugrep
+    ];
   };
 
   fonts.packages = [
@@ -81,9 +96,9 @@
 
   nix = {
     package = pkgs.nixVersions.stable;
-    extraOptions =
-      lib.optionalString (config.nix.package == pkgs.nixVersions.stable)
-      "experimental-features = nix-command flakes";
+    extraOptions = lib.optionalString (
+      config.nix.package == pkgs.nixVersions.stable
+    ) "experimental-features = nix-command flakes";
     enable = true;
     gc = {
       automatic = true;
