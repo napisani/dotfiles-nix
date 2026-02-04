@@ -6,6 +6,28 @@ require("mason-nvim-dap").setup({
 
 require("user.lsp.attach").setup()
 
+local inline_group = vim.api.nvim_create_augroup("user_lsp_inline_completion", { clear = true })
+vim.api.nvim_create_autocmd("LspAttach", {
+	group = inline_group,
+	callback = function(args)
+		local client_id = args.data and args.data.client_id
+		if not client_id then
+			return
+		end
+		local client = vim.lsp.get_client_by_id(client_id)
+		if not client then
+			return
+		end
+		local inline = vim.lsp.inline_completion
+		if not inline or type(inline.enable) ~= "function" then
+			return
+		end
+		if client.supports_method and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlineCompletion, args.buf) then
+			inline.enable(true, { bufnr = args.buf })
+		end
+	end,
+})
+
 vim.lsp.config("eslint", {
 	single_file_support = true,
 	settings = {
@@ -13,20 +35,22 @@ vim.lsp.config("eslint", {
 	},
 })
 
-vim.lsp.enable({
-	"efm",
-	"gopls",
-	"jsonls",
-	"lua_ls",
-	"cssls",
-	"bashls",
-	-- "pyright",
-	"basedpyright",
-	"ruff",
-	"yamlls",
-	"expert",
-	-- "learnls",
-})
+	vim.lsp.enable({
+		"efm",
+		"gopls",
+		"jsonls",
+		"lua_ls",
+		"cssls",
+		"bashls",
+		-- "pyright",
+		"basedpyright",
+		"ruff",
+		"yamlls",
+		"expert",
+		-- "learnls",
+	})
+
+vim.lsp.enable("copilot")
 
 local function get_learnls_client(bufnr)
 	bufnr = bufnr or vim.api.nvim_get_current_buf()

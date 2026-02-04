@@ -7,5 +7,6 @@
     brews = [ "opencode" "hashicorp/tap/terraform" ];
 
     taps = [ "hashicorp/tap" ];
+
   };
 }

@@ -201,6 +201,16 @@ require("lazy").setup({
 			},
 		},
 		{
+			"folke/sidekick.nvim",
+			opts = require("user.plugins.ai.sidekick").opts,
+			config = function(_, opts)
+				require("user.plugins.ai.sidekick").setup(opts)
+			end,
+			dependencies = {
+				"nvim-lua/plenary.nvim",
+			},
+		},
+		{
 			"ravitemer/mcphub.nvim",
 			dependencies = {
 				"nvim-lua/plenary.nvim",

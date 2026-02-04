@@ -25,6 +25,7 @@ local servers = {
 	"html",
 	"jsonls",
 	"lua_ls",
+	"copilot",
 	-- "pyright",
 	"basedpyright",
 	"ruff",
