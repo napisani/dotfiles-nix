@@ -29,6 +29,11 @@ M.opts = {
 			claude = { cmd = { "claude" }, url = "https://github.com/anthropics/claude-code" },
 		},
 	},
+	copilot = {
+		status = {
+			enabled = false,
+		},
+	},
 	debug = true,
 }
 
@@ -79,30 +84,30 @@ end
 function M.get_keymaps()
 	return {
 		normal = {
-			{ "<leader>A", group = "Sidekick" },
+			{ "<leader>O", group = "Sidekick" },
 			{
-				"<leader>Aa",
+				"<leader>Oo",
 				require_cli(function(cli)
 					cli.toggle({ name = "opencode", focus = true })
 				end),
 				desc = "(a)gent toggle",
 			},
 			{
-				"<leader>A?",
+				"<leader>O?",
 				require_cli(function(cli)
 					cli.prompt()
 				end),
 				desc = "(?) prompt",
 			},
 			{
-				"<leader>AS",
+				"<leader>OS",
 				require_cli(function(cli)
 					cli.select()
 				end),
 				desc = "(S)elect CLI",
 			},
 			{
-				"<leader>AP",
+				"<leader>OP",
 				require_cli(function(cli)
 					if cli.select_prompt then
 						cli.select_prompt()
@@ -113,28 +118,28 @@ function M.get_keymaps()
 				desc = "(P)rompt picker",
 			},
 			{
-				"<leader>AN",
+				"<leader>ON",
 				require_nes(function(nes)
 					nes.update()
 				end),
 				desc = "(N)ES request",
 			},
 			{
-				"<leader>Aj",
+				"<leader>Oj",
 				require_sidekick(function(sidekick)
 					sidekick.nes_jump_or_apply()
 				end),
 				desc = "(j)ump/apply NES",
 			},
 			{
-				"<leader>Ae",
+				"<leader>Oe",
 				require_nes(function(nes)
 					nes.apply()
 				end),
 				desc = "(e)dit apply",
 			},
 			{
-				"<leader>Ax",
+				"<leader>Ox",
 				require_sidekick(function(sidekick)
 					sidekick.clear()
 				end),
@@ -142,16 +147,16 @@ function M.get_keymaps()
 			},
 		},
 		visual = {
-			{ "<leader>A", group = "Sidekick" },
+			{ "<leader>O", group = "Sidekick" },
 			{
-				"<leader>Aa",
+				"<leader>Oa",
 				require_cli(function(cli)
 					cli.send({ selection = true, submit = true })
 				end),
 				desc = "(a)sk selection",
 			},
 			{
-				"<leader>A?",
+				"<leader>O?",
 				require_cli(function(cli)
 					cli.prompt({ selection = true })
 				end),

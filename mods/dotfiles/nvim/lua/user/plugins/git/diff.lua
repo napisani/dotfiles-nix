@@ -48,24 +48,24 @@ function M.setup()
 	local function is_in_codediff_view()
 		local current_tab = vim.api.nvim_get_current_tabpage()
 		local wins = vim.api.nvim_tabpage_list_wins(current_tab)
-		
+
 		for _, win in ipairs(wins) do
 			local buf = vim.api.nvim_win_get_buf(win)
 			local buf_name = vim.api.nvim_buf_get_name(buf)
 			local filetype = vim.bo[buf].filetype
-			
+
 			-- Check for CodeDiff indicators
 			if buf_name:match("codediff") or filetype == "codediff" then
 				return true
 			end
-			
+
 			-- Check for CodeDiff window variable
 			local ok, is_codediff = pcall(vim.api.nvim_win_get_var, win, "codediff")
 			if ok and is_codediff then
 				return true
 			end
 		end
-		
+
 		return false
 	end
 
@@ -75,17 +75,17 @@ function M.setup()
 			vim.notify("No CodeDiff view open", vim.log.levels.INFO)
 			return
 		end
-		
+
 		-- Get all windows in current tab
 		local current_tab = vim.api.nvim_get_current_tabpage()
 		local wins = vim.api.nvim_tabpage_list_wins(current_tab)
 		local refreshed = false
-		
+
 		for _, win in ipairs(wins) do
 			local buf = vim.api.nvim_win_get_buf(win)
 			local buf_name = vim.api.nvim_buf_get_name(buf)
 			local buftype = vim.bo[buf].buftype
-			
+
 			-- Only reload buffers that are backed by actual files (not scratch/nofile buffers)
 			if buftype == "" and buf_name ~= "" then
 				-- Check if file is modified externally
@@ -99,7 +99,7 @@ function M.setup()
 				end
 			end
 		end
-		
+
 		if refreshed then
 			vim.notify("CodeDiff refreshed", vim.log.levels.INFO)
 		else
@@ -111,7 +111,7 @@ function M.setup()
 	vim.api.nvim_create_user_command("CodeDiffRefresh", refresh_codediff, {
 		desc = "Refresh CodeDiff view by reloading buffers from disk",
 	})
-	
+
 	-- Store the refresh function globally so keymaps can access it
 	_G.code_diff_refresh = refresh_codediff
 
@@ -180,9 +180,9 @@ function M.setup()
 			keymaps = {
 				view = {
 					quit = "q", -- Close diff tab
-					toggle_explorer = "<leader>b", -- Toggle explorer visibility (explorer mode only)
-					next_hunk = "]c", -- Jump to next change
-					prev_hunk = "[c", -- Jump to previous change
+					toggle_explorer = "<leader>t", -- Toggle explorer visibility (explorer mode only)
+					next_hunk = "]g", -- Jump to next change
+					prev_hunk = "[g", -- Jump to previous change
 					next_file = "]f", -- Next file in explorer/history mode
 					prev_file = "[f", -- Previous file in explorer/history mode
 					diff_get = "do", -- Get change from other buffer (like vimdiff)
@@ -225,7 +225,7 @@ function M.get_keymaps()
 		normal = {
 			-- NOTE: <leader>e and <leader>E are defined in whichkey.lua
 			-- They will call _G.code_diff_refresh() when in a CodeDiff view
-			
+
 			{ "<leader>c", group = "Changes" },
 
 			{
@@ -248,7 +248,7 @@ function M.get_keymaps()
 					local in_codediff = false
 					local current_tab = vim.api.nvim_get_current_tabpage()
 					local wins = vim.api.nvim_tabpage_list_wins(current_tab)
-					
+
 					for _, win in ipairs(wins) do
 						local buf = vim.api.nvim_win_get_buf(win)
 						local buf_name = vim.api.nvim_buf_get_name(buf)
@@ -258,7 +258,7 @@ function M.get_keymaps()
 							break
 						end
 					end
-					
+
 					-- Also check if any window has the codediff variable set
 					for _, win in ipairs(wins) do
 						local ok, is_codediff = pcall(vim.api.nvim_win_get_var, win, "codediff")
@@ -267,7 +267,7 @@ function M.get_keymaps()
 							break
 						end
 					end
-					
+
 					if in_codediff then
 						-- Close the entire tabpage (CodeDiff opens in a new tab)
 						vim.cmd("tabclose")
