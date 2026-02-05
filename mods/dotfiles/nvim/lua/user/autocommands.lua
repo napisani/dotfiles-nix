@@ -52,7 +52,7 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 		if vim.tbl_isempty(efm) then
 			return
 		end
-		vim.lsp.buf.format({ name = "efm" })
+		vim.lsp.buf.format({ name = "efm", timeout_ms = 10000 })
 	end,
 })
 
