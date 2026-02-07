@@ -10,6 +10,7 @@ let
   # Examples: [ "eslint" "@biomejs/biome" "typescript@5" ]
   npmxTools = [
     "@ellery/terminal-mcp"
+    "@napisani/scute"
   ];
 
   npm = "${pkgs-unstable.nodejs}/bin/npm";

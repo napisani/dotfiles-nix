@@ -1,4 +1,7 @@
 { pkgs, config, ... }:
+let
+  opencodeCursor = pkgs.callPackage ../packages/opencode-cursor { };
+in
 {
   programs = {
     fzf = {
@@ -65,8 +68,15 @@
 
     ".config/tmux/tmux.conf".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.tmux.conf";
+
+    ".config/scute/config.yaml".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/scute.yml";
+
     ".config/opencode/config.json".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode-config.json";
+
+    ".config/opencode/plugin/cursor-acp.js".source =
+      "${opencodeCursor}/share/opencode/plugins/cursor-acp.js";
 
     ".config/opencode/commands".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/commands";

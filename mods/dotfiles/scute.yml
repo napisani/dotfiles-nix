@@ -1,0 +1,27 @@
+# ~/.config/scute/config.yaml
+# Providers used by prompts (env vars override these)
+providers:
+  - name: ollama
+    baseUrl: http://localhost:11434
+
+# Shell keybindings in universal syntax (rendered by scute init)
+shellKeybindings:
+  explain: []
+  build: "Ctrl+E" 
+  suggest: "Ctrl+Shift+E"
+  generate: [] # disable if you do not want a binding
+
+# Prompt behavior per command
+prompts:
+  explain:
+    provider: ollama 
+    model: qwen3:1.7b 
+  suggest:
+    provider: ollama 
+    model: qwen3:1.7b 
+  generate:
+    provider: ollama 
+    model: qwen3:1.7b 
+  describeTokens:
+    provider: ollama 
+    model: qwen3:1.7b 

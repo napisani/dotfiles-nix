@@ -36,7 +36,7 @@
 
     # Base casks that all Macs should have
     casks = [
-      "ollama"
+      "ollama-app"
       "alacritty"
       "ungoogled-chromium"
       "bitwarden"
