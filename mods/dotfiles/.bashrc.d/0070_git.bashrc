@@ -142,7 +142,7 @@ if command -v git &> /dev/null ; then
       fi
 
       local prompt
-      prompt="Write a concise git commit message (12 words max) for these staged changes. Respond with a single line suitable for \"git commit -m\"."
+      prompt="Write a concise git commit message (12 words max) for these staged changes. Output exactly one plain text line without quotes, markdown, or explanation."
 
       local generated_message
       if ! generated_message=$(_ollama_completion "$prompt" "$staged_diff"); then
