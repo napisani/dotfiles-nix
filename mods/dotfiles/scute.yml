@@ -3,25 +3,36 @@
 providers:
   - name: ollama
     baseUrl: http://localhost:11434
+  - name: openai
 
 # Shell keybindings in universal syntax (rendered by scute init)
 shellKeybindings:
-  explain: []
+  explain: [] 
   build: "Ctrl+E" 
   suggest: [] 
   generate: [] # disable if you do not want a binding
 
+promptDefaults:
+  # provider values: openai | anthropic | gemini | ollama
+  provider: openai
+  model: gpt-4
+
+  # provider: ollama 
+  # model: qwen3:1.7b 
+  # # output values: clipboard | stdout | prompt | readline
+  # output: readline
+
+
 # Prompt behavior per command
-prompts:
-  explain:
-    provider: ollama 
-    model: qwen3:1.7b 
-  suggest:
-    provider: ollama 
-    model: qwen3:1.7b 
-  generate:
-    provider: ollama 
-    model: qwen3:1.7b 
-  describeTokens:
-    provider: ollama 
-    model: qwen3:1.7b 
+# prompts:
+#   explain:
+#     provider: ollama 
+#     model: qwen3:1.7b 
+#   suggest:
+#     provider: openai 
+#   generate:
+#     provider: ollama 
+#     model: qwen3:1.7b 
+#   describeTokens:
+#     provider: ollama 
+#     model: qwen3:1.7b 

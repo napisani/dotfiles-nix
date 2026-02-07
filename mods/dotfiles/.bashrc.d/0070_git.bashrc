@@ -90,6 +90,90 @@ if command -v git &> /dev/null ; then
 
 
   
+  function gitscp() {
+    local OPTIND
+    OPTIND=1
+
+    local message=""
+    local has_message=0
+    local opt
+
+    while getopts ":m:" opt; do
+      case "$opt" in
+        m)
+          message="$OPTARG"
+          has_message=1
+          ;;
+        \?)
+          echo "gitscp: invalid option -- $OPTARG" >&2
+          return 1
+          ;;
+        :)
+          echo "gitscp: option requires an argument -- $OPTARG" >&2
+          return 1
+          ;;
+      esac
+    done
+
+    shift $((OPTIND - 1))
+
+    if [ $# -ne 0 ]; then
+      echo "gitscp: unexpected arguments: $*" >&2
+      return 1
+    fi
+
+    if ! git add -A; then
+      echo "gitscp: failed to stage changes" >&2
+      return 1
+    fi
+
+    if git diff --cached --quiet; then
+      echo "gitscp: no staged changes" >&2
+      return 1
+    fi
+
+    if [ "$has_message" -eq 0 ]; then
+      local staged_diff
+      staged_diff=$(git diff --cached)
+
+      if [ -z "$staged_diff" ]; then
+        echo "gitscp: unable to collect staged diff" >&2
+        return 1
+      fi
+
+      local prompt
+      prompt="Write a concise git commit message (12 words max) for these staged changes. Respond with a single line suitable for \"git commit -m\"."
+
+      local generated_message
+      if ! generated_message=$(_ollama_completion "$prompt" "$staged_diff"); then
+        echo "gitscp: unable to generate commit message" >&2
+        return 1
+      fi
+
+      generated_message=$(printf '%s' "$generated_message" | head -n 1 | tr -d '\r')
+
+      if [ -z "$generated_message" ]; then
+        echo "gitscp: received empty commit message" >&2
+        return 1
+      fi
+
+      message="$generated_message"
+    fi
+
+    if ! git commit -m "$message"; then
+      echo "gitscp: commit failed" >&2
+      return 1
+    fi
+
+    if ! git push; then
+      echo "gitscp: push failed" >&2
+      return 1
+    fi
+
+    return 0
+  }
+
+  
   function git-changed-files() {
     # get only the file name (everything after the last space)
     git status --porcelain=v2  -u | sed -E 's/^.*[[:space:]]+([^[:space:]]+)$/\1/' 

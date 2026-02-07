@@ -9,8 +9,8 @@ let
   # List npm packages to install globally into $HOME/.local.
   # Examples: [ "eslint" "@biomejs/biome" "typescript@5" ]
   npmxTools = [
-    "@ellery/terminal-mcp"
-    "@napisani/scute"
+    "@ellery/terminal-mcp@latest"
+    "@napisani/scute@latest"
   ];
 
   npm = "${pkgs-unstable.nodejs}/bin/npm";
