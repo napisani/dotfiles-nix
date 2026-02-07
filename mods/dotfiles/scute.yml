@@ -8,7 +8,7 @@ providers:
 shellKeybindings:
   explain: []
   build: "Ctrl+E" 
-  suggest: "Ctrl+Shift+E"
+  suggest: [] 
   generate: [] # disable if you do not want a binding
 
 # Prompt behavior per command
