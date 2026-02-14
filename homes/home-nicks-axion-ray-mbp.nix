@@ -21,7 +21,7 @@ in
   home.packages = [
     pkgs-unstable.mongosh
     pkgs-unstable.mongodb-tools
-    pkgs-unstable.postgresql_16
+    pkgs-unstable.postgresql_17
     gcp_sdk_with_extras
   ];
 

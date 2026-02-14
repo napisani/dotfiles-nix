@@ -18,13 +18,6 @@ function M.setup()
 		return
 	end
 
-	local dap_vscode_status_ok, dap_vscode = pcall(require, "dap.ext.vscode")
-	if not dap_vscode_status_ok then
-		vim.notify("nvim-dap-vscode not found")
-		return
-	end
-
-	local utils = require("user.utils")
 
 	-- # DAP Virtual Text
 	local dap_virtual_text_status_ok, dap_virtual_text = pcall(require, "nvim-dap-virtual-text")
@@ -53,14 +46,6 @@ function M.setup()
 	require("user.dap.python")
 	require("user.dap.go")
 
-	-- Load launch.json configurations
-	local dap_root = utils.get_dap_root()
-	dap_vscode.load_launchjs(utils.get_debugger_launch_file(dap_root), {
-		["pwa-node"] = { "javascript", "typescript" },
-		delve = { "go" },
-		python = { "python" },
-		codelldb = { "c", "cpp", "rust" },
-	})
 end
 
 --- Get keymaps for nvim-dap

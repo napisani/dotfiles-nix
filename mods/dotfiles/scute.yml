@@ -5,20 +5,21 @@ providers:
     baseUrl: http://localhost:11434
   - name: openai
 
+clipboardCommand: "auto"
 # Shell keybindings in universal syntax (rendered by scute init)
-shellKeybindings:
-  explain: [] 
-  build: "Ctrl+E" 
-  suggest: [] 
-  generate: [] # disable if you do not want a binding
+# shellKeybindings:
+#   explain: [] 
+#   build: "Ctrl+E" 
+#   suggest: [] 
+#   generate: [] # disable if you do not want a binding
 
 promptDefaults:
   # provider values: openai | anthropic | gemini | ollama
-  provider: openai
-  model: gpt-4
+  # provider: openai
+  # model: gpt-4
 
-  # provider: ollama 
-  # model: qwen3:1.7b 
+  provider: ollama 
+  model: qwen3:1.7b 
   # # output values: clipboard | stdout | prompt | readline
   # output: readline
 
