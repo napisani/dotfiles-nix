@@ -161,7 +161,7 @@ function M.setup()
 					folder_closed = "", -- Nerd Font folder icon (customize as needed)
 					folder_open = "", -- Nerd Font folder-open icon
 				},
-				view_mode = "list", -- "list" or "tree"
+				view_mode = "tree", -- "list" or "tree"
 				file_filter = {
 					ignore = {}, -- Glob patterns to hide (e.g., {"*.lock", "dist/*"})
 				},
