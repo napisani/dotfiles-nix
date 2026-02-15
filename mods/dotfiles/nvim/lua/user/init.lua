@@ -31,11 +31,5 @@ require("user.whichkey.whichkey")
 -- Autocommands load after which-key
 require("user.autocommands")
 
--- Non-modular plugins (still using old structure)
-require("user.diff")
-
 -- Finalize exrc manager setup
 exrc_manager.setup()
-
--- GitHub search (optional, commented out)
--- require("user.github-search")

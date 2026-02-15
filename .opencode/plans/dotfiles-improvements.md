@@ -531,6 +531,41 @@ Create `.agents/skills/karabiner/SKILL.md` covering:
 
 ---
 
+## Phase 3: Additional Cleanup (Non-Logical)
+
+All completed in second pass.
+
+### Neovim: Dead File Removal
+
+- **Deleted `lua/user/core/keymaps.lua`** -- Never required by init.lua (loads `user.keymaps`). Old copy with deprecated APIs.
+- **Deleted `lua/user/core/options.lua`** -- Byte-identical duplicate of `user/options.lua`. Never required.
+- **Deleted empty `lua/user/core/` directory** -- Both files removed, directory empty.
+- **Deleted `lua/user/github-search.lua`** -- Commented out in init.lua, references uninstalled `nvim-github-codesearch` plugin.
+- **Deleted `lua/user/diff.lua`** -- Duplicate of `plugins/git/diff.lua` (registered in plugin_registry). Commands were registered twice at runtime.
+- **Removed `require("user.diff")` and github-search comment from `init.lua`**
+
+### Neovim: Bug Fixes
+
+- **Fixed broken pcall guard in `plugins/ai/codecompanion.lua:5`** -- Changed `if not codecompanion` to `if not ok`. The original guard never triggered on failure because pcall returns error string (truthy) as second value on failure.
+- **Fixed `io.popen` handle leak in `utils/git_utils.lua:37`** -- Added `handle:close()` after `handle:read("*a")`.
+- **Replaced deprecated `nvim_buf_get_option` in `plugins/ui/lualine.lua:65`** -- Changed to `vim.bo[0].shiftwidth`. Last remaining instance in codebase.
+- **Removed unused `start_line`/`end_line` variables in `plugins/git/diff.lua:312-313`**
+- **Fixed "the the" typo in `plugins/git/diff.lua:44`** comment
+
+### Nix: Unused Arguments and Dead Code
+
+- **Removed unused `procmux`, `secret_inject` from `mods/system-packages.nix` signature**
+- **Removed unused `procmux`, `secret_inject`, `animal_rescue` from `mods/ui-packages.nix` signature**
+- **Removed no-op `with pkgs-unstable;` from `mods/languages/all.nix:22`** -- No unqualified attribute used.
+- **Cleaned up `mods/uvx.nix`** -- Removed empty `uvxTools = []` list and its no-op for-loop. Removed unnecessary empty `let in` block.
+
+### Documentation: Skill Files
+
+- **Rewrote `.agents/skills/skill-neovim-research/SKILL.md`** -- Replaced all `lua/neotex/` paths with correct `lua/user/` paths, removed references to non-existent `.claude/` directories and `nvim/tests/`, updated plugin references (snacks instead of telescope), added modern API requirements.
+- **Rewrote `.agents/skills/skill-neovim-implementation/SKILL.md`** -- Same path corrections, fixed indent setting from "2 spaces" to "tabs (stylua)", updated module template to match actual codebase patterns, added pcall guard warning about checking `ok` not module value.
+
+---
+
 ## Notes for Future Sessions (Not in Scope)
 
 These items were identified but require logic changes or testing:
@@ -547,3 +582,9 @@ These items were identified but require logic changes or testing:
 - Extract embedded Python script from `window-layer.ts`
 - Address `lazyredraw` conflict with async UI plugins
 - Replace `PlenaryJob` with `vim.system` in git_utils.lua
+- Add `pcall` guards to unprotected requires in `snacks/ai_context_files.lua:1-4`
+- Deduplicate database keymaps (inline in `whichkey.lua:32-38` vs `plugins/database/dadbod.lua` get_keymaps)
+- Deduplicate debug keymaps (inline in `whichkey.lua:283-305` vs `plugins/debug/nvim-dap.lua` get_keymaps)
+- Remove unused `hostname` parameter from `mkDarwinSystem`/`mkNixOSSystem` in `lib/builders.nix`
+- Remove unused named args from `homes/home-nicks-mbp.nix` and `homes/home-maclab.nix` signatures
+- Remove `systemLeader` export from `karabiner/src/leader-utils.ts` (only used internally)

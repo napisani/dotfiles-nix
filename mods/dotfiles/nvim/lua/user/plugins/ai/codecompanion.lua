@@ -2,7 +2,7 @@ local M = {}
 
 function M.setup()
 	local ok, codecompanion = pcall(require, "codecompanion")
-	if not codecompanion then
+	if not ok then
 		vim.notify("codecompanion not found", vim.log.levels.ERROR)
 		return
 	end

@@ -1,4 +1,4 @@
-{ pkgs, procmux, secret_inject, ... }:
+{ pkgs, ... }:
 let
   kubekill = pkgs.writeScriptBin "killkube.sh" ''
     #!/usr/bin/env bash
@@ -6,7 +6,8 @@ let
     kubectl delete deployment pgvector -n home
     kubectl delete deployment mongo -n home
   '';
-in {
+in
+{
   environment.systemPackages = with pkgs; [
     tmux
     unzip

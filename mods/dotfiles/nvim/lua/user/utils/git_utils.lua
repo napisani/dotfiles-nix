@@ -35,6 +35,7 @@ function M.get_primary_git_branch()
 	end
 	if handle ~= nil then
 		local result = handle:read("*a")
+		handle:close()
 		if result == nil or result:match("fatal") or result == "" then
 			return default_branch
 		end

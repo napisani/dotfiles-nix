@@ -2,381 +2,172 @@
 name: skill-neovim-implementation
 description: Implement Neovim plugins and configurations with TDD. Invoke for lua-language implementation tasks.
 allowed-tools: Read, Write, Edit, Bash(nvim:*, luacheck)
-context:
-  - project/neovim/standards/lua-style-guide.md
-  - project/neovim/standards/testing-standards.md
-  - project/neovim/patterns/plugin-definition.md
 ---
 
 # Neovim Implementation Skill
 
-Specialized implementation agent for Neovim configuration and Lua plugin development with test-driven development.
+Specialized implementation agent for Neovim configuration and Lua plugin development within this dotfiles repository.
 
 ## Trigger Conditions
 
 This skill activates when:
 - Task language is "lua"
 - Implementation involves Neovim plugins, configurations, or utilities
-- /implement command is invoked for a Lua task
 - Plan exists with phases ready for execution
 
-## TDD Workflow
+## Pre-Implementation Checklist
 
-Follow strict test-driven development:
-
-```
-1. Load implementation plan
-2. Identify target functionality
-3. Write failing test first (busted/plenary)
-4. Implement minimal code to pass
-5. Run test to verify pass
-6. Refactor while tests pass
-7. Repeat for each feature
-8. Verify with full test suite
-```
-
-### TDD Rules
-
-1. **Write test first** - Never implement without a failing test
-2. **Minimal implementation** - Only write code to make the test pass
-3. **Refactor under green** - Only refactor when all tests pass
-4. **One feature at a time** - Focus on single functionality per cycle
+Before making changes, always:
+1. Read `lua/user/plugin_registry.lua` for current plugin list and load order
+2. Read `lua/user/lazy.lua` for plugin specs
+3. Read `AGENTS.md` in the nvim directory for conventions
+4. Check if the plugin/feature already exists in a module
 
 ## Testing Commands
 
-### Run All Tests
-
 ```bash
-# Run all tests with plenary
-nvim --headless -c "PlenaryBustedDirectory tests/"
+# Test module loading
+nvim --headless -c "lua require('user.plugins.category.name')" -c "qa"
 
-# With minimal init (faster, isolated)
-nvim --headless -c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal_init.lua'}"
-```
+# Test keymap discovery
+nvim --headless -c "lua local p = require('user.whichkey.plugins'); print(vim.inspect(p.get_all_plugin_keymaps()))" -c "qa"
 
-### Run Specific Tests
+# Full health check
+nvim --headless -c "checkhealth" -c "qa"
 
-```bash
-# Run single test file
-nvim --headless -c "PlenaryBustedFile tests/path/to/spec.lua"
-
-# Run tests matching pattern
-nvim --headless -c "PlenaryBustedDirectory tests/ {pattern = 'picker'}"
-```
-
-### Lint Lua Code
-
-```bash
 # Check for syntax errors
 luacheck lua/ --codes
-
-# Check specific file
-luacheck lua/neotex/path/to/file.lua
-```
-
-## Test File Structure
-
-Create test files following this pattern:
-
-```lua
--- tests/module_name_spec.lua
-describe("ModuleName", function()
-  local module
-
-  before_each(function()
-    -- Reset state before each test
-    package.loaded["neotex.module_name"] = nil
-    module = require("neotex.module_name")
-  end)
-
-  describe("function_name", function()
-    it("should do expected behavior", function()
-      local result = module.function_name(input)
-      assert.equals(expected, result)
-    end)
-
-    it("should handle edge case", function()
-      local result = module.function_name(edge_input)
-      assert.is_nil(result)
-    end)
-  end)
-end)
-```
-
-### Assertion Patterns
-
-```lua
--- Use is_nil/is_not_nil for pattern matching
-assert.is_not_nil(str:match("pattern"))   -- Match found
-assert.is_nil(str:match("pattern"))       -- Match not found
-
--- Equality
-assert.equals(expected, actual)
-assert.same(expected_table, actual_table)
-
--- Boolean
-assert.is_true(condition)
-assert.is_false(condition)
-
--- Errors
-assert.has_error(function() error_func() end)
 ```
 
 ## Module Structure Patterns
 
-### Lua Module Directory
+### Directory Layout
 
 ```
-nvim/
-├── lua/neotex/
-│   ├── core/           # Core utilities (loader, options, keymaps)
-│   │   └── module.lua
-│   ├── plugins/        # Plugin configurations
-│   │   ├── ai/         # AI integrations
-│   │   ├── editor/     # Editor enhancements
-│   │   ├── lsp/        # Language server configs
-│   │   ├── text/       # Format-specific (LaTeX, Markdown)
-│   │   ├── tools/      # Development tools
-│   │   └── ui/         # UI components
-│   └── util/           # Utility functions
-├── after/ftplugin/     # Filetype-specific settings
-└── tests/              # Test suites
+mods/dotfiles/nvim/
+├── lua/user/
+│   ├── init.lua              # Entry point
+│   ├── options.lua           # Editor options
+│   ├── keymaps.lua           # Core keymaps
+│   ├── lazy.lua              # lazy.nvim bootstrap + plugin specs
+│   ├── plugin_registry.lua   # Module load order + keymap discovery
+│   ├── autocommands.lua      # Autocommands
+│   ├── plugins/              # Plugin configs by category
+│   │   ├── ai/               # AI integrations (copilot, codecompanion, etc.)
+│   │   ├── code/             # Code tools (blink.cmp, treesitter, etc.)
+│   │   ├── database/         # Database tools (dadbod)
+│   │   ├── debug/            # DAP debugging
+│   │   ├── editing/          # Editing enhancements
+│   │   ├── git/              # Git tools (gitsigns, diff, etc.)
+│   │   ├── navigation/       # Navigation (oil, harpoon, etc.)
+│   │   ├── ui/               # UI (colorscheme, lualine, bufferline, etc.)
+│   │   └── util/             # Utility plugins
+│   ├── lsp/                  # LSP orchestration (mason, attach, keymaps)
+│   ├── whichkey/             # Which-key aggregation
+│   ├── snacks/               # Snacks.nvim custom pickers
+│   ├── dap/                  # DAP per-language configs
+│   └── utils/                # Utility modules (file, git, project, collection)
+├── lsp/                      # Native vim.lsp.config() server configs
+└── after/ftplugin/           # Filetype-specific settings
 ```
 
-### Standard Module Template
+### Standard Plugin Module Template
 
 ```lua
--- lua/neotex/category/module-name.lua
+-- lua/user/plugins/category/plugin-name.lua
 local M = {}
 
---- Brief description of the module
---- @module neotex.category.module-name
+function M.setup()
+	local ok, plugin = pcall(require, "plugin-name")
+	if not ok then
+		vim.notify("plugin-name not found")
+		return
+	end
 
---- Function description
---- @param input string Input parameter
---- @return string|nil result Result or nil on failure
-function M.function_name(input)
-  if not input then
-    return nil
-  end
-  -- Implementation
-  return result
+	plugin.setup({
+		-- configuration
+	})
 end
 
---- Setup function for configuration
---- @param opts table? Optional configuration
-function M.setup(opts)
-  opts = opts or {}
-  -- Apply configuration
+function M.get_keymaps() -- Optional, for automatic keymap registration
+	return {
+		normal = {
+			{ "<leader>xx", "<cmd>Command<cr>", desc = "Description" },
+		},
+		visual = {
+			{ "<leader>xx", "<cmd>Command<cr>", desc = "Description" },
+		},
+		shared = {},
+	}
 end
 
 return M
 ```
 
-### Plugin Definition Pattern
+### Adding New Plugins
 
-```lua
--- lua/neotex/plugins/category/plugin-name.lua
-return {
-  "author/plugin-name",
-  event = "VeryLazy",  -- or specific events: BufReadPre, InsertEnter
-  dependencies = {
-    "dep/plugin",
-  },
-  opts = {
-    -- Configuration options passed to setup()
-    option_key = "value",
-  },
-  config = function(_, opts)
-    require("plugin-name").setup(opts)
-  end,
-}
-```
+1. **Install the plugin** in `lua/user/lazy.lua`
+2. **Create a plugin module** in `lua/user/plugins/<category>/<name>.lua`
+3. **Register in `lua/user/plugin_registry.lua`** -- add the module path to `M.modules` in the appropriate position (order matters for dependencies)
+4. **Implement the module** with `setup()` and optionally `get_keymaps()`
 
-### Complex Plugin with Keymaps
+### Adding New LSP Servers
 
-```lua
-return {
-  "author/plugin-name",
-  event = "VeryLazy",
-  keys = {
-    { "<leader>xx", "<cmd>PluginCommand<cr>", desc = "Plugin: Description" },
-    { "<leader>xy", function() require("plugin").action() end, desc = "Plugin: Action" },
-  },
-  opts = {
-    -- Options
-  },
-  config = function(_, opts)
-    local plugin = require("plugin-name")
-    plugin.setup(opts)
-
-    -- Additional configuration after setup
-  end,
-}
-```
+1. **Create config** in top-level `lsp/<servername>.lua` returning a table for `vim.lsp.config()`
+2. **Add to `vim.lsp.enable()`** in `lua/user/lsp/init.lua`
+3. **Add to mason `ensure_installed`** in `lua/user/lsp/mason.lua`
 
 ## Error Handling Patterns
 
-### Using pcall for Safe Calls
+### Using pcall for Safe Plugin Requires
 
 ```lua
-local function safe_require(module_name)
-  local ok, module = pcall(require, module_name)
-  if not ok then
-    vim.notify(
-      "Failed to load " .. module_name .. ": " .. tostring(module),
-      vim.log.levels.WARN
-    )
-    return nil
-  end
-  return module
-end
-
--- Usage
-local telescope = safe_require("telescope")
-if telescope then
-  telescope.setup({})
+local ok, plugin = pcall(require, "plugin-name")
+if not ok then
+	vim.notify("plugin-name not found")
+	return
 end
 ```
 
-### Graceful Degradation
-
-```lua
-local function with_fallback(primary_fn, fallback_fn)
-  local ok, result = pcall(primary_fn)
-  if ok then
-    return result
-  end
-  return fallback_fn()
-end
-```
+**IMPORTANT**: Always check `ok`, not the module value. When `pcall` fails, `ok` is `false` and the second return value is the error message string (truthy), so checking `if not module` will not catch failures.
 
 ### User Notifications
 
 ```lua
--- Info level
 vim.notify("Operation completed", vim.log.levels.INFO)
-
--- Warning level
 vim.notify("Missing optional dependency", vim.log.levels.WARN)
-
--- Error level
 vim.notify("Critical error: " .. err, vim.log.levels.ERROR)
 ```
 
-## Implementation Flow
+## Quality Standards
 
-```
-1. Receive task context with plan path
-2. Load and parse implementation plan
-3. Find resume point (first non-completed phase)
-4. For each remaining phase:
-   a. Update phase status to [IN PROGRESS]
-   b. Write tests for phase features
-   c. Run tests (should fail)
-   d. Implement features
-   e. Run tests (should pass)
-   f. Verify with luacheck
-   g. Update phase status to [COMPLETED]
-   h. Git commit
-5. Run full test suite
-6. Create implementation summary
-7. Return results
-```
+- **Indentation**: Tabs (configured via stylua)
+- **Formatting**: stylua via EFM LSP (auto-format on save)
+- **Line length**: ~100 characters
+- **Naming**: snake_case for files and functions
+- **Comments**: LuaDoc style for public APIs
+- **Error handling**: pcall for all external plugin dependencies
+- **Modern APIs only**: See list below
 
-## Summary Format
+### Modern API Requirements
 
-Create summary at `.claude/specs/{N}_{SLUG}/summaries/implementation-summary-{DATE}.md`:
-
-```markdown
-# Implementation Summary: Task #{N}
-
-**Completed**: {date}
-**Duration**: {time}
-
-## Changes Made
-
-{Overview of implemented features}
-
-## Files Created
-
-- `lua/neotex/path/to/file.lua` - {description}
-
-## Files Modified
-
-- `lua/neotex/path/to/file.lua` - {change description}
-
-## Tests Added
-
-- `tests/path/to/spec.lua` - {test coverage}
-
-## Test Results
-
-```
-N tests passed
-0 tests failed
-Coverage: X%
-```
-
-## Verification
-
-- All tests pass
-- luacheck reports no errors
-- Plugin loads correctly
-
-## Notes
-
-{Any important notes or follow-ups}
-```
-
-## Return Format
-
-```json
-{
-  "status": "completed|partial",
-  "summary": "Implementation complete with TDD",
-  "artifacts": [
-    {
-      "path": ".claude/specs/{N}_{SLUG}/summaries/...",
-      "type": "summary",
-      "description": "Implementation summary"
-    }
-  ],
-  "phases_completed": 3,
-  "phases_total": 3,
-  "files_created": [
-    "lua/neotex/path/to/file.lua"
-  ],
-  "files_modified": [
-    "lua/neotex/existing/file.lua"
-  ],
-  "tests_added": [
-    "tests/path/to/spec.lua"
-  ],
-  "test_results": {
-    "passed": 10,
-    "failed": 0,
-    "total": 10
-  }
-}
-```
+Always use these over deprecated alternatives:
+- `vim.keymap.set` (not `vim.api.nvim_set_keymap`)
+- `vim.bo[bufnr]` / `vim.wo[winnr]` (not `nvim_buf_get_option` / `nvim_buf_set_option`)
+- `vim.json.decode` (not `vim.fn.json_decode`)
+- `vim.diagnostic.jump({ count = N })` (not `goto_next` / `goto_prev`)
+- `vim.lsp.get_clients()` (not `get_client_by_id` or `get_active_clients`)
+- `vim.api.nvim_create_user_command` (not `vim.cmd("command! ...")`)
+- `vim.api.nvim_create_autocmd` (not VimScript `augroup`/`autocmd` blocks)
 
 ## Key Codebase Locations
 
-- **Entry point**: `nvim/init.lua`
-- **Core config**: `nvim/lua/neotex/config/`
-- **Plugin configs**: `nvim/lua/neotex/plugins/`
-- **Core utilities**: `nvim/lua/neotex/core/`
-- **Utilities**: `nvim/lua/neotex/util/`
-- **Tests**: `nvim/tests/`
-- **Standards**: `nvim/CLAUDE.md`, `nvim/docs/CODE_STANDARDS.md`
-- **Rules**: `.claude/rules/neovim-lua.md`
-
-## Quality Standards
-
-- **Indentation**: 2 spaces, expandtab
-- **Line length**: ~100 characters
-- **Naming**: lowercase_with_underscores
-- **Comments**: LuaDoc style for public APIs
-- **Error handling**: pcall for external dependencies
-- **Testing**: All public APIs must have tests
+- **Entry point**: `mods/dotfiles/nvim/lua/user/init.lua`
+- **Plugin registry**: `mods/dotfiles/nvim/lua/user/plugin_registry.lua`
+- **Plugin specs**: `mods/dotfiles/nvim/lua/user/lazy.lua`
+- **Plugin configs**: `mods/dotfiles/nvim/lua/user/plugins/`
+- **LSP configs**: `mods/dotfiles/nvim/lsp/` (native) + `mods/dotfiles/nvim/lua/user/lsp/` (orchestration)
+- **Which-key**: `mods/dotfiles/nvim/lua/user/whichkey/`
+- **Snacks pickers**: `mods/dotfiles/nvim/lua/user/snacks/`
+- **Utilities**: `mods/dotfiles/nvim/lua/user/utils/`
+- **Guidelines**: `mods/dotfiles/nvim/AGENTS.md`

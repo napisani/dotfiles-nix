@@ -41,7 +41,7 @@ function M.setup()
 		range = true,
 	})
 
-	-- improve the the diff presentation
+	-- improve the diff presentation
 	vim.o.diffopt = "internal,filler,closeoff,indent-heuristic,linematch:60,algorithm:histogram"
 
 	-- Helper function to check if we're in a CodeDiff view
@@ -307,12 +307,9 @@ function M.get_keymaps()
 			{ "<leader>cc", "<esc><cmd>CompareClipboardSelection<cr>", desc = "compare (c)lipboard" },
 			{
 				"<leader>ch",
-				function()
-					-- Get the selected range
-					local start_line = vim.fn.line("'<")
-					local end_line = vim.fn.line("'>")
-					vim.cmd("CodeDiff history HEAD~20 %")
-				end,
+			function()
+				vim.cmd("CodeDiff history HEAD~20 %")
+			end,
 				desc = "(h)istory",
 			},
 		},

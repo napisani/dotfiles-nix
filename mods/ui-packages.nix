@@ -1,8 +1,8 @@
-{ pkgs, pkgs-unstable, procmux, secret_inject, animal_rescue, ... }: {
+{ pkgs, pkgs-unstable, ... }:
+{
 
-  home.packages = with pkgs-unstable;
-    [
-      # firefox-devedition
-    ];
+  home.packages = with pkgs-unstable; [
+    # firefox-devedition
+  ];
 
 }
