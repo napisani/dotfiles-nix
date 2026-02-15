@@ -15,7 +15,6 @@ local mapping_n = {
 
 	{ "<leader>h", group = "Search" },
 
-	{ "<leader>hG", "<cmd>lua require('nvim-github-codesearch').prompt()<cr>", desc = "(G)ithub Code Search" },
 	-- { "<leader>hR", "<cmd>lua require('user.telescope').live_grep_in_directory()<CR>", desc = "grep (in directory)" },
 	{
 		"<leader>hd",
@@ -76,11 +75,7 @@ local mapping_v = {
 		end,
 		desc = "(D)iff git branch",
 	},
-	{
-		"<leader>hG",
-		'"4y<cmd>lua require("nvim-github-codesearch").prompt()<c-r>4<cr>',
-		desc = "(G)ithub Code Search",
-	},
+
 	-- {
 	-- 	"<leader>hR",
 	-- 	'"4y<cmd>lua require("user.telescope").live_grep_in_directory({default_text = vim.fn.getreg("4")})<CR>',

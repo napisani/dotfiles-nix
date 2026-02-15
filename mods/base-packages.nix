@@ -12,7 +12,6 @@
 let
   languagePackages = import ./languages/all.nix { inherit pkgs pkgs-unstable; };
   inherit (pkgs.stdenv.hostPlatform) system;
-  cursorAgent = pkgs-unstable.callPackage ../packages/cursor-agent { };
 in
 {
 
@@ -57,7 +56,6 @@ in
       lazysql
       lazydocker
       # bitwarden-cli
-      # cursorAgent
       cursor-cli
 
     ];

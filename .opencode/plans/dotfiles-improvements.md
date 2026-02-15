@@ -557,12 +557,42 @@ All completed in second pass.
 - **Removed unused `procmux`, `secret_inject` from `mods/system-packages.nix` signature**
 - **Removed unused `procmux`, `secret_inject`, `animal_rescue` from `mods/ui-packages.nix` signature**
 - **Removed no-op `with pkgs-unstable;` from `mods/languages/all.nix:22`** -- No unqualified attribute used.
-- **Cleaned up `mods/uvx.nix`** -- Removed empty `uvxTools = []` list and its no-op for-loop. Removed unnecessary empty `let in` block.
-
 ### Documentation: Skill Files
 
 - **Rewrote `.agents/skills/skill-neovim-research/SKILL.md`** -- Replaced all `lua/neotex/` paths with correct `lua/user/` paths, removed references to non-existent `.claude/` directories and `nvim/tests/`, updated plugin references (snacks instead of telescope), added modern API requirements.
 - **Rewrote `.agents/skills/skill-neovim-implementation/SKILL.md`** -- Same path corrections, fixed indent setting from "2 spaces" to "tabs (stylua)", updated module template to match actual codebase patterns, added pcall guard warning about checking `ok` not module value.
+
+---
+
+## Phase 4: Additional Cleanup (Non-Logical)
+
+All completed in third pass.
+
+### Neovim: Dead Code Removal
+
+- **Removed dead `setup.commands.Format` block from `lsp/jsonls.lua:186-194`** -- `setup.commands` was an lspconfig-specific feature; this file is a native `vim.lsp.config()` server config, so the block was ignored. Also contained deprecated `vim.lsp.buf.range_formatting` (removed in 0.10).
+- **Removed active keymaps referencing uninstalled `nvim-github-codesearch`** -- `<leader>hG` in both normal and visual modes in `whichkey/search_snacks.lua` would error on keypress. Plugin was removed in prior cleanup but keymaps were left behind.
+- **Deleted entirely-commented `lsp/sqlls.lua`** -- All 13 lines were comments. Not enabled in `vim.lsp.enable()`.
+
+### Nix: Dead Code
+
+- **Removed unused `cursorAgent` variable from `mods/base-packages.nix:15`** -- Assigned via `callPackage` but only referenced in a comment. Caused unnecessary derivation evaluation on every build. Also removed the `# cursorAgent` comment.
+
+### Typo Fixes
+
+- **`mods/shell.nix:125`** -- "becahse" -> "because"
+- **`mods/shell.nix:126`** -- ".baskrc" -> ".bashrc"
+- **`readme.md:85`** -- "connfiguration" -> "configuration"
+- **`mods/dotfiles/nvim/readme.md:70`** -- "annoations" -> "annotations"
+
+### Documentation Updates
+
+- **`readme.md:59-67`** -- Removed stale step 10 about `nvim-github-codesearch` installation (references packer path, plugin no longer installed)
+- **`mods/dotfiles/nvim/readme.md`** -- Updated stale references:
+  - `:NullLsInfo` -> `:EfmLangServerInfo` (EFM is used, not null-ls)
+  - `:DiffViewOpen`/`:DiffViewClose` -> `:CodeDiff` commands (CodeDiff is used, not diffview)
+  - `diffview` -> `codediff` in plugin directory listing
+  - Example keymap updated from `DiffviewOpen` to `CodeDiff`
 
 ---
 

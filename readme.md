@@ -56,16 +56,7 @@ finally, set the shell to the last `bash` option
 :Copilot
 ```
 
-10. if nvim-github-codesearch does not install correctly do the following
-```bash
-cd ~/.local/share/nvim/site/pack/packer/start/nvim-github-codesearch/
-direnv allow
-make build
-
-# try to open neovim again
-vim
-```
-11. doppler auth and gh auth
+10. doppler auth and gh auth
 ```bash
 # allow doppler to install a new version - then follow the instructions to login
 sudo doppler login
@@ -82,7 +73,7 @@ Helpful github issue thread for diagnosing any initial Karabiner problems:
 https://github.com/LnL7/nix-darwin/issues/564
 ```
 
-## homelab disk connfiguration 
+## homelab disk configuration 
 1. setup the two 18tb drives using zfs
 ```bash
 https://nixos.wiki/wiki/ZFS

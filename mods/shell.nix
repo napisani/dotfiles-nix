@@ -122,8 +122,8 @@ in
   };
 
   # this is a cross-shell way to add to PATH
-  # but becahse of brew using shellenv being called in the
-  # .baskrc we can't use this to add to the PATH (it gets overwritten)
+  # but because of brew using shellenv being called in the
+  # .bashrc we can't use this to add to the PATH (it gets overwritten)
   # home.sessionPath = [
   #   # this supports `uv tool install <x>`
   #   "${config.home.homeDirectory}/.local/bin"

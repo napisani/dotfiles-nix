@@ -13,7 +13,7 @@ lua/user/plugins/
 ├── database/     # Database plugins (dadbod, etc.)
 ├── debug/        # Debugging plugins (nvim-dap)
 ├── editing/      # Editing enhancements (autopairs, comments)
-├── git/          # Git integration (gitsigns, neogit, diffview)
+├── git/          # Git integration (gitsigns, diff, codediff)
 ├── navigation/   # Navigation plugins (hop, oil, tmux-nav)
 ├── ui/           # UI plugins (lualine, bufferline, etc.)
 └── util/         # Utility plugins
@@ -43,7 +43,7 @@ Each plugin module can export:
 function M.get_keymaps()
   return {
     normal = {
-      { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Open diffview" },
+      { "<leader>co", "<cmd>CodeDiff<cr>", desc = "Open CodeDiff" },
     },
     visual = {
       -- visual mode keymaps
@@ -62,18 +62,14 @@ Keymaps are automatically discovered and registered - no manual configuration ne
 :LspInfo  -- show info about currently connected LSP server 
 :LspInstallInfo -- show language servers that are installed / install new ones
 :messages - show all vim.notify("test")
-:NullLsInfo - show info about extra diagnostics and formatters attached to the open file
+:EfmLangServerInfo - show info about EFM formatters/linters for the open file
 
+:G blame - show blame annotations on the left gutter
 
-
-:Gvsplitdiff! origin/main   - compare in vsplit buffer (Side by side)
-:G blame - show blame annoations on the left gutter
-
-
-:DiffViewOpen %    - shows diff view for current file
-:DiffViewOpen     - shows diff view for current workspace
-:DiffViewOpen  main..HEAD   - shows diff to main 
-:DiffViewClose - closes diff view
+:CodeDiff %         - shows diff view for current file
+:CodeDiff           - shows diff view for current workspace
+:CodeDiff main..HEAD - shows diff to main
+:CodeDiff history   - shows file history
 
 
 
