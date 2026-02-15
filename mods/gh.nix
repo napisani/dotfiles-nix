@@ -1,7 +1,7 @@
-{ pkgs, pkgs-unstable, nixhub_dep, ... }: {
+{ pkgs, pkgs-unstable, ... }:
+{
   programs.gh = {
     enable = true;
-    extensions = [  nixhub_dep.gh-actions-cache ];
+    extensions = [ pkgs-unstable.gh-actions-cache ];
   };
 }
-

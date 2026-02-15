@@ -1,4 +1,13 @@
-{ inputs, lib, config, pkgs, user, overlays, ... }: {
+{
+  inputs,
+  lib,
+  config,
+  pkgs,
+  user,
+  overlays,
+  ...
+}:
+{
   imports = [
     # if you want to use home-manager modules from other flakes (such as nix-colors):
     # inputs.nix-colors.homemanagermodule
@@ -18,9 +27,9 @@
     # configure your nixpkgs instance
     config = {
       # disable if you don't want unfree packages
-      allowunfree = true;
+      allowUnfree = true;
       # workaround for https://github.com/nix-community/home-manager/issues/2942
-      allowunfreepredicate = (_: true);
+      allowUnfreePredicate = (_: true);
       # packageoverrides = pkgs: rec {
       # secret_inject = pkgs.callpackage ../mods/secret_inject.nix { };
       # };
@@ -44,16 +53,14 @@
 
   programs.bash = {
     enable = true;
-    sessionVariables = { SHELL = "${pkgs.bashInteractive}/bin/bash"; };
+    sessionVariables = {
+      SHELL = "${pkgs.bashInteractive}/bin/bash";
+    };
     shellAliases = {
-      nixswitchup =
-        "pushd ~/.config/home-manager; git pull && sudo nixos-rebuild --show-trace --flake .#supermicro switch --impure ; popd";
-      nixswitch =
-        "pushd ~/.config/home-manager; sudo nixos-rebuild --show-trace --flake .#supermicro switch --impure ; popd";
-      nixup =
-        "pushd ~/.config/home-manager; sudo nix flake update; sudo nixswitch; popd";
-      nixclean =
-        "echo 'Collecting garbage...'; nix-collect-garbage -d && echo 'Optimizing store...'; nix store optimise && echo 'Cleaning up old profiles...'; sudo nix-collect-garbage -d && echo 'Done! Space freed.'";
+      nixswitchup = "pushd ~/.config/home-manager; git pull && sudo nixos-rebuild --show-trace --flake .#supermicro switch --impure ; popd";
+      nixswitch = "pushd ~/.config/home-manager; sudo nixos-rebuild --show-trace --flake .#supermicro switch --impure ; popd";
+      nixup = "pushd ~/.config/home-manager; sudo nix flake update; sudo nixswitch; popd";
+      nixclean = "echo 'Collecting garbage...'; nix-collect-garbage -d && echo 'Optimizing store...'; nix store optimise && echo 'Cleaning up old profiles...'; sudo nix-collect-garbage -d && echo 'Done! Space freed.'";
     };
   };
 

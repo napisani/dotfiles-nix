@@ -112,7 +112,7 @@ local reload_all = {
 				-- Only process loaded buffers
 				if vim.api.nvim_buf_is_loaded(bufnr) then
 					local bufname = vim.api.nvim_buf_get_name(bufnr)
-					local buftype = vim.api.nvim_buf_get_option(bufnr, "buftype")
+					local buftype = vim.bo[bufnr].buftype
 
 					-- Skip special buffers (help, terminal, quickfix, etc.)
 					-- Only reload normal file buffers

@@ -1,4 +1,10 @@
-{ inputs, nixpkgs, home-manager, lib, self }:
+{
+  inputs,
+  nixpkgs,
+  home-manager,
+  lib,
+  self,
+}:
 rec {
   mkSpecialArgs = system: {
     inherit inputs;
@@ -6,31 +12,32 @@ rec {
       inherit system;
       config.allowUnfree = true;
     };
-    nixhub_dep = import nixpkgs {
-      inherit system;
-      config.allowUnfree = true;
-    };
     # Make custom packages available directly
-    inherit (inputs) procmux proctmux secret_inject animal_rescue scrollbacktamer rift;
-    customPackages = {
-      inherit (inputs) procmux proctmux secret_inject animal_rescue scrollbacktamer rift;
-    };
-    overlays = [];
+    inherit (inputs)
+      procmux
+      proctmux
+      secret_inject
+      animal_rescue
+      scrollbacktamer
+      rift
+      ;
+    overlays = [ ];
     user = "nick";
   };
 
-  mkDarwinSystem = {
-    system,
-    hostname,
-    username,
-    modules ? [],
-    homeModules ? []
-  }:
+  mkDarwinSystem =
+    {
+      system,
+      hostname,
+      username,
+      modules ? [ ],
+      homeModules ? [ ],
+    }:
     inputs.darwin.lib.darwinSystem {
       inherit system;
       modules = [
         "${self}/systems/profiles/darwin-base.nix"
-        
+
         home-manager.darwinModules.home-manager
         {
           home-manager = {
@@ -40,21 +47,24 @@ rec {
             users.${username}.imports = [
               "${self}/homes/profiles/common.nix"
               "${self}/homes/profiles/darwin.nix"
-            ] ++ homeModules;
+            ]
+            ++ homeModules;
           };
-          
+
           users.users.${username}.home = /Users/${username};
         }
-      ] ++ modules;
+      ]
+      ++ modules;
     };
 
-  mkNixOSSystem = {
-    system,
-    hostname,
-    username,
-    modules ? [],
-    homeModules ? []
-  }:
+  mkNixOSSystem =
+    {
+      system,
+      hostname,
+      username,
+      modules ? [ ],
+      homeModules ? [ ],
+    }:
     nixpkgs.lib.nixosSystem {
       inherit system;
       pkgs = (mkSpecialArgs system).pkgs-unstable;
@@ -67,10 +77,12 @@ rec {
             extraSpecialArgs = mkSpecialArgs system;
             users.${username}.imports = [
               "${self}/homes/profiles/common.nix"
-            ] ++ homeModules;
+            ]
+            ++ homeModules;
           };
         }
-      ] ++ modules;
+      ]
+      ++ modules;
       specialArgs = {
         inherit inputs;
         user = username;

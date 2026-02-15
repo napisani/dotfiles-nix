@@ -41,7 +41,7 @@ function M.setup()
 	vim.api.nvim_create_autocmd('LspAttach', {
 		group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
 		callback = function(ev)
-			local client = vim.lsp.get_client_by_id(ev.data.client_id)
+			local client = vim.lsp.get_clients({ id = ev.data.client_id })[1]
 			if client then
 				M.on_attach(client, ev.buf)
 			end

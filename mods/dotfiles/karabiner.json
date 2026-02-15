@@ -34,12 +34,6 @@
                       "name": "system_leader",
                       "value": 0
                     }
-                  },
-                  {
-                    "set_variable": {
-                      "name": "window_leader",
-                      "value": 0
-                    }
                   }
                 ],
                 "to_after_key_up": [

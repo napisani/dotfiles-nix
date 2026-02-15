@@ -26,11 +26,6 @@ vim.cmd([[
     autocmd VimResized * tabdo wincmd = 
   augroup end
 
-  augroup _alpha
-    autocmd!
-    autocmd User AlphaReady set showtabline=0 | autocmd BufUnload <buffer> set showtabline=2
-  augroup end
-
   augroup _helm
     autocmd!
     autocmd BufRead,BufNewFile */templates/*.yml,helmfile*.yml set ft=helm
@@ -38,7 +33,6 @@ vim.cmd([[
 
 ]])
 
-local lsp_mason = require("user.lsp.mason")
 -- efm - format on save
 local lsp_fmt_group = vim.api.nvim_create_augroup("LspFormattingGroup", {})
 vim.api.nvim_create_autocmd("BufWritePost", {
@@ -53,16 +47,6 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 			return
 		end
 		vim.lsp.buf.format({ name = "efm", timeout_ms = 10000 })
-	end,
-})
-
--- dadbod - enable auto complete for table names and other db assets
-vim.api.nvim_create_autocmd("FileType", {
-	desc = "dadbod completion",
-	group = vim.api.nvim_create_augroup("dadbod_cmp", { clear = true }),
-	pattern = { "sql", "mysql", "plsql" },
-	callback = function()
-		require("cmp").setup.buffer({ sources = { { name = "vim-dadbod-completion" } } })
 	end,
 })
 

@@ -347,3 +347,29 @@ pkgs = import nixpkgs {
 ### Hash Mismatch
 
 Re-fetch with `nix-prefetch-url` and update the hash. Hashes change when upstream updates binaries at the same URL.
+
+## Project-Specific Patterns
+
+### Builder Pattern
+This project uses `lib/builders.nix` with `mkDarwinSystem` and `mkNixOSSystem` helpers that wire up:
+- Base system profiles
+- Home-manager with `extraSpecialArgs` (pkgs-unstable, custom flake inputs)
+- Profile layering
+
+### Profile Layering
+- System level: `darwin-base.nix` (all Macs) -> `darwin-{personal,work,maclab}.nix`
+- Home level: `common.nix` (all machines) -> `darwin.nix` (all Macs) -> `home-<machine>.nix`
+
+### Symlink Strategy
+Uses `mkOutOfStoreSymlink` for dotfile management. A `mkSym` helper in `shell.nix` creates these concisely. Edits take effect immediately without rebuild.
+
+### Language Modules
+`mods/languages/all.nix` aggregates all language tooling. Shared between `base-packages.nix` (shell) and `neovim.nix` (extraPackages).
+
+### Activation Hooks
+`uvx.nix` and `npmx.nix` install tools via `uv tool install` and `npm install -g` in home-manager activation hooks.
+
+### Known Improvement Opportunities
+- Several flake inputs could benefit from `nixpkgs.follows` (proctmux, secret_inject, animal_rescue, scrollbacktamer)
+- `home-supermicro.nix` could be consolidated to use the common.nix profile
+- `useGlobalPkgs = true` would avoid duplicate nixpkgs config

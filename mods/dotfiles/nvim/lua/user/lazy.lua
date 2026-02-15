@@ -192,10 +192,9 @@ require("lazy").setup({
 			},
 		},
 
-		{
-			"olimorris/codecompanion.nvim",
-			config = true,
-			dependencies = {
+	{
+		"olimorris/codecompanion.nvim",
+		dependencies = {
 				"nvim-lua/plenary.nvim",
 				"nvim-treesitter/nvim-treesitter",
 			},
@@ -227,9 +226,9 @@ require("lazy").setup({
 		-- 	"yioneko/nvim-vtsls",
 		-- },
 
-		{
-			"tpope/vim-dadbod",
-			opt = true,
+	{
+		"tpope/vim-dadbod",
+		lazy = true,
 			dependencies = {
 				"kristijanhusak/vim-dadbod-ui",
 				"kristijanhusak/vim-dadbod-completion",

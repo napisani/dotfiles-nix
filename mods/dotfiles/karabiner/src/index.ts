@@ -1,6 +1,6 @@
 import "../polyfill.ts";
 import { map, rule, writeToProfile } from "karabiner.ts";
-import { modifierSwapRules } from "./modifierSwap.ts";
+import { modifierSwapRules } from "./modifier-swap.ts";
 import { layerRules } from "./layers.ts";
 import { capsRules } from "./cap-modifier.ts";
 import { join } from "@std/path";
@@ -20,8 +20,6 @@ writeToProfile({
   ...capsRules,
   ...modifierSwapRules,
   ...layerRules,
-  // ...systemLeaderRules,
-  // ...windowLeaderRules,
   ...tabWindowManagerRules,
 
   rule("escape -> grave_accent_and_tilde").manipulators([

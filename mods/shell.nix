@@ -1,6 +1,9 @@
 { pkgs, config, ... }:
 let
   opencodeCursor = pkgs.callPackage ../packages/opencode-cursor { };
+  mkSym =
+    path:
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/${path}";
 in
 {
   programs = {
@@ -54,68 +57,33 @@ in
   home.file = {
     ".config/pet".source = ./dotfiles/pet;
     ".aider.conf.yml".source = ./dotfiles/aider.conf.yml;
-    ".config/mcphub/servers.json".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/mcphub-servers.json";
-    ".aerospace.toml".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.aerospace.toml";
-    "Library/Application Support/com.mitchellh.ghostty/config".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/ghostty-config";
-    "global_python_scripts".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/global_python_scripts";
+    ".config/mcphub/servers.json".source = mkSym "mcphub-servers.json";
+    ".aerospace.toml".source = mkSym ".aerospace.toml";
+    "Library/Application Support/com.mitchellh.ghostty/config".source = mkSym "ghostty-config";
+    "global_python_scripts".source = mkSym "global_python_scripts";
+    "shell_scripts".source = mkSym "shell_scripts";
+    ".config/tmux/tmux.conf".source = mkSym ".tmux.conf";
+    ".config/scute/config.yaml".source = mkSym "scute.yml";
 
-    "shell_scripts".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/shell_scripts";
-
-    ".config/tmux/tmux.conf".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/.tmux.conf";
-
-    ".config/scute/config.yaml".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/scute.yml";
-
-    ".config/opencode/config.json".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode-config.json";
-
+    ".config/opencode/config.json".source = mkSym "opencode-config.json";
     ".config/opencode/plugin/cursor-acp.js".source =
       "${opencodeCursor}/share/opencode/plugins/cursor-acp.js";
+    ".config/opencode/commands".source = mkSym "opencode/commands";
+    ".config/opencode/agents".source = mkSym "opencode/agents";
+    ".config/opencode/modes".source = mkSym "opencode/modes";
+    ".config/opencode/plugins".source = mkSym "opencode/plugins";
+    ".config/opencode/themes".source = mkSym "opencode/themes";
+    ".config/opencode/skills".source = mkSym "opencode/skills";
 
-    ".config/opencode/commands".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/commands";
-
-    ".config/opencode/agents".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/agents";
-
-    ".config/opencode/modes".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/modes";
-
-    ".config/opencode/plugins".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/plugins";
-
-    ".config/opencode/themes".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/themes";
-
-    ".config/opencode/skills".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/skills";
-
-    ".opencode/agents".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/agents";
-
-    ".opencode/commands".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/commands";
-
-    ".opencode/modes".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/modes";
-
-    ".opencode/plugins".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/plugins";
-
-    ".opencode/themes".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/themes";
-
-    ".opencode/skills".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/opencode/skills";
+    ".opencode/agents".source = mkSym "opencode/agents";
+    ".opencode/commands".source = mkSym "opencode/commands";
+    ".opencode/modes".source = mkSym "opencode/modes";
+    ".opencode/plugins".source = mkSym "opencode/plugins";
+    ".opencode/themes".source = mkSym "opencode/themes";
+    ".opencode/skills".source = mkSym "opencode/skills";
 
     ".config/karabiner/karabiner.json" = {
-      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/karabiner.json";
+      source = mkSym "karabiner.json";
       force = true;
     };
 
@@ -124,11 +92,8 @@ in
       executable = true;
     };
 
-    ".config/rift/config.toml".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/riftrc";
-
-    ".config/alacritty/alacritty.toml".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/alacritty.toml";
+    ".config/rift/config.toml".source = mkSym "riftrc";
+    ".config/alacritty/alacritty.toml".source = mkSym "alacritty.toml";
 
     ".aider.model.settings.yml".source = ./dotfiles/aider.model.settings.yml;
     ".bashrc.d".source = ./dotfiles/.bashrc.d;

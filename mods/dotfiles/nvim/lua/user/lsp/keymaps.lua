@@ -41,7 +41,7 @@ M.base = {
 		desc = "Line diagnostics",
 	},
 	-- { key = "[d", action = vim.diagnostic.goto_prev, desc = "Previous diagnostic" },
-	{ key = "]d", action = vim.diagnostic.goto_next, desc = "Next diagnostic" },
+	{ key = "]d", action = function() vim.diagnostic.jump({ count = 1, float = true }) end, desc = "Next diagnostic" },
 	{ key = "<leader>lE", action = vim.diagnostic.setloclist, desc = "Diagnostic loclist" },
 }
 

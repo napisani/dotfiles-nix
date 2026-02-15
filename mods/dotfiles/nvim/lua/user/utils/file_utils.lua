@@ -12,7 +12,7 @@ function M.read_json_file(filename)
 	if contents == nil then
 		return nil
 	end
-	local json = vim.fn.json_decode(contents)
+	local json = vim.json.decode(contents)
 	return json
 end
 
@@ -29,16 +29,18 @@ function M.read_yaml_file(filename)
 		return nil
 	end
 	handle:close()
-	return vim.fn.json_decode(output)
+	return vim.json.decode(output)
 end
 
 function M.read_file_to_string(filename)
 	if not M.file_exists(filename) then
 		return nil
 	end
-	local path = io.open(filename, "r")
-	if path ~= nil then
-		return path:read("*a")
+	local fh = io.open(filename, "r")
+	if fh ~= nil then
+		local content = fh:read("*a")
+		fh:close()
+		return content
 	end
 	return nil
 end

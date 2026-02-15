@@ -1,99 +1,205 @@
 ---
 name: neovim
-description: Comprehensive guide for this Neovim configuration - a modular, performance-optimized Lua-based IDE. Use when configuring plugins, adding keybindings, setting up LSP servers, debugging, or extending the configuration. Covers lazy.nvim, 82+ plugins across 9 categories, DAP debugging, AI integrations, and performance optimization.
+description: Guide for this Neovim configuration -- a modular Lua-based IDE rooted at mods/dotfiles/nvim/. Use when configuring plugins, adding keybindings, setting up LSP servers, debugging, or extending the config. Covers lazy.nvim, plugin_registry, snacks.nvim pickers, blink.cmp completion, dual LSP architecture, DAP debugging, and which-key v3 aggregation.
 ---
 
 # Neovim Configuration Skill
 
-A comprehensive guide for working with this modular, performance-optimized Neovim configuration built on lazy.nvim.
+Guide for working with this modular Neovim configuration. The config lives at `mods/dotfiles/nvim/` within the home-manager flake and is symlinked to `~/.config/nvim/` via `mkOutOfStoreSymlink` (edits take effect immediately without Nix rebuild).
 
 ## Quick Reference
 
-| Metric | Value |
+| Aspect | Value |
 |--------|-------|
-| Plugin Manager | lazy.nvim |
-| Total Plugins | 82 |
-| Target Startup | <50ms |
-| Module Pattern | `M.setup()` |
-| Leader Key | `<Space>` |
+| Plugin Manager | lazy.nvim (bootstrapped in `lua/user/lazy.lua`) |
+| Module Pattern | `M.setup()` + optional `M.get_keymaps()` |
+| Leader Key | `<Space>` (`<localleader>` = `;`) |
+| Colorscheme | kanagawa.nvim |
+| Picker Framework | snacks.nvim (NOT telescope) |
+| Completion Engine | blink.cmp (NOT nvim-cmp) |
+| File Explorer | nvim-tree (NOT neo-tree) |
+| Formatter Engine | EFM LSP (format-on-save via `BufWritePost`) |
 
 ## Architecture Overview
 
 ```
-~/.config/nvim/
-├── init.lua                  # Entry point
-├── lua/
-│   ├── config/               # Core configuration (11 modules)
-│   │   ├── lazy.lua          # Plugin manager bootstrap
-│   │   ├── options.lua       # Vim options
-│   │   ├── keymaps.lua       # Key bindings
-│   │   ├── autocmds.lua      # Autocommands
-│   │   └── performance.lua   # Startup optimization
-│   ├── plugins/specs/        # Plugin specs (9 categories)
-│   │   ├── core.lua          # Foundation (plenary, nui, devicons)
-│   │   ├── ui.lua            # UI (lualine, bufferline, noice)
-│   │   ├── editor.lua        # Editor (autopairs, flash, harpoon)
-│   │   ├── lsp.lua           # LSP (lspconfig, mason, conform)
-│   │   ├── git.lua           # Git (fugitive, gitsigns, diffview)
-│   │   ├── ai.lua            # AI (copilot, ChatGPT)
-│   │   ├── debug.lua         # DAP (nvim-dap, dap-ui)
-│   │   ├── tools.lua         # Tools (telescope, neo-tree)
-│   │   └── treesitter.lua    # Syntax (treesitter, textobjects)
-│   ├── kickstart/            # Kickstart-derived modules
-│   └── utils/                # Utility functions
-└── lazy-lock.json            # Plugin version lock
+mods/dotfiles/nvim/
+├── init.vim                      # Bootstrap: sets termguicolors, loads user.init
+├── lazy-lock.json                # Plugin version lock
+├── lsp/                          # Native vim.lsp.config() server configs (Neovim 0.11+)
+│   ├── basedpyright.lua          #   Each file returns a config table
+│   ├── denols.lua
+│   ├── efm.lua                   #   EFM formatter/linter config (read for language map)
+│   ├── gopls.lua
+│   ├── lua_ls.lua
+│   ├── vtsls.lua
+│   └── ...                       #   Read lsp/ directory for current server list
+├── lua/user/
+│   ├── init.lua                  # Main entry point (initialization order)
+│   ├── options.lua               # Vim options
+│   ├── keymaps.lua               # Base keymaps (non-which-key)
+│   ├── autocommands.lua          # Autocommands (format-on-save, filetype, etc.)
+│   ├── lazy.lua                  # lazy.nvim bootstrap + all plugin specs
+│   ├── plugin_registry.lua       # Ordered list of plugin modules (single source of truth)
+│   ├── blink.lua                 # blink.cmp opts (referenced by lazy.lua)
+│   ├── trouble.lua               # trouble.nvim opts (referenced by lazy.lua)
+│   ├── diff.lua                  # Non-modular plugin (legacy)
+│   ├── lsp/
+│   │   ├── init.lua              # vim.lsp.enable() calls + diagnostics config
+│   │   ├── mason.lua             # Mason setup + ensure_installed servers
+│   │   ├── attach.lua            # LspAttach autocmd (wires keymaps per-buffer)
+│   │   ├── keymaps.lua           # Base LSP keymaps + per-server keymaps
+│   │   └── actions.lua           # LSP code actions (organize imports, etc.)
+│   ├── plugins/                  # Plugin config modules (category/name.lua)
+│   │   ├── ai/                   #   Read plugin_registry.lua for current module list
+│   │   ├── code/
+│   │   ├── database/
+│   │   ├── debug/
+│   │   ├── editing/
+│   │   ├── git/
+│   │   ├── navigation/
+│   │   ├── ui/
+│   │   └── util/
+│   ├── whichkey/
+│   │   ├── whichkey.lua          # Main aggregator (combines all keymaps)
+│   │   ├── plugins.lua           # Auto-discovers keymaps from registry modules
+│   │   ├── find_snacks.lua       # <leader>f -- file/buffer finders
+│   │   ├── search_snacks.lua     # <leader>h -- grep/search
+│   │   ├── replace.lua           # <leader>r -- find & replace
+│   │   ├── repl.lua              # REPL/slime keymaps
+│   │   ├── scopes.lua            # Scope-related keymaps
+│   │   ├── lsp.lua               # LSP-related which-key groups
+│   │   └── global.lua            # Global/misc keymaps
+│   ├── snacks/                   # Custom snacks.nvim pickers
+│   │   ├── init.lua              # Snacks opts (dashboard, picker, notifier, etc.)
+│   │   ├── find_files.lua        # File finding pickers
+│   │   ├── search_files.lua      # Grep/search pickers
+│   │   ├── git_files.lua         # Git changed/conflicted file pickers
+│   │   ├── git_search.lua        # Grep within git-changed files
+│   │   ├── scope.lua             # Scope picker
+│   │   ├── compare.lua           # Compare picker
+│   │   ├── common.lua            # Shared picker utilities
+│   │   ├── ai_actions.lua        # AI action pickers
+│   │   ├── ai_context_files.lua  # AI context file pickers
+│   │   ├── proctmux.lua          # Proctmux command picker
+│   │   └── commands/             # Command launcher categories
+│   │       ├── init.lua          # Aggregates all command categories
+│   │       ├── ai.lua
+│   │       ├── finders.lua
+│   │       ├── lsp.lua
+│   │       ├── package_manage.lua
+│   │       └── project.lua
+│   ├── dap/                      # Per-language DAP configurations
+│   │   ├── go.lua
+│   │   ├── python.lua
+│   │   └── typescript.lua
+│   ├── utils/                    # Utility modules
+│   │   ├── init.lua
+│   │   ├── file_utils.lua
+│   │   ├── git_utils.lua
+│   │   ├── project_utils.lua
+│   │   └── collection_utils.lua
+│   └── core/                     # Core option/keymap modules
+│       ├── options.lua
+│       └── keymaps.lua
+```
+
+> **Dynamic note**: Read the actual files for current state. The tree above is a structural guide -- files may be added or removed over time.
+
+## Initialization Order
+
+Read `lua/user/init.lua` for the definitive boot sequence. The general flow is:
+
+```
+init.vim
+  -> require("user.init")
+    -> exrc_manager.source_local_config()   -- .nvim.lua project config (early)
+    -> require("user.options")
+    -> require("user.keymaps")
+    -> require("user.lazy")                 -- lazy.nvim bootstrap + plugin specs
+    -> require("user.lsp")                  -- mason, attach, vim.lsp.enable()
+    -> plugin_registry loop                 -- setup() on each registered module
+    -> require("user.whichkey.whichkey")    -- aggregates all keymaps
+    -> require("user.autocommands")
+    -> require("user.diff")                 -- non-modular legacy plugin
+    -> exrc_manager.setup()                 -- finalize project config (late)
 ```
 
 ## Standard Module Pattern
 
-All configuration modules follow the `M.setup()` pattern:
+Plugin modules live in `lua/user/plugins/<category>/<name>.lua`. Each module follows this pattern:
 
 ```lua
 local M = {}
 
-M.setup = function()
-  -- Configuration logic here
+function M.setup()
+  local ok, plugin = pcall(require, "plugin-name")
+  if not ok then
+    vim.notify("plugin-name not found")
+    return
+  end
+
+  plugin.setup({
+    -- configuration
+  })
+end
+
+-- Optional: keymaps are auto-discovered by whichkey/plugins.lua
+function M.get_keymaps()
+  return {
+    shared = {
+      { "<leader>x", group = "Group Name" },
+    },
+    normal = {
+      { "<leader>xx", "<cmd>Command<cr>", desc = "Description" },
+    },
+    visual = {
+      { "<leader>xx", "<cmd>Command<cr>", desc = "Description" },
+    },
+  }
 end
 
 return M
 ```
 
-## Plugin Management (lazy.nvim)
+Key points:
+- `M.setup()` is called during init by the registry loop in `lua/user/init.lua`
+- `M.get_keymaps()` is optional -- if present, `whichkey/plugins.lua` auto-discovers and registers the keymaps
+- Always use `pcall` when requiring plugins that might not be installed
+- The return table must have `shared`, `normal`, and/or `visual` keys for keymap mode routing
+
+> **Read** `lua/user/plugins/ui/colorscheme.lua` or `lua/user/plugins/debug/nvim-dap.lua` for real working examples of this pattern.
+
+## Plugin Management
+
+### How Plugins Are Configured
+
+This config separates plugin **installation** from plugin **configuration**:
+
+1. **`lua/user/lazy.lua`** -- All plugin specs (installation, dependencies, lazy-loading). This is the `require("lazy").setup({ spec = { ... } })` call.
+2. **`lua/user/plugin_registry.lua`** -- Ordered list of module paths that get `setup()` called during init. This controls **load order** and **keymap discovery**.
+3. **`lua/user/plugins/<category>/<name>.lua`** -- The actual configuration module with `M.setup()` and optional `M.get_keymaps()`.
 
 ### Adding a New Plugin
 
-Add to the appropriate category file in `lua/plugins/specs/`:
+1. **Add the plugin spec** to `lua/user/lazy.lua`:
+   ```lua
+   { "author/plugin-name", event = "VeryLazy" },
+   ```
 
-```lua
--- lua/plugins/specs/tools.lua
-return {
-  -- Existing plugins...
+2. **Create a config module** at `lua/user/plugins/<category>/<name>.lua` following the standard module pattern above. Categories: `ai`, `code`, `database`, `debug`, `editing`, `git`, `navigation`, `ui`, `util`.
 
-  {
-    "author/plugin-name",
-    event = "VeryLazy",           -- Loading strategy
-    dependencies = { "dep/name" }, -- Required plugins
-    opts = {
-      -- Plugin options
-    },
-    config = function(_, opts)
-      require("plugin-name").setup(opts)
-    end,
-  },
-}
-```
+3. **Register in `lua/user/plugin_registry.lua`** -- add `"<category>.<name>"` to `M.modules` in the appropriate position:
+   ```lua
+   M.modules = {
+     "ui.notify",       -- must load early
+     "ui.colorscheme",  -- must load early
+     -- ...
+     "<category>.<name>",  -- add in logical position
+   }
+   ```
 
-### Loading Strategies
-
-| Strategy | When to Use | Example |
-|----------|-------------|---------|
-| `lazy = true` | Default, load on demand | Most plugins |
-| `event = "VeryLazy"` | After UI loads | UI enhancements |
-| `event = "BufReadPre"` | When opening files | Treesitter, gitsigns |
-| `event = "InsertEnter"` | When typing | Completion, autopairs |
-| `cmd = "CommandName"` | On command invocation | Heavy tools |
-| `ft = "filetype"` | For specific filetypes | Language plugins |
-| `keys = {...}` | On keypress | Motion plugins |
+> **IMPORTANT**: Load order matters. UI plugins (colorscheme, notify) must load first. Read `plugin_registry.lua` for current ordering.
 
 ### Plugin Commands
 
@@ -101,165 +207,196 @@ return {
 |---------|-------------|
 | `:Lazy` | Open lazy.nvim dashboard |
 | `:Lazy sync` | Update and install plugins |
-| `:Lazy profile` | Show startup time analysis |
+| `:Lazy profile` | Startup time analysis |
 | `:Lazy clean` | Remove unused plugins |
-| `:Lazy health` | Check plugin health |
 
 ## LSP Configuration
 
-See [references/lsp.md](references/lsp.md) for complete LSP reference.
+This config uses a **dual LSP architecture** taking advantage of Neovim 0.11+'s native `vim.lsp.config()`.
 
-### LSP Stack
+### Architecture
 
 ```
-mason.nvim (installer)
-    ├── mason-lspconfig.nvim → nvim-lspconfig
-    ├── mason-tool-installer.nvim (auto-install)
-    └── mason-nvim-dap.nvim → nvim-dap
-
-nvim-lspconfig
-    ├── blink.cmp (completion)
-    ├── conform.nvim (formatting)
-    ├── nvim-lint (linting)
-    └── trouble.nvim (diagnostics)
+Top-level lsp/ directory          lua/user/lsp/ directory
+(server configs)                  (orchestration)
+─────────────────                 ────────────────────────
+lsp/gopls.lua                     lua/user/lsp/init.lua    -- vim.lsp.enable() + diagnostics
+lsp/lua_ls.lua                    lua/user/lsp/mason.lua   -- mason setup + ensure_installed
+lsp/efm.lua                       lua/user/lsp/attach.lua  -- LspAttach autocmd
+lsp/vtsls.lua                     lua/user/lsp/keymaps.lua -- base + per-server keymaps
+lsp/denols.lua                    lua/user/lsp/actions.lua -- code actions (organize imports)
+lsp/basedpyright.lua
+lsp/...
 ```
 
-### Adding an LSP Server
-
+**Server config files** (`lsp/<name>.lua`) return a table consumed by `vim.lsp.config()`:
 ```lua
--- In lua/plugins/specs/lsp.lua, add to mason-tool-installer list:
-ensure_installed = {
-  "lua_ls",
-  "pyright",
-  "your_new_server",  -- Add here
-}
-
--- Configure in lspconfig setup:
-servers = {
-  your_new_server = {
-    settings = {
-      -- Server-specific settings
+return {
+  root_markers = { "go.mod", "go.work" },
+  settings = {
+    gopls = {
+      analyses = { unusedparams = true },
     },
   },
 }
 ```
 
-### LSP Keybindings
+**Orchestration** (`lua/user/lsp/init.lua`) calls `vim.lsp.enable()` for each server and configures diagnostics.
 
-| Key | Action |
-|-----|--------|
-| `gd` | Go to definition |
-| `gr` | Go to references |
-| `gI` | Go to implementation |
-| `gD` | Go to declaration |
-| `K` | Hover documentation |
-| `<leader>rn` | Rename symbol |
-| `<leader>ca` | Code action |
-| `<leader>D` | Type definition |
-| `<leader>ds` | Document symbols |
-| `<leader>ws` | Workspace symbols |
+### Adding a New LSP Server
+
+1. **Create config file** at `lsp/<servername>.lua`:
+   ```lua
+   return {
+     root_markers = { "marker_file" },
+     settings = {
+       -- server-specific settings
+     },
+   }
+   ```
+
+2. **Add to `vim.lsp.enable()`** in `lua/user/lsp/init.lua`
+
+3. **Add to mason `ensure_installed`** in `lua/user/lsp/mason.lua` (the `servers` list)
+
+4. **Optionally add per-server keymaps** in `lua/user/lsp/keymaps.lua` under `M.per_server`
+
+> **Read** `lua/user/lsp/init.lua` for the current list of enabled servers and the deno/vtsls mutual exclusion logic.
+
+### Deno vs TypeScript Detection
+
+`lua/user/lsp/init.lua` checks for `deno.json`/`deno.jsonc` at startup:
+- Present: enables `denols`, skips `vtsls`
+- Absent: enables `vtsls`, skips `denols`
+
+These are mutually exclusive to avoid conflicts.
+
+### EFM Format-on-Save
+
+EFM LSP handles formatting and linting. Configuration is in `lsp/efm.lua`.
+
+**How it works**:
+- `autocommands.lua` has a `BufWritePost` autocmd that calls `vim.lsp.buf.format({ name = "efm" })`
+- EFM auto-detects formatters per project context:
+  - `deno.json` present -> `deno_fmt`
+  - `biome.json` / `rome.json` present -> `biome`
+  - Otherwise -> `eslint_d` (lint + format)
+- Can be overridden via `.nvim.lua` project config (`lint` table in `_G.EXRC_M`)
+
+> **Read** `lsp/efm.lua` for the complete language-to-formatter/linter mapping. It covers Go, Nix, shell, JS/TS, Lua, JSON, Python, Java, Gleam, Elixir, and more.
+
+### LSP Keymaps
+
+Base LSP keymaps are defined in `lua/user/lsp/keymaps.lua` and applied per-buffer on `LspAttach`. Read that file for the current mappings. Key ones include:
+
+- `gd` -- go to definition
+- `gr` -- references
+- `gl` -- line diagnostics (float)
+- `<leader>lr` -- rename
+- `<leader>la` -- code action (via tiny-code-action)
+- `<leader>lf` -- format (via EFM)
+- `<leader>ll` -- run codelens
+
+Per-server keymaps (e.g., `<leader>li` for organize imports on gopls/vtsls) are in `M.per_server`.
 
 ## Keybindings
 
-See [references/keybindings.md](references/keybindings.md) for complete reference.
+### Which-Key Aggregation
 
-### Core Navigation
+Keymaps are aggregated from multiple sources in `lua/user/whichkey/whichkey.lua`:
 
-| Key | Action |
-|-----|--------|
-| `<C-h/j/k/l>` | Window navigation |
-| `<S-h>` / `<S-l>` | Previous/next buffer |
-| `<leader>sf` | Search files |
-| `<leader>sg` | Search by grep |
-| `<leader><space>` | Search buffers |
-| `\\` | Toggle Neo-tree |
+1. **Whichkey category files** -- `find_snacks.lua`, `search_snacks.lua`, `replace.lua`, `repl.lua`, `scopes.lua`, `lsp.lua`, `global.lua`
+2. **Plugin auto-discovery** -- `whichkey/plugins.lua` iterates `plugin_registry.lua` modules and collects `get_keymaps()` from any module that exports it
+3. **Inline mappings** -- defined directly in `whichkey.lua` (root, database, debug, buffers, lazy/system, etc.)
 
-### Adding Keybindings
+> **IMPORTANT**: To understand current keybindings, read the `lua/user/whichkey/` files directly. Do NOT hardcode keymap lists -- they change frequently.
 
-```lua
--- In lua/config/keymaps.lua M.setup():
-vim.keymap.set('n', '<leader>xx', function()
-  -- Your action
-end, { desc = 'Description for which-key' })
+### Leader Key Prefixes
 
--- Or in a plugin spec:
-keys = {
-  { "<leader>xx", "<cmd>Command<CR>", desc = "Description" },
-}
-```
+| Prefix | Category | Source File |
+|--------|----------|-------------|
+| `<leader>f` | Find (files, buffers, pickers) | `whichkey/find_snacks.lua` |
+| `<leader>h` | Search (grep, symbols) | `whichkey/search_snacks.lua` |
+| `<leader>r` | Replace | `whichkey/replace.lua` |
+| `<leader>l` | LSP | `whichkey/lsp.lua` + `lsp/keymaps.lua` |
+| `<leader>d` | Debug | `whichkey/whichkey.lua` (inline) |
+| `<leader>b` | Buffers | `whichkey/whichkey.lua` (inline) |
+| `<leader>D` | Database | `whichkey/whichkey.lua` (inline) |
+| `<leader>P` | Lazy/System | `whichkey/whichkey.lua` (inline) |
+| `<leader>g` | Git | Read `whichkey/global.lua` |
+| `<leader>a` | AI | Read `whichkey/global.lua` + plugin modules |
+
+> Read the specific files listed above for current mappings within each prefix.
 
 ## Debugging (DAP)
 
-See [references/debugging.md](references/debugging.md) for complete reference.
+### Setup
 
-### DAP Keybindings
+DAP is configured in `lua/user/plugins/debug/nvim-dap.lua`. It sets up:
+- `nvim-dap` core
+- `nvim-dap-ui` (auto-opens/closes on debug sessions)
+- `nvim-dap-virtual-text` (inline variable values)
 
-| Key | Action |
-|-----|--------|
-| `<F5>` | Continue/Start debugging |
-| `<F10>` | Step over |
-| `<F11>` | Step into |
-| `<F12>` | Step out |
-| `<leader>b` | Toggle breakpoint |
-| `<leader>B` | Conditional breakpoint |
+### Language Configs
 
-### Adding a Debug Adapter
+Per-language debug configurations live in `lua/user/dap/`:
+- `go.lua` -- Go (delve)
+- `python.lua` -- Python
+- `typescript.lua` -- TypeScript/JavaScript (Chrome, Node)
 
-```lua
--- In lua/plugins/specs/debug.lua
-local dap = require("dap")
+> Read these files for current adapter configurations and launch profiles.
 
-dap.adapters.your_adapter = {
-  type = "executable",
-  command = "path/to/adapter",
-}
+### DAP Keymaps
 
-dap.configurations.your_filetype = {
-  {
-    type = "your_adapter",
-    request = "launch",
-    name = "Launch",
-    program = "${file}",
-  },
-}
-```
+DAP keymaps are defined both in `whichkey.lua` (inline `debugging` table) and in the nvim-dap module's `get_keymaps()`. All under `<leader>d`. Read `lua/user/plugins/debug/nvim-dap.lua` for the current list.
 
-## Performance Optimization
+## Snacks.nvim Pickers
 
-### Startup Optimization Layers
+Snacks.nvim replaces telescope as the picker framework. Custom pickers live in `lua/user/snacks/`.
 
-| Layer | Technique | Savings |
-|-------|-----------|---------|
-| 1 | `vim.loader.enable()` | ~50ms |
-| 2 | Skip `vim._defaults` | ~180ms |
-| 3 | Disable providers | ~10ms |
-| 4 | Disable builtins | ~20ms |
-| 5 | Deferred config | ~30ms |
-| 6 | Event-based loading | Variable |
+### Picker Modules
 
-### Profiling Startup
+| Module | Purpose |
+|--------|---------|
+| `find_files.lua` | File finding, path files, explorer tree toggle |
+| `search_files.lua` | Live grep, grep from root, grep quickfix list |
+| `git_files.lua` | Git changed files, conflicted files, branch diff files |
+| `git_search.lua` | Grep within git-changed files |
+| `scope.lua` | Scope-based picking |
+| `compare.lua` | Comparison picker |
+| `ai_actions.lua` | AI action picker (delegates to provider-specific modules) |
+| `ai_context_files.lua` | AI context file selection |
+| `proctmux.lua` | Proctmux/procmux command picker |
+| `common.lua` | Shared utilities (`paste_to_pattern`, `paste_to_search`) |
 
-```vim
-:Lazy profile
-```
+### Command Launcher
 
-### Deferred Loading Pattern
+`lua/user/snacks/commands/init.lua` aggregates command categories into a unified launcher accessible via `<leader>fl`. Categories are defined in separate files:
+- `ai.lua` -- AI-related commands
+- `finders.lua` -- Finder commands
+- `lsp.lua` -- LSP commands
+- `package_manage.lua` -- Package management commands
+- `project.lua` -- Project commands
 
-```lua
--- In init.lua
-vim.defer_fn(function()
-  require('config.options').setup()
-  require('config.keymaps').setup()
-  require('config.autocmds').setup()
-end, 0)
-```
+> Read `lua/user/snacks/commands/` for the current command list. Read `lua/user/snacks/init.lua` for snacks.nvim configuration (picker layout, dashboard, notifier, etc.).
+
+## Project-Specific Configuration
+
+`.nvim.lua` files in project roots are loaded via `exrc_manager` (`lua/user/plugins/util/exrc_manager.lua`). They run at two points:
+1. **Early** (before plugins) -- `source_local_config()` sources the file
+2. **Late** (after all setup) -- `setup()` calls `_G.EXRC_M.setup()` if defined
+
+Project configs expose state via `_G.EXRC_M` table. Common uses:
+- Override lint config: `_G.EXRC_M = { lint = { "biome" } }`
+- Add autocommands: `_G.EXRC_M = { autocmds = { ... } }`
+- Custom setup logic: `_G.EXRC_M = { setup = function() ... end }`
 
 ## Common Tasks
 
-### Adding an Autocommand
+### Adding Autocommands
 
+Add to `lua/user/autocommands.lua`:
 ```lua
--- In lua/config/autocmds.lua M.setup():
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "markdown", "text" },
   callback = function()
@@ -271,65 +408,69 @@ vim.api.nvim_create_autocmd("FileType", {
 
 ### Adding Vim Options
 
-```lua
--- In lua/config/options.lua M.setup():
-vim.opt.your_option = value
-```
+Edit `lua/user/options.lua` -- options are defined as a table iterated with `vim.opt[k] = v`.
 
-### Creating a Utility Function
+### Creating Utility Functions
 
+Add to or create files in `lua/user/utils/`:
 ```lua
--- In lua/utils/init.lua
+-- lua/user/utils/my_utils.lua
 local M = {}
 
-M.your_function = function(args)
-  -- Implementation
+M.my_function = function(args)
+  -- implementation
 end
 
 return M
 
--- Usage: require('utils').your_function(args)
+-- Usage: require("user.utils.my_utils").my_function(args)
 ```
 
-## Plugin Categories
+The main `lua/user/utils/init.lua` provides `extend_lists()` and other shared helpers.
 
-### Core (4 plugins)
-`plenary.nvim`, `nui.nvim`, `nvim-web-devicons`, `lazy.nvim`
+### Adding Snacks Pickers
 
-### UI (11 plugins)
-`tokyonight`, `alpha-nvim`, `lualine`, `bufferline`, `noice`, `nvim-notify`, `which-key`, `indent-blankline`, `mini.indentscope`, `fidget`, `nvim-scrollbar`
+Create a file in `lua/user/snacks/`, then wire it into the appropriate whichkey file:
+```lua
+-- lua/user/snacks/my_picker.lua
+local Snacks = require("snacks")
+local M = {}
 
-### Editor (13 plugins)
-`nvim-autopairs`, `flash.nvim`, `clever-f`, `nvim-spectre`, `grug-far`, `harpoon`, `persistence`, `smartyank`, `vim-sleuth`, `vim-illuminate`, `tabular`, `todo-comments`, `toggleterm`
+function M.pick_things(opts)
+  opts = opts or {}
+  Snacks.picker({
+    title = "My Picker",
+    items = { ... },
+    -- picker config
+  })
+end
 
-### LSP (12 plugins)
-`nvim-lspconfig`, `mason`, `mason-lspconfig`, `mason-tool-installer`, `lazydev`, `luvit-meta`, `SchemaStore`, `conform`, `nvim-lint`, `trouble`, `blink.cmp`/`nvim-cmp`, `LuaSnip`
+return M
+```
 
-### Git (7 plugins)
-`vim-fugitive`, `vim-rhubarb`, `gitsigns`, `diffview`, `vim-flog`, `git-conflict`, `octo`
+Then add a keymap in the relevant `whichkey/*.lua` file to call it.
 
-### AI (3 plugins)
-`copilot.vim`, `ChatGPT.nvim`, `mcphub.nvim`
+## Code Style
 
-### Debug (8 plugins)
-`nvim-dap`, `nvim-dap-ui`, `nvim-dap-virtual-text`, `nvim-dap-python`, `nvim-dap-go`, `mason-nvim-dap`, `telescope-dap`, `nvim-nio`
-
-### Tools (14 plugins)
-`telescope`, `telescope-fzf-native`, `telescope-ui-select`, `neo-tree`, `oil.nvim`, `nvim-bqf`, `rest.nvim`, `vim-dadbod`, `vim-dadbod-ui`, `vim-dadbod-completion`, `iron.nvim`, `markdown-preview`, `nvim-puppeteer`, `obsidian.nvim`
-
-### Treesitter (3 plugins)
-`nvim-treesitter`, `nvim-treesitter-context`, `nvim-treesitter-textobjects`
+- **Indentation**: Tabs (stylua configured with tabs)
+- **Formatting**: stylua via EFM (auto-format on save)
+- **Naming**: snake_case for files and functions
+- **Error handling**: Always `pcall()` when requiring plugins
+- **Imports**: `require("user.module")` for user code
+- **Modern APIs**: `vim.keymap.set`, `vim.bo[bufnr]`, `vim.lsp.get_clients`, `vim.diagnostic.jump`, `vim.fs.root`
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| Plugins not loading | `:Lazy sync` |
-| LSP not starting | `:LspInfo`, `:Mason` |
-| Icons missing | Install a Nerd Font |
-| Slow startup | `:Lazy profile` |
+| Plugins not loading | `:Lazy sync` then `:Lazy profile` |
+| LSP not starting | `:checkhealth lsp`, check `lua/user/lsp/init.lua` for enabled servers |
+| Mason packages missing | `:Mason`, check `lua/user/lsp/mason.lua` ensure_installed |
 | Treesitter errors | `:TSUpdate` |
-| Keybinding conflicts | `:verbose map <key>` |
+| Slow startup | `:Lazy profile` |
+| Keybinding conflicts | `:verbose map <key>` or `:checkhealth which-key` |
+| Format-on-save not working | Check `:LspInfo` for EFM attachment, read `lsp/efm.lua` |
+| Icons missing | Install a Nerd Font |
 
 ### Health Check
 
@@ -337,29 +478,29 @@ return M
 :checkhealth
 ```
 
-### Debug Logging
+### Test Commands
 
-```lua
--- Temporarily add to plugin config:
-log_level = vim.log.levels.DEBUG,
+```bash
+# Test module loading
+nvim --headless -c "lua require('user.plugins.category.name')" -c "qa"
+
+# Test keymap discovery
+nvim --headless -c "lua local p = require('user.whichkey.plugins'); print(vim.inspect(p.get_all_plugin_keymaps()))" -c "qa"
 ```
-
-## Resources
-
-- [lazy.nvim](https://github.com/folke/lazy.nvim)
-- [Mason.nvim](https://github.com/williamboman/mason.nvim)
-- [Neovim Documentation](https://neovim.io/doc/)
-- [Kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim)
 
 ## References
 
+These reference files contain additional detail. **Read them for specifics** rather than relying on summaries:
+
 - [references/configuration.md](references/configuration.md) - Core configuration options
-- [references/plugins.md](references/plugins.md) - All 82 plugins detailed
+- [references/plugins.md](references/plugins.md) - Plugin details
 - [references/plugin-deepdives.md](references/plugin-deepdives.md) - In-depth plugin guides
-- [references/lsp.md](references/lsp.md) - LSP server configuration
-- [references/keybindings.md](references/keybindings.md) - Complete keybinding reference
+- [references/lsp.md](references/lsp.md) - LSP server reference
+- [references/keybindings.md](references/keybindings.md) - Keybinding reference
 - [references/debugging.md](references/debugging.md) - DAP debugging guide
 - [references/performance.md](references/performance.md) - Optimization techniques
-- [references/tools.md](references/tools.md) - CLI tools, utilities, and workflows
+- [references/tools.md](references/tools.md) - CLI tools and workflows
 - [references/troubleshooting.md](references/troubleshooting.md) - Common issues and solutions
 - [references/migration-0.11.md](references/migration-0.11.md) - Neovim 0.11 migration guide
+
+> **Note**: These reference files may be out of date. When in doubt, read the actual source files in `mods/dotfiles/nvim/` for ground truth.

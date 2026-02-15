@@ -1,7 +1,14 @@
 {
   programs.git = {
     enable = true;
-    ignores = [ "*~" ".DS_Store" ".direnv" ".env.local" ".env" ".rgignore" ];
+    ignores = [
+      "*~"
+      ".DS_Store"
+      ".direnv"
+      ".env.local"
+      ".env"
+      ".rgignore"
+    ];
 
     settings = {
       user = {
@@ -9,21 +16,33 @@
         email = "napisani@yahoo.com";
       };
       # `git dv [...args]`  for doing diffs with diffview
-      alias = { dv = ''! args=$@; shift $#; nvim -c "DiffviewOpen $args"''; };
+      alias = {
+        dv = ''! args=$@; shift $#; nvim -c "DiffviewOpen $args"'';
+      };
       # https://blog.gitbutler.com/how-git-core-devs-configure-git/
-      core = { editor = "nvim"; };
+      core = {
+        editor = "nvim";
+      };
       push = {
         default = "simple";
         autoSetupRemote = true;
         followTags = true;
       };
-      commit = { verbose = true; };
-      branch = { sort = "-committerdate"; };
-      column = { ui = "auto"; };
-      init = { defaultBranch = "main"; };
+      commit = {
+        verbose = true;
+      };
+      branch = {
+        sort = "-committerdate";
+      };
+      column = {
+        ui = "auto";
+      };
+      init = {
+        defaultBranch = "main";
+      };
       rebase = {
         updateRefs = true;
-        autoSqaush = true;
+        autoSquash = true;
       };
 
       diff = {
@@ -33,7 +52,9 @@
         renames = true;
       };
 
-      tag = { sort = "version:refname"; };
+      tag = {
+        sort = "version:refname";
+      };
 
       "filter \"lfs\"" = {
         clean = "git-lfs clean -- %f";

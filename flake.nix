@@ -14,9 +14,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Development tools
-    nil.url = "github:oxalica/nil";
-
     # Custom packages
     procmux = {
       url = "github:napisani/procmux";
@@ -34,13 +31,27 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, darwin, ... }@inputs:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      darwin,
+      ...
+    }@inputs:
     let
       inherit (nixpkgs) lib;
       builders = import ./lib/builders.nix {
-        inherit inputs nixpkgs home-manager lib self;
+        inherit
+          inputs
+          nixpkgs
+          home-manager
+          lib
+          self
+          ;
       };
-    in {
+    in
+    {
       darwinConfigurations = {
         "nicks-mbp" = builders.mkDarwinSystem {
           system = "aarch64-darwin";
@@ -78,4 +89,3 @@
       };
     };
 }
-

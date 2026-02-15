@@ -1,38 +1,85 @@
 # Agent Guidelines for Nix/Home-Manager Dotfiles
 
+## Overview
+
 This repository is a **Nix flake** for configuring and managing multiple systems (macOS via nix-darwin and NixOS). It contains:
 1. **Root project**: Nix flake for system/package configuration and dotfile management
 2. **Sub-project: Karabiner** - Keyboard configuration at `./mods/dotfiles/karabiner`
 3. **Sub-project: Neovim** - Editor configuration at `./mods/dotfiles/nvim`
 
-**Important**: Each sub-project has its own conventions, build processes, and testing procedures detailed below.
+Each sub-project has its own AGENTS.md, conventions, and build processes. Read the relevant sub-project AGENTS.md before making changes.
+
+---
+
+## Machine Inventory
+
+| Hostname | Platform | Architecture | System Type | Build Command (dry-run) |
+|---|---|---|---|---|
+| nicks-mbp | macOS | aarch64-darwin | Personal MacBook Pro | `nix build .#darwinConfigurations.nicks-mbp.system --dry-run` |
+| nicks-axion-ray-mbp | macOS | aarch64-darwin | Work MacBook (Axion Ray) | `nix build .#darwinConfigurations.nicks-axion-ray-mbp.system --dry-run` |
+| maclab | macOS | x86_64-darwin | Mac lab machine | `nix build .#darwinConfigurations.maclab.system --dry-run` |
+| supermicro | NixOS | x86_64-linux | Homelab server | `nix build .#nixosConfigurations.supermicro.config.system.build.toplevel --dry-run` |
+
+**IMPORTANT**: Do NOT run actual build/switch commands (`darwin-rebuild switch`, `nixos-rebuild switch`) - only validate with `--dry-run`.
 
 ---
 
 ## Root Project: Nix/Home-Manager Configuration
 
 ### Build & Test Commands
-- **Validate configuration**: `nix build .#darwinConfigurations.<hostname>.system --dry-run` (macOS) or `nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel --dry-run` (Linux)
+- **Validate**: Use the build command from machine inventory with `--dry-run`
 - **Format Nix files**: `nix fmt <file>.nix`
 - **Lint Nix files**: `statix check .`
-- **Check flake metadata**: `nix flake metadata` (verify flake structure and inputs)
-- **IMPORTANT**: Do NOT run actual build/switch commands (`darwin-rebuild switch`, `nixos-rebuild switch`) - only validate changes
+- **Check flake metadata**: `nix flake metadata`
 
 ### Code Style & Conventions
-- **Language**: Nix expression language for system/package configuration
-- **Formatting**: Use `nixfmt-classic` for consistent formatting; 2-space indentation
-- **File organization**: Modular structure - `mods/` for modules, `homes/` for user configs, `systems/` for system configs
-- **Imports**: Use relative paths (e.g., `../mods/neovim.nix`); organize by category (language, tool, system)
-- **Package preferences**: Prefer `pkgs-unstable` for most packages to get latest versions
-- **Naming**: Use kebab-case for files (e.g., `base-packages.nix`), descriptive module names
-- **Configuration**: Symlink dotfiles from `mods/dotfiles/` using `mkOutOfStoreSymlink` for editability
-- **Comments**: Add inline comments for non-obvious configurations or workarounds
+- **Language**: Nix expression language
+- **Formatting**: `nixfmt-classic`, 2-space indentation
+- **File organization**: `mods/` for shared modules, `homes/` for per-machine user configs, `systems/` for system configs, `lib/` for builder functions
+- **Imports**: Relative paths (e.g., `../../mods/neovim.nix`)
+- **Package preferences**: Prefer `pkgs-unstable` for most packages
+- **Naming**: kebab-case for files (e.g., `base-packages.nix`)
+- **Comments**: Inline comments for non-obvious configurations or workarounds
 
 ### Architecture Patterns
-- **Flake-based**: All configurations use flake.nix with inputs/outputs structure
-- **Platform separation**: Darwin (macOS) vs NixOS (Linux) configs are split; share common modules
-- **Home-Manager integration**: User environment managed via home-manager, not imperative installs
-- **Language modules**: Language tooling organized in `mods/languages/`, imported via `all.nix`
+
+#### Builder Pattern
+`lib/builders.nix` provides `mkDarwinSystem` and `mkNixOSSystem` that automatically wire up:
+- Base system profiles (e.g., `darwin-base.nix`)
+- Home-manager with `extraSpecialArgs` (pkgs-unstable, custom flake inputs)
+- Profile layering: `common.nix` + platform profile + per-machine home module
+
+#### Profile Layering
+**System level**: `darwin-base.nix` (all Macs) -> `darwin-{personal,work,maclab}.nix` (per-machine)
+
+**Home level**: `common.nix` (all machines) -> `darwin.nix` (all Macs) -> `home-<machine>.nix` (per-machine)
+
+#### Symlink Strategy (User Preference)
+Dotfiles are symlinked from `mods/dotfiles/` using `mkOutOfStoreSymlink` for live editability. This is intentional -- edits to dotfiles take effect immediately without Nix rebuild. The `shell.nix` module uses a `mkSym` helper to create these symlinks concisely.
+
+When Nix rebuild IS needed:
+- Adding/removing packages
+- Changing module imports
+- Modifying Nix expressions
+
+When Nix rebuild is NOT needed:
+- Editing any dotfile in `mods/dotfiles/` (nvim config, tmux.conf, etc.)
+- Editing Karabiner TS sources (just rebuild with `deno task build`)
+
+#### Language Modules
+Language tooling in `mods/languages/` aggregated by `all.nix`. Imported by both `base-packages.nix` (shell use) and `neovim.nix` (extraPackages). Languages: JavaScript/TypeScript, Python, Go, Java, C++, Lua, Nix, Bash, Elixir.
+
+#### Activation Hooks
+`mods/uvx.nix` and `mods/npmx.nix` use home-manager activation hooks to install tools via `uv tool install` and `npm install -g` for packages not easily packaged in Nix.
+
+#### Custom Flake Inputs
+Several of the user's own projects are consumed as flake inputs: `procmux`, `proctmux`, `secret_inject`, `animal_rescue`, `scrollbacktamer`, `rift`.
+
+### Common Gotchas
+- The `nil` flake input was recently removed -- the Nix LSP comes from `pkgs-unstable.nil` in `languages/nix.nix`
+- `home-supermicro.nix` has its own independent module imports (doesn't layer through `common.nix` the same way as Darwin machines)
+- Machine differentiation uses `MACHINE_NAME` session variable
+- Several inputs could benefit from `nixpkgs.follows` but this hasn't been added yet to avoid potential build breakage
 
 ---
 
@@ -40,56 +87,55 @@ This repository is a **Nix flake** for configuring and managing multiple systems
 
 **Location**: `./mods/dotfiles/karabiner`
 
+**See also**: Karabiner's own README.md for symlink chain and troubleshooting
+
 ### Build & Test Commands
 ```bash
-# Navigate to karabiner directory
-cd mods/dotfiles/karabiner
-
-# Generate karabiner.json (writes to ../karabiner.json - one level up!)
+# Build (from karabiner/ directory)
 deno task build
 
-# Reload Karabiner to apply changes
+# Reload
 karabiner-reload.sh
 
-# If reload doesn't work, fully restart
+# Full restart if reload doesn't work
 osascript -e 'quit app "Karabiner-Elements"' && sleep 1 && open -a 'Karabiner-Elements'
 ```
 
 ### Code Style & Conventions
 - **Language**: TypeScript with Deno runtime
-- **Formatting**: Use `deno fmt` for formatting
-- **File organization**: Modular - each feature in separate file in `src/` directory
-- **Naming**: Use kebab-case for files (e.g., `cap-modifier.ts`, `system-leader.ts`)
-- **Exports**: Export rule arrays (e.g., `export const layerRules = [...]`)
-- **Imports**: Import karabiner.ts library and local modules; always include `../polyfill.ts` in index.ts
+- **Formatting**: `deno fmt`
+- **Naming**: kebab-case for files (e.g., `cap-modifier.ts`, `window-layer.ts`)
+- **Exports**: Rule arrays (e.g., `export const layerRules = [...]`)
+- **Imports**: Import karabiner.ts library; always include `../polyfill.ts` first in index.ts
 
 ### Architecture Patterns
-- **Generated config**: TypeScript sources generate JSON config file
-- **Output path**: Builds to `../karabiner.json` (one directory up from karabiner/)
-- **Symlink managed by Nix**: Generated JSON is symlinked to `~/.config/karabiner/karabiner.json` via home-manager
-- **Edit-generate-reload workflow**: Modify TS → run build → reload Karabiner (no Nix rebuild needed)
-- **Module composition**: Each feature file exports rules, imported and composed in `src/index.ts`
+- **Generated config**: TypeScript sources generate `karabiner.json` one level up from `karabiner/`
+- **Symlink managed by Nix**: `~/.config/karabiner/karabiner.json` -> generated file
+- **Edit-generate-reload workflow**: Modify TS -> `deno task build` -> reload (no Nix rebuild)
 
-### Key Concepts
-- **Layer-based mappings**: Simultaneous key layers (simlayer) in `layers.ts` - hold key to activate layer
-- **Modifier swapping**: Remap modifier keys in `modifierSwap.ts`
-- **Caps Lock modifier**: Custom Caps Lock behavior in `cap-modifier.ts`
-- **Hyper key**: Define Hyper key (Cmd+Opt+Ctrl+Shift) in `hyper.ts`
-- **Leader sequences**: Vim-like leader key system in `leader-utils.ts` and `system-leader.ts`
-- **Window management**: Window/tab navigation in `window-layer.ts`
+### Active Modules (in rule priority order)
+1. `cap-modifier.ts` -- Caps Lock as variable-based layer (hjkl arrows, Ctrl+key, screenshots)
+2. `modifier-swap.ts` -- Per-app Cmd/Ctrl/Fn swapping (terminal vs GUI apps)
+3. `layers.ts` -- Simlayers: `a`=delimiters, `d`=arrows, `l`=symbols, `n`=numbers, `s`=ctrl
+4. `window-layer.ts` -- Tab as dual-role window manager key (rift-cli tiling)
+5. Inline escape->grave rule in `index.ts`
+
+### Support Files
+- `polyfill.ts` -- CJS require() shim for karabiner.ts npm package in Deno
+- `leader-utils.ts` -- `exitLeader()` helper (used by cap-modifier.ts)
 
 ### Adding New Rules
-1. Create or edit a file in `src/` (e.g., `src/my-feature.ts`)
-2. Export rules array: `export const myFeatureRules = [rule(...).manipulators([...])]`
-3. Import in `src/index.ts`: `import { myFeatureRules } from "./my-feature.ts";`
-4. Add to `writeToProfile()` array: `...myFeatureRules,`
+1. Create/edit a file in `src/` (kebab-case)
+2. Export rules array: `export const myRules = [rule(...).manipulators([...])]`
+3. Import in `src/index.ts`
+4. Add to `writeToProfile()` array
 5. Run `deno task build && karabiner-reload.sh`
 
 ### Important Notes
-- **Output location**: Generated file is `~/.config/home-manager/mods/dotfiles/karabiner.json` (NOT inside karabiner/ dir)
-- **Symlink**: DO NOT manually edit or touch `~/.config/karabiner/karabiner.json` - breaks symlink
-- **Version control**: Commit both TypeScript sources AND generated JSON
-- **Broken symlink**: Run `darwin-rebuild switch --flake .#<hostname>` to restore
+- **Output**: `~/.config/home-manager/mods/dotfiles/karabiner.json` (NOT inside karabiner/ dir)
+- DO NOT manually edit `~/.config/karabiner/karabiner.json` -- breaks symlink
+- Commit both TypeScript sources AND generated JSON
+- Broken symlink: run `darwin-rebuild switch --flake .#<hostname>` to restore
 
 ---
 
@@ -97,94 +143,37 @@ osascript -e 'quit app "Karabiner-Elements"' && sleep 1 && open -a 'Karabiner-El
 
 **Location**: `./mods/dotfiles/nvim`
 
+**See also**: `./mods/dotfiles/nvim/AGENTS.md` for detailed Neovim-specific guidelines
+
 ### Build & Test Commands
 ```bash
-# Test plugin module loading
+# Test module loading
 nvim --headless -c "lua require('user.plugins.category.name')" -c "qa"
 
 # Test keymap discovery
 nvim --headless -c "lua local p = require('user.whichkey.plugins'); print(vim.inspect(p.get_all_plugin_keymaps()))" -c "qa"
 
-# Test full config
+# Full health check
 nvim --headless -c "checkhealth" -c "qa"
 ```
 
-### Code Style & Conventions
-- **Language**: Lua for configuration (minimal legacy VimScript in init.vim)
-- **Formatting**: Use stylua for Lua formatting (via efm LSP)
-- **File organization**: Modular - `lua/user/` for feature modules, `lsp/` for language servers, `lua/user/plugins/` for plugin configs
-- **Naming**: Use snake_case for Lua files/functions (e.g., `find_files.lua`, `lsp_keymaps()`)
-- **Imports**: Use `require("user.module")` for user configs
-- **Error handling**: Always use `pcall()` when requiring plugins that might not be installed
-
-### Architecture Patterns
-- **Plugin manager**: lazy.nvim - plugins defined in `lua/user/lazy.lua`
-- **Plugin registry**: Centralized module registry in `lua/user/plugin_registry.lua`
-- **LSP setup**: Separate config files in `lsp/` directory for each language server
-- **Modular structure**: Each feature has its own file with `setup()` function
-- **Initialization order**: init.vim → user/init.lua → plugin registry loads modules in sequence
-- **Keybindings**: Organized in `whichkey/` directory by category
-
-### Key Concepts
-- **Plugin Registry**: Single source of truth (`plugin_registry.lua`) - maintains load order, auto-discovers keymaps
-- **Snacks.nvim**: Custom pickers/finders in `snacks/` directory
-- **Which-key**: All keybindings documented and organized by prefix
-- **EFM LSP**: Handles formatters/linters (prettier, eslint, ruff, etc.)
-- **DAP**: Debugger configs per language in `dap/` directory
-- **Utility modules**: Helper functions in `utils/` (file_utils, git_utils, project_utils, collection_utils)
-
-### Adding New Plugins
-1. **Install the plugin** in `lua/user/lazy.lua`
-2. **Create a plugin module** in `lua/user/plugins/<category>/<name>.lua`
-   - Categories: `ai`, `code`, `database`, `debug`, `editing`, `git`, `navigation`, `ui`, `util`
-3. **Register in plugin_registry.lua** - Add the module path to the `M.modules` array in the appropriate position
-   - **IMPORTANT**: Order matters! Some plugins must load early (e.g., `ui.notify`, `ui.colorscheme`)
-   - Place new plugins in a logical position based on their dependencies
-4. **Implement the module**:
-   ```lua
-   local M = {}
-   
-   function M.setup()
-     -- Plugin configuration
-   end
-   
-   function M.get_keymaps()  -- Optional, for automatic keymap registration
-     return {
-       normal = {
-         { "<leader>xx", "<cmd>Command<cr>", desc = "Description" },
-       },
-       visual = {
-         -- Visual mode keymaps
-       },
-       shared = {
-         -- Keymaps for both normal and visual mode
-       },
-     }
-   end
-   
-   return M
-   ```
-
-### Plugin Registry System
-- **Registry location**: `lua/user/plugin_registry.lua`
-- **Purpose**: Single source of truth for all plugin modules
-- **Used by**: 
-  - `init.lua` - Calls `setup()` on each module in order
-  - `whichkey/plugins.lua` - Discovers and loads keymaps from modules
-- **Maintains load order**: Critical plugins (colorscheme, notify) load first
-- **Keymap detection**: Automatic - modules with `get_keymaps()` are automatically discovered
-- **No manual flags**: System dynamically detects which modules export keymaps at runtime
+### Key Architecture Points (see nvim/AGENTS.md for full details)
+- **Plugin registry** (`plugin_registry.lua`): single source of truth for module loading and keymap discovery
+- **Dual LSP architecture**: `lsp/` dir for native `vim.lsp.config()` server configs, `lua/user/lsp/` for orchestration
+- **Snacks.nvim** replaces Telescope as the picker framework
+- **Which-key v3**: keymaps aggregated from multiple sources in `whichkey/whichkey.lua`
+- **EFM LSP**: format-on-save with auto-detection of formatters per project
 
 ---
 
 ## General Guidelines
 
 ### When Working on This Repository
-
 1. **Identify the scope**: Determine if you're working on Nix configs, Karabiner, or Neovim
-2. **Follow sub-project conventions**: Each sub-project has different languages, tools, and patterns
-3. **Test appropriately**: Use the correct build/test commands for each sub-project
-4. **Rebuild when needed**: 
-   - Nix changes → rebuild with darwin-rebuild/nixos-rebuild
-   - Karabiner changes → regenerate JSON and reload
-   - Neovim changes → no rebuild needed (live reloadable)
+2. **Follow sub-project conventions**: Each has different languages, tools, and patterns
+3. **Read the sub-project AGENTS.md**: Neovim and Karabiner have their own detailed guides
+4. **Test appropriately**: Use the correct build/test commands for each sub-project
+5. **Rebuild when needed**:
+   - Nix changes -> validate with dry-run build
+   - Karabiner changes -> `deno task build` + reload
+   - Neovim changes -> no rebuild needed (live reloadable via symlink)

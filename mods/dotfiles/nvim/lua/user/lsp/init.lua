@@ -14,7 +14,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		if not client_id then
 			return
 		end
-		local client = vim.lsp.get_client_by_id(client_id)
+		local client = vim.lsp.get_clients({ id = client_id })[1]
 		if not client then
 			return
 		end
@@ -176,4 +176,6 @@ vim.lsp.config("*", {
 	root_markers = { ".git" },
 })
 
-vim.cmd([[ command! Format execute 'lua vim.lsp.buf.format{async=true}' ]])
+vim.api.nvim_create_user_command("Format", function()
+	vim.lsp.buf.format({ async = true })
+end, {})
