@@ -10,7 +10,7 @@ focus_follows_mouse = false
 mouse_hides_on_focus = false
 
 [settings.layout]
-mode = "traditional"
+mode = "bsp"
 
 [settings.layout.stack]
 stack_offset = 40.0

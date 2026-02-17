@@ -192,9 +192,9 @@ require("lazy").setup({
 			},
 		},
 
-	{
-		"olimorris/codecompanion.nvim",
-		dependencies = {
+		{
+			"olimorris/codecompanion.nvim",
+			dependencies = {
 				"nvim-lua/plenary.nvim",
 				"nvim-treesitter/nvim-treesitter",
 			},
@@ -226,9 +226,9 @@ require("lazy").setup({
 		-- 	"yioneko/nvim-vtsls",
 		-- },
 
-	{
-		"tpope/vim-dadbod",
-		lazy = true,
+		{
+			"tpope/vim-dadbod",
+			lazy = true,
 			dependencies = {
 				"kristijanhusak/vim-dadbod-ui",
 				"kristijanhusak/vim-dadbod-completion",
@@ -283,16 +283,16 @@ require("lazy").setup({
 				vim.g.slime_bracketed_paste = 1
 			end,
 		},
+		{
+			"napisani/nvim-github-codesearch",
 
-		-- {
-		-- 	dir = "/Users/nick/code/nvim-github-codesearch",
-		-- 	config = function()
-		-- 		require("github-codesearch").setup({
-		-- 			-- Your configuration comes here
-		-- 			-- or leave it empty to use the default settings
-		-- 		})
-		-- 	end,
-		-- },
+			config = function()
+				local gh_search = require("nvim-github-codesearch")
+				gh_search.setup({
+					use_snacks_picker = true,
+				})
+			end,
+		},
 
 		-- {
 		--   '/Users/nick/code/nvim-dadbod-ext',

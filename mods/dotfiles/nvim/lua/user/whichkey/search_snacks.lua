@@ -62,6 +62,14 @@ local mapping_n = {
 		end,
 		desc = "lsp (s)ymbols",
 	},
+	{
+		"<leader>hG",
+		function()
+			input = vim.fn.input("Search GitHub: ")
+			vim.cmd("GhSearch " .. input)
+		end,
+		desc = "(G)H Code Search",
+	},
 }
 
 local mapping_v = {
@@ -141,6 +149,16 @@ local mapping_v = {
 			vim.api.nvim_feedkeys("/" .. register_content, "n", false)
 		end,
 		desc = "search in buffer",
+	},
+
+	{
+		"<leader>hG",
+		function()
+			vim.cmd('normal! "4y')
+			local register_content = vim.fn.getreg("4")
+			vim.cmd("GhSearch " .. register_content)
+		end,
+		desc = "(G)H Code Search",
 	},
 }
 

@@ -571,7 +571,6 @@ All completed in third pass.
 ### Neovim: Dead Code Removal
 
 - **Removed dead `setup.commands.Format` block from `lsp/jsonls.lua:186-194`** -- `setup.commands` was an lspconfig-specific feature; this file is a native `vim.lsp.config()` server config, so the block was ignored. Also contained deprecated `vim.lsp.buf.range_formatting` (removed in 0.10).
-- **Removed active keymaps referencing uninstalled `nvim-github-codesearch`** -- `<leader>hG` in both normal and visual modes in `whichkey/search_snacks.lua` would error on keypress. Plugin was removed in prior cleanup but keymaps were left behind.
 - **Deleted entirely-commented `lsp/sqlls.lua`** -- All 13 lines were comments. Not enabled in `vim.lsp.enable()`.
 
 ### Nix: Dead Code
