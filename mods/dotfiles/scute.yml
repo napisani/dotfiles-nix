@@ -19,7 +19,8 @@ promptDefaults:
   # model: gpt-4
 
   provider: ollama 
-  model: qwen3:1.7b 
+  # model: qwen3:1.7b 
+  model: qwen2.5-coder:14b
   # # output values: clipboard | stdout | prompt | readline
   # output: readline
 

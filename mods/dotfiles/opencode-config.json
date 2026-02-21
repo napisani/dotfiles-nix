@@ -77,91 +77,9 @@
     "input_newline": "return"
   },
   "plugin": [
-    "opencode-antigravity-auth@beta",
-    "cursor-acp"
+    "opencode-antigravity-auth@beta"
   ],
   "provider": {
-    "cursor-acp": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "cursor-acp",
-      "options": {
-        "baseURL": "http://127.0.0.1:32124/v1"
-      },
-      "models": {
-        "auto": {
-          "name": "Auto"
-        },
-        "composer-1": {
-          "name": "Composer 1"
-        },
-        "gpt-5.2": {
-          "name": "GPT-5.2"
-        },
-        "gpt-5.2-codex": {
-          "name": "GPT-5.2 Codex"
-        },
-        "gpt-5.2-codex-high": {
-          "name": "GPT-5.2 Codex High"
-        },
-        "gpt-5.2-codex-low": {
-          "name": "GPT-5.2 Codex Low"
-        },
-        "gpt-5.2-codex-xhigh": {
-          "name": "GPT-5.2 Codex Extra High"
-        },
-        "gpt-5.2-codex-fast": {
-          "name": "GPT-5.2 Codex Fast"
-        },
-        "gpt-5.2-codex-high-fast": {
-          "name": "GPT-5.2 Codex High Fast"
-        },
-        "gpt-5.2-codex-low-fast": {
-          "name": "GPT-5.2 Codex Low Fast"
-        },
-        "gpt-5.2-codex-xhigh-fast": {
-          "name": "GPT-5.2 Codex Extra High Fast"
-        },
-        "gpt-5.1-codex-max": {
-          "name": "GPT-5.1 Codex Max"
-        },
-        "gpt-5.1-codex-max-high": {
-          "name": "GPT-5.1 Codex Max High"
-        },
-        "opus-4.6-thinking": {
-          "name": "Claude 4.6 Opus (Thinking)"
-        },
-        "gpt-5.2-high": {
-          "name": "GPT-5.2 High"
-        },
-        "gemini-3-pro": {
-          "name": "Gemini 3 Pro"
-        },
-        "opus-4.6": {
-          "name": "Claude 4.6 Opus"
-        },
-        "opus-4.5": {
-          "name": "Claude 4.5 Opus"
-        },
-        "opus-4.5-thinking": {
-          "name": "Claude 4.5 Opus (Thinking)"
-        },
-        "sonnet-4.5": {
-          "name": "Claude 4.5 Sonnet"
-        },
-        "sonnet-4.5-thinking": {
-          "name": "Claude 4.5 Sonnet (Thinking)"
-        },
-        "gpt-5.1-high": {
-          "name": "GPT-5.1 High"
-        },
-        "gemini-3-flash": {
-          "name": "Gemini 3 Flash"
-        },
-        "grok": {
-          "name": "Grok"
-        }
-      }
-    },
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "ollama",
