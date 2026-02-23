@@ -1,22 +1,22 @@
 local codecompanion = require("user.snacks.ai_actions.codecompanion")
 local opencode = require("user.snacks.ai_actions.opencode")
-local sidekick = require("user.snacks.ai_actions.sidekick")
+local wiremux = require("user.snacks.ai_actions.wiremux")
 local file_utils = require("user.utils.file_utils")
 
 local M = {}
 
 local function get_backend()
-	if sidekick.is_plugin_open() then
-		return sidekick
-	end
 	if opencode.is_plugin_open() then
 		return opencode
+	end
+	if wiremux.is_plugin_open() then
+		return wiremux
 	end
 	return codecompanion
 end
 
 function M.is_plugin_open()
-	return sidekick.is_plugin_open() or opencode.is_plugin_open() or codecompanion.is_plugin_open()
+	return opencode.is_plugin_open() or wiremux.is_plugin_open() or codecompanion.is_plugin_open()
 end
 
 function M.send_file(file_info, opts)

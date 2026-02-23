@@ -200,10 +200,9 @@ require("lazy").setup({
 			},
 		},
 		{
-			"folke/sidekick.nvim",
-			opts = require("user.plugins.ai.sidekick").opts,
+			"MSmaili/wiremux.nvim",
 			config = function(_, opts)
-				require("user.plugins.ai.sidekick").setup(opts)
+				require("user.plugins.ai.wiremux").setup(opts)
 			end,
 			dependencies = {
 				"nvim-lua/plenary.nvim",

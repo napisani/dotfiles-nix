@@ -3,6 +3,7 @@ local config = require("codecompanion.config")
 local util = require("codecompanion.utils")
 local path = require("plenary.path")
 local file_utils = require("user.utils.file_utils")
+local wiremux_actions = require("user.snacks.ai_actions.wiremux")
 
 local M = {}
 
@@ -213,6 +214,17 @@ function M.add_current_buffer_to_chat()
 		return
 	end
 
+	if wiremux_actions.is_plugin_open() then
+		local file_info = {
+			file_path = file_path,
+			relative_path = vim.fn.fnamemodify(file_path, ":."),
+			bufnr = bufnr,
+		}
+		if wiremux_actions.send_file(file_info, { source = "current_buffer" }) then
+			return
+		end
+	end
+
 	-- Fallback to CodeCompanion
 	local chat = get_active_chat()
 	if not chat then
@@ -260,6 +272,20 @@ function M.add_file_to_chat(picker_fn, picker_opts)
 		end)
 	end
 
+	local function add_with_wiremux(selection)
+		if not wiremux_actions.is_plugin_open() then
+			return false
+		end
+		local sent_any = false
+		process_selection(selection, function(sel)
+			local fi = coerce_and_validate_selection(sel)
+			if fi and wiremux_actions.send_file(fi, { source = "picker" }) then
+				sent_any = true
+			end
+		end)
+		return sent_any
+	end
+
 	-- Helper to add files to CodeCompanion
 	local function add_with_codecompanion(selection)
 		local chat = get_active_chat()
@@ -293,6 +319,8 @@ function M.add_file_to_chat(picker_fn, picker_opts)
 
 		if win then
 			add_with_opencode(selection)
+		elseif wiremux_actions.is_plugin_open() then
+			add_with_wiremux(selection)
 		else
 			add_with_codecompanion(selection)
 		end

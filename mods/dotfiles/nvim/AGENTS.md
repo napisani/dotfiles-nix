@@ -88,7 +88,7 @@ Auto-formats via `BufWritePost` autocmd using efm LSP. Auto-detects formatters p
 - **EFM LSP**: Formatters/linters per language (see `lsp/efm.lua` for full language map)
 - **DAP**: Per-language debug configs in `lua/user/dap/` (python, go, typescript)
 - **Utility modules**: `lua/user/utils/` (file_utils, git_utils, project_utils, collection_utils)
-- **AI plugins**: copilot, codecompanion, opencode, sidekick, code_explain -- each has a module in `plugins/ai/`
+- **AI plugins**: copilot, codecompanion, opencode, wiremux, code_explain -- each has a module in `plugins/ai/`
 
 ## Adding New Plugins
 

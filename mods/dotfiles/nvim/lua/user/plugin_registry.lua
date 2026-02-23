@@ -42,7 +42,7 @@ M.modules = {
 	"ai.copilot",
 	"ai.codecompanion",
 	"ai.opencode",
-	"ai.sidekick",
+	"ai.wiremux",
 	"ai.code_explain",
 	-- Database plugins
 	"database.dadbod",
