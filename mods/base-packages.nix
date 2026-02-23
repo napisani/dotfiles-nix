@@ -7,6 +7,7 @@
   animal_rescue,
   scrollbacktamer,
   proctmux,
+  workmux,
   ...
 }:
 let
@@ -47,6 +48,7 @@ in
       animal_rescue.packages.${system}.default
       scrollbacktamer.packages.${system}.default
       proctmux.packages.${system}.default
+      workmux.packages.${system}.default
       tmuxp
       nodemon
       mise

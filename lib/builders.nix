@@ -20,6 +20,7 @@ rec {
       animal_rescue
       scrollbacktamer
       rift
+      workmux
       ;
     overlays = [ ];
     user = "nick";

@@ -29,6 +29,11 @@
       url = "github:napisani/rift/main-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    workmux = {
+      url = "github:raine/workmux";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
