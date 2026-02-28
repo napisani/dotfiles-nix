@@ -25,6 +25,15 @@ function M.setup()
 				opts = {
 					show_model_choices = true,
 				},
+				anthropic = function()
+					return require("codecompanion.adapters").extend("anthropic", {
+						schema = {
+							model = {
+								default = "claude-sonnet-4-6",
+							},
+						},
+					})
+				end,
 				copilot = function()
 					return require("codecompanion.adapters").extend("copilot", {
 						schema = {
@@ -38,95 +47,7 @@ function M.setup()
 					return require("codecompanion.adapters").extend("openai", {
 						schema = {
 							model = {
-								default = "gpt-4.1-mini",
-								choices = {
-									"gpt-4.1-mini",
-									"gpt-4.1",
-									"gpt-4o",
-									"gpt-4o-mini",
-								},
-							},
-						},
-					})
-				end,
-				openai_responses = function()
-					return require("codecompanion.adapters").extend("openai_responses", {
-						schema = {
-							model = {
-								default = "gpt-5.1-codex",
-								choices = {
-									"gpt-5.1-codex",
-									"gpt-5.1",
-									"gpt-4.1",
-									"gpt-4o",
-								},
-							},
-						},
-						available_tools = {
-							web_search = {
-								enabled = function(_)
-									return false
-								end,
-							},
-						},
-					})
-				end,
-				githubmodels = function()
-					return require("codecompanion.adapters").extend("githubmodels", {
-						schema = {
-							model = {
-								default = "gpt-4.1",
-								choices = {
-									"gpt-4.1",
-									"gpt-4.1-mini",
-									"claude-3.5-sonnet",
-									"github-copilot/claude-sonnet-4.5",
-									"github-copilot/claude-opus-4.5",
-								},
-							},
-						},
-					})
-				end,
-
-				gemini = function()
-					return require("codecompanion.adapters").extend("gemini", {
-						env = {
-							api_key = "GEMINI_API_KEY",
-						},
-					})
-				end,
-			},
-			acp = {
-				opts = {
-					show_presets = false,
-				},
-				opencode = function()
-					return require("codecompanion.adapters").extend("opencode", {
-						commands = {
-							default = { "opencode", "acp" },
-							copilot_sonnet_4_5 = {
-								"opencode",
-								"acp",
-								"-m",
-								"github-copilot/claude-sonnet-4.5",
-							},
-							copilot_opus_4_5 = {
-								"opencode",
-								"acp",
-								"-m",
-								"github-copilot/claude-opus-4.5",
-							},
-							anthropic_sonnet_4_5 = {
-								"opencode",
-								"acp",
-								"-m",
-								"anthropic/claude-sonnet-4.5",
-							},
-							anthropic_opus_4_5 = {
-								"opencode",
-								"acp",
-								"-m",
-								"anthropic/claude-opus-4.5",
+								default = "gpt-5.3-codex",
 							},
 						},
 					})
@@ -135,11 +56,11 @@ function M.setup()
 		},
 
 		interactions = {
-			cmd = { adapter = "githubmodels" },
+			cmd = { adapter = "openai" },
 			inline = {
 				adapter = {
 					name = "openai",
-					model = "gpt-4.1-mini",
+					model = "gpt-5.3-codex",
 				},
 				keymaps = {
 					accept_change = {
@@ -152,8 +73,8 @@ function M.setup()
 			},
 			chat = {
 				adapter = {
-					name = "openai_responses",
-					model = "gpt-5.1-codex",
+					name = "anthropic",
+					model = "claude-sonnet-4-5",
 				},
 
 				keymaps = {
@@ -177,8 +98,6 @@ function M.setup()
 							local change_adapter = require("codecompanion.interactions.chat.keymaps.change_adapter")
 							if chat.adapter.type == "http" then
 								change_adapter.select_model(chat)
-							elseif chat.adapter.type == "acp" then
-								change_adapter.select_command(chat)
 							else
 								require("codecompanion.utils").notify(
 									"Current adapter does not support model selection",
