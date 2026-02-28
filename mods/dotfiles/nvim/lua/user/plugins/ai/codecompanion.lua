@@ -134,7 +134,7 @@ function M.setup()
 			},
 		},
 
-		strategies = {
+		interactions = {
 			cmd = { adapter = "githubmodels" },
 			inline = {
 				adapter = {
@@ -191,24 +191,6 @@ function M.setup()
 			},
 		},
 		prompt_library = vim.tbl_extend("force", {}, prompt_library),
-
-		extensions = {
-			mcphub = {
-				callback = "mcphub.extensions.codecompanion",
-				opts = {
-					-- MCP Tools
-					make_tools = true, -- Make individual tools (@server__tool) and server groups (@server) from MCP servers
-					show_server_tools_in_chat = true, -- Show individual tools in chat completion (when make_tools=true)
-					add_mcp_prefix_to_tool_names = true, -- Add mcp__ prefix (e.g `@mcp__github`, `@mcp__neovim__list_issues`)
-					show_result_in_chat = true, -- Show tool results directly in chat buffer
-					format_tool = nil, -- function(tool_name:string, tool: CodeCompanion.Agent.Tool) : string Function to format tool names to show in the chat buffer
-					-- MCP Resources
-					make_vars = true, -- Convert MCP resources to #variables for prompts
-					-- MCP Prompts
-					make_slash_commands = true, -- Add MCP prompts as /slash commands
-				},
-			},
-		},
 	})
 end
 
@@ -217,14 +199,27 @@ function M.get_keymaps()
 	local snacks_find_files = require("user.snacks.find_files")
 	local snacks_git_files = require("user.snacks.git_files")
 	local snacks_ai_context = require("user.snacks.ai_context_files")
+	local ai_actions = require("user.snacks.ai_actions")
 
 	return {
 		normal = {
 			{ "<leader>a", group = "(a)i" },
 			{ "<leader>aa", "<cmd>:CodeCompanionChat<cr>", desc = "(a)dd to chat" },
 			{ "<leader>aA", "<cmd>:CodeCompanionActions<cr>", desc = "(A)ctions" },
-			{ "<leader>a?", "<cmd>:CodeCompanion<cr>", desc = "(?) ask" },
-			{ "<leader>ae", "<cmd>:CodeCompanion<cr>", desc = "(I)nline / rewrite results" },
+			{
+				"<leader>a?",
+				function()
+					ai_actions.prompt_with_context({ mode = "n", prompt_label = "Ask AI", ai_mode = "plan" })
+				end,
+				desc = "(?) ask",
+			},
+			{
+				"<leader>ae",
+				function()
+					ai_actions.prompt_with_context({ mode = "n", prompt_label = "Edit AI", ai_mode = "build" })
+				end,
+				desc = "(e)dit AI",
+			},
 			{ "<leader>ao", "<cmd>:CodeCompanionChat Toggle<cr>", desc = "(o)pen existing chat" },
 
 			{ "<leader>aq", "<cmd>:CodeCompanionChat Toggle<cr>", desc = "(q)uit chat" },
@@ -304,8 +299,20 @@ function M.get_keymaps()
 			{ "<leader>a", group = "(a)i" },
 			{ "<leader>aa", ":<C-u>'<,'>CodeCompanionChat Add<cr>", desc = "(c)reate new chat" },
 			{ "<leader>aA", ":<C-u>'<,'>CodeCompanionActions<cr>", desc = "(A)ctions" },
-			{ "<leader>a?", ":<C-u>'<,'>CodeCompanion<cr>", desc = "(?) ask" },
-			{ "<leader>ae", ":<C-u>'<,'>CodeCompanion<cr>", desc = "(I)nline / rewrite" },
+			{
+				"<leader>a?",
+				function()
+					ai_actions.prompt_with_context({ mode = "v", prompt_label = "Ask AI (selection)", ai_mode = "plan" })
+				end,
+				desc = "(?) ask selection",
+			},
+			{
+				"<leader>ae",
+				function()
+					ai_actions.prompt_with_context({ mode = "v", prompt_label = "Edit (selection)", ai_mode = "build" })
+				end,
+				desc = "(e)dit AI (selection)",
+			},
 			{ "<leader>ao", ":<C-u>'<,'>CodeCompanionChat Add<cr>", desc = "(o)pen existing chat" },
 			{ "<leader>aq", ":<C-u>'<,'>CodeCompanionChat Toggle<cr>", desc = "(q)uit chat" },
 

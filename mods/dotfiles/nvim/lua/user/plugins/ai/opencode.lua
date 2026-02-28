@@ -5,24 +5,24 @@ local configured = false
 local M = {}
 
 function M.setup()
-  local ok, opencode = pcall(require, "opencode")
-  if not ok then
-    vim.notify("opencode not found", vim.log.levels.ERROR)
-    return
-  end
+	local ok, opencode = pcall(require, "opencode")
+	if not ok then
+		vim.notify("opencode not found", vim.log.levels.ERROR)
+		return
+	end
 
-  if configured then
-    return
-  end
+	if configured then
+		return
+	end
 
-  local ok_config, opts = pcall(require, "user.opencode")
-  if not ok_config then
-    vim.notify("user.opencode config missing", vim.log.levels.WARN)
-    opts = {}
-  end
+	local ok_config, opts = pcall(require, "user.opencode")
+	if not ok_config then
+		vim.notify("user.opencode config missing", vim.log.levels.WARN)
+		opts = {}
+	end
 
-  opencode.setup(opts)
-  configured = true
+	opencode.setup(opts)
+	configured = true
 end
 
 local function prompt_with_context(context_token, opts)

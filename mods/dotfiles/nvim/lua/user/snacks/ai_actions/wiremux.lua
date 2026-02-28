@@ -17,8 +17,34 @@ local function format_file_payload(file_info)
 	return "@" .. relative
 end
 
+-- Returns true only when a wiremux instance for the current route and cwd exists.
+-- This prevents the ai_actions dispatcher from routing to wiremux when there is
+-- no running session for this project.
 function M.is_plugin_open()
-	return ensure_plugin() ~= nil
+	local plugin = ensure_plugin()
+	if not plugin or not plugin.is_available() then
+		return false
+	end
+	local ok, backend = pcall(require, "wiremux.backend")
+	if not ok then
+		return false
+	end
+	local b = backend.get()
+	if not b or not b.state then
+		return false
+	end
+	local ok_st, st = pcall(b.state.get)
+	if not ok_st or not st or not st.instances then
+		return false
+	end
+	local route = plugin.get_current_route()
+	local cwd = vim.fn.getcwd()
+	for _, inst in ipairs(st.instances) do
+		if inst.target == route and inst.origin_cwd == cwd then
+			return true
+		end
+	end
+	return false
 end
 
 function M.send_file(file_info, _opts)
@@ -35,6 +61,40 @@ function M.send_file(file_info, _opts)
 		return false
 	end
 	return plugin.send_text(payload, { focus = true })
+end
+
+-- ctx: { file_path, relative_path, line, selection? }
+function M.send_prompt_with_context(ctx, prompt)
+	local plugin = ensure_plugin()
+	if not plugin then
+		return false
+	end
+
+	local parts = {}
+
+	-- File + line reference
+	local ref = ctx.relative_path or ctx.file_path or ""
+	if ref ~= "" then
+		local line_suffix = ctx.line and (":" .. ctx.line) or ""
+		table.insert(parts, "@" .. ref .. line_suffix)
+	end
+
+	-- Selected text
+	if ctx.selection and ctx.selection ~= "" then
+		table.insert(parts, "```\n" .. ctx.selection .. "\n```")
+	end
+
+	-- User prompt
+	if prompt and prompt ~= "" then
+		table.insert(parts, prompt)
+	end
+
+	local message = table.concat(parts, "\n")
+	if message == "" then
+		return false
+	end
+
+	return plugin.send_text(message, { focus = true })
 end
 
 function M.send_text(text, _opts)

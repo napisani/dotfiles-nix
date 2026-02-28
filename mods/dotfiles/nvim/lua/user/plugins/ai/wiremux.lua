@@ -116,6 +116,17 @@ local function with_snacks_input(prompt, cb)
 	end
 end
 
+-- Find an existing instance for the given route whose origin_cwd matches the
+-- current working directory.  Returns the instance or nil.
+local function find_cwd_instance(instances, route, cwd)
+	for _, inst in ipairs(instances) do
+		if inst.target == route and inst.origin_cwd == cwd then
+			return inst
+		end
+	end
+	return nil
+end
+
 local function ensure_route_instance(route)
 	if not route or route == "" then
 		return false
@@ -125,11 +136,16 @@ local function ensure_route_instance(route)
 		return false
 	end
 	local st = backend.state.get()
+	local cwd = vim.fn.getcwd()
 	if st and st.instances then
-		for _, inst in ipairs(st.instances) do
-			if inst.target == route then
-				return true
-			end
+		local existing = find_cwd_instance(st.instances, route, cwd)
+		if existing then
+			-- Reuse the existing instance — update last-used so sends go here
+			local tmux_state = require("wiremux.backend.tmux.state")
+			local batch = {}
+			tmux_state.update_last_used(batch, existing.id)
+			require("wiremux.backend.tmux.client").execute(batch)
+			return true
 		end
 	end
 	local wiremux = ensure_wiremux()

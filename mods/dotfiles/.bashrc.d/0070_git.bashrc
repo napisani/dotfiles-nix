@@ -20,7 +20,7 @@ if command -v git &> /dev/null ; then
   function project-root-dir() {
       local DIR="$(pwd)"
       while [[ "$DIR" != "/" ]]; do
-          if [[ -d "$DIR/.git" ]]; then
+          if [[ -e "$DIR" ]]; then
               echo "$DIR"
               return 0
           fi

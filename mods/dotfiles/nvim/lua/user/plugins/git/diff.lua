@@ -244,35 +244,12 @@ function M.get_keymaps()
 			{
 				"<leader>cq",
 				function()
-					-- Check if we're in a CodeDiff view by looking for CodeDiff buffer variables
-					local in_codediff = false
 					local current_tab = vim.api.nvim_get_current_tabpage()
-					local wins = vim.api.nvim_tabpage_list_wins(current_tab)
-
-					for _, win in ipairs(wins) do
-						local buf = vim.api.nvim_win_get_buf(win)
-						local buf_name = vim.api.nvim_buf_get_name(buf)
-						-- CodeDiff buffers typically have "codediff" in the name or are diff views
-						if buf_name:match("codediff") or vim.bo[buf].filetype == "codediff" then
-							in_codediff = true
-							break
-						end
-					end
-
-					-- Also check if any window has the codediff variable set
-					for _, win in ipairs(wins) do
-						local ok, is_codediff = pcall(vim.api.nvim_win_get_var, win, "codediff")
-						if ok and is_codediff then
-							in_codediff = true
-							break
-						end
-					end
-
+					local ok, lifecycle = pcall(require, "codediff.ui.lifecycle")
+					local in_codediff = ok and lifecycle.get_session(current_tab) ~= nil
 					if in_codediff then
-						-- Close the entire tabpage (CodeDiff opens in a new tab)
 						vim.cmd("tabclose")
 					else
-						-- Try to close normally if not in a CodeDiff view
 						vim.notify("No CodeDiff view open", vim.log.levels.INFO)
 					end
 				end,

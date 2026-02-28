@@ -115,6 +115,35 @@ function M.send_file(file_info, opts)
 	return ok
 end
 
+-- ctx: { file_path, relative_path, line, selection? }
+-- For CodeCompanion we open a new chat and add the context as a message,
+-- then add the user prompt as a second message so the LLM sees both.
+function M.send_prompt_with_context(ctx, prompt)
+	if not prompt or prompt == "" then
+		return false
+	end
+
+	local parts = {}
+
+	local ref = ctx.relative_path or ctx.file_path or ""
+	if ref ~= "" then
+		local line_suffix = ctx.line and (":" .. ctx.line) or ""
+		table.insert(parts, "File: `" .. ref .. line_suffix .. "`")
+	end
+
+	if ctx.selection and ctx.selection ~= "" then
+		table.insert(parts, "Selected text:\n```\n" .. ctx.selection .. "\n```")
+	end
+
+	table.insert(parts, prompt)
+
+	local full_message = table.concat(parts, "\n\n")
+
+	-- Open inline assistant pre-filled with the composed message
+	vim.cmd("CodeCompanion " .. vim.fn.escape(full_message, " "))
+	return true
+end
+
 function M.send_text(text, _opts)
 	if not text or text == "" then
 		return false

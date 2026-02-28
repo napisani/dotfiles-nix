@@ -15,12 +15,12 @@ clipboardCommand: "auto"
 
 promptDefaults:
   # provider values: openai | anthropic | gemini | ollama
-  # provider: openai
-  # model: gpt-4
+  provider: openai
+  model: gpt-5.3-codex
 
-  provider: ollama 
+  # provider: ollama 
   # model: qwen3:1.7b 
-  model: qwen2.5-coder:14b
+  # model: qwen2.5-coder:14b
   # # output values: clipboard | stdout | prompt | readline
   # output: readline
 
