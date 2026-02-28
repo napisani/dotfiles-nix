@@ -49,7 +49,7 @@ in
       scrollbacktamer.packages.${system}.default
       proctmux.packages.${system}.default
       workmux.packages.${system}.default
-      tmuxp
+      # tmuxp
       nodemon
       mise
 
