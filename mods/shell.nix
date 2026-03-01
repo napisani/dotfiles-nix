@@ -1,9 +1,12 @@
 { pkgs, config, ... }:
 let
-  opencodeCursor = pkgs.callPackage ../packages/opencode-cursor { };
   mkSym =
     path:
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/${path}";
+  mkForcedSym = path: {
+    source = mkSym path;
+    force = true;
+  };
 in
 {
   programs = {
@@ -57,43 +60,38 @@ in
   home.file = {
     ".config/pet".source = ./dotfiles/pet;
     ".aider.conf.yml".source = ./dotfiles/aider.conf.yml;
-    ".config/mcphub/servers.json".source = mkSym "mcphub-servers.json";
-    ".aerospace.toml".source = mkSym ".aerospace.toml";
-    "Library/Application Support/com.mitchellh.ghostty/config".source = mkSym "ghostty-config";
-    "global_python_scripts".source = mkSym "global_python_scripts";
-    "shell_scripts".source = mkSym "shell_scripts";
-    ".config/tmux/tmux.conf".source = mkSym ".tmux.conf";
-    ".config/scute/config.yaml".source = mkSym "scute.yml";
+    ".config/mcphub/servers.json" = mkForcedSym "mcphub-servers.json";
+    ".aerospace.toml" = mkForcedSym ".aerospace.toml";
+    "Library/Application Support/com.mitchellh.ghostty/config" = mkForcedSym "ghostty-config";
+    "global_python_scripts" = mkForcedSym "global_python_scripts";
+    "shell_scripts" = mkForcedSym "shell_scripts";
+    ".config/tmux/tmux.conf" = mkForcedSym ".tmux.conf";
+    ".config/scute/config.yaml" = mkForcedSym "scute.yml";
 
-    ".config/opencode/config.json".source = mkSym "opencode-config.json";
-    ".config/opencode/plugin/cursor-acp.js".source =
-      "${opencodeCursor}/share/opencode/plugins/cursor-acp.js";
-    ".config/opencode/commands".source = mkSym "opencode/commands";
-    ".config/opencode/agents".source = mkSym "opencode/agents";
-    ".config/opencode/modes".source = mkSym "opencode/modes";
-    ".config/opencode/plugins".source = mkSym "opencode/plugins";
-    ".config/opencode/themes".source = mkSym "opencode/themes";
-    ".config/opencode/skills".source = mkSym "opencode/skills";
+    ".config/opencode/config.json" = mkForcedSym "opencode-config.json";
+    ".config/opencode/commands" = mkForcedSym "opencode/commands";
+    ".config/opencode/agents" = mkForcedSym "opencode/agents";
+    ".config/opencode/modes" = mkForcedSym "opencode/modes";
+    ".config/opencode/plugins" = mkForcedSym "opencode/plugins";
+    ".config/opencode/themes" = mkForcedSym "opencode/themes";
+    ".config/opencode/skills" = mkForcedSym "opencode/skills";
 
-    ".opencode/agents".source = mkSym "opencode/agents";
-    ".opencode/commands".source = mkSym "opencode/commands";
-    ".opencode/modes".source = mkSym "opencode/modes";
-    ".opencode/plugins".source = mkSym "opencode/plugins";
-    ".opencode/themes".source = mkSym "opencode/themes";
-    ".opencode/skills".source = mkSym "opencode/skills";
+    ".opencode/agents" = mkForcedSym "opencode/agents";
+    ".opencode/commands" = mkForcedSym "opencode/commands";
+    ".opencode/modes" = mkForcedSym "opencode/modes";
+    ".opencode/plugins" = mkForcedSym "opencode/plugins";
+    ".opencode/themes" = mkForcedSym "opencode/themes";
+    ".opencode/skills" = mkForcedSym "opencode/skills";
 
-    ".config/karabiner/karabiner.json" = {
-      source = mkSym "karabiner.json";
-      force = true;
-    };
+    ".config/karabiner/karabiner.json" = mkForcedSym "karabiner.json";
 
     ".yabairc" = {
       source = ./dotfiles/yabairc;
       executable = true;
     };
 
-    ".config/rift/config.toml".source = mkSym "riftrc";
-    ".config/alacritty/alacritty.toml".source = mkSym "alacritty.toml";
+    ".config/rift/config.toml" = mkForcedSym "riftrc";
+    ".config/alacritty/alacritty.toml" = mkForcedSym "alacritty.toml";
 
     ".aider.model.settings.yml".source = ./dotfiles/aider.model.settings.yml;
     ".bashrc.d".source = ./dotfiles/.bashrc.d;

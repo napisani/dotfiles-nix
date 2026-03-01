@@ -20,7 +20,6 @@
   ];
 
   nixpkgs = {
-    overlays = [ (import ../../overlays/vi-mongo.nix) ] ++ overlays;
 
     config = {
       allowUnfree = true;
