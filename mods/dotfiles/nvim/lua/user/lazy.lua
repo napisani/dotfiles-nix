@@ -308,6 +308,14 @@ require("lazy").setup({
 			},
 		},
 		{ "Bilal2453/luvit-meta", lazy = true }, -- optional `vim.uv` typings
+
+		-- Speech-to-text via OpenAI Whisper
+		{
+			"kyza0d/vocal.nvim",
+			dependencies = {
+				"nvim-lua/plenary.nvim",
+			},
+		},
 	},
 	-- Configure any other settings here. See the documentation for more details.
 	-- colorscheme that will be used when installing plugins.

@@ -1,6 +1,13 @@
-{ pkgs, pkgs-unstable,  config, ... }:
-let langPackages = import ./languages/all.nix { inherit pkgs pkgs-unstable; };
-in {
+{
+  pkgs,
+  pkgs-unstable,
+  config,
+  ...
+}:
+let
+  langPackages = import ./languages/all.nix { inherit pkgs pkgs-unstable; };
+in
+{
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -20,10 +27,8 @@ in {
   # };
   xdg.configFile = {
     "nvim" = {
-      source = config.lib.file.mkOutOfStoreSymlink
-        "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/nvim";
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/nvim";
       recursive = true;
     };
   };
 }
-

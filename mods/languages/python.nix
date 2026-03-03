@@ -1,5 +1,6 @@
 { pkgs, pkgs-unstable, ... }:
-with pkgs-unstable; [
+with pkgs-unstable;
+[
   # python
   python3Packages.isort
   pyright
@@ -10,12 +11,5 @@ with pkgs-unstable; [
   yapf
   uv
   python312
-
-  # (pkgs-unstable.python312.withPackages (p: [
-  #   p.ipython # interactive shell
-  #   p.pipx
-  #   # p.tiktoken
-  # ]))
   rye
 ]
-

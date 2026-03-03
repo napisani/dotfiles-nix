@@ -44,6 +44,7 @@ M.modules = {
 	"ai.opencode",
 	"ai.wiremux",
 	"ai.code_explain",
+	"ai.vocal",
 	-- Database plugins
 	"database.dadbod",
 	-- Navigation plugins (remaining)

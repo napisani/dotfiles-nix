@@ -19,6 +19,15 @@ local normal_mappings = vim.list_extend(
 
 table.insert(normal_mappings, { "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" })
 table.insert(normal_mappings, { "<leader>lR", "<cmd>:LspRestart<cr>", desc = "(R)estart LSPs" })
+table.insert(normal_mappings, { "<leader>lm", "<cmd>RenderMarkdown toggle<cr>", desc = "(m)arkdown render toggle" })
+table.insert(normal_mappings, {
+	"<leader>lw",
+	function()
+		vim.wo.wrap = not vim.wo.wrap
+		vim.notify("wrap: " .. (vim.wo.wrap and "on" or "off"))
+	end,
+	desc = "(w)rap toggle",
+})
 
 local visual_mappings = vim.list_extend(
 	vim.deepcopy(keymaps.whichkey_groups.visual),

@@ -19,3 +19,5 @@ export SBTAMER_EDITOR='nvim +"term cat %s"  +"execute \":normal! G\""'
 export SBTAMER_TERMINATOR='.*❯.*' 
 
 
+# prevent pnpm and mise and nix for managing the installed version of pnpm 
+PNPM_MANAGE_INSTALLATION=false
