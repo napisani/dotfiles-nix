@@ -18,8 +18,6 @@
 
   security.pam.services.sudo_local.touchIdAuth = true;
 
-  system.primaryUser = "nick";
-
   homebrew = {
     enable = true;
     caskArgs.no_quarantine = true;
@@ -38,22 +36,20 @@
     casks = [
       "ollama-app"
       "alacritty"
-      "ungoogled-chromium"
+      # "ungoogled-chromium"
       "bitwarden"
       "caffeine"
-      "firefox@developer-edition"
+      # "firefox@developer-edition"
       "brave-browser"
       "tailscale-app"
       "obsidian"
       "stats"
-      # "rectangle"
       "karabiner-elements"
     ];
 
     # Base brews that all Macs should have
     brews = [
       # "procmux"
-      # "sst/tap/opencode"
       "koekeishiya/formulae/yabai"
       "opencode"
     ];
@@ -81,17 +77,27 @@
     pkgs.nerd-fonts.symbols-only
   ];
 
-  system.defaults = {
-    finder.AppleShowAllExtensions = true;
-    finder._FXShowPosixPathInTitle = true;
-    finder.FXDefaultSearchScope = "SCcf";
-    finder.ShowPathbar = true;
-    finder.QuitMenuItem = true;
-    finder.ShowStatusBar = true;
+  system = {
+    primaryUser = "nick";
 
-    NSGlobalDomain.AppleShowAllExtensions = true;
-    NSGlobalDomain.AppleInterfaceStyle = "Dark";
-    NSGlobalDomain."com.apple.swipescrolldirection" = false;
+    defaults = {
+      finder = {
+        AppleShowAllExtensions = true;
+        _FXShowPosixPathInTitle = true;
+        FXDefaultSearchScope = "SCcf";
+        ShowPathbar = true;
+        QuitMenuItem = true;
+        ShowStatusBar = true;
+      };
+
+      NSGlobalDomain = {
+        AppleShowAllExtensions = true;
+        AppleInterfaceStyle = "Dark";
+        "com.apple.swipescrolldirection" = false;
+      };
+    };
+
+    stateVersion = 4;
   };
 
   nix = {
@@ -106,5 +112,4 @@
     };
   };
 
-  system.stateVersion = 4;
 }

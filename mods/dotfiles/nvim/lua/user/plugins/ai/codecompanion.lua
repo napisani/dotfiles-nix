@@ -235,6 +235,13 @@ function M.get_keymaps()
 			{ "<leader>ao", ":<C-u>'<,'>CodeCompanionChat Add<cr>", desc = "(o)pen existing chat" },
 			{ "<leader>aq", ":<C-u>'<,'>CodeCompanionChat Toggle<cr>", desc = "(q)uit chat" },
 
+			{
+				"<leader>aff",
+				function()
+					require("user.snacks.ai_actions").stage_context()
+				end,
+				desc = "(f)ile context to chat",
+			},
 			{ "<leader>ar", group = "(r)run" },
 		},
 

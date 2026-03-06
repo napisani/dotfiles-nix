@@ -25,16 +25,6 @@ let
       ];
     }
     {
-      repo = "https://github.com/obra/superpowers";
-      skills = [
-        "brainstorming"
-        "writing-plans"
-        "writing-skills"
-        "verification-before-completion"
-        "executing-plans"
-      ];
-    }
-    {
       repo = "https://github.com/langchain-ai/deepagents";
       skills = [
         "web-research"

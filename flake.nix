@@ -34,6 +34,12 @@
       url = "github:raine/workmux";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Pinned OpenCode skills/plugin bundle used by shell.nix.
+    superpowers-src = {
+      url = "github:obra/superpowers";
+      flake = false;
+    };
   };
 
   outputs =

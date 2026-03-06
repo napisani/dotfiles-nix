@@ -2,6 +2,7 @@ local codecompanion = require("codecompanion")
 local config = require("codecompanion.config")
 local util = require("codecompanion.utils")
 local path = require("plenary.path")
+local common = require("user.snacks.ai_actions.common")
 
 local M = {}
 
@@ -123,21 +124,11 @@ function M.send_prompt_with_context(ctx, prompt)
 		return false
 	end
 
-	local parts = {}
-
-	local ref = ctx.relative_path or ctx.file_path or ""
-	if ref ~= "" then
-		local line_suffix = ctx.line and (":" .. ctx.line) or ""
-		table.insert(parts, "File: `" .. ref .. line_suffix .. "`")
-	end
-
-	if ctx.selection and ctx.selection ~= "" then
-		table.insert(parts, "Selected text:\n```\n" .. ctx.selection .. "\n```")
-	end
-
-	table.insert(parts, prompt)
-
-	local full_message = table.concat(parts, "\n\n")
+	local full_message = common.build_context_message(ctx, {
+		style = common.REF_STYLE_MARKDOWN,
+		separator = "\n\n",
+		prompt = prompt,
+	})
 
 	-- Open inline assistant pre-filled with the composed message
 	vim.cmd("CodeCompanion " .. vim.fn.escape(full_message, " "))
@@ -159,6 +150,37 @@ function M.send_text(text, _opts)
 		content = text,
 	})
 
+	return true
+end
+
+-- Stage context (file ref + selection) into the chat without submitting.
+function M.stage_context(ctx)
+	local chat = codecompanion.last_chat()
+	if not chat then
+		-- Open a new chat to stage into
+		vim.cmd("CodeCompanionChat")
+		chat = codecompanion.last_chat()
+	end
+	if not chat then
+		vim.notify("Could not open CodeCompanion chat", vim.log.levels.ERROR)
+		return false
+	end
+
+	local message = common.build_context_message(ctx, {
+		style = common.REF_STYLE_MARKDOWN,
+		separator = "\n\n",
+	})
+	if message == "" then
+		return false
+	end
+
+	-- Add as user message without triggering a response
+	chat:add_message({
+		role = config.constants.USER_ROLE,
+		content = message,
+	}, { visible = true })
+
+	util.notify("Context staged in chat (not submitted)")
 	return true
 end
 

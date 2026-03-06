@@ -9,7 +9,7 @@ with pkgs-unstable;
   nodePackages.typescript-language-server
   nodePackages_latest.eslint_d
   nodePackages.prettier
-  nodePackages_latest.pnpm
+  # nodePackages_latest.pnpm
   pkgs-unstable.oxlint
 
   # vuejs

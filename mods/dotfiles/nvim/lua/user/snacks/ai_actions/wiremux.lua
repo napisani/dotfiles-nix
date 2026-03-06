@@ -1,3 +1,5 @@
+local common = require("user.snacks.ai_actions.common")
+
 local M = {}
 
 local function ensure_plugin()
@@ -70,26 +72,11 @@ function M.send_prompt_with_context(ctx, prompt)
 		return false
 	end
 
-	local parts = {}
-
-	-- File + line reference
-	local ref = ctx.relative_path or ctx.file_path or ""
-	if ref ~= "" then
-		local line_suffix = ctx.line and (":" .. ctx.line) or ""
-		table.insert(parts, "@" .. ref .. line_suffix)
-	end
-
-	-- Selected text
-	if ctx.selection and ctx.selection ~= "" then
-		table.insert(parts, "```\n" .. ctx.selection .. "\n```")
-	end
-
-	-- User prompt
-	if prompt and prompt ~= "" then
-		table.insert(parts, prompt)
-	end
-
-	local message = table.concat(parts, "\n")
+	local message = common.build_context_message(ctx, {
+		style = common.REF_STYLE_AT,
+		separator = "\n",
+		prompt = prompt,
+	})
 	if message == "" then
 		return false
 	end
@@ -106,6 +93,25 @@ function M.send_text(text, _opts)
 		return false
 	end
 	return plugin.send_text(text, { focus = true })
+end
+
+-- Stage context (file ref + selection) into the target pane without submitting.
+function M.stage_context(ctx)
+	local plugin = ensure_plugin()
+	if not plugin then
+		return false
+	end
+
+	local message = common.build_context_message(ctx, {
+		style = common.REF_STYLE_AT,
+		separator = "\n",
+	})
+	if message == "" then
+		return false
+	end
+
+	-- Send without submitting (submit = false is the default, but explicit here)
+	return plugin.send_text(message, { focus = true, submit = false })
 end
 
 function M.open_convo_as_buffer()

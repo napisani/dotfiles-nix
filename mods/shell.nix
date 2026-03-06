@@ -1,4 +1,9 @@
-{ pkgs, config, ... }:
+{
+  pkgs,
+  config,
+  inputs,
+  ...
+}:
 let
   mkSym =
     path:
@@ -72,16 +77,11 @@ in
     ".config/opencode/commands" = mkForcedSym "opencode/commands";
     ".config/opencode/agents" = mkForcedSym "opencode/agents";
     ".config/opencode/modes" = mkForcedSym "opencode/modes";
-    ".config/opencode/plugins" = mkForcedSym "opencode/plugins";
+    ".config/opencode/plugins/superpowers.js".source =
+      inputs.superpowers-src + "/.opencode/plugins/superpowers.js";
     ".config/opencode/themes" = mkForcedSym "opencode/themes";
-    ".config/opencode/skills" = mkForcedSym "opencode/skills";
-
-    ".opencode/agents" = mkForcedSym "opencode/agents";
-    ".opencode/commands" = mkForcedSym "opencode/commands";
-    ".opencode/modes" = mkForcedSym "opencode/modes";
-    ".opencode/plugins" = mkForcedSym "opencode/plugins";
-    ".opencode/themes" = mkForcedSym "opencode/themes";
-    ".opencode/skills" = mkForcedSym "opencode/skills";
+    ".config/opencode/skills/local" = mkForcedSym "opencode/local-skills";
+    ".config/opencode/skills/superpowers".source = inputs.superpowers-src + "/skills";
 
     ".config/karabiner/karabiner.json" = mkForcedSym "karabiner.json";
 

@@ -1,4 +1,5 @@
 local file_utils = require("user.utils.file_utils")
+local common = require("user.snacks.ai_actions.common")
 
 local M = {}
 
@@ -77,26 +78,11 @@ function M.send_prompt_with_context(ctx, prompt)
 		return false
 	end
 
-	local parts = {}
-
-	-- File + line reference
-	local ref = ctx.relative_path or ctx.file_path or ""
-	if ref ~= "" then
-		local line_suffix = ctx.line and (":" .. ctx.line) or ""
-		table.insert(parts, "@" .. ref .. line_suffix)
-	end
-
-	-- Selected text
-	if ctx.selection and ctx.selection ~= "" then
-		table.insert(parts, "```\n" .. ctx.selection .. "\n```")
-	end
-
-	-- User prompt
-	if prompt and prompt ~= "" then
-		table.insert(parts, prompt)
-	end
-
-	local message = table.concat(parts, "\n")
+	local message = common.build_context_message(ctx, {
+		style = common.REF_STYLE_AT,
+		separator = "\n",
+		prompt = prompt,
+	})
 	if message == "" then
 		return false
 	end
@@ -142,6 +128,53 @@ function M.send_text(text, _opts)
 	end
 
 	opencode_api.run(text, { new_session = false, focus = "output" })
+	return true
+end
+
+-- Stage context (file ref + selection) into the input buffer without submitting.
+function M.stage_context(ctx)
+	if not opencode_api then
+		vim.notify("OpenCode API not available", vim.log.levels.ERROR)
+		return false
+	end
+
+	-- Ensure UI is open
+	if not (opencode_state and opencode_state.windows) then
+		opencode_api.open({ focus = "input" })
+	end
+
+	local message = common.build_context_message(ctx, {
+		style = common.REF_STYLE_AT,
+		separator = "\n",
+	})
+	if message == "" then
+		return false
+	end
+
+	-- Write into the input buffer without submitting
+	vim.schedule(function()
+		local windows = opencode_state and opencode_state.windows
+		if not windows or not windows.input_buf or not vim.api.nvim_buf_is_valid(windows.input_buf) then
+			vim.notify("OpenCode input buffer not available", vim.log.levels.WARN)
+			return
+		end
+
+		local lines = vim.split(message, "\n")
+		-- Append to existing content
+		local existing = vim.api.nvim_buf_get_lines(windows.input_buf, 0, -1, false)
+		if #existing == 1 and existing[1] == "" then
+			vim.api.nvim_buf_set_lines(windows.input_buf, 0, -1, false, lines)
+		else
+			vim.list_extend(existing, lines)
+			vim.api.nvim_buf_set_lines(windows.input_buf, 0, -1, false, existing)
+		end
+
+		-- Focus the input window
+		if windows.input_win and vim.api.nvim_win_is_valid(windows.input_win) then
+			vim.api.nvim_set_current_win(windows.input_win)
+		end
+	end)
+
 	return true
 end
 
