@@ -5,9 +5,9 @@
 
 local M = {}
 
---- Ref styles used by the different backends.
--- "at"       → @path:line             (opencode, wiremux)
--- "markdown" → File: `path:line`      (codecompanion)
+--- Ref styles used by context builders.
+-- "at"       → @path:line
+-- "markdown" → File: `path:line`
 M.REF_STYLE_AT = "at"
 M.REF_STYLE_MARKDOWN = "markdown"
 
@@ -28,29 +28,47 @@ function M.format_file_ref(ctx, style)
 	return "@" .. ref .. line_suffix
 end
 
---- Wrap a selection string in code fences.
+--- Wrap a selection string in code fences with an optional heading label.
 ---@param selection string|nil
 ---@param style string "at" | "markdown"
+---@param label string|nil
 ---@return string|nil  nil when selection is empty/nil
-function M.format_selection(selection, style)
+function M.format_selection(selection, style, label)
 	if not selection or selection == "" then
 		return nil
 	end
-	if style == M.REF_STYLE_MARKDOWN then
-		return "Selected text:\n```\n" .. selection .. "\n```"
+	local prefix = ""
+	if label and label ~= "" then
+		prefix = label .. ":\n"
 	end
-	-- default: "at"
-	return "```\n" .. selection .. "\n```"
+	if style == M.REF_STYLE_MARKDOWN then
+		return prefix .. "```\n" .. selection .. "\n```"
+	end
+	return prefix .. "```\n" .. selection .. "\n```"
 end
 
 --- Build a complete context message from file ref + selection + optional prompt.
 ---@param ctx table   { relative_path?, file_path?, line?, selection? }
----@param opts table? { style?: string, separator?: string, prompt?: string }
+---@param opts table? {
+--- style?: string,
+--- separator?: string,
+--- prompt?: string,
+--- prompt_label?: string|false,
+--- selection_label?: string|false
+--- }
 ---@return string      assembled message (may be "")
 function M.build_context_message(ctx, opts)
 	opts = opts or {}
 	local style = opts.style or M.REF_STYLE_AT
-	local sep = opts.separator or "\n"
+	local sep = opts.separator or "\n\n"
+	local selection_label = opts.selection_label
+	if selection_label == nil then
+		selection_label = "Selection"
+	end
+	local prompt_label = opts.prompt_label
+	if prompt_label == nil then
+		prompt_label = "Instruction"
+	end
 
 	local parts = {}
 
@@ -59,13 +77,17 @@ function M.build_context_message(ctx, opts)
 		table.insert(parts, ref)
 	end
 
-	local sel = M.format_selection(ctx.selection, style)
+	local sel = M.format_selection(ctx.selection, style, selection_label or nil)
 	if sel then
 		table.insert(parts, sel)
 	end
 
 	if opts.prompt and opts.prompt ~= "" then
-		table.insert(parts, opts.prompt)
+		if prompt_label then
+			table.insert(parts, prompt_label .. ":\n" .. opts.prompt)
+		else
+			table.insert(parts, opts.prompt)
+		end
 	end
 
 	return table.concat(parts, sep)

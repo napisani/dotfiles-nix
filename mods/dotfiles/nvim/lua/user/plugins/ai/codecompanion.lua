@@ -139,6 +139,27 @@ function M.get_keymaps()
 				end,
 				desc = "(e)dit AI",
 			},
+			{
+				"<leader>am",
+				function()
+					ai_actions.append_context_to_register({ mode = "n", prompt_label = "Memo AI" })
+				end,
+				desc = "(m)emo context",
+			},
+			{
+				"<leader>ap",
+				function()
+					ai_actions.paste_context_register()
+				end,
+				desc = "(p)aste memo",
+			},
+			{
+				"<leader>ax",
+				function()
+					ai_actions.clear_context_register()
+				end,
+				desc = "clear memo (x)",
+			},
 			{ "<leader>ao", "<cmd>:CodeCompanionChat Toggle<cr>", desc = "(o)pen existing chat" },
 
 			{ "<leader>aq", "<cmd>:CodeCompanionChat Toggle<cr>", desc = "(q)uit chat" },
@@ -231,6 +252,27 @@ function M.get_keymaps()
 					ai_actions.prompt_with_context({ mode = "v", prompt_label = "Edit (selection)", ai_mode = "build" })
 				end,
 				desc = "(e)dit AI (selection)",
+			},
+			{
+				"<leader>am",
+				function()
+					ai_actions.append_context_to_register({ mode = "v", prompt_label = "Memo AI (selection)" })
+				end,
+				desc = "(m)emo selection",
+			},
+			{
+				"<leader>ap",
+				function()
+					ai_actions.paste_context_register()
+				end,
+				desc = "(p)aste memo",
+			},
+			{
+				"<leader>ax",
+				function()
+					ai_actions.clear_context_register()
+				end,
+				desc = "clear memo (x)",
 			},
 			{ "<leader>ao", ":<C-u>'<,'>CodeCompanionChat Add<cr>", desc = "(o)pen existing chat" },
 			{ "<leader>aq", ":<C-u>'<,'>CodeCompanionChat Toggle<cr>", desc = "(q)uit chat" },

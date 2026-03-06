@@ -80,7 +80,6 @@ function M.send_prompt_with_context(ctx, prompt)
 
 	local message = common.build_context_message(ctx, {
 		style = common.REF_STYLE_AT,
-		separator = "\n",
 		prompt = prompt,
 	})
 	if message == "" then
@@ -145,7 +144,6 @@ function M.stage_context(ctx)
 
 	local message = common.build_context_message(ctx, {
 		style = common.REF_STYLE_AT,
-		separator = "\n",
 	})
 	if message == "" then
 		return false

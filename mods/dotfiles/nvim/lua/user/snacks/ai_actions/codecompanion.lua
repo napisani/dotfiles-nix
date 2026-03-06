@@ -125,8 +125,7 @@ function M.send_prompt_with_context(ctx, prompt)
 	end
 
 	local full_message = common.build_context_message(ctx, {
-		style = common.REF_STYLE_MARKDOWN,
-		separator = "\n\n",
+		style = common.REF_STYLE_AT,
 		prompt = prompt,
 	})
 
@@ -167,8 +166,7 @@ function M.stage_context(ctx)
 	end
 
 	local message = common.build_context_message(ctx, {
-		style = common.REF_STYLE_MARKDOWN,
-		separator = "\n\n",
+		style = common.REF_STYLE_AT,
 	})
 	if message == "" then
 		return false
