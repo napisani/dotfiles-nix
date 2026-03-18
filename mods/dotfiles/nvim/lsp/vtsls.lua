@@ -42,13 +42,22 @@ return {
 		"typescript.tsx",
 	},
 
-	root_markers = { "package-lock.json", "yarn.lock", "pnpm-lock.yaml" },
+	root_markers = {
+		"package-lock.json",
+		"yarn.lock",
+		"pnpm-lock.yaml",
+		".git",
+	},
 	workspace_required = true,
 
 	single_file_support = false,
 	settings = {
+		complete_function_calls = true,
 		typescript = {
 			updateImportsOnFileMove = "always",
+			tsserver = {
+				maxTsServerMemory = 8192,
+			},
 			inlayHints = {
 				parameterNames = { enabled = "all" },
 				parameterTypes = { enabled = true },
@@ -63,7 +72,12 @@ return {
 		},
 		vtsls = {
 			enableMoveToFileCodeAction = true,
+			autoUseWorkspaceTsdk = true,
+			experimental = {
+				completion = {
+					enableServerSideFuzzyMatch = true,
+				},
+			},
 		},
 	},
 }
-

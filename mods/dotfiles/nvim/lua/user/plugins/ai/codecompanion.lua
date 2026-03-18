@@ -47,7 +47,7 @@ function M.setup()
 					return require("codecompanion.adapters").extend("openai", {
 						schema = {
 							model = {
-								default = "gpt-5.3-codex",
+								default = "gpt-5.4",
 							},
 						},
 					})
@@ -60,7 +60,7 @@ function M.setup()
 			inline = {
 				adapter = {
 					name = "openai",
-					model = "gpt-5.3-codex",
+					model = "gpt-5.4",
 				},
 				keymaps = {
 					accept_change = {

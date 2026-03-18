@@ -216,20 +216,22 @@ require("lazy").setup({
 			"tpope/vim-dadbod",
 			lazy = true,
 			dependencies = {
-				"kristijanhusak/vim-dadbod-ui",
-				"kristijanhusak/vim-dadbod-completion",
-				--[[ "abenz1267/nvim-databasehelper", ]]
+				{
+					"joryeugene/dadbod-grip.nvim",
+					version = "*",
+				},
 			},
 			cmd = {
-				"DBUIToggle",
-				"DBUI",
-				"DBUIAddConnection",
-				"DBUIFindBuffer",
-				"DBUIRenameBuffer",
-				"DBUILastQueryInfo",
+				"Grip",
+				"GripConnect",
+				"GripSchema",
+				"GripQuery",
+				"GripTables",
+				"GripStart",
+				"GripHistory",
+				"GripToggle",
 			},
 		},
-
 		{
 			"alexghergh/nvim-tmux-navigation",
 		},

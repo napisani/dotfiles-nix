@@ -12,30 +12,36 @@ if command -v git &> /dev/null ; then
     EPOCH=$(date +%s)
     TEMP_DIR="/tmp/tgc-$PROJECT_NAME-$EPOCH"
     mkdir -p "$TEMP_DIR"
-    pushd "$TEMP_DIR"L
+    pushd "$TEMP_DIR"
     git clone "$GIT_REPO" .
   }
 
 
   function project-root-dir() {
-      local DIR="$(pwd)"
-      while [[ "$DIR" != "/" ]]; do
-          if [[ -e "$DIR" ]]; then
-              echo "$DIR"
-              return 0
-          fi
-          DIR="$(dirname "$DIR")"
-      done
-      echo "No .git directory found in the directory tree."
-      return 1
+      local dir="${1:-$(pwd)}"
+
+      if [ ! -d "$dir" ]; then
+          dir="$(dirname "$dir")"
+      fi
+
+      local root
+      root=$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)
+      if [ -z "$root" ]; then
+          echo "No git repository found in the directory tree."
+          return 1
+      fi
+
+      echo "$root"
+      return 0
   }
 
   function cdpr() {
-    DIR=$(project-root-dir "$1")
-    if [ -z "$DIR" ]; then
+    local dir
+    dir=$(project-root-dir "$1")
+    if [ -z "$dir" ]; then
       return 1
     fi
-    cd "$DIR"
+    cd "$dir"
   }
 
   function git-local-ignore() {

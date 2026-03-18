@@ -16,7 +16,7 @@ clipboardCommand: "auto"
 promptDefaults:
   # provider values: openai | anthropic | gemini | ollama
   provider: openai
-  model: gpt-5.3-codex
+  model: gpt-5.4
 
   # provider: ollama 
   # model: qwen3:1.7b 
