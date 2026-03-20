@@ -50,14 +50,16 @@ function M.join_path(...)
 	return table.concat(parts, M.path_sep)
 end
 
-local _orig_root_dir = vim.fn.getcwd()
 function M.get_root_dir()
-	local root_dir = _orig_root_dir
-	local git_dir = require("lspconfig.util").root_pattern(".git")(root_dir)
-	if git_dir ~= nil and git_dir ~= "" then
-		return git_dir
+	-- Use git to find the root at call time, not at load time.
+	-- This correctly handles worktrees (where .git is a file, not a dir)
+	-- and sessions started from a subdirectory.
+	local git_root = vim.fn.systemlist("git rev-parse --show-toplevel 2>/dev/null")
+	if git_root and #git_root > 0 and git_root[1] ~= "" and not git_root[1]:match("^fatal") then
+		return git_root[1]
 	end
-	return root_dir
+	-- Fallback: current working directory
+	return vim.fn.getcwd()
 end
 
 function M.read_package_json()

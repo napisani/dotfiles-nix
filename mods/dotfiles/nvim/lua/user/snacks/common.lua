@@ -36,11 +36,20 @@ end
 
 function M.file_list_to_picker(file_list, opts)
 	opts = opts or {}
+	local cwd = opts.cwd or utils.get_root_dir()
 	local items = {}
 	for _, file in ipairs(file_list) do
+		-- Resolve to absolute path so Snacks opens the correct file
+		-- regardless of Neovim's process cwd (handles subdir sessions & worktrees).
+		local abs_file
+		if file:sub(1, 1) == "/" then
+			abs_file = file
+		else
+			abs_file = cwd .. "/" .. file
+		end
 		table.insert(items, {
-			file = file,
-			text = file,
+			file = abs_file,
+			text = file, -- display the relative path for readability
 		})
 	end
 	local all_opts = vim.tbl_extend("force", opts, {
