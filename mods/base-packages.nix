@@ -14,6 +14,14 @@
 let
   languagePackages = import ./languages/all.nix { inherit pkgs pkgs-unstable; };
   inherit (pkgs.stdenv.hostPlatform) system;
+  fixedDirenv = pkgs-unstable.direnv.overrideAttrs (old: {
+    env = (old.env or { }) // {
+      CGO_ENABLED = 1;
+    };
+  });
+  fixedMise = pkgs-unstable.mise.override {
+    direnv = fixedDirenv;
+  };
 in
 {
 
@@ -52,7 +60,7 @@ in
       workmux.packages.${system}.default
       # tmuxp
       nodemon
-      mise
+      fixedMise
 
       k9s
 

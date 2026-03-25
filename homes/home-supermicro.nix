@@ -7,6 +7,19 @@
   overlays,
   ...
 }:
+let
+  direnvOverlay = final: prev: {
+    direnv = prev.direnv.overrideAttrs (old: {
+      env = (old.env or { }) // {
+        CGO_ENABLED = 1;
+      };
+    });
+
+    mise = prev.mise.override {
+      direnv = final.direnv;
+    };
+  };
+in
 {
   imports = [
     # if you want to use home-manager modules from other flakes (such as nix-colors):
@@ -22,7 +35,7 @@
 
   nixpkgs = {
     # you can add overlays here
-    overlays = overlays;
+    overlays = overlays ++ [ direnvOverlay ];
 
     # configure your nixpkgs instance
     config = {
@@ -59,7 +72,7 @@
     shellAliases = {
       nixswitchup = "pushd ~/.config/home-manager; git pull && sudo nixos-rebuild --show-trace --flake .#supermicro switch --impure ; popd";
       nixswitch = "pushd ~/.config/home-manager; sudo nixos-rebuild --show-trace --flake .#supermicro switch --impure ; popd";
-      nixup = "pushd ~/.config/home-manager; sudo nix flake update; sudo nixswitch; popd";
+      nixflakeup = "pushd ~/.config/home-manager; sudo nix flake update && sudo nix flake lock --override-input workmux github:raine/workmux/1764fe71affc24984b084e1ce9409985a0d11afb && sudo nixswitch; popd";
       nixclean = "echo 'Collecting garbage...'; nix-collect-garbage -d && echo 'Optimizing store...'; nix store optimise && echo 'Cleaning up old profiles...'; sudo nix-collect-garbage -d && echo 'Done! Space freed.'";
     };
   };

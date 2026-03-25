@@ -1,5 +1,6 @@
 {
   pkgs,
+  pkgs-unstable,
   config,
   inputs,
   ...
@@ -12,6 +13,11 @@ let
     source = mkSym path;
     force = true;
   };
+  fixedDirenv = pkgs-unstable.direnv.overrideAttrs (old: {
+    env = (old.env or { }) // {
+      CGO_ENABLED = 1;
+    };
+  });
 in
 {
   programs = {
@@ -58,6 +64,7 @@ in
     direnv = {
       enable = true;
       enableBashIntegration = true;
+      package = fixedDirenv;
       nix-direnv.enable = true;
     };
     starship.enable = true;
