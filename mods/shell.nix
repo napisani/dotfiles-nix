@@ -86,6 +86,7 @@ in
     ".config/opencode/modes" = mkForcedSym "opencode/modes";
     ".config/opencode/plugins/superpowers.js".source =
       inputs.superpowers-src + "/.opencode/plugins/superpowers.js";
+    ".config/opencode/plugin/tmux-status.ts" = mkForcedSym "opencode/plugins/tmux-status.ts";
     ".config/opencode/themes" = mkForcedSym "opencode/themes";
     ".config/opencode/skills/local" = mkForcedSym "opencode/local-skills";
     ".config/opencode/skills/superpowers".source = inputs.superpowers-src + "/skills";

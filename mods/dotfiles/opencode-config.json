@@ -77,9 +77,13 @@
     "input_newline": "return"
   },
   "plugin": [
-    "opencode-antigravity-auth@beta"
+    "opencode-antigravity-auth@beta",
+    "opencode-cursor-oauth"
   ],
   "provider": {
+    "cursor": {
+      "name": "Cursor"
+    },
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "ollama",
