@@ -1,1 +1,1 @@
-/nix/store/23dwbpalym5iqhp349wvmif4yvlsnlxs-home-manager-files/.config/opencode/plugins/superpowers.js
+/nix/store/wxrn1sj7n9n1fvy3qd2mp0gbfl9c7m0l-home-manager-files/.config/opencode/plugins/superpowers.js
