@@ -12,6 +12,7 @@ let
     "@ellery/terminal-mcp@latest"
     "@napisani/scute@latest"
     "skills@latest"
+    "openrtk"
   ];
 
   # Declarative skills.sh sources for OpenCode global skills.

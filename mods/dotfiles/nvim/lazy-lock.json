@@ -54,5 +54,5 @@
   "vim-slime": { "branch": "main", "commit": "2cfdc3b24e7ebaa64f5a1a04b00555600c622b79" },
   "vocal.nvim": { "branch": "master", "commit": "8535dd0dbb61a4461fac07c9d5b906383199231a" },
   "which-key.nvim": { "branch": "main", "commit": "3aab2147e74890957785941f0c1ad87d0a44c15a" },
-  "wiremux.nvim": { "branch": "main", "commit": "25ec5eb313aa7256946674b1130d83a61def3c5f" }
+  "wiremux.nvim": { "branch": "main", "commit": "77d97f58704f5794f2c7e862ef407041a8a7c6be" }
 }

@@ -45,7 +45,7 @@
       "obsidian"
       "stats"
       "karabiner-elements"
-      "claude-code"
+      # "claude-code"
     ];
 
     # Base brews that all Macs should have
@@ -54,7 +54,6 @@
       "koekeishiya/formulae/yabai"
       "opencode"
       "rtk"
-      "codex"
     ];
 
     taps = [

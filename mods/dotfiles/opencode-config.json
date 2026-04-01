@@ -78,7 +78,8 @@
   },
   "plugin": [
     "opencode-antigravity-auth@beta",
-    "opencode-cursor-oauth"
+    "opencode-cursor-oauth",
+    "openrtk",
   ],
   "provider": {
     "cursor": {
