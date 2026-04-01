@@ -25,24 +25,6 @@ function M.setup()
 		install_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "site"),
 	})
 
-	local parsers_ok, parsers = pcall(require, "nvim-treesitter.parsers")
-	if not parsers_ok then
-		vim.notify("nvim-treesitter parsers unavailable: " .. tostring(parsers), vim.log.levels.WARN)
-		return
-	end
-
-	local info_ok, info = pcall(require, "nvim-treesitter.info")
-	if not info_ok then
-		vim.notify("nvim-treesitter info unavailable: " .. tostring(info), vim.log.levels.WARN)
-		return
-	end
-
-	local install_ok, install = pcall(require, "nvim-treesitter.install")
-	if not install_ok then
-		vim.notify("nvim-treesitter install module unavailable: " .. tostring(install), vim.log.levels.WARN)
-		return
-	end
-
 	local highlight_group = vim.api.nvim_create_augroup("UserTreesitterHighlight", { clear = true })
 	vim.api.nvim_create_autocmd("FileType", {
 		group = highlight_group,
@@ -73,14 +55,14 @@ function M.setup()
 			["tree-sitter-phpdoc"] = true,
 		}
 
-		local ok_available, available = pcall(parsers.available_parsers)
+		local ok_available, available = pcall(ts.get_available)
 		if not ok_available then
 			vim.notify("Unable to query available tree-sitter parsers: " .. tostring(available), vim.log.levels.WARN)
 			return
 		end
 
 		local installed = {}
-		local ok_installed, installed_list = pcall(info.installed_parsers)
+		local ok_installed, installed_list = pcall(ts.get_installed)
 		if ok_installed then
 			for _, lang in ipairs(installed_list) do
 				installed[lang] = true
@@ -95,9 +77,17 @@ function M.setup()
 		end
 
 		if #missing > 0 then
-			local ok_install, err = pcall(install.ensure_installed, missing)
+			local ok_install, task = pcall(ts.install, missing, { summary = true })
 			if not ok_install then
-				vim.notify("Failed to install tree-sitter parsers: " .. tostring(err), vim.log.levels.WARN)
+				vim.notify("Failed to start tree-sitter parser install: " .. tostring(task), vim.log.levels.WARN)
+				return
+			end
+
+			if task and type(task.wait) == "function" then
+				local wait_ok, wait_err = pcall(task.wait, task, 300000)
+				if not wait_ok then
+					vim.notify("Failed to install tree-sitter parsers: " .. tostring(wait_err), vim.log.levels.WARN)
+				end
 			end
 		end
 	end)
