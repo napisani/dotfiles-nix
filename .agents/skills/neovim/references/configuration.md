@@ -237,12 +237,8 @@ if vim.islist then
   vim.tbl_islist = vim.islist
 end
 
--- vim.tbl_flatten (deprecated in 0.11)
-if not vim.tbl_flatten then
-  vim.tbl_flatten = function(t)
-    return vim.iter(t):flatten():totable()
-  end
-end
+-- Flatten list-of-lists in your own code (do not use vim.tbl_flatten)
+-- local flat = vim.iter(nested):flatten():totable()
 ```
 
 ## Constants (lua/config/constants.lua)

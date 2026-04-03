@@ -20,7 +20,6 @@
 
   homebrew = {
     enable = true;
-    caskArgs.no_quarantine = true;
     global.brewfile = true;
     onActivation = {
       upgrade = false;
@@ -45,7 +44,8 @@
       "obsidian"
       "stats"
       "karabiner-elements"
-      # "claude-code"
+      "claude-code"
+      "codex"
     ];
 
     # Base brews that all Macs should have

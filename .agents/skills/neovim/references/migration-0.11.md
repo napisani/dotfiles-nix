@@ -14,23 +14,10 @@ Guide for migrating this configuration to Neovim 0.11 and beyond.
 
 ### 1. vim.tbl_flatten Deprecated
 
-**Old:**
-```lua
-local flat = vim.tbl_flatten({ { 1, 2 }, { 3, 4 } })
-```
+Replace call sites in your own Lua with `vim.iter`:
 
-**New:**
 ```lua
 local flat = vim.iter({ { 1, 2 }, { 3, 4 } }):flatten():totable()
-```
-
-**Compatibility Shim (in lua/config/compat.lua):**
-```lua
-if not vim.tbl_flatten then
-  vim.tbl_flatten = function(t)
-    return vim.iter(t):flatten():totable()
-  end
-end
 ```
 
 ### 2. vim.tbl_islist → vim.islist
@@ -250,11 +237,7 @@ vim.ui.open("/path/to/file.pdf")
    :checkhealth
    ```
 
-4. **Apply compatibility shims:**
-   ```lua
-   -- In lua/config/compat.lua
-   require("config.compat")
-   ```
+4. **Update your own Lua** for deprecated APIs (for example `vim.iter(t):flatten():totable()` instead of `vim.tbl_flatten(t)`).
 
 5. **Test critical features:**
    - LSP completions
@@ -287,13 +270,6 @@ M.setup = function()
     vim.tbl_islist = vim.islist
   elseif vim.tbl_islist and not vim.islist then
     vim.islist = vim.tbl_islist
-  end
-
-  -- vim.tbl_flatten (deprecated in 0.11)
-  if not vim.tbl_flatten then
-    vim.tbl_flatten = function(t)
-      return vim.iter(t):flatten():totable()
-    end
   end
 
   -- vim.tbl_add_reverse_lookup (deprecated)
@@ -353,7 +329,7 @@ end
 
 | Deprecated | Replacement |
 |------------|-------------|
-| `vim.tbl_flatten()` | `vim.iter():flatten():totable()` |
+| `vim.tbl_flatten(t)` | `vim.iter(t):flatten():totable()` |
 | `vim.tbl_islist()` | `vim.islist()` |
 | `vim.lsp.buf.formatting()` | `vim.lsp.buf.format()` |
 | `vim.lsp.buf.range_formatting()` | `vim.lsp.buf.format({ range = ... })` |

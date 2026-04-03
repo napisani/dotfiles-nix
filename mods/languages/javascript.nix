@@ -2,25 +2,26 @@
 
 with pkgs-unstable;
 [
-  pkgs-unstable.deno
-  pkgs-unstable.nodejs
-  pkgs-unstable.bun
-  nodePackages_latest.typescript
-  nodePackages.typescript-language-server
-  nodePackages_latest.eslint_d
-  nodePackages.prettier
-  # nodePackages_latest.pnpm
-  pkgs-unstable.oxlint
+  deno
+  nodejs
+  bun
+  typescript
+  typescript-language-server
+  eslint_d
+  prettier
+  # pnpm is available as pkgs-unstable.pnpm if needed
+  oxlint
 
   # vuejs
-  # nodePackages.vls
-  # html/css/js
-  nodePackages.vscode-langservers-extracted
+  # vls
 
-  nodePackages."@tailwindcss/language-server"
+  # html/css/js
+  vscode-langservers-extracted
+
+  tailwindcss-language-server
 
   # json
-  nodePackages.fixjson
+  fixjson
   jq
 
   # yaml

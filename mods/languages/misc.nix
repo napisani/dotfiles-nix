@@ -1,11 +1,11 @@
 { pkgs, pkgs-unstable, ... }:
-with pkgs-unstable; [
+with pkgs-unstable;
+[
 
   # efm langserver
   efm-langserver
-  nodePackages.cspell
+  cspell
 
   # for doing pretty diffs
   delta
 ]
-
