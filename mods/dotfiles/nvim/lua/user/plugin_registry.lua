@@ -41,7 +41,7 @@ M.modules = {
 	-- AI plugins
 	"ai.copilot",
 	"ai.codecompanion",
-	"ai.opencode",
+	"ai.agentic",
 	"ai.wiremux",
 	"ai.code_explain",
 	"ai.vocal",

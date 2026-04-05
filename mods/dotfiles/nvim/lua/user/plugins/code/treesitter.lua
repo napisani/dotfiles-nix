@@ -2,11 +2,19 @@ local M = {}
 
 local highlight_disable = {
 	css = true,
+	-- Markdown uses split parsers + injections; on NVIM 0.12 the highlighter can
+	-- intermittently error: "attempt to call method 'range' (a nil value)" inside
+	-- nvim.treesitter.highlighter during parse (Decoration provider "start").
+	-- Classic syntax highlighting is stable for .md; Treesitter adds little here.
+	markdown = true,
+	markdown_inline = true,
 }
 
 local indent_disable = {
 	python = true,
 	css = true,
+	-- tree-sitter indents for markdown are noisy; vim's default is more predictable
+	markdown = true,
 }
 
 function M.setup()
@@ -21,8 +29,9 @@ function M.setup()
 		return
 	end
 
+	-- parser_install_dir (not install_dir) — wrong key was ignored and polluted modules table
 	ts.setup({
-		install_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "site"),
+		parser_install_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "site"),
 	})
 
 	local highlight_group = vim.api.nvim_create_augroup("UserTreesitterHighlight", { clear = true })
@@ -50,45 +59,32 @@ function M.setup()
 	})
 
 	vim.schedule(function()
+		local parsers_mod = require("nvim-treesitter.parsers")
+		local install_mod = require("nvim-treesitter.install")
+
 		local ignore = {
 			phpdoc = true,
 			["tree-sitter-phpdoc"] = true,
 		}
 
-		local ok_available, available = pcall(ts.get_available)
-		if not ok_available then
-			vim.notify("Unable to query available tree-sitter parsers: " .. tostring(available), vim.log.levels.WARN)
-			return
-		end
-
-		local installed = {}
-		local ok_installed, installed_list = pcall(ts.get_installed)
-		if ok_installed then
-			for _, lang in ipairs(installed_list) do
-				installed[lang] = true
-			end
-		end
-
+		local available = parsers_mod.available_parsers()
 		local missing = {}
 		for _, lang in ipairs(available) do
-			if not ignore[lang] and not installed[lang] then
+			if not ignore[lang] and not parsers_mod.has_parser(lang) then
 				table.insert(missing, lang)
 			end
 		end
 
-		if #missing > 0 then
-			local ok_install, task = pcall(ts.install, missing, { summary = true })
-			if not ok_install then
-				vim.notify("Failed to start tree-sitter parser install: " .. tostring(task), vim.log.levels.WARN)
-				return
-			end
+		if #missing == 0 then
+			return
+		end
 
-			if task and type(task.wait) == "function" then
-				local wait_ok, wait_err = pcall(task.wait, task, 300000)
-				if not wait_ok then
-					vim.notify("Failed to install tree-sitter parsers: " .. tostring(wait_err), vim.log.levels.WARN)
-				end
-			end
+		-- ensure_installed is install { exclude_configured_parsers = true }; installs given langs
+		local ok_install, err = pcall(function()
+			install_mod.ensure_installed(unpack(missing))
+		end)
+		if not ok_install then
+			vim.notify("Failed to install tree-sitter parsers: " .. tostring(err), vim.log.levels.WARN)
 		end
 	end)
 end

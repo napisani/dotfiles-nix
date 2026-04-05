@@ -242,15 +242,21 @@ Conflict resolution (active inside a diff/conflict view):
 
 ---
 
-## `<leader>o` — OpenCode (inline agent)
+## `<leader>o` — Agentic (inline agent)
 
-`<leader>o` → domain: OpenCode agent — direct prompt and edit via the OpenCode CLI integration  
-`<leader>o` → note: distinct from `<leader>O` (Wiremux); this sends prompts directly to the OpenCode API, not a tmux pane
+`<leader>o` → domain: Agentic ACP chat — direct inline agent workspace in a Neovim sidebar  
+`<leader>o` → contract: prompts are staged in the Agentic input with explicit file / selection context first; review and press Enter to send  
+`<leader>o` → note: distinct from `<leader>O` (Wiremux); this uses the inline Agentic sidebar, not a tmux pane
 
-`<leader>o?` → [n] leaf: prompt OpenCode with current file as context  
-`<leader>o?` → [v] leaf: prompt OpenCode with visual selection as context  
-`<leader>oe` → [n] leaf: prompt OpenCode to edit current file (build mode)  
-`<leader>oe` → [v] leaf: prompt OpenCode to edit based on visual selection (build mode)
+`<leader>oo` → [nv] leaf: show or hide the Agentic sidebar without auto-adding context  
+`<leader>oq` → [nv] leaf: close the Agentic sidebar  
+`<leader>on` → leaf: start a fresh Agentic session  
+`<leader>os` → leaf: pick and restore a previous Agentic session  
+`<leader>ow` → leaf: switch Agentic provider for the current workflow  
+`<leader>o?` → [n] leaf: prefill an Agentic prompt draft with current file context  
+`<leader>o?` → [v] leaf: prefill an Agentic prompt draft with visual selection context  
+`<leader>oe` → [n] leaf: prefill an Agentic edit/build prompt draft with current file context  
+`<leader>oe` → [v] leaf: prefill an Agentic edit/build prompt draft with visual selection context
 
 ---
 

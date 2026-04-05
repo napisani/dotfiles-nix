@@ -110,9 +110,10 @@ function M.capture_context(mode)
 	local line = vim.api.nvim_win_get_cursor(0)[1]
 
 	local selection = nil
+	local start_line, end_line = line, line
 	if mode == "v" then
-		local start_line = vim.fn.line("'<")
-		local end_line = vim.fn.line("'>")
+		start_line = vim.fn.line("'<")
+		end_line = vim.fn.line("'>")
 		local start_col = vim.fn.col("'<") - 1
 		local end_col = vim.fn.col("'>") -- nvim_buf_get_text end_col is exclusive
 
@@ -134,6 +135,8 @@ function M.capture_context(mode)
 		file_path = file_path,
 		relative_path = relative_path,
 		line = line,
+		start_line = start_line,
+		end_line = end_line,
 		selection = selection,
 	}
 end

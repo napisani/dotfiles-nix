@@ -2,24 +2,11 @@ local codecompanion = require("codecompanion")
 local config = require("codecompanion.config")
 local util = require("codecompanion.utils")
 local path = require("plenary.path")
+local agentic_actions = require("user.snacks.ai_actions.agentic")
 local file_utils = require("user.utils.file_utils")
 local wiremux_actions = require("user.snacks.ai_actions.wiremux")
 
 local M = {}
-
--- Load OpenCode modules (may be nil if not available)
-local opencode_context = nil
-local opencode_mention = nil
-do
-	local ok, oc = pcall(require, "opencode.context")
-	if ok then
-		opencode_context = oc
-	end
-	local ok_mention, mention = pcall(require, "opencode.ui.mention")
-	if ok_mention then
-		opencode_mention = mention
-	end
-end
 
 -- Shared helper functions
 local function get_active_chat()
@@ -86,18 +73,6 @@ local function coerce_and_validate_selection(selection)
 	selection.relative_path = vim.fn.fnamemodify(selection.file_path, ":.")
 
 	return selection
-end
-
--- Find a visible OpenCode window (returns win, buf, ft or nil)
-local function find_opencode_window()
-	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-		local buf = vim.api.nvim_win_get_buf(win)
-		local ft = vim.bo[buf].filetype
-		if ft == "opencode" or ft == "opencode_input" or ft == "opencode_output" then
-			return win, buf, ft
-		end
-	end
-	return nil
 end
 
 local function add_file_to_codecompanion_chat_internal(file_info, chat, source)
@@ -199,19 +174,15 @@ function M.add_current_buffer_to_chat()
 		return
 	end
 
-	-- Prefer OpenCode if visible
-	local win = select(1, find_opencode_window())
-	if win then
-		if not (opencode_context and opencode_mention) then
-			vim.notify("OpenCode modules not available", vim.log.levels.ERROR)
+	if agentic_actions.is_snacks_backend() then
+		local file_info = {
+			file_path = file_path,
+			relative_path = vim.fn.fnamemodify(file_path, ":."),
+			bufnr = bufnr,
+		}
+		if agentic_actions.send_file(file_info, { source = "current_buffer" }) then
 			return
 		end
-		local context_path = file_utils.get_relative_to_root(file_path)
-		opencode_mention.mention(function(mention_cb)
-			mention_cb(context_path)
-			opencode_context.add_file(context_path)
-		end)
-		return
 	end
 
 	if wiremux_actions.is_plugin_open() then
@@ -243,34 +214,7 @@ function M.add_current_buffer_to_chat()
 end
 
 function M.add_file_to_chat(picker_fn, picker_opts)
-	local win = select(1, find_opencode_window())
 	picker_opts = picker_opts or {}
-
-	-- Helper to add files to OpenCode
-	local function add_with_opencode(selection)
-		if not (opencode_context and opencode_mention) then
-			vim.notify("OpenCode modules not available", vim.log.levels.ERROR)
-			return
-		end
-		
-		-- Collect all file paths
-		local file_paths = {}
-		process_selection(selection, function(sel)
-			local fi = coerce_and_validate_selection(sel)
-			if fi then
-				local context_path = file_utils.get_relative_to_root(fi.file_path)
-				table.insert(file_paths, context_path)
-			end
-		end)
-		
-		-- Add files to OpenCode context using the mention API
-		opencode_mention.mention(function(mention_cb)
-			for _, context_path in ipairs(file_paths) do
-				mention_cb(context_path)
-				opencode_context.add_file(context_path)
-			end
-		end)
-	end
 
 	local function add_with_wiremux(selection)
 		if not wiremux_actions.is_plugin_open() then
@@ -303,6 +247,17 @@ function M.add_file_to_chat(picker_fn, picker_opts)
 		end)
 	end
 
+	local function add_with_agentic(selection)
+		local staged_any = false
+		process_selection(selection, function(sel)
+			local fi = coerce_and_validate_selection(sel)
+			if fi and agentic_actions.send_file(fi, { source = "picker" }) then
+				staged_any = true
+			end
+		end)
+		return staged_any
+	end
+
 	-- Custom confirm callback that handles multi-select
 	local function custom_confirm_action(picker)
 		-- Get the actual picker object from Snacks
@@ -317,8 +272,8 @@ function M.add_file_to_chat(picker_fn, picker_opts)
 		local selection = active_picker:selected({ fallback = true })
 		active_picker:close()
 
-		if win then
-			add_with_opencode(selection)
+		if agentic_actions.is_snacks_backend() then
+			add_with_agentic(selection)
 		elseif wiremux_actions.is_plugin_open() then
 			add_with_wiremux(selection)
 		else

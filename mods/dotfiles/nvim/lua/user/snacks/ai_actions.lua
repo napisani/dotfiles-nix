@@ -1,5 +1,5 @@
 local codecompanion = require("user.snacks.ai_actions.codecompanion")
-local opencode = require("user.snacks.ai_actions.opencode")
+local agentic = require("user.snacks.ai_actions.agentic")
 local wiremux = require("user.snacks.ai_actions.wiremux")
 local common = require("user.snacks.ai_actions.common")
 
@@ -8,11 +8,11 @@ local MEMO_REGISTER = "5"
 local MEMO_ENTRY_SEPARATOR = "\n\n---\n\n"
 
 local function get_backend()
-	if opencode.is_plugin_open() then
-		return opencode
-	end
 	if wiremux.is_plugin_open() then
 		return wiremux
+	end
+	if agentic.is_snacks_backend() then
+		return agentic
 	end
 	return codecompanion
 end
@@ -21,7 +21,7 @@ end
 -- prompt, then dispatch to the active backend.
 -- opts:
 --   mode        "n" | "v"              (default "n")
---   ai_mode     "plan" | "build" | nil  passed to backend (opencode only)
+--   ai_mode     "plan" | "build" | nil  passed to backend as a prompt hint
 --   prompt_label string
 function M.prompt_with_context(opts)
 	opts = opts or {}

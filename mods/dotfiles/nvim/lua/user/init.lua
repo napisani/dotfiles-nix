@@ -1,3 +1,5 @@
+require("user.compat")
+
 -- Enable secure external rc files
 vim.opt.exrc = true
 -- Also enable secure mode when using exrc for security

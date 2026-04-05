@@ -11,7 +11,6 @@ let
 
   javaPackages = import ./java.nix { inherit pkgs pkgs-unstable; };
 
-  # gleamPackages = import ./gleam.nix { inherit pkgs pkgs-unstable; };
   cppPackages = import ./cpp.nix { inherit pkgs pkgs-unstable; };
 
   luaPackages = import ./lua.nix { inherit pkgs pkgs-unstable; };

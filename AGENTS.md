@@ -9,6 +9,10 @@ This repository is a **Nix flake** for configuring and managing multiple systems
 
 Each sub-project has its own AGENTS.md, conventions, and build processes. Read the relevant sub-project AGENTS.md before making changes.
 
+### Workarounds and upstream tracking
+
+Temporary bug workarounds (Neovim, nvim-treesitter, Nix overlays such as CGO-enabled `direnv`) and notes on what to revisit when upstream fixes land are documented in [`WORKAROUNDS.md`](./WORKAROUNDS.md) at the repository root. Update that file when adding or removing hacks.
+
 ---
 
 ## Machine Inventory

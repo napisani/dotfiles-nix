@@ -170,24 +170,8 @@ require("lazy").setup({
 		-- 			keys = require("user.sidekick").keys,
 		-- 		},
 		{
-			"sudo-tee/opencode.nvim",
-			config = function()
-				require("user.plugins.ai.opencode").setup()
-			end,
+			"carlos-algms/agentic.nvim",
 			dependencies = {
-				"nvim-lua/plenary.nvim",
-				{
-					"MeanderingProgrammer/render-markdown.nvim",
-					opts = {
-						anti_conceal = { enabled = false },
-						file_types = { "markdown", "opencode_output" },
-					},
-					ft = { "markdown", "Avante", "copilot-chat", "opencode_output" },
-				},
-				-- Optional, for file mentions and commands completion, pick only one
-				"saghen/blink.cmp",
-
-				-- Optional, for file mentions picker, pick only one
 				"folke/snacks.nvim",
 			},
 		},

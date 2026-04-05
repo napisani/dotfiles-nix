@@ -283,7 +283,7 @@ EFM LSP handles formatting and linting. Configuration is in `lsp/efm.lua`.
   - Otherwise -> `eslint_d` (lint + format)
 - Can be overridden via `.nvim.lua` project config (`lint` table in `_G.EXRC_M`)
 
-> **Read** `lsp/efm.lua` for the complete language-to-formatter/linter mapping. It covers Go, Nix, shell, JS/TS, Lua, JSON, Python, Java, Gleam, Elixir, and more.
+> **Read** `lsp/efm.lua` for the complete language-to-formatter/linter mapping. It covers Go, Nix, shell, JS/TS, Lua, JSON, Python, Java, Elixir, and more.
 
 ### LSP Keymaps
 
