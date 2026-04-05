@@ -17,6 +17,9 @@ if command -v git &> /dev/null ; then
   }
 
 
+  # Print the root of the git working tree containing DIR (or pwd).
+  # Uses `git rev-parse --show-toplevel` so it works in git worktrees: in a worktree, `.git` is
+  # usually a *file* (pointer), not a directory—do not implement this by walking up for `.git/`.
   function project-root-dir() {
       local dir="${1:-$(pwd)}"
 
@@ -35,6 +38,9 @@ if command -v git &> /dev/null ; then
       return 0
   }
 
+  # Change to the root of the current git checkout (repository or worktree).
+  # From any subdirectory—including a linked worktree—cd to that checkout's top-level directory
+  # (not the main repo path on disk unless you are in the primary worktree).
   function cdpr() {
     local dir
     dir=$(project-root-dir "$1")

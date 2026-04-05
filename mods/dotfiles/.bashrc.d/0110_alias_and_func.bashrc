@@ -112,45 +112,11 @@ function color-test {
   }'
 }
 
-function temp-git-clone() {
-  GIT_REPO="$1"
-  if [ -z "$GIT_REPO" ]; then
-    echo "Usage: temp-git-clone <git_repo>"
-    return 1
-  fi
-  PROJECT_NAME=$(basename "$GIT_REPO" .git)
-  EPOCH=$(date +%s)
-  TEMP_DIR="/tmp/tgc-$PROJECT_NAME-$EPOCH"
-  mkdir -p "$TEMP_DIR"
-  pushd "$TEMP_DIR"
-  git clone "$GIT_REPO" .
-}
-
-alias gitcm='git commit -m'
-alias gita='git add .'
-
-
-function project-root-dir() {
-    local DIR="$(pwd)"
-    while [[ "$DIR" != "/" ]]; do
-        if [[ -d "$DIR/.git" ]]; then
-            echo "$DIR"
-            return 0
-        fi
-        DIR="$(dirname "$DIR")"
-    done
-    echo "No .git directory found in the directory tree."
-    return 1
-}
-
-function cdpr() {
-  DIR=$(project-root-dir "$1")
-  if [ -z "$DIR" ]; then
-    return 1
-  fi
-  cd "$DIR"
-}
-
+# Git helpers (temp-git-clone, project-root-dir, cdpr, gitcm, gita, …): see 0070_git.bashrc.
+# Do not redefine them here—0110 loads after 0070 and would shadow the worktree-safe versions.
+# Old aliases that used to live here shadowed 0070:
+#   gitcm — 0070 defines gitcm() (prompt or first arg as message); was alias 'git commit -m'
+#   gita  — 0070 defines gita='git add'; was alias 'git add .' — use: gita .   or   git add .
 
 # diff two files in WebStorm
 alias wsdiff='function _wsdiff() { /Applications/WebStorm.app/Contents/MacOS/webstorm diff "$1" "$2"; }; _wsdiff'
