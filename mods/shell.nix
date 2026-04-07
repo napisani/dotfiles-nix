@@ -2,7 +2,6 @@
   pkgs,
   pkgs-unstable,
   config,
-  inputs,
   ...
 }:
 let
@@ -20,6 +19,8 @@ let
   });
 in
 {
+  imports = [ ./opencode.nix ];
+
   programs = {
     fzf = {
       enable = true;
@@ -79,17 +80,6 @@ in
     "shell_scripts" = mkForcedSym "shell_scripts";
     ".config/tmux/tmux.conf" = mkForcedSym ".tmux.conf";
     ".config/scute/config.yaml" = mkForcedSym "scute.yml";
-
-    ".config/opencode/config.json" = mkForcedSym "opencode-config.json";
-    ".config/opencode/commands" = mkForcedSym "opencode/commands";
-    ".config/opencode/agents" = mkForcedSym "opencode/agents";
-    ".config/opencode/modes" = mkForcedSym "opencode/modes";
-    ".config/opencode/plugins/superpowers.js".source =
-      inputs.superpowers-src + "/.opencode/plugins/superpowers.js";
-    ".config/opencode/plugin/tmux-status.ts" = mkForcedSym "opencode/plugins/tmux-status.ts";
-    ".config/opencode/themes" = mkForcedSym "opencode/themes";
-    ".config/opencode/skills/local" = mkForcedSym "opencode/local-skills";
-    ".config/opencode/skills/superpowers".source = inputs.superpowers-src + "/skills";
 
     ".config/karabiner/karabiner.json" = mkForcedSym "karabiner.json";
 

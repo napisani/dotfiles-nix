@@ -69,7 +69,13 @@ local function get_agentic_opts()
 				command = acp_command("codex-acp"),
 				env = {},
 			},
+			["gemini-acp"] = {
+				name = "Gemini ACP",
+				command = acp_command("gemini-acp"),
+				env = {},
+			},
 		},
+
 		windows = {
 			position = "right",
 			width = AGENTIC_WIDTH_NORMAL,

@@ -12,6 +12,8 @@ let
   # ACP CLIs for agentic.nvim: bins land in ~/.local/bin (e.g. claude-agent-acp, codex-acp).
   # Neovim from Dock/Finder often lacks ~/.local/bin on PATH; mods/dotfiles/nvim/lua/user/plugins/ai/agentic.lua
   # sets explicit command paths so :checkhealth agentic and spawning still work.
+  #
+  # OpenCode community skills are declared in mods/opencode.nix (`opencodeCommunitySkillSources`).
   npmxTools = [
     "@ellery/terminal-mcp@latest"
     "@napisani/scute@latest"
@@ -19,40 +21,8 @@ let
     "openrtk"
     "@agentclientprotocol/claude-agent-acp"
     "@zed-industries/codex-acp"
+    "@google/gemini-cli"
   ];
-
-  # Declarative skills.sh sources for OpenCode global skills.
-  # Additive mode: installs listed skills without removing existing ones.
-  opencodeSkillSources = [
-    {
-      repo = "https://github.com/anthropics/skills";
-      skills = [
-        "skill-creator"
-        "doc-coauthoring"
-      ];
-    }
-    {
-      repo = "https://github.com/langchain-ai/deepagents";
-      skills = [
-        "web-research"
-      ];
-    }
-  ];
-
-  mkSkillInstallCommand =
-    source:
-    let
-      skillArgs = builtins.concatStringsSep " " (
-        map (skillName: "--skill ${lib.escapeShellArg skillName}") source.skills
-      );
-    in
-    ''
-      npx --yes skills add ${lib.escapeShellArg source.repo} --global --agent opencode --yes --copy ${skillArgs}
-    '';
-
-  opencodeSkillInstallCommands = builtins.concatStringsSep "\n" (
-    map mkSkillInstallCommand opencodeSkillSources
-  );
 
   npm = "${pkgs-unstable.nodejs}/bin/npm";
   nodeBin = "${pkgs-unstable.nodejs}/bin";
@@ -67,7 +37,6 @@ in
   home.activation.installNpmxTools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     export NPM_CONFIG_PREFIX="$HOME/.local"
     mkdir -p "$NPM_CONFIG_PREFIX/bin" "$NPM_CONFIG_PREFIX/lib"
-    mkdir -p "$HOME/.config/opencode/skills"
     export DISABLE_TELEMETRY=1
 
     # Home Manager activation runs with a minimal PATH; ensure npm scripts can
@@ -88,7 +57,5 @@ in
     # Some npm packages ship their bin entrypoints without the executable bit.
     # Ensure anything linked into ~/.local/bin is runnable.
     chmod -R u+rx "$NPM_CONFIG_PREFIX/bin" 2>/dev/null || true
-
-    ${opencodeSkillInstallCommands}
   '';
 }
