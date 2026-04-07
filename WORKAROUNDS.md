@@ -37,15 +37,16 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 | **Remove when** | Upstream plugins use only the positional form; `:checkhealth vim.deprecated` stays clean **without** this wrapper. |
 | **How to verify** | `nvim --headless -u init.vim -c "checkhealth vim.deprecated" -c "qa"` from `mods/dotfiles/nvim` (or interactive `:checkhealth vim.deprecated`). |
 
-### Markdown Treesitter highlighter crashes (Neovim ~0.12)
+### Markdown Treesitter highlighter crashes (Neovim 0.12+)
 
 | Item | Detail |
 |------|--------|
 | **Symptom** | `Decoration provider "start" (ns=nvim.treesitter.highlighter)` → `attempt to call method 'range' (a nil value)` in `vim/treesitter.lua` / `languagetree.lua` during parse. |
-| **Root cause** | Split `markdown` / `markdown_inline` parsers plus injections; plugins also call `vim.treesitter.start(buf, "markdown")` on **nofile** buffers (Agentic, Snacks, which-key, Trouble, etc.). FileType-only skips do not cover those calls. |
-| **Location** | `mods/dotfiles/nvim/lua/user/compat.lua` — wraps `vim.treesitter.start` to skip Treesitter for markdown / markdown_inline and set `syntax=markdown` instead. |
-| **Escape hatch** | Set `vim.g.user_ts_markdown_treesitter = true` **before** `require("user.compat")` (or early in `init.vim`) to use real Treesitter for markdown again. |
-| **Remove when** | Neovim fixes injection / highlighter edge cases (watch [neovim/neovim](https://github.com/neovim/neovim) releases and `:h news`); confirm with buffers that used to crash (Agentic panels, Snacks markdown previews, large `.md` files). |
+| **Upstream** | Known fragile area: markdown + `markdown_inline` + injections (e.g. fenced code); see [nvim-treesitter#8618](https://github.com/nvim-treesitter/nvim-treesitter/issues/8618) and related Neovim TS issues. Often worsened by **parser ABI / query mismatch** vs the editor build — run `:TSUpdate` after upgrading Neovim. |
+| **Primary mitigation** | `require("nvim-treesitter.configs").setup { highlight = { disable = … } }` disables the **module** path for `markdown` / `markdown_inline` (idiomatic; see `mods/dotfiles/nvim/lua/user/plugins/code/treesitter.lua`). |
+| **Secondary (plugins)** | Plugins that call `vim.treesitter.start(buf, "markdown")` on **nofile** buffers bypass module `disable`. `mods/dotfiles/nvim/lua/user/compat.lua` wraps `vim.treesitter.start` for those calls. |
+| **Escape hatch** | Set `vim.g.user_ts_markdown_treesitter = true` **before** `require("user.compat")` to allow TS markdown again. |
+| **Remove when** | Confirmed stable on your Neovim version with real markdown / Agentic / Snacks buffers; then drop `markdown` from highlight `disable` and remove or narrow the compat shim. |
 
 ---
 
@@ -54,10 +55,11 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 | Item | Detail |
 |------|--------|
 | **Location** | `mods/dotfiles/nvim/lua/user/plugins/code/treesitter.lua` |
-| **`parser_install_dir`** | Uses `parser_install_dir` (not `install_dir`) so parsers install under `stdpath("data")/site` as intended. Wrong key previously merged junk into `config.modules`. |
-| **`highlight_disable` / `indent_disable`** | `markdown`, `markdown_inline` (highlights); `markdown` (indent) — reduces noise and avoids bad indentexpr on markdown. Complements the global `compat.lua` shim for plugin-driven `vim.treesitter.start`. |
-| **Auto-install loop** | Uses `nvim-treesitter.parsers` / `nvim-treesitter.install` APIs (`available_parsers`, `has_parser`, `ensure_installed`), not removed `ts.get_available` / `ts.get_installed` on the main module. |
-| **Remove / tighten when** | If you no longer want “install all missing parsers” on first run, narrow to `ensure_installed = { ... }` in `ts.setup()` only. |
+| **Init order** | `require("nvim-treesitter").setup()` takes **no** arguments (it only registers commands + `configs.init()`). All user options belong in `require("nvim-treesitter.configs").setup { … }`. Passing `parser_install_dir` into the former was a no-op and could leave parsers on a read-only lazy path or out of sync with Neovim’s `vim.treesitter.language_version`. |
+| **`parser_install_dir`** | Set on `configs.setup` to `stdpath("data")/site` so compiled parsers are writable and versioned with `:TSUpdate`. |
+| **Highlight / indent** | Enabled via official modules with `disable` as a function over **parser names** (`markdown`, `markdown_inline`, `css`, …). Replaces ad-hoc `FileType` autocmds that duplicated `vim.treesitter.start` and could fight the plugin. |
+| **Auto-install loop** | Still uses `nvim-treesitter.parsers` / `install.ensure_installed` for any parser not in `ignore_install`-style list. |
+| **Remove / tighten when** | Replace the “install all missing” loop with `ensure_installed = { … }` in `configs.setup` if you want a fixed set only. |
 
 ---
 
