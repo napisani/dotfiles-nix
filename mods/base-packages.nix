@@ -44,6 +44,7 @@ in
       #postman
       doppler
       pet
+      # Tree-sitter CLI for nvim-treesitter :TSInstall / parser builds (same role as brew tree-sitter-cli)
       tree-sitter
       ncdu
       git-lfs

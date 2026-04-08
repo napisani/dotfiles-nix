@@ -1,7 +1,8 @@
 local M = {}
 
--- Parser names (what `parsers.get_buf_lang` returns), not always equal to 'filetype'.
-local function highlight_disabled(lang)
+-- Vim filetype (event.match), aligned with previous parser-name disables where they overlap.
+local function highlight_disabled_ft(ft)
+	local base = (ft or ""):match("^[^.]+") or ft
 	local off = {
 		css = true,
 		-- Markdown + markdown_inline + injections: Neovim highlighter can throw
@@ -10,16 +11,17 @@ local function highlight_disabled(lang)
 		markdown = true,
 		markdown_inline = true,
 	}
-	return off[lang] or false
+	return off[base] or false
 end
 
-local function indent_disabled(lang)
+local function indent_disabled_ft(ft)
+	local base = (ft or ""):match("^[^.]+") or ft
 	local off = {
 		python = true,
 		css = true,
 		markdown = true,
 	}
-	return off[lang] or false
+	return off[base] or false
 end
 
 function M.setup()
@@ -28,46 +30,51 @@ function M.setup()
 		lazy.load({ plugins = { "nvim-treesitter" }, wait = true })
 	end
 
-	local ts_ok, ts_top = pcall(require, "nvim-treesitter")
+	local ts_ok, ts_err = pcall(require, "nvim-treesitter")
 	if not ts_ok then
-		vim.notify("nvim-treesitter not found: " .. tostring(ts_top), vim.log.levels.ERROR)
+		vim.notify("nvim-treesitter not found: " .. tostring(ts_err), vim.log.levels.ERROR)
 		return
 	end
 
-	local configs = require("nvim-treesitter.configs")
-
-	-- Registers :TS* commands and calls configs.init() (defines builtin modules).
-	-- Important: this function takes no arguments; options go through configs.setup only.
-	ts_top.setup()
-
+	-- nvim-treesitter `main` (0.12+): no `nvim-treesitter.configs`; see plugin README.
 	local parser_install_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "site")
+	require("nvim-treesitter").setup({
+		install_dir = parser_install_dir,
+	})
 
-	configs.setup({
-		parser_install_dir = parser_install_dir,
-		highlight = {
-			enable = true,
-			disable = highlight_disabled,
-		},
-		indent = {
-			enable = true,
-			disable = indent_disabled,
-		},
+	local aug = vim.api.nvim_create_augroup("user_nvim_treesitter", { clear = true })
+	vim.api.nvim_create_autocmd("FileType", {
+		group = aug,
+		callback = function(args)
+			local ft = args.match
+			if not highlight_disabled_ft(ft) then
+				pcall(vim.treesitter.start, 0)
+			end
+			if not indent_disabled_ft(ft) then
+				-- Quotes must match `:h nvim-treesitter` indent section on main.
+				vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+			end
+		end,
 	})
 
 	vim.schedule(function()
+		local ts_config = require("nvim-treesitter.config")
 		local parsers_mod = require("nvim-treesitter.parsers")
-		local install_mod = require("nvim-treesitter.install")
+		local installed = ts_config.get_installed("parsers")
+		local have = {}
+		for _, lang in ipairs(installed) do
+			have[lang] = true
+		end
 
 		local ignore = {
 			phpdoc = true,
 			["tree-sitter-phpdoc"] = true,
 		}
 
-		local available = parsers_mod.available_parsers()
 		local missing = {}
-		for _, lang in ipairs(available) do
-			if not ignore[lang] and not parsers_mod.has_parser(lang) then
-				table.insert(missing, lang)
+		for _, lang in ipairs(vim.tbl_keys(parsers_mod)) do
+			if not ignore[lang] and not have[lang] then
+				missing[#missing + 1] = lang
 			end
 		end
 
@@ -75,11 +82,12 @@ function M.setup()
 			return
 		end
 
-		local ok_install, err = pcall(function()
-			install_mod.ensure_installed(unpack(missing))
+		-- Async install (do not `:wait()` — that blocks UI for hundreds of parsers on first run).
+		local ok_install, install_err = pcall(function()
+			require("nvim-treesitter").install(missing)
 		end)
 		if not ok_install then
-			vim.notify("Failed to install tree-sitter parsers: " .. tostring(err), vim.log.levels.WARN)
+			vim.notify("Failed to install tree-sitter parsers: " .. tostring(install_err), vim.log.levels.WARN)
 		end
 	end)
 end

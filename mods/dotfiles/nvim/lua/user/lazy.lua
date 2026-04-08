@@ -66,12 +66,6 @@ require("lazy").setup({
 			opts_extend = require("user.blink").opts_extend,
 		},
 
-		-- Snippets
-		--snippet engine
-		{ "L3MON4D3/LuaSnip" },
-		-- a bunch of snippets to
-		{ "rafamadriz/friendly-snippets" },
-
 		-- LSP
 		{ "neovim/nvim-lspconfig" },
 		-- simple to use language server installer
@@ -107,9 +101,10 @@ require("lazy").setup({
 			dependencies = { "neovim/nvim-lspconfig" },
 		},
 
-		-- Treesitter
+		-- Treesitter (main is the active branch; master lags)
 		{
 			"nvim-treesitter/nvim-treesitter",
+			branch = "main",
 			lazy = false,
 			build = ":TSUpdate",
 		},

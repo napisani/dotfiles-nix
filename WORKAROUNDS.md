@@ -55,10 +55,12 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 | Item | Detail |
 |------|--------|
 | **Location** | `mods/dotfiles/nvim/lua/user/plugins/code/treesitter.lua` |
-| **Init order** | `require("nvim-treesitter").setup()` takes **no** arguments (it only registers commands + `configs.init()`). All user options belong in `require("nvim-treesitter.configs").setup { … }`. Passing `parser_install_dir` into the former was a no-op and could leave parsers on a read-only lazy path or out of sync with Neovim’s `vim.treesitter.language_version`. |
-| **`parser_install_dir`** | Set on `configs.setup` to `stdpath("data")/site` so compiled parsers are writable and versioned with `:TSUpdate`. |
-| **Highlight / indent** | Enabled via official modules with `disable` as a function over **parser names** (`markdown`, `markdown_inline`, `css`, …). Replaces ad-hoc `FileType` autocmds that duplicated `vim.treesitter.start` and could fight the plugin. |
-| **Auto-install loop** | Still uses `nvim-treesitter.parsers` / `install.ensure_installed` for any parser not in `ignore_install`-style list. |
+| **Tree-sitter CLI** | Install **`tree-sitter`** from Nix (same role as Homebrew’s `tree-sitter-cli`), e.g. `mods/base-packages.nix` → `home.packages` via `pkgs-unstable.tree-sitter`. Ensures `tree-sitter` is on `PATH` in shells where you run Neovim so `:TSInstall` / parser compilation can use it. |
+| **Lazy pin** | `nvim-treesitter/nvim-treesitter` uses **`branch = "main"`** in `lua/user/lazy.lua` (`master` lags). |
+| **API (`main` branch)** | **Incompatible** with legacy `master`: there is **no** `nvim-treesitter.configs`. Use `require("nvim-treesitter").setup { install_dir = … }`, `FileType` → `vim.treesitter.start()` for highlight, and `indentexpr` → `v:lua.require'nvim-treesitter'.indentexpr()` per [upstream README](https://github.com/nvim-treesitter/nvim-treesitter/blob/main/README.md). `mods/dotfiles/nvim/lua/user/plugins/code/treesitter.lua` implements this. |
+| **`install_dir`** | Passed to `setup()` (same idea as old `parser_install_dir` on `configs`): `stdpath("data")/site` so parsers are writable; use `:TSUpdate` after Neovim/plugin bumps. |
+| **Highlight / indent** | **Per-buffer** via one `FileType` autocommand: skip TS highlight/indent for the same languages as before (`markdown` / `markdown_inline`, `css`, plus python/css/markdown for indent only). Other filetypes: `pcall(vim.treesitter.start, 0)` and treesitter `indentexpr`. |
+| **Auto-install loop** | Compare `config.get_installed("parsers")` to `vim.tbl_keys(require("nvim-treesitter.parsers"))`, then `require("nvim-treesitter").install(missing)` **without** `:wait()` so startup is not blocked (same ignore list as before: `phpdoc`, etc.). Use `:wait()` only in a deliberate bootstrap script if needed. |
 | **Remove / tighten when** | Replace the “install all missing” loop with `ensure_installed = { … }` in `configs.setup` if you want a fixed set only. |
 
 ---
@@ -119,7 +121,7 @@ cd ~/.config/home-manager/mods/dotfiles/nvim && nvim -u init.vim "+checkhealth" 
 | **P0** | `vim.deprecated` | `vim.validate{ <table> }` deprecated (Nvim 1.0 removal planned). Stack traces pointed at **codecompanion.nvim** (`utils/log.lua`) and **dadbod-grip.nvim** (`init.lua`). | **In-repo:** `mods/dotfiles/nvim/lua/user/compat.lua` wraps `vim.validate`, expands the deprecated table form to the positional API (and expands short type aliases `n`/`s`/…). Revisit when those plugins ship the new callsite style; then the shim can be dropped. |
 | **P1** | Snacks (interactive) | If still ERROR after interactive run: `vim.ui.input` / `vim.ui.select` not Snacks; missing image/LaTeX/Mermaid tools; `lazygit`; kitty graphics. | Align with [snacks.nvim](https://github.com/folke/snacks.nvim) docs: ensure `require("snacks").setup` runs early (`lazy = false` already); optionally install optional tools or **accept** warnings for unused features. |
 | **P2** | Lazy / luarocks | Wants Lua 5.1 for luarocks; Neovim uses **LuaJIT**. | **Ignore** unless a plugin requires luarocks build; lazy’s own health says no plugins need luarocks. |
-| **P2** | LuaSnip | `jsregexp` missing (placeholder transforms). | Optional: install per `:help luasnip-lsp-snippets-transformations` or ignore if unused. |
+| **P2** | ~~LuaSnip~~ | *(removed)* LuaSnip / friendly-snippets dropped; blink uses `lsp` + `path` + `buffer` only. |
 | **P2** | Mason | Optional language runtimes (cargo, composer, php, javac, julia, pip, …) not on PATH. | Install only what you need via Nix or Mason; warnings are **informational**. |
 | **P3** | `vim.lsp` | “Unknown filetype” for composite fts (`eelixir`, `surface`, `gowork`, `yaml.*`, …). | Cosmetic: add `vim.filetype.add` aliases if those projects matter, or ignore. |
 | **P3** | Agentic | Optional ACP backends not installed. | Expected unless you use those providers. |
@@ -162,4 +164,6 @@ cd ~/.config/home-manager/mods/dotfiles/nvim && nvim -u init.vim "+checkhealth" 
 | 2026-04-03 | Added `vim.validate` table→positional shim in `compat.lua`; `vim.deprecated` health clean without waiting on plugin releases. |
 | 2026-04-03 | Documented Neovim 0.12 `:checkhealth` remediation (vim.validate deprecations, EFM/gleam, headless vs interactive, Snacks/tmux notes). |
 | 2026-04-03 | Removed Gleam: EFM mapping, commented `gleamPackages` in `languages/all.nix`, docs/skills. |
+| 2026-04-07 | LuaSnip + friendly-snippets removed; blink default sources without `snippets`; nvim-treesitter lazy spec on `main`; document Nix `tree-sitter` CLI in this file and `base-packages.nix`. |
+| 2026-04-07 | Migrated `treesitter.lua` for nvim-treesitter **`main`** (no `configs` module; `FileType` + `install()` API); updated nvim-treesitter table above. |
 | *(add entries when adding/removing workarounds)* | |
