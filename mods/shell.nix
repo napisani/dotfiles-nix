@@ -76,7 +76,7 @@ in
     ".config/mcphub/servers.json" = mkForcedSym "mcphub-servers.json";
     ".aerospace.toml" = mkForcedSym ".aerospace.toml";
     "Library/Application Support/com.mitchellh.ghostty/config" = mkForcedSym "ghostty-config";
-    "global_python_scripts" = mkForcedSym "global_python_scripts";
+    "toolbox" = mkForcedSym "toolbox";
     "shell_scripts" = mkForcedSym "shell_scripts";
     ".config/tmux/tmux.conf" = mkForcedSym ".tmux.conf";
     ".config/scute/config.yaml" = mkForcedSym "scute.yml";

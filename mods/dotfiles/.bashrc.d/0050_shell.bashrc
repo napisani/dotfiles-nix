@@ -7,6 +7,7 @@ fi
 # Ensure user-local bins stay ahead of Homebrew/path_helper
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/shell_scripts:$PATH"
+export PATH="$HOME/toolbox:$PATH"
 
 
 export EDITOR="nvim"

@@ -1,9 +1,2 @@
-alias activate-global-py-venv='source $HOME/global_python_scripts/.venv/bin/activate'
-
-"$HOME/global_python_scripts/create-venv.sh"
-
-
-alias pyg="$HOME/global_python_scripts/.venv/bin/python"
-alias uvg="$HOME/global_python_scripts/.venv/bin/uv"
-
-
+# toolbox scripts are on PATH via 0050_shell.bashrc
+# uv manages Python versions and deps per-script transparently — nothing to activate

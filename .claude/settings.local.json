@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv --version)",
+      "Bash(bun --version)",
+      "Bash(deno --version)",
+      "Bash(git mv:*)",
+      "Bash(git rm:*)",
+      "Bash(git -C /Users/nick/.config/home-manager status --short)",
+      "Bash(uv run:*)",
+      "Bash(chmod +x /Users/nick/.config/home-manager/mods/dotfiles/supermicro_scripts/backup.py)",
+      "Bash(chmod +x mods/dotfiles/toolbox/homelab_backup.py)"
+    ]
+  }
+}

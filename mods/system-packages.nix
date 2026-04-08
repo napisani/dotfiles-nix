@@ -17,6 +17,7 @@ in
     opencode
     # for fixing the backup disk occasionally
     hfsprogs
+    restic
   ];
 
 }
