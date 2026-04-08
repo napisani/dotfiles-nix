@@ -1,3 +1,6 @@
+-- Buffer LSP maps applied on attach. Neovim 0.11+ also defines stock `g*` maps (e.g. `grn` rename,
+-- `gra` code action, `grr` references); see `:h lsp-defaults`. These `<leader>l*` / `gr` maps stay as
+-- the primary discoverable bindings (which-key, tiny-code-action for `la`).
 local M = {}
 
 M.base = {

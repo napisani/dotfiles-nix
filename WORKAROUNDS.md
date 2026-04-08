@@ -165,6 +165,11 @@ cd ~/.config/home-manager/mods/dotfiles/nvim && nvim -u init.vim "+checkhealth" 
 
 - `nixflakeup` in `homes/profiles/darwin.nix` / `home-supermicro.nix` pins `workmux` via `--override-input`; update when you intentionally bump that input.
 
+### Neovim side configs (`NVIM_APPNAME`)
+
+- Run an alternate config without touching the default: `NVIM_APPNAME=nvim-next nvim` (use matching dirs under `~/.config/`, `~/.local/share/`, `~/.local/state/`, `~/.cache/` as in `:h $NVIM_APPNAME`). Useful for testing plugins or a scratch `init.lua` next to this flake-managed config.
+- Which-key: **`<leader>PR`** → `:restart` (Neovim 0.12+) for a full in-process restart when iterating on Lua/plugins.
+
 ---
 
 ## Changelog (manual)
@@ -177,4 +182,5 @@ cd ~/.config/home-manager/mods/dotfiles/nvim && nvim -u init.vim "+checkhealth" 
 | 2026-04-07 | LuaSnip + friendly-snippets removed; blink default sources without `snippets`; nvim-treesitter lazy spec on `main`; document Nix `tree-sitter` CLI in this file and `base-packages.nix`. |
 | 2026-04-07 | Migrated `treesitter.lua` for nvim-treesitter **`main`** (no `configs` module; `FileType` + `install()` API); updated nvim-treesitter table above. |
 | 2026-04-07 | Opt-in-out **ui2** in `options.lua` + init.vim comment; WORKAROUNDS markdown TS row + future checklist (`:restart`, post-upgrade `:TSUpdate`). |
+| 2026-04-07 | `completeopt` adds `menu` + `popup`; `<leader>PR` → `:restart`; LSP keymaps comment (`:h lsp-defaults`); WORKAROUNDS `NVIM_APPNAME` note. |
 | *(add entries when adding/removing workarounds)* | |

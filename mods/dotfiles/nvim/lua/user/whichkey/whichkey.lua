@@ -40,6 +40,7 @@ local lazy_system = {
 	{ "<leader>Pt", "<cmd>TSUpdate<cr>", desc = "(t)reesitter update" },
 	{ "<leader>Pl", "<cmd>LspInfo<cr>", desc = "(l)sp" },
 	{ "<leader>PM", "<cmd>messages<cr>", desc = "(M)essages" },
+	{ "<leader>PR", "<cmd>restart<cr>", desc = "(R)estart Neovim (0.12)" },
 	{
 		"<leader>PN",
 		desc = "(N)otifications",
