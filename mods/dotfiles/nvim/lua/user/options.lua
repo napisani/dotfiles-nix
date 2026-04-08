@@ -55,6 +55,14 @@ for k, v in pairs(options) do
 	vim.opt[k] = v
 end
 
+-- Neovim 0.12+ experimental message / command-line UI (`:h ui2` when documented).
+-- Disable: in init.vim, uncomment `vim.g.user_ui2 = false` in the lua block before `require("user.init")`.
+if vim.g.user_ui2 ~= false then
+	pcall(function()
+		require("vim._core.ui2").enable({})
+	end)
+end
+
 -- enable :Cfilter in quickfix to refine quickfix list results
 vim.cmd(":packadd cfilter")
 

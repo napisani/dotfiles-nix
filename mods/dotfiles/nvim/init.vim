@@ -4,5 +4,6 @@
 
 set termguicolors
 lua << EOF
+-- vim.g.user_ui2 = false -- uncomment to disable experimental ui2 (cmdline / messages)
 require("user.init")
 EOF

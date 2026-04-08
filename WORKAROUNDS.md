@@ -37,13 +37,22 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 | **Remove when** | Upstream plugins use only the positional form; `:checkhealth vim.deprecated` stays clean **without** this wrapper. |
 | **How to verify** | `nvim --headless -u init.vim -c "checkhealth vim.deprecated" -c "qa"` from `mods/dotfiles/nvim` (or interactive `:checkhealth vim.deprecated`). |
 
+### Experimental `ui2` (Neovim 0.12+)
+
+| Item | Detail |
+|------|--------|
+| **Location** | `mods/dotfiles/nvim/lua/user/options.lua` (after `vim.opt` setup); opt-out in `mods/dotfiles/nvim/init.vim` (commented `vim.g.user_ui2 = false` before `require("user.init")`). |
+| **What** | `pcall(function() require("vim._core.ui2").enable({}) end)` when `g:user_ui2` is not `false`. |
+| **Why** | Reduces legacy “Press ENTER” style interruptions and refreshes cmdline UX; aligns with the 0.12 refresh plan. Wrapped in `pcall` so missing/private API on some builds fails silently. |
+| **Remove / revisit** | If ui2 becomes default upstream or you drop the experiment, delete the block and the init.vim comment. If statusline/plugins misbehave, set `vim.g.user_ui2 = false`. |
+
 ### Markdown Treesitter highlighter crashes (Neovim 0.12+)
 
 | Item | Detail |
 |------|--------|
 | **Symptom** | `Decoration provider "start" (ns=nvim.treesitter.highlighter)` → `attempt to call method 'range' (a nil value)` in `vim/treesitter.lua` / `languagetree.lua` during parse. |
 | **Upstream** | Known fragile area: markdown + `markdown_inline` + injections (e.g. fenced code); see [nvim-treesitter#8618](https://github.com/nvim-treesitter/nvim-treesitter/issues/8618) and related Neovim TS issues. Often worsened by **parser ABI / query mismatch** vs the editor build — run `:TSUpdate` after upgrading Neovim. |
-| **Primary mitigation** | `require("nvim-treesitter.configs").setup { highlight = { disable = … } }` disables the **module** path for `markdown` / `markdown_inline` (idiomatic; see `mods/dotfiles/nvim/lua/user/plugins/code/treesitter.lua`). |
+| **Primary mitigation** | `mods/dotfiles/nvim/lua/user/plugins/code/treesitter.lua` skips `vim.treesitter.start()` for `markdown` / `markdown_inline` / `css` in a `FileType` autocommand (nvim-treesitter **main** has no `configs` highlight module). |
 | **Secondary (plugins)** | Plugins that call `vim.treesitter.start(buf, "markdown")` on **nofile** buffers bypass module `disable`. `mods/dotfiles/nvim/lua/user/compat.lua` wraps `vim.treesitter.start` for those calls. |
 | **Escape hatch** | Set `vim.g.user_ts_markdown_treesitter = true` **before** `require("user.compat")` to allow TS markdown again. |
 | **Remove when** | Confirmed stable on your Neovim version with real markdown / Agentic / Snacks buffers; then drop `markdown` from highlight `disable` and remove or narrow the compat shim. |
@@ -61,7 +70,7 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 | **`install_dir`** | Passed to `setup()` (same idea as old `parser_install_dir` on `configs`): `stdpath("data")/site` so parsers are writable; use `:TSUpdate` after Neovim/plugin bumps. |
 | **Highlight / indent** | **Per-buffer** via one `FileType` autocommand: skip TS highlight/indent for the same languages as before (`markdown` / `markdown_inline`, `css`, plus python/css/markdown for indent only). Other filetypes: `pcall(vim.treesitter.start, 0)` and treesitter `indentexpr`. |
 | **Auto-install loop** | Compare `config.get_installed("parsers")` to `vim.tbl_keys(require("nvim-treesitter.parsers"))`, then `require("nvim-treesitter").install(missing)` **without** `:wait()` so startup is not blocked (same ignore list as before: `phpdoc`, etc.). Use `:wait()` only in a deliberate bootstrap script if needed. |
-| **Remove / tighten when** | Replace the “install all missing” loop with `ensure_installed = { … }` in `configs.setup` if you want a fixed set only. |
+| **Remove / tighten when** | Replace the “install all missing” loop with an explicit allowlist (install only langs you use) if downloads or disk use become a problem. |
 
 ---
 
@@ -147,9 +156,10 @@ cd ~/.config/home-manager/mods/dotfiles/nvim && nvim -u init.vim "+checkhealth" 
 
 ### Neovim
 
+- **After each Neovim upgrade:** run **`:TSUpdate`** (and ensure Nix `tree-sitter` CLI is on `PATH`) so parsers match `vim.treesitter.language_version`.
+- Use **`:restart`** (0.12+) when iterating on plugins or early startup Lua without killing the terminal; pair with `:mksession` if you need buffers back.
 - After a **Neovim point release**, try `let g:user_ts_markdown_treesitter = v:true` (or Lua equivalent) and remove the `vim.treesitter.start` wrapper if no crashes in daily use.
-- Run **`:TSUpdate`** after Neovim upgrades so parser ABI matches `vim.treesitter.language_version`.
-- Watch **nvim-treesitter** changelog for API renames (`parser_install_dir`, `ensure_installed`, etc.).
+- Watch **nvim-treesitter** `main` README/changelog; the rewrite dropped `nvim-treesitter.configs` — keep `treesitter.lua` aligned with upstream.
 
 ### Operational (optional)
 
@@ -166,4 +176,5 @@ cd ~/.config/home-manager/mods/dotfiles/nvim && nvim -u init.vim "+checkhealth" 
 | 2026-04-03 | Removed Gleam: EFM mapping, commented `gleamPackages` in `languages/all.nix`, docs/skills. |
 | 2026-04-07 | LuaSnip + friendly-snippets removed; blink default sources without `snippets`; nvim-treesitter lazy spec on `main`; document Nix `tree-sitter` CLI in this file and `base-packages.nix`. |
 | 2026-04-07 | Migrated `treesitter.lua` for nvim-treesitter **`main`** (no `configs` module; `FileType` + `install()` API); updated nvim-treesitter table above. |
+| 2026-04-07 | Opt-in-out **ui2** in `options.lua` + init.vim comment; WORKAROUNDS markdown TS row + future checklist (`:restart`, post-upgrade `:TSUpdate`). |
 | *(add entries when adding/removing workarounds)* | |
