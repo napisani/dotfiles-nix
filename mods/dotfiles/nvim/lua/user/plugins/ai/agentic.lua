@@ -105,6 +105,30 @@ local function with_agentic(fn)
 	fn(agentic)
 end
 
+--- Open vim.ui.select to change model for the current ACP session (same path as the widget's
+--- `keymaps.widget.switch_model`, which has no `require("agentic").switch_model()` export).
+local function switch_agentic_model()
+	local ok, SessionRegistry = pcall(require, "agentic.session_registry")
+	if not ok then
+		vim.notify("agentic.session_registry not found", vim.log.levels.ERROR)
+		return
+	end
+
+	SessionRegistry.get_session_for_tab_page(nil, function(session)
+		if not session.session_id then
+			vim.notify(
+				"Open Agentic and wait until the session is ready (<leader>oo)",
+				vim.log.levels.INFO
+			)
+			return
+		end
+
+		session.config_options:show_model_selector(function(model_id, is_legacy)
+			session:_handle_model_change(model_id, is_legacy)
+		end)
+	end)
+end
+
 --- Toggle between slim right sidebar (`AGENTIC_WIDTH_NORMAL`) and wide layout (`AGENTIC_WIDTH_ZOOM`).
 function M.toggle_zoom()
 	local ok, SessionRegistry = pcall(require, "agentic.session_registry")
@@ -229,6 +253,11 @@ function M.get_keymaps()
 				desc = "s(w)itch provider",
 			},
 			{
+				"<leader>om",
+				switch_agentic_model,
+				desc = "switch (m)odel",
+			},
+			{
 				"<leader>oz",
 				function()
 					M.toggle_zoom()
@@ -276,6 +305,11 @@ function M.get_keymaps()
 					M.toggle_zoom()
 				end,
 				desc = "(z)oom width toggle",
+			},
+			{
+				"<leader>om",
+				switch_agentic_model,
+				desc = "switch (m)odel",
 			},
 			{
 				"<leader>o?",

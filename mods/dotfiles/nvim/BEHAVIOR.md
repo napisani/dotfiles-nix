@@ -253,6 +253,7 @@ Conflict resolution (active inside a diff/conflict view):
 `<leader>on` → leaf: start a fresh Agentic session  
 `<leader>os` → leaf: pick and restore a previous Agentic session  
 `<leader>ow` → leaf: switch Agentic provider for the current workflow  
+`<leader>om` → [nv] leaf: pick a different model for the current Agentic session (when the provider supports it)  
 `<leader>o?` → [n] leaf: prefill an Agentic prompt draft with current file context  
 `<leader>o?` → [v] leaf: prefill an Agentic prompt draft with visual selection context  
 `<leader>oe` → [n] leaf: prefill an Agentic edit/build prompt draft with current file context  
