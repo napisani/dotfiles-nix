@@ -156,8 +156,8 @@ require("lazy").setup({
 		-- hex colors to actual colors (for css)
 		{ "norcalli/nvim-colorizer.lua" },
 
-		-- copilot
-		{ "github/copilot.vim" },
+		-- copilot (disabled: using native vim.lsp.inline_completion with copilot-language-server instead)
+		-- { "github/copilot.vim" },
 
 		-- 		{
 		-- 			"folke/sidekick.nvim",

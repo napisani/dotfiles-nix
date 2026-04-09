@@ -22,7 +22,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		if not inline or type(inline.enable) ~= "function" then
 			return
 		end
-		if client.supports_method and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlineCompletion, args.buf) then
+		-- Enable inline completion if the server supports it, or unconditionally for copilot
+		-- (copilot-language-server may not advertise the capability in serverCapabilities)
+		local supports_inline = client.supports_method
+			and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlineCompletion, args.buf)
+		if supports_inline or client.name == "copilot" then
 			inline.enable(true, { bufnr = args.buf })
 		end
 	end,
