@@ -11,7 +11,7 @@ then
       READLINE_LINE=$BUFFER
       READLINE_POINT=${#BUFFER}
     }
-    bind -x '"\C-f\C-r": pet-select'
+    [[ $- == *i* ]] && bind -x '"\C-f\C-r": pet-select'
 else
     echo "'pet' is missing"
 fi

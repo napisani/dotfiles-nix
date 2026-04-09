@@ -11,7 +11,10 @@
       "Bash(chmod +x /Users/nick/.config/home-manager/mods/dotfiles/supermicro_scripts/backup.py)",
       "Bash(chmod +x mods/dotfiles/toolbox/homelab_backup.py)",
       "Bash(chmod +x /Users/nick/.config/home-manager/mods/dotfiles/toolbox/homelab_restore.py)",
-      "WebFetch(domain:www.damirscorner.com)"
+      "WebFetch(domain:www.damirscorner.com)",
+      "Bash(xargs -I{} sh -c 'readlink -f \"{}\"')",
+      "Bash(python3 -c \"import os; print\\(oct\\(os.stat\\('/Users/nick/.bashrc.d/0090_pet.bashrc'\\).st_mode\\)\\); print\\(oct\\(os.stat\\('/Users/nick/.bashrc.d/0120_python.bashrc'\\).st_mode\\)\\)\")",
+      "Bash(python3 -c ':*)"
     ]
   }
 }

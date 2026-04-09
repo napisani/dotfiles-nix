@@ -7,49 +7,7 @@ end
 M.opts = get_opts({
 	bigfile = { enabled = true },
 
-	dashboard = {
-		enabled = true,
-		keys = nil,
-		sections = {
-			{ section = "header" },
-			-- {
-			-- 	icon = "📁 ",
-			-- 	title = "Project Directory",
-			-- 	section = "terminal",
-			-- 	enabled = true,
-			-- 	cmd = "pwd",
-			-- 	height = 5,
-			-- 	padding = 1,
-			-- 	indent = 3,
-			-- },
-			-- {
-			-- 	-- pane = 2,
-			-- 	icon = " ",
-			-- 	title = "Git Status",
-			-- 	section = "terminal",
-			-- 	enabled = function()
-			-- 		local Snacks = require("snacks")
-			-- 		return Snacks.git.get_root() ~= nil
-			-- 	end,
-			-- 	cmd = "git status --short --branch --renames",
-			-- 	height = 5,
-			-- 	padding = 1,
-			-- 	indent = 3,
-			-- },
-			{ section = "startup" },
-		},
-		preset = {
-
-			header = [[
-              __
-  ___     ___    ___   __  __ /\_\    ___ ___    
- / _ `\  / __`\ / __`\/\ \/\ \\/\ \  / __` __`\  
-/\ \/\ \/\  __//\ \_\ \ \ \_/ |\ \ \/\ \/\ \/\ \ 
-\ \_\ \_\ \____\ \____/\ \___/  \ \_\ \_\ \_\ \_\
- \/_/\/_/\/____/\/___/  \/__/    \/_/\/_/\/_/\/_/
-]],
-		},
-	},
+	dashboard = { enabled = false },
 
 	explorer = { enabled = false },
 
