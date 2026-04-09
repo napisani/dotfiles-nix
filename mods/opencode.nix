@@ -1,10 +1,11 @@
-# OpenCode (~/.config/opencode) — declarative layout:
+# opencode.nix — Declarative OpenCode (~/.config/opencode) layout:
+#
 # - Dotfiles: config, commands, agents, modes, themes → symlinks into mods/dotfiles (edit without rebuild).
 # - plugins/: Nix store paths (e.g. superpowers.js) + symlinked repo files.
 # - skills:
-#   - local/     → symlink mods/dotfiles/opencode/local-skills (your custom skills)
+#   - local/       → symlink mods/dotfiles/opencode/local-skills (your custom opencode skills)
 #   - superpowers/ → flake input obra/superpowers
-#   - other dirs → community skills from `opencodeCommunitySkillSources` (npx skills add, additive)
+#   - community skills (from git repos) → managed in mods/agents.nix (shared with all agents)
 {
   config,
   lib,
@@ -21,36 +22,6 @@ let
     force = true;
   };
 
-  # Git-hosted skills: copied into ~/.config/opencode/skills/<name> (does not replace local/ or superpowers/).
-  opencodeCommunitySkillSources = [
-    {
-      repo = "https://github.com/anthropics/skills";
-      skills = [
-        "skill-creator"
-        "doc-coauthoring"
-      ];
-    }
-    {
-      repo = "https://github.com/langchain-ai/deepagents";
-      skills = [ "web-research" ];
-    }
-  ];
-
-  mkSkillInstallCommand =
-    source:
-    let
-      skillArgs = builtins.concatStringsSep " " (
-        map (skillName: "--skill ${lib.escapeShellArg skillName}") source.skills
-      );
-    in
-    ''
-      npx --yes skills@latest add ${lib.escapeShellArg source.repo} --global --agent opencode --yes --copy ${skillArgs}
-    '';
-
-  opencodeSkillInstallCommands = builtins.concatStringsSep "\n" (
-    map mkSkillInstallCommand opencodeCommunitySkillSources
-  );
-
   nodeBin = "${pkgs-unstable.nodejs}/bin";
   gitBin = "${pkgs-unstable.git}/bin";
 in
@@ -65,22 +36,6 @@ in
             rm -rf "$p"
           fi
         done
-      '';
-
-      # After skills/{local,superpowers} symlinks exist. npx (not ~/.local/bin/skills) so npmx.nix is optional.
-      installOpencodeCommunitySkills = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-        _oc_skills="$HOME/.config/opencode/skills"
-        if [ -L "$_oc_skills" ] || { [ -e "$_oc_skills" ] && [ ! -d "$_oc_skills" ]; }; then
-          echo "installOpencodeCommunitySkills: removing stale path at $_oc_skills"
-          rm -rf "$_oc_skills"
-        fi
-        mkdir -p "$_oc_skills"
-
-        export DISABLE_TELEMETRY=1
-        export NPM_CONFIG_PREFIX="$HOME/.local"
-        export PATH="${gitBin}:${nodeBin}:$NPM_CONFIG_PREFIX/bin:$PATH"
-
-        ${opencodeSkillInstallCommands}
       '';
     };
 

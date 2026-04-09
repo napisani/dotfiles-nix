@@ -30,6 +30,7 @@ in
     ../../mods/ui-packages.nix
     ../../mods/uvx.nix
     ../../mods/npmx.nix
+    ../../mods/agents.nix
   ];
 
   nixpkgs = {

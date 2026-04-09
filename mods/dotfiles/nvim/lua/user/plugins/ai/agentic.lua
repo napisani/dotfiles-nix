@@ -71,7 +71,9 @@ local function get_agentic_opts()
 			},
 			["gemini-acp"] = {
 				name = "Gemini ACP",
-				command = acp_command("gemini-acp"),
+				-- gemini-cli serves ACP via `gemini --acp`; there is no separate gemini-acp binary.
+				command = acp_command("gemini"),
+				args = { "--acp" },
 				env = {},
 			},
 		},
