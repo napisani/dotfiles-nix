@@ -27,25 +27,31 @@ import httpx
 # Edit these defaults. Any value can be overridden via an environment variable
 # of the same name (e.g.  NFS_HOST=192.168.1.99 ./homelab_backup.py backup).
 
-NFS_HOST       = os.environ.get("NFS_HOST",       "192.168.0.138")
-NFS_EXPORT     = os.environ.get("NFS_EXPORT",     "/volume1/restic")
+NFS_HOST = os.environ.get("NFS_HOST", "192.168.0.138")
+NFS_EXPORT = os.environ.get("NFS_EXPORT", "/volume1/homelab-backup")
 NFS_MOUNT_POINT = os.environ.get("NFS_MOUNT_POINT", "/mnt/restic")
-NFS_OPTIONS    = os.environ.get("NFS_OPTIONS",    "_netdev,rw")
+NFS_OPTIONS = os.environ.get("NFS_OPTIONS", "_netdev,rw")
 
 _STORAGE_MOUNT_POINT = os.environ.get("STORAGE_MOUNT_POINT", "/media/storage")
 
-LOG_FILE             = os.environ.get("LOG_FILE",             "/var/log/backup.py.log")
-RESTIC_PASSWORD_ENV  = os.environ.get("RESTIC_PASSWORD_ENV",  "HOMELAB_BACKUP_RESTIC_PASSWORD")
-RESTIC_KEEP_LAST     = int(os.environ.get("RESTIC_KEEP_LAST", "5"))
-NTFY_TOPIC           = os.environ.get("NTFY_TOPIC", "https://ntfy.napisani.xyz/backups")
-TAG                  = "[restic-backup]"
+LOG_FILE = os.environ.get("LOG_FILE", "/var/log/backup.py.log")
+RESTIC_PASSWORD_ENV = os.environ.get(
+    "RESTIC_PASSWORD_ENV", "HOMELAB_BACKUP_RESTIC_PASSWORD"
+)
+RESTIC_KEEP_LAST = int(os.environ.get("RESTIC_KEEP_LAST", "5"))
+NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "https://ntfy.napisani.xyz/backups")
+TAG = "[restic-backup]"
 
 _backup_sources_json = os.environ.get("BACKUP_SOURCES_JSON", "")
-BACKUP_SOURCES: list[str] = json.loads(_backup_sources_json) if _backup_sources_json else [
-    "/home/nick/local_kube_data",
-    "/home/nick/local_kube_config",
-    f"{_STORAGE_MOUNT_POINT}",
-]
+BACKUP_SOURCES: list[str] = (
+    json.loads(_backup_sources_json)
+    if _backup_sources_json
+    else [
+        "/home/nick/local_kube_data",
+        "/home/nick/local_kube_config",
+        f"{_STORAGE_MOUNT_POINT}",
+    ]
+)
 # ── End of configuration ───────────────────────────────────────────────────
 
 
@@ -111,6 +117,36 @@ def nfs_device() -> str:
     return f"{NFS_HOST}:{NFS_EXPORT}"
 
 
+def nfs_mount_options() -> str:
+    options = [opt.strip() for opt in NFS_OPTIONS.split(",") if opt.strip()]
+    if not any(opt.startswith("addr=") for opt in options):
+        options.append(f"addr={NFS_HOST}")
+    return ",".join(options)
+
+
+def has_nfs_version_option(options: str) -> bool:
+    return any(
+        opt.startswith(("vers=", "nfsvers="))
+        for opt in options.split(",")
+        if opt.strip()
+    )
+
+
+def append_nfs_version_option(options: str, version: str) -> str:
+    parts = [opt.strip() for opt in options.split(",") if opt.strip()]
+    parts = [opt for opt in parts if not opt.startswith(("vers=", "nfsvers="))]
+    parts.append(f"vers={version}")
+    return ",".join(parts)
+
+
+def run_mount(device: str, mount_options: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["mount", "-t", "nfs", "-o", mount_options, device, NFS_MOUNT_POINT],
+        capture_output=True,
+        text=True,
+    )
+
+
 def is_mounted() -> bool:
     """Return True if NFS_MOUNT_POINT is currently an active mount."""
     result = subprocess.run(
@@ -136,11 +172,37 @@ def do_mount() -> bool:
         return True
 
     device = nfs_device()
-    logging.info("Mounting %s -> %s (options: %s)", device, NFS_MOUNT_POINT, NFS_OPTIONS)
-    result = subprocess.run(
-        ["mount", "-t", "nfs", "-o", NFS_OPTIONS, device, NFS_MOUNT_POINT]
+    mount_options = nfs_mount_options()
+    logging.info(
+        "Mounting %s -> %s (options: %s)", device, NFS_MOUNT_POINT, mount_options
     )
+    result = run_mount(device, mount_options)
+    if result.returncode != 0 and not has_nfs_version_option(mount_options):
+        stderr = (result.stderr or "").strip()
+        if "Version unavailable" in stderr:
+            retry_options = append_nfs_version_option(mount_options, "4.1")
+            logging.info(
+                "Retrying mount with explicit NFS version (options: %s)",
+                retry_options,
+            )
+            result = run_mount(device, retry_options)
+            stderr = (result.stderr or "").strip()
+            if result.returncode != 0 and "Couldn't follow remote path" in stderr:
+                retry_options = append_nfs_version_option(mount_options, "3")
+                logging.info(
+                    "Retrying mount with NFSv3 path semantics (options: %s)",
+                    retry_options,
+                )
+                result = run_mount(device, retry_options)
+
     if result.returncode != 0:
+        stderr = (result.stderr or "").strip()
+        if stderr:
+            logging.error(stderr)
+            if "read-only" in stderr:
+                logging.error(
+                    "NFS export is read-only for this client; restic backup requires write access."
+                )
         logging.error("Failed to mount NFS share (exit code %d).", result.returncode)
         return False
 
@@ -206,7 +268,9 @@ def do_backup(sources: list[str], dry_run: bool) -> bool:
         logging.info("Backing up source #%d: %s", index, source)
 
         if not Path(source).is_dir():
-            logging.error("Source #%d: directory '%s' does not exist — skipping.", index, source)
+            logging.error(
+                "Source #%d: directory '%s' does not exist — skipping.", index, source
+            )
             all_ok = False
             continue
 
@@ -221,8 +285,10 @@ def do_forget(dry_run: bool) -> bool:
     """Run forget with the configured retention policy."""
     return run_restic(
         "forget",
-        "--tag", "auto",
-        "--keep-last", str(RESTIC_KEEP_LAST),
+        "--tag",
+        "auto",
+        "--keep-last",
+        str(RESTIC_KEEP_LAST),
         dry_run=dry_run,
     )
 
@@ -237,8 +303,11 @@ def do_prune(dry_run: bool) -> bool:
 
 # ── CLI ────────────────────────────────────────────────────────────────────
 
+
 @click.group()
-@click.option("--log-file", default=LOG_FILE, help=f"Log file path (default: {LOG_FILE}).")
+@click.option(
+    "--log-file", default=LOG_FILE, help=f"Log file path (default: {LOG_FILE})."
+)
 @click.pass_context
 def cli(ctx: click.Context, log_file: str) -> None:
     """Restic backup tool using an NFS-mounted repository."""
@@ -265,8 +334,15 @@ def unmount(lazy: bool) -> None:
 
 
 @cli.command()
-@click.option("--dry-run", is_flag=True, default=False, help="Show what would happen without changes.")
-@click.option("--no-prune", is_flag=True, default=False, help="Skip the weekly prune step.")
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    default=False,
+    help="Show what would happen without changes.",
+)
+@click.option(
+    "--no-prune", is_flag=True, default=False, help="Skip the weekly prune step."
+)
 def backup(dry_run: bool, no_prune: bool) -> None:
     """Mount NFS, run restic backup/forget/prune, then unmount."""
     require_command("restic")
@@ -275,7 +351,9 @@ def backup(dry_run: bool, no_prune: bool) -> None:
     require_restic_password()
 
     if not BACKUP_SOURCES:
-        logging.error("No backup sources defined. Update BACKUP_SOURCES near the top of the script.")
+        logging.error(
+            "No backup sources defined. Update BACKUP_SOURCES near the top of the script."
+        )
         sys.exit(1)
 
     logging.info("Starting restic backup. Dry run: %s.", dry_run)
