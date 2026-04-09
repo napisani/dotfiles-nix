@@ -4,11 +4,10 @@
 # dependencies = ["click", "httpx"]
 # ///
 """
-Restic backup to remote SSH repositories.
+Restic backup to an NFS-mounted repository.
 
 All user-editable configuration lives in the block below.
-Every value can be overridden by an environment variable of the same name,
-which is useful for testing and one-off overrides.
+Every value can be overridden by an environment variable of the same name.
 """
 
 from __future__ import annotations
@@ -26,26 +25,26 @@ import httpx
 
 # ── Configuration ──────────────────────────────────────────────────────────
 # Edit these defaults. Any value can be overridden via an environment variable
-# of the same name (e.g.  SSH_HOST=myserver.local ./backup.py).
+# of the same name (e.g.  NFS_HOST=192.168.1.99 ./homelab_backup.py backup).
+
+NFS_HOST       = os.environ.get("NFS_HOST",       "192.168.0.138")
+NFS_EXPORT     = os.environ.get("NFS_EXPORT",     "/volume1/restic")
+NFS_MOUNT_POINT = os.environ.get("NFS_MOUNT_POINT", "/mnt/restic")
+NFS_OPTIONS    = os.environ.get("NFS_OPTIONS",    "_netdev,rw")
 
 _STORAGE_MOUNT_POINT = os.environ.get("STORAGE_MOUNT_POINT", "/media/storage")
-
-SSH_HOST         = os.environ.get("SSH_HOST",         "backup.example.com")
-SSH_USER         = os.environ.get("SSH_USER",         "nick")
-SSH_PORT         = os.environ.get("SSH_PORT",         "22")
-REMOTE_REPO_BASE = os.environ.get("REMOTE_REPO_BASE", "/srv/restic/supermicro")
 
 LOG_FILE             = os.environ.get("LOG_FILE",             "/var/log/backup.py.log")
 RESTIC_PASSWORD_ENV  = os.environ.get("RESTIC_PASSWORD_ENV",  "HOMELAB_BACKUP_RESTIC_PASSWORD")
 RESTIC_KEEP_LAST     = int(os.environ.get("RESTIC_KEEP_LAST", "5"))
-NTFY_TOPIC           = os.environ.get("NTFY_TOPIC",           "https://ntfy.napisani.xyz/backups")
+NTFY_TOPIC           = os.environ.get("NTFY_TOPIC", "https://ntfy.napisani.xyz/backups")
 TAG                  = "[restic-backup]"
 
-_backup_pairs_json = os.environ.get("BACKUP_PAIRS_JSON", "")
-BACKUP_PAIRS: list[str] = json.loads(_backup_pairs_json) if _backup_pairs_json else [
-    "/home/nick/local_kube_data:local_kube_data",
-    "/home/nick/local_kube_config:home_local_kube_config",
-    f"{_STORAGE_MOUNT_POINT}:storage",
+_backup_sources_json = os.environ.get("BACKUP_SOURCES_JSON", "")
+BACKUP_SOURCES: list[str] = json.loads(_backup_sources_json) if _backup_sources_json else [
+    "/home/nick/local_kube_data",
+    "/home/nick/local_kube_config",
+    f"{_STORAGE_MOUNT_POINT}",
 ]
 # ── End of configuration ───────────────────────────────────────────────────
 
@@ -108,39 +107,85 @@ def require_restic_password() -> None:
     os.environ["RESTIC_PASSWORD"] = value
 
 
-def require_ssh_config() -> None:
-    for name, value in [
-        ("SSH_HOST", SSH_HOST),
-        ("SSH_USER", SSH_USER),
-        ("SSH_PORT", SSH_PORT),
-        ("REMOTE_REPO_BASE", REMOTE_REPO_BASE),
-    ]:
-        if not value:
-            logging.error("Required configuration '%s' is not set.", name)
-            sys.exit(1)
+def nfs_device() -> str:
+    return f"{NFS_HOST}:{NFS_EXPORT}"
 
 
-def build_repo_url(repo_name: str) -> str:
-    base = REMOTE_REPO_BASE.rstrip("/")
-    if SSH_PORT and SSH_PORT != "22":
-        return f"sftp://{SSH_USER}@{SSH_HOST}:{SSH_PORT}{base}/{repo_name}"
-    return f"sftp:{SSH_USER}@{SSH_HOST}:{base}/{repo_name}"
-
-
-def repo_exists(repo: str) -> bool:
+def is_mounted() -> bool:
+    """Return True if NFS_MOUNT_POINT is currently an active mount."""
     result = subprocess.run(
-        ["restic", "--repo", repo, "snapshots"],
+        ["mountpoint", "-q", NFS_MOUNT_POINT],
+        capture_output=True,
+    )
+    return result.returncode == 0
+
+
+def do_mount() -> bool:
+    """Mount the NFS share. Returns True on success."""
+    mount_point = Path(NFS_MOUNT_POINT)
+    if not mount_point.exists():
+        logging.info("Creating mount point %s", NFS_MOUNT_POINT)
+        try:
+            mount_point.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            logging.error("Failed to create mount point: %s", exc)
+            return False
+
+    if is_mounted():
+        logging.info("NFS share already mounted at %s", NFS_MOUNT_POINT)
+        return True
+
+    device = nfs_device()
+    logging.info("Mounting %s -> %s (options: %s)", device, NFS_MOUNT_POINT, NFS_OPTIONS)
+    result = subprocess.run(
+        ["mount", "-t", "nfs", "-o", NFS_OPTIONS, device, NFS_MOUNT_POINT]
+    )
+    if result.returncode != 0:
+        logging.error("Failed to mount NFS share (exit code %d).", result.returncode)
+        return False
+
+    logging.info("NFS share mounted successfully.")
+    return True
+
+
+def do_unmount(lazy: bool = False) -> bool:
+    """Unmount the NFS share. Returns True on success."""
+    if not is_mounted():
+        logging.info("NFS share is not mounted at %s", NFS_MOUNT_POINT)
+        return True
+
+    logging.info("Unmounting %s", NFS_MOUNT_POINT)
+    cmd = ["umount"]
+    if lazy:
+        cmd.append("-l")
+    cmd.append(NFS_MOUNT_POINT)
+    result = subprocess.run(cmd)
+    if result.returncode != 0:
+        logging.error("Failed to unmount NFS share (exit code %d).", result.returncode)
+        return False
+
+    logging.info("NFS share unmounted successfully.")
+    return True
+
+
+def repo_path() -> str:
+    return NFS_MOUNT_POINT.rstrip("/")
+
+
+def repo_exists() -> bool:
+    result = subprocess.run(
+        ["restic", "--repo", repo_path(), "snapshots"],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
     return result.returncode == 0
 
 
-def run_restic(repo: str, operation: str, *args: str, dry_run: bool = False) -> bool:
+def run_restic(operation: str, *args: str, dry_run: bool = False) -> bool:
+    repo = repo_path()
+
     if dry_run and operation == "init":
-        logging.info(
-            "Dry run: would initialize restic repository at '%s'.", repo
-        )
+        logging.info("Dry run: would initialize restic repository at '%s'.", repo)
         return True
 
     cmd = ["restic", "--repo", repo, operation]
@@ -153,141 +198,141 @@ def run_restic(repo: str, operation: str, *args: str, dry_run: bool = False) -> 
     return result.returncode == 0
 
 
-def validate_pairs(pairs: list[str]) -> None:
-    if not pairs:
-        logging.error(
-            "No backup pairs defined. Update the BACKUP_PAIRS list near the top of the script."
-        )
-        sys.exit(1)
+def do_backup(sources: list[str], dry_run: bool) -> bool:
+    """Run backup + forget for every source. Returns True if all succeeded."""
+    all_ok = True
+    for index, source in enumerate(sources, start=1):
+        source = source.rstrip("/")
+        logging.info("Backing up source #%d: %s", index, source)
 
-    for index, pair in enumerate(pairs, start=1):
-        if ":" not in pair:
-            logging.error(
-                "Backup pair #%d ('%s') is invalid. Expected format 'source:repo-name'.",
-                index,
-                pair,
-            )
-            sys.exit(1)
+        if not Path(source).is_dir():
+            logging.error("Source #%d: directory '%s' does not exist — skipping.", index, source)
+            all_ok = False
+            continue
 
-        source, _, repo_name = pair.partition(":")
-        if not source.rstrip("/") or not repo_name.rstrip("/"):
-            logging.error(
-                "Source and repo name must be non-empty for pair #%d ('%s').",
-                index,
-                pair,
-            )
-            sys.exit(1)
+        if not run_restic("backup", "--tag", "auto", source, dry_run=dry_run):
+            logging.error("Source #%d: backup failed for '%s'.", index, source)
+            all_ok = False
+
+    return all_ok
 
 
-def process_pair(
-    index: int,
-    source: str,
-    repo_name: str,
-    dry_run: bool,
-    pair_failures: list[int],
-) -> None:
-    source = source.rstrip("/")
-    repo_url = build_repo_url(repo_name)
-
-    logging.info("Preparing pair #%d: %s -> %s", index, source, repo_url)
-
-    if not Path(source).is_dir():
-        pair_failures.append(index)
-        logging.error(
-            "Pair #%d failed: Source directory '%s' does not exist.", index, source
-        )
-        return
-
-    repo_missing = not repo_exists(repo_url)
-
-    if repo_missing:
-        logging.info("Repository '%s' is not initialized yet.", repo_url)
-        if not run_restic(repo_url, "init", dry_run=dry_run):
-            pair_failures.append(index)
-            logging.error(
-                "Pair #%d failed: Failed to initialize repository '%s'.",
-                index,
-                repo_url,
-            )
-            return
-
-    if dry_run and repo_missing:
-        logging.info(
-            "Dry run: skipping backup and forget for '%s' until the repository exists.",
-            repo_url,
-        )
-        logging.info("Pair #%d completed successfully.", index)
-        return
-
-    if not run_restic(repo_url, "backup", source, dry_run=dry_run):
-        pair_failures.append(index)
-        logging.error(
-            "Pair #%d failed: Failed to back up '%s' to '%s'.", index, source, repo_url
-        )
-        return
-
-    if not run_restic(
-        repo_url, "forget", "--keep-last", str(RESTIC_KEEP_LAST), "--prune", dry_run=dry_run
-    ):
-        pair_failures.append(index)
-        logging.error(
-            "Pair #%d failed: Failed to prune repository '%s'.", index, repo_url
-        )
-        return
-
-    logging.info("Pair #%d completed successfully.", index)
+def do_forget(dry_run: bool) -> bool:
+    """Run forget with the configured retention policy."""
+    return run_restic(
+        "forget",
+        "--tag", "auto",
+        "--keep-last", str(RESTIC_KEEP_LAST),
+        dry_run=dry_run,
+    )
 
 
-@click.command(name="backup.py")
-@click.option(
-    "--dry-run",
-    is_flag=True,
-    default=False,
-    help="Show what would be backed up without making changes.",
-)
-@click.option(
-    "--log-file",
-    default=LOG_FILE,
-    help=f"Write logs to the given file (default: {LOG_FILE}).",
-)
-def main(dry_run: bool, log_file: str) -> None:
-    """Restic backup to remote SSH repositories.
+def do_prune(dry_run: bool) -> bool:
+    """Run prune (only on Sundays unless forced)."""
+    if dry_run:
+        logging.info("Dry run: skipping prune.")
+        return True
+    return run_restic("prune")
 
-    Backup pairs are configured near the top of this script as
-    source:repo-name entries. Each run creates a restic snapshot in a
-    remote SSH-backed repository.
-    """
+
+# ── CLI ────────────────────────────────────────────────────────────────────
+
+@click.group()
+@click.option("--log-file", default=LOG_FILE, help=f"Log file path (default: {LOG_FILE}).")
+@click.pass_context
+def cli(ctx: click.Context, log_file: str) -> None:
+    """Restic backup tool using an NFS-mounted repository."""
+    ctx.ensure_object(dict)
+    ctx.obj["log_file"] = log_file
     setup_logging(log_file)
 
-    pair_failures: list[int] = []
 
+@cli.command()
+def mount() -> None:
+    """Mount the NFS backup share."""
+    require_command("mount")
+    if not do_mount():
+        sys.exit(1)
+
+
+@cli.command()
+@click.option("--lazy", is_flag=True, default=False, help="Use lazy unmount (-l).")
+def unmount(lazy: bool) -> None:
+    """Unmount the NFS backup share."""
+    require_command("umount")
+    if not do_unmount(lazy=lazy):
+        sys.exit(1)
+
+
+@cli.command()
+@click.option("--dry-run", is_flag=True, default=False, help="Show what would happen without changes.")
+@click.option("--no-prune", is_flag=True, default=False, help="Skip the weekly prune step.")
+def backup(dry_run: bool, no_prune: bool) -> None:
+    """Mount NFS, run restic backup/forget/prune, then unmount."""
     require_command("restic")
+    require_command("mount")
+    require_command("umount")
     require_restic_password()
-    require_ssh_config()
-    validate_pairs(BACKUP_PAIRS)
+
+    if not BACKUP_SOURCES:
+        logging.error("No backup sources defined. Update BACKUP_SOURCES near the top of the script.")
+        sys.exit(1)
 
     logging.info("Starting restic backup. Dry run: %s.", dry_run)
-
     if NTFY_TOPIC:
         notify("START", f"Restic backup job started. Dry run: {dry_run}.")
 
-    logging.info("Validated %d backup pair(s).", len(BACKUP_PAIRS))
-
-    for index, pair in enumerate(BACKUP_PAIRS, start=1):
-        source, _, repo_name = pair.partition(":")
-        process_pair(index, source.rstrip("/"), repo_name.rstrip("/"), dry_run, pair_failures)
-
-    if pair_failures:
-        count = len(pair_failures)
-        logging.error("Backup completed with %d failed pair(s).", count)
+    # ── Mount ──
+    if not do_mount():
         if NTFY_TOPIC:
-            notify("ERROR", f"Restic backup completed with {count} failed pair(s).")
+            notify("ERROR", "Failed to mount NFS share.")
         sys.exit(1)
 
-    logging.info("Restic backup completed successfully.")
-    if NTFY_TOPIC:
-        notify("SUCCESS", "Restic backup completed successfully.")
+    try:
+        # ── Init if needed ──
+        if not repo_exists():
+            logging.info("Initializing restic repository at '%s'.", repo_path())
+            if not run_restic("init", dry_run=dry_run):
+                logging.error("Failed to initialize repository.")
+                if NTFY_TOPIC:
+                    notify("ERROR", "Failed to initialize restic repository.")
+                sys.exit(1)
+
+        # ── Backup ──
+        backup_ok = do_backup(BACKUP_SOURCES, dry_run)
+
+        # ── Forget ──
+        forget_ok = do_forget(dry_run)
+        if not forget_ok:
+            logging.error("Forget step failed.")
+
+        # ── Prune (Sundays only, unless --no-prune) ──
+        prune_ok = True
+        if not no_prune:
+            if datetime.now().weekday() == 6:  # Sunday
+                logging.info("Sunday: running prune.")
+                prune_ok = do_prune(dry_run)
+                if not prune_ok:
+                    logging.error("Prune step failed.")
+            else:
+                logging.info("Not Sunday: skipping prune.")
+
+        all_ok = backup_ok and forget_ok and prune_ok
+
+    finally:
+        # ── Always unmount ──
+        do_unmount()
+
+    if all_ok:
+        logging.info("Restic backup completed successfully.")
+        if NTFY_TOPIC:
+            notify("SUCCESS", "Restic backup completed successfully.")
+    else:
+        logging.error("Restic backup completed with errors.")
+        if NTFY_TOPIC:
+            notify("ERROR", "Restic backup completed with errors.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    main()
+    cli()

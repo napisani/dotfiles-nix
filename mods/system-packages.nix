@@ -18,6 +18,7 @@ in
     # for fixing the backup disk occasionally
     hfsprogs
     restic
+    nfs-utils  # mount/umount NFS shares for restic backup
   ];
 
 }
