@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "stackman"
+version = "0.1.0"
+description = "Stacked pull request manager for local Git workflows"
+requires-python = "==3.12.*"
+dependencies = ["click>=8.1,<9", "InquirerPy>=0.3,<1"]
+
+[project.scripts]
+stackman = "stackman.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/stackman"]
