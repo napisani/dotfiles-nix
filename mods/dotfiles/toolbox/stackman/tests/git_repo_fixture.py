@@ -94,3 +94,15 @@ class GitRepoFixture:
     def local_branches(self) -> list[str]:
         output = self.git("for-each-ref", "--format=%(refname:short)", "refs/heads")
         return [line for line in output.splitlines() if line]
+
+    def canonical_repo_key(self) -> str:
+        """Stable ``repos.root_path`` value (shared across linked worktrees)."""
+        from stackman.git_ops import repo_db_key
+
+        return repo_db_key(self.root)
+
+    def add_worktree(self, path: Path, *, new_branch: str, from_ref: str = "HEAD") -> Path:
+        """Create a linked worktree at ``path`` with a new branch based on ``from_ref``."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self._run("worktree", "add", str(path), "-b", new_branch, from_ref)
+        return path

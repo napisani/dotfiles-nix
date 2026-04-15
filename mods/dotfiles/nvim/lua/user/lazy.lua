@@ -165,6 +165,14 @@ require("lazy").setup({
 		-- 			keys = require("user.sidekick").keys,
 		-- 		},
 		{
+			"MeanderingProgrammer/render-markdown.nvim",
+			dependencies = { "nvim-treesitter/nvim-treesitter" },
+			ft = { "markdown", "md", "AgenticChat" },
+			opts = {
+				file_types = { "markdown", "md", "AgenticChat" },
+			},
+		},
+		{
 			"carlos-algms/agentic.nvim",
 			dependencies = {
 				"folke/snacks.nvim",

@@ -153,7 +153,7 @@ function M.setup()
 			-- Explorer panel configuration
 			explorer = {
 				position = "left", -- "left" or "bottom"
-				width = 40, -- Width when position is "left" (columns)
+				width = 70, -- Width when position is "left" (columns)
 				height = 15, -- Height when position is "bottom" (lines)
 				indent_markers = true, -- Show indent markers in tree view (│, ├, └)
 				initial_focus = "explorer", -- Initial focus: "explorer", "original", or "modified"

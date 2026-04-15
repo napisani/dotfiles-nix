@@ -1,5 +1,10 @@
 local M = {
 	opts = {
+		-- agentic.nvim prompt buffer: avoid blink fighting Agentic keymaps (:help agentic-blink-cmp)
+		enabled = function()
+			return not vim.tbl_contains({ "AgenticInput" }, vim.bo.filetype)
+		end,
+
 		-- 'default' for mappings similar to built-in completion
 		-- 'super-tab' for mappings similar to vscode (tab to accept, arrow keys to navigate)
 		-- 'enter' for mappings similar to 'super-tab' but with 'enter' to accept

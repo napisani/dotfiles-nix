@@ -21,7 +21,7 @@ It complements normal Git workflows: you still run `git checkout -b …`; `stack
 
 - **Init from a branch:** After creating a new branch, register it with a known **parent branch** and **fork point** (the commit analogous to “the commit before the first commit on this branch”).
 - **Global database:** One SQLite database under the XDG data directory — **not** hand-edited; inspection via SQLite CLI or future `stackman doctor` / export commands.
-- **Optional stack labels:** A **stack id** is an optional organizational label, not the primary identity of a branch relationship. Multiple labels can apply to overlapping sets of branches.
+- **Stack labels (join metadata):** A **stack id** names a slice of work for commands like `sync` / `stack branches`, but **lineage** (`parent_branch`, `fork_point`) remains the source of truth for the tree. Multiple labels can apply to one branch. **Default assignment** (see [Init behavior](#init-behavior-sketch)) keeps a linear stack under one opaque id unless the user overrides with `--stack`.
 - **Sync propagates downstream:** Syncing one label must update **every tracked branch that depends (transitively) on branches that move** — including branches only tagged with a different stack id when they share the same tree under a common root (see [Graph model](#graph-model)).
 - **Predictable Git operations:** Sync uses normal `git rebase` semantics; the user resolves conflicts with the usual `git rebase --continue` / `--abort` workflow. After history rewrites, pushes should use **`--force-with-lease`** (with clear messaging).
 
@@ -39,6 +39,8 @@ It complements normal Git workflows: you still run `git checkout -b …`; `stack
 | Database file | e.g. `~/.local/share/stackman/stackman.db` |
 | Optional non-canonical data | If needed later: `~/.local/state/stackman/` for logs, caches, or session hints — **not** the source of truth |
 
+**Repository identity (Git worktrees):** `repos.root_path` stores the resolved path from `git rev-parse --git-common-dir` (the shared object database), **not** `git rev-parse --show-toplevel`. All linked worktrees of the same clone therefore share **one** `repos` row and one pool of `branches` rows; `stackman init` from any checkout updates the same metadata. On open, older databases that stored a worktree-specific top-level path are **migrated** to the common-dir key (merging duplicate `repos` rows if needed).
+
 SQLite is required: relational queries (branches per repo, children of a parent, branches carrying a label) and transactional updates. Python’s stdlib `sqlite3` avoids extra dependencies.
 
 ## Graph model
@@ -53,10 +55,10 @@ Per **repository** (keyed by absolute `git rev-parse --show-toplevel`, normalize
 
 ### Stack ids as labels
 
-- A **stack id** identifies a **named slice** of work (e.g. `stack1`, `stack2`), but it is **not** required to define the actual branch lineage.
+- A **stack id** identifies a **named slice** of work (e.g. `stack1`, user-chosen slug, or an opaque `sm_…` id). It does **not** define lineage; the stored parent/fork-point does.
 - Association is **many-to-many**: branches ↔ stack labels (join table).
 - **Sync is not limited to rows that share a label.** Labels determine **where the user starts**; **sync closure** is defined by the **dependency tree** (see below).
-- A branch may be tracked with **no explicit stack label** if the user does not care about naming that slice yet.
+- **Default on `init`:** every tracked branch gets at least one stack id row (see [Init behavior](#init-behavior-sketch)). Older rows may still have zero labels until re-inited.
 
 ### Parent detection vs. source of truth
 
@@ -122,7 +124,7 @@ Because lineage is primary and labels are secondary, the system should be design
 - a **stack id** (`stackman sync stack1`)
 - a **branch selector** (`stackman sync --from branch_b`)
 
-Even if v1 exposes the stack-id form first, the underlying model should not assume labels are mandatory.
+Even if v1 exposes the stack-id form first, **sync closure** remains tree-first; labels are for naming, selection, and UX—not a second parallel graph.
 
 ### Optional behavior (later)
 
@@ -143,7 +145,7 @@ Before starting, **remember the current branch** and restore it when sync finish
 
 Exact names may change during implementation; relationships matter more than column names.
 
-- **`repos`** — `id`, absolute root path (normalized), maybe `created_at`.
+- **`repos`** — `id`, canonical repo path = resolved `git rev-parse --git-common-dir` (shared across linked worktrees), maybe `created_at`.
 - **`branches`** — `id`, `repo_id`, branch name, `parent_branch_name` (or `parent_id`), `fork_point_sha`, uniqueness on `(repo_id, branch_name)`.
 - **`stacks`** — `id` (text uuid or slug), human-readable name optional, `created_at`.
 - **`branch_stack_labels`** — `branch_id`, `stack_id` (many-to-many).
@@ -154,7 +156,8 @@ Indexes for: `repo_id` + `parent_branch_name` (children lookup); `stack_id` (bra
 
 | Command | Role |
 |---------|------|
-| `stackman init` | Register current branch (in repo) with parent + fork point; optionally assign or create stack label(s). |
+| `stackman init` | Register current branch with parent + fork point; assign stack label(s) per [default rules](#init-behavior-sketch) or `--stack`. |
+| `stackman merged` | Post-merge cleanup: if the **parent** is tracked, remove it and reparent its children onto the **grandparent**; if the **parent** is not tracked (e.g. `main`), remove the **current** branch row and reparent its children onto that parent name. Does not delete Git branches. |
 | `stackman sync <stack_id>` | Resolve sync set `S`, topological rebase + push sequence as above. |
 | `stackman status` | Show current branch’s place in the tree / labels (later). |
 | `stackman doctor` | DB path, repo match, clean worktree hints (later). |
@@ -163,7 +166,7 @@ Exact flags (`--repo`, dry-run, etc.) belong in an implementation plan.
 
 ### `init` behavior sketch
 
-`stackman init` should prioritize recording correct lineage over collecting labels:
+`stackman init` should prioritize recording correct **lineage**; stack ids are assigned in a second step so the common case (stacked branches) shares one id without extra flags.
 
 1. Determine the current repo and current branch.
 2. Resolve `parent_branch` using one of these flows:
@@ -172,9 +175,28 @@ Exact flags (`--repo`, dry-run, etc.) belong in an implementation plan.
    - interactive selection from overlap-derived parent candidates when the branch was created outside `stackman`
 3. Refuse to silently pick a parent from ambiguous history.
 4. Compute and store the `fork_point` against that chosen parent.
-5. Optionally attach one or more stack labels.
+5. **Attach stack label(s)** — after lineage is stored:
+   - If the user passes **`--stack`** one or more times: attach **exactly** those ids (no inheritance). Use this to fork a new named slice off a parent that already carries other labels.
+   - If **`--stack` is omitted**:
+     - If **`parent_branch` is tracked** by stackman **and** has **at least one** stack label: copy **all** of that parent’s stack labels onto the current branch (same slice as the parent’s line of work).
+     - Otherwise (parent not tracked, e.g. `main`, or parent tracked but has **no** labels yet): mint a **new** opaque id (e.g. `sm_` + 12 hex digits) and attach it only to the current branch.
 
-This means the user does **not** need to provide a stack id just to make the branch trackable.
+**Consequences:**
+
+- **Linear stack** `main ← dead-code ← dead-code2`: init `dead-code` from `main` → new id `A`. Init `dead-code2` from `dead-code` → inherits `A`. `stackman stacks` shows one stack id with two branches.
+- **Sibling branches** from the same trunk (e.g. two branches off `main` that are not stacked on each other): each first init mints its **own** id because `main` is not tracked, so they are **not** lumped together—consistent with [Ambiguity example](#ambiguity-example) (overlap alone must not imply one stack).
+
+The user does **not** need to pass `--stack` to get a sensible default; they use `--stack` when they want a human-readable name or an explicit fork from the parent’s labels.
+
+### `merged` (post-merge cleanup)
+
+Two cases, depending on whether the **immediate parent** is tracked in stackman.
+
+**A — Parent `P` is tracked (integration branch absorbed its children):** Pick a tracked branch whose recorded parent is **P** (default: current branch). **P** must have a recorded parent **G** (grandparent). Every branch whose `parent_branch_name` is **P** is reparented onto **G** with a fresh `fork_point_sha` from `git merge-base`, then **P**’s row is deleted (labels on **P** go with it).
+
+**B — Parent is *not* tracked (e.g. merged into `main` / trunk):** Pick the tracked branch **B** that was merged into that parent name (default: current branch). **B**’s row is deleted. Every branch whose parent was **B** is reparented onto the same parent name **P** (the trunk ref, e.g. `main`) with a fresh `fork_point_sha`. Trunk stays untracked; no need to `stackman init` on `main`.
+
+If several branches shared the same parent **P** in case A, they are all reparented together—this matches “remove **P** from the stack” after **P** absorbed work from its children.
 
 ## Toolbox integration
 

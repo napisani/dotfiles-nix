@@ -13,24 +13,32 @@ if "stackman" not in sys.modules:
     package.__path__ = [str(SRC_DIR / "stackman")]
     sys.modules["stackman"] = package
 
-from stackman.db import StackmanDb
+from stackman.store import (
+    get_branch,
+    initialize,
+    label_branch,
+    list_branch_labels,
+    list_branches,
+    upsert_branch,
+)
 
 
 def test_db_initializes_and_persists_branch_records(tmp_path: Path) -> None:
-    db = StackmanDb(tmp_path / "stackman.db")
-    db.initialize()
+    db_path = tmp_path / "stackman.db"
+    initialize(db_path)
 
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
 
-    branch = db.upsert_branch(
+    branch = upsert_branch(
+        db_path,
         repo_root=repo_root,
         branch_name="feature",
         parent_branch_name="main",
         fork_point_sha="abc1234",
     )
 
-    loaded = db.get_branch(repo_root, "feature")
+    loaded = get_branch(db_path, repo_root, "feature")
     assert loaded == branch
     assert loaded is not None
     assert loaded.repo_root == str(repo_root.resolve())
@@ -39,44 +47,47 @@ def test_db_initializes_and_persists_branch_records(tmp_path: Path) -> None:
 
 
 def test_db_supports_stack_labels(tmp_path: Path) -> None:
-    db = StackmanDb(tmp_path / "stackman.db")
-    db.initialize()
+    db_path = tmp_path / "stackman.db"
+    initialize(db_path)
 
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
-    db.upsert_branch(
+    upsert_branch(
+        db_path,
         repo_root=repo_root,
         branch_name="feature",
         parent_branch_name="main",
         fork_point_sha="abc1234",
     )
 
-    db.label_branch(repo_root, "feature", "stack-1")
-    db.label_branch(repo_root, "feature", "stack-2")
-    db.label_branch(repo_root, "feature", "stack-1")
+    label_branch(db_path, repo_root, "feature", "stack-1")
+    label_branch(db_path, repo_root, "feature", "stack-2")
+    label_branch(db_path, repo_root, "feature", "stack-1")
 
-    assert db.list_branch_labels(repo_root, "feature") == ["stack-1", "stack-2"]
+    assert list_branch_labels(db_path, repo_root, "feature") == ["stack-1", "stack-2"]
 
 
 def test_db_list_branches_returns_normalized_records(tmp_path: Path) -> None:
-    db = StackmanDb(tmp_path / "stackman.db")
-    db.initialize()
+    db_path = tmp_path / "stackman.db"
+    initialize(db_path)
 
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
-    db.upsert_branch(
+    upsert_branch(
+        db_path,
         repo_root=repo_root,
         branch_name="b",
         parent_branch_name="a",
         fork_point_sha="deadbeef",
     )
-    db.upsert_branch(
+    upsert_branch(
+        db_path,
         repo_root=repo_root,
         branch_name="a",
         parent_branch_name="main",
         fork_point_sha="cafebabe",
     )
 
-    branches = db.list_branches(repo_root)
+    branches = list_branches(db_path, repo_root)
     assert [branch.branch_name for branch in branches] == ["a", "b"]
     assert branches[0].repo_root == str(repo_root.resolve())

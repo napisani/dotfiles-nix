@@ -59,7 +59,10 @@ def status(app: StackmanApp) -> None:
     "--stack",
     "stacks",
     multiple=True,
-    help="Optional stack label to attach. May be passed multiple times.",
+    help=(
+        "Stack label to attach (repeat for multiple). If omitted, labels are copied from "
+        "the tracked parent when it has labels; otherwise a new sm_… id is minted."
+    ),
 )
 @click.pass_obj
 def init(app: StackmanApp, parent: str | None, stacks: tuple[str, ...]) -> None:
@@ -68,9 +71,89 @@ def init(app: StackmanApp, parent: str | None, stacks: tuple[str, ...]) -> None:
 
 
 @cli.command()
-def sync() -> None:
-    """Sync a stack."""
-    raise SystemExit(0)
+@click.option(
+    "--branch",
+    help="Branch that merged into its recorded parent (default: current branch).",
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Show reparenting plan without updating the database.",
+)
+@click.pass_obj
+def merged_cmd(app: StackmanApp, branch: str | None, dry_run: bool) -> None:
+    """Update metadata after a merge: collapse a tracked parent, or remove a branch merged into untracked trunk."""
+    raise SystemExit(app.merged(branch=branch, dry_run=dry_run))
+
+
+@cli.command()
+@click.argument("stack_id", required=False)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Show the resolved sync set and planned steps without modifying the repository.",
+)
+@click.option(
+    "-v",
+    "--verbose",
+    is_flag=True,
+    help="Print the exact git rebase command implied for each branch.",
+)
+@click.pass_obj
+def sync(app: StackmanApp, stack_id: str | None, dry_run: bool, verbose: bool) -> None:
+    """Rebase tracked branches for STACK_ID (or infer it from the current branch's labels)."""
+    raise SystemExit(app.sync(stack_id=stack_id, dry_run=dry_run, verbose=verbose))
+
+
+@cli.command("stacks")
+@click.pass_obj
+def stacks_command(app: StackmanApp) -> None:
+    """List stack labels and all tracked branches in the global stackman database."""
+    raise SystemExit(app.list_stacks())
+
+
+@cli.group()
+def stack() -> None:
+    """Inspect or change stack labels (does not delete Git branches)."""
+
+
+@stack.command("branches")
+@click.argument("stack_id")
+@click.pass_obj
+def stack_branches_cmd(app: StackmanApp, stack_id: str) -> None:
+    """List all branches annotated with STACK_ID (any repository)."""
+    raise SystemExit(app.stack_branches(stack_id))
+
+
+@stack.command("unlabel")
+@click.argument("stack_id")
+@click.option(
+    "--branch",
+    help="Branch to remove from the stack (default: current branch in the --cwd repository).",
+)
+@click.pass_obj
+def stack_unlabel_cmd(app: StackmanApp, stack_id: str, branch: str | None) -> None:
+    """Remove STACK_ID from a branch in the current repository."""
+    raise SystemExit(app.stack_unlabel(stack_id, branch=branch))
+
+
+@stack.command("delete")
+@click.argument("stack_id")
+@click.option(
+    "--yes",
+    is_flag=True,
+    help="Confirm deletion of this stack id and all label rows (required).",
+)
+@click.pass_obj
+def stack_delete_cmd(app: StackmanApp, stack_id: str, yes: bool) -> None:
+    """Delete STACK_ID from the database and drop every branch label for it."""
+    if not yes:
+        raise SystemExit(
+            "Refusing to delete a stack without --yes. "
+            "This removes only the stack id and label rows (tracked branch metadata is kept). "
+            "Re-run with: stackman stack delete STACK_ID --yes"
+        )
+    raise SystemExit(app.stack_delete(stack_id))
 
 
 def main(argv: list[str] | None = None) -> int:
