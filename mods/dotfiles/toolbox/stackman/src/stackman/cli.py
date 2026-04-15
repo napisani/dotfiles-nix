@@ -99,10 +99,15 @@ def merged_cmd(app: StackmanApp, branch: str | None, dry_run: bool) -> None:
     is_flag=True,
     help="Print the exact git rebase command implied for each branch.",
 )
+@click.option(
+    "--squash",
+    is_flag=True,
+    help="Squash 2+ commits after the stored fork-point into one commit before rebasing each branch.",
+)
 @click.pass_obj
-def sync(app: StackmanApp, stack_id: str | None, dry_run: bool, verbose: bool) -> None:
+def sync(app: StackmanApp, stack_id: str | None, dry_run: bool, verbose: bool, squash: bool) -> None:
     """Rebase tracked branches for STACK_ID (or infer it from the current branch's labels)."""
-    raise SystemExit(app.sync(stack_id=stack_id, dry_run=dry_run, verbose=verbose))
+    raise SystemExit(app.sync(stack_id=stack_id, dry_run=dry_run, verbose=verbose, squash=squash))
 
 
 @cli.command("stacks")
@@ -161,5 +166,9 @@ def main(argv: list[str] | None = None) -> int:
         cli.main(args=argv, prog_name="stackman", standalone_mode=False)
     except SystemExit as exc:
         code = exc.code
-        return code if isinstance(code, int) else 1
+        if isinstance(code, int):
+            return code
+        if code:
+            click.echo(str(code), err=True)
+        return 1
     return 0

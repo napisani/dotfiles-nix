@@ -5,6 +5,7 @@ from .branches import (
     get_branch,
     list_branches,
     list_branches_with_parent,
+    update_branch_fork_point,
     upsert_branch,
 )
 from .repos import get_repo, upsert_repo
@@ -26,6 +27,7 @@ __all__ = [
     "upsert_repo",
     "get_repo",
     "upsert_branch",
+    "update_branch_fork_point",
     "get_branch",
     "list_branches",
     "list_branches_with_parent",

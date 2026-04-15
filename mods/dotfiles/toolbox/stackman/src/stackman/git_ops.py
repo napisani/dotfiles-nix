@@ -152,6 +152,36 @@ def rebase_onto(
     )
 
 
+def commits_since(cwd: Path, upstream: str, *, ref: str = "HEAD") -> list[str]:
+    output = git_output(cwd, "rev-list", "--reverse", f"{upstream}..{ref}")
+    return [line for line in output.splitlines() if line]
+
+
+def commit_message(cwd: Path, commit: str) -> str:
+    return _run_git(cwd, "log", "-1", "--format=%B", commit, check=True).stdout
+
+
+def squash_commits_since(cwd: Path, upstream: str) -> tuple[int, subprocess.CompletedProcess[str] | None]:
+    commits = commits_since(cwd, upstream, ref="HEAD")
+    if len(commits) < 2:
+        return len(commits), None
+
+    first_message = commit_message(cwd, commits[0])
+    reset_result = _run_git(cwd, "reset", "--soft", upstream, check=False)
+    if reset_result.returncode != 0:
+        return len(commits), reset_result
+
+    commit_result = subprocess.run(
+        ["git", "commit", "--file", "-"],
+        cwd=cwd,
+        check=False,
+        capture_output=True,
+        text=True,
+        input=first_message,
+    )
+    return len(commits), commit_result
+
+
 def upstream_branch(cwd: Path, branch: str) -> str | None:
     result = _run_git(
         cwd,

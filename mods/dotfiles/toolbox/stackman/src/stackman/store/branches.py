@@ -43,6 +43,42 @@ def upsert_branch(
     return branch_from_row(row)
 
 
+def update_branch_fork_point(
+    db_path: Path | str,
+    *,
+    repo_root: Path | str,
+    branch_name: str,
+    fork_point_sha: str,
+) -> BranchRecord | None:
+    normalized = normalize_path(repo_root)
+    with connect(db_path) as conn:
+        conn.execute(
+            """
+            UPDATE branches
+            SET fork_point_sha = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = (
+                SELECT b.id
+                FROM branches AS b
+                JOIN repos AS r ON r.id = b.repo_id
+                WHERE r.root_path = ? AND b.branch_name = ?
+            )
+            """,
+            (fork_point_sha, normalized, branch_name),
+        )
+        row = conn.execute(
+            """
+            SELECT b.id, b.repo_id, r.root_path, b.branch_name,
+                   b.parent_branch_name, b.fork_point_sha,
+                   b.created_at, b.updated_at
+            FROM branches AS b
+            JOIN repos AS r ON r.id = b.repo_id
+            WHERE r.root_path = ? AND b.branch_name = ?
+            """,
+            (normalized, branch_name),
+        ).fetchone()
+    return branch_from_row(row) if row else None
+
+
 def get_branch(db_path: Path | str, repo_root: Path | str, branch_name: str) -> BranchRecord | None:
     normalized = normalize_path(repo_root)
     with connect(db_path) as conn:

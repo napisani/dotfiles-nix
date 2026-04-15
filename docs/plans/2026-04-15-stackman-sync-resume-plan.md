@@ -1,10 +1,10 @@
-# Stackman Sync Resume Implementation Plan
+# Stackman Sync Resume And Squash Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Make `stackman sync` update tracked fork-points after successful rebases and pause in-place for conflict resolution until the rebase completes or aborts.
+**Goal:** Make `stackman sync` update tracked fork-points after successful rebases, optionally squash branch history before rebasing, and pause in-place for conflict resolution until the rebase completes or aborts.
 
-**Architecture:** Keep the existing `git rebase --onto <parent_tip> <stored_fork_point>` sync algorithm, but treat the successful rebase target as the new stored fork-point. Extend the sync command with a small interactive wait loop that detects whether a conflicted rebase is still active, completed, or aborted before continuing. Persist metadata only after successful completion.
+**Architecture:** Keep the existing `git rebase --onto <parent_tip> <stored_fork_point>` sync algorithm, but treat the successful rebase target as the new stored fork-point. Add an optional per-branch squash step before rebasing that collapses `2+` post-fork commits into one commit while preserving the first commit message. Extend the sync command with a small interactive wait loop that detects whether a conflicted rebase is still active, completed, or aborted before continuing. Persist metadata only after successful completion.
 
 **Tech Stack:** Python, pytest, SQLite store helpers, git CLI worktrees
 
@@ -237,4 +237,160 @@ Check:
 git add mods/dotfiles/toolbox/stackman/src/stackman/commands/sync.py \
         mods/dotfiles/toolbox/stackman/tests/test_sync_command.py
 git commit -m "test: verify sync resume behavior"
+```
+
+### Task 5: Add git helpers and CLI wiring for `stackman sync --squash`
+
+**Files:**
+- Modify: `mods/dotfiles/toolbox/stackman/src/stackman/git_ops.py`
+- Modify: `mods/dotfiles/toolbox/stackman/src/stackman/cli.py`
+- Modify: `mods/dotfiles/toolbox/stackman/src/stackman/app.py`
+- Modify: `mods/dotfiles/toolbox/stackman/src/stackman/commands/sync.py`
+- Test: `mods/dotfiles/toolbox/stackman/tests/test_cli.py`
+
+**Step 1: Write the failing tests**
+
+Add a CLI coverage test that checks:
+
+```python
+def test_sync_subcommand_supports_squash_flag() -> None:
+    runner = CliRunner()
+    result = runner.invoke(cli, ["sync", "--help"])
+    assert result.exit_code == 0
+    assert "--squash" in result.output
+```
+
+**Step 2: Run test to verify it fails**
+
+Run: `uv run pytest mods/dotfiles/toolbox/stackman/tests/test_cli.py::test_sync_subcommand_supports_squash_flag -v`
+Expected: FAIL because `--squash` is not wired yet.
+
+**Step 3: Write minimal implementation**
+
+- Add helper functions in `git_ops.py` to:
+  - list commits in `fork_point..HEAD` in chronological order
+  - read a commit message by SHA
+  - squash branch commits with `git reset --soft <fork_point>` followed by `git commit -F -`
+- Add `--squash` to `cli.py`
+- Thread `squash: bool` through `StackmanApp.sync(...)` and `commands/sync.py`
+
+**Step 4: Run test to verify it passes**
+
+Run: `uv run pytest mods/dotfiles/toolbox/stackman/tests/test_cli.py::test_sync_subcommand_supports_squash_flag -v`
+Expected: PASS
+
+**Step 5: Commit**
+
+```bash
+git add mods/dotfiles/toolbox/stackman/src/stackman/git_ops.py \
+        mods/dotfiles/toolbox/stackman/src/stackman/cli.py \
+        mods/dotfiles/toolbox/stackman/src/stackman/app.py \
+        mods/dotfiles/toolbox/stackman/src/stackman/commands/sync.py \
+        mods/dotfiles/toolbox/stackman/tests/test_cli.py
+git commit -m "feat: wire stackman sync squash flag"
+```
+
+### Task 6: Implement squash behavior with dedicated sync tests
+
+**Files:**
+- Modify: `mods/dotfiles/toolbox/stackman/src/stackman/commands/sync.py`
+- Modify: `mods/dotfiles/toolbox/stackman/src/stackman/git_ops.py`
+- Test: `mods/dotfiles/toolbox/stackman/tests/test_sync_command.py`
+
+**Step 1: Write the failing tests**
+
+Add dedicated sync tests for:
+
+```python
+def test_sync_squash_collapses_multiple_post_fork_commits(...) -> None:
+    # branch has 3 commits after fork-point
+    # sync with squash should leave exactly 1 commit after parent tip
+
+def test_sync_squash_leaves_single_post_fork_commit_unchanged(...) -> None:
+    # branch has 1 commit after fork-point
+    # sync with squash should keep same commit id until rebase rewrites it
+
+def test_sync_dry_run_reports_squash_plan(...) -> None:
+    # dry run should mention squash or skip-squash for each branch
+```
+
+Add assertions for:
+
+- commit count after fork-point before and after sync
+- preserved first commit message for squashed branches
+- updated stored `fork_point_sha` after successful rebase
+
+**Step 2: Run tests to verify they fail**
+
+Run: `uv run pytest mods/dotfiles/toolbox/stackman/tests/test_sync_command.py -k squash -v`
+Expected: FAIL because squash behavior does not exist yet.
+
+**Step 3: Write minimal implementation**
+
+In `commands/sync.py`:
+
+- before rebasing, if `squash` is enabled:
+  - count commits in `fork_point_sha..HEAD`
+  - if count >= 2, squash branch history and emit a status line
+  - if count <= 1, emit a skip-squash status line
+- preserve the first post-fork commit message when creating the squashed commit
+- include squash details in `--dry-run`
+
+**Step 4: Run tests to verify they pass**
+
+Run: `uv run pytest mods/dotfiles/toolbox/stackman/tests/test_sync_command.py -k squash -v`
+Expected: PASS
+
+**Step 5: Commit**
+
+```bash
+git add mods/dotfiles/toolbox/stackman/src/stackman/commands/sync.py \
+        mods/dotfiles/toolbox/stackman/src/stackman/git_ops.py \
+        mods/dotfiles/toolbox/stackman/tests/test_sync_command.py
+git commit -m "feat: squash branch history during sync"
+```
+
+### Task 7: Run the full Stackman suite with squash coverage
+
+**Files:**
+- Modify: `mods/dotfiles/toolbox/stackman/tests/test_sync_command.py`
+- Modify: `mods/dotfiles/toolbox/stackman/tests/test_cli.py`
+
+**Step 1: Run focused suites**
+
+Run:
+
+```bash
+uv run pytest mods/dotfiles/toolbox/stackman/tests/test_cli.py -v
+uv run pytest mods/dotfiles/toolbox/stackman/tests/test_sync_command.py -v
+```
+
+Expected: PASS
+
+**Step 2: Run the full Stackman suite**
+
+Run:
+
+```bash
+uv run pytest mods/dotfiles/toolbox/stackman/tests -q
+```
+
+Expected: PASS
+
+**Step 3: Final review checklist**
+
+Check:
+
+- `--squash` only rewrites branches with `2+` post-fork commits
+- single-commit branches are left unchanged
+- dry-run prints squash intent without modifying history
+- squash happens before rebase
+- fork-point metadata still advances only after successful rebase completion
+
+**Step 4: Commit**
+
+```bash
+git add mods/dotfiles/toolbox/stackman/tests/test_cli.py \
+        mods/dotfiles/toolbox/stackman/tests/test_sync_command.py
+git commit -m "test: cover sync squash behavior"
 ```

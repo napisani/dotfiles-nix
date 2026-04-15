@@ -5,13 +5,17 @@ from pathlib import Path
 from ..context import AppContext
 from ..git_ops import (
     checkout,
+    commits_since,
     current_branch,
+    is_ancestor,
     push_force_with_lease_current_branch,
+    rebase_in_progress,
     rebase_in_progress_any_linked,
     rebase_onto,
     repo_db_key,
     repo_root,
     rev_parse,
+    squash_commits_since,
     sync_relevant_worktrees,
     upstream_branch,
     worktree_dirty_preview,
@@ -23,11 +27,12 @@ from ..store import (
     list_branch_labels,
     list_branch_names_with_stack_label,
     list_branches,
+    update_branch_fork_point,
 )
 from ..sync_plan import SyncPlan, build_sync_plan
 
 
-def run(ctx: AppContext, *, stack_id: str | None, dry_run: bool, verbose: bool) -> int:
+def run(ctx: AppContext, *, stack_id: str | None, dry_run: bool, verbose: bool, squash: bool) -> int:
     initialize(ctx.db_path)
 
     worktree = repo_root(ctx.cwd)
@@ -69,7 +74,12 @@ def run(ctx: AppContext, *, stack_id: str | None, dry_run: bool, verbose: bool) 
     _print_plan(ctx, plan, worktree, dry_run=dry_run)
 
     if dry_run:
-        _emit(ctx, "[stackman] Planned steps (each branch: checkout → rebase --onto parent tip → push)")
+        _emit(
+            ctx,
+            "[stackman] Planned steps (each branch: checkout"
+            + (" → optional squash" if squash else "")
+            + " → rebase --onto parent tip → push)",
+        )
         for branch_name in plan.order:
             record = next(b for b in all_branches if b.branch_name == branch_name)
             parent = record.parent_branch_name or "<none>"
@@ -82,6 +92,19 @@ def run(ctx: AppContext, *, stack_id: str | None, dry_run: bool, verbose: bool) 
                 f"  - {branch_name}: rebase onto tip of {parent!r} "
                 f"(stored fork-point {record.fork_point_sha[:7]}){wt_hint}",
             )
+            if squash:
+                commit_count = len(commits_since(worktree, record.fork_point_sha, ref=branch_name))
+                if commit_count >= 2:
+                    _emit(
+                        ctx,
+                        f"    squash: would collapse {commit_count} post-fork commits into one before rebasing",
+                    )
+                else:
+                    _emit(
+                        ctx,
+                        f"    squash: skipped ({commit_count} post-fork commit"
+                        f"{'' if commit_count == 1 else 's'})",
+                    )
         _emit(ctx, "[stackman] Dry run complete.")
         return 0
 
@@ -105,6 +128,35 @@ def run(ctx: AppContext, *, stack_id: str | None, dry_run: bool, verbose: bool) 
             parent_tip = rev_parse(branch_wt, parent_name)
             onto = parent_tip
             upstream = record.fork_point_sha
+            if squash:
+                commit_count, squash_result = squash_commits_since(branch_wt, upstream)
+                if commit_count >= 2:
+                    _emit(
+                        ctx,
+                        f"[stackman]   Squashing {branch_name!r}: collapsing {commit_count} "
+                        "post-fork commits into one",
+                    )
+                    if squash_result is None or squash_result.returncode != 0:
+                        msg = ""
+                        if squash_result is not None:
+                            msg = (squash_result.stderr or "").strip() or (squash_result.stdout or "").strip()
+                        ctx.stderr.write(f"[stackman] Squash failed on {branch_name!r}.\n")
+                        if msg:
+                            ctx.stderr.write(f"{msg}\n")
+                        return 1
+                else:
+                    _emit(
+                        ctx,
+                        f"[stackman]   Squash skipped for {branch_name!r} "
+                        f"({commit_count} post-fork commit{'' if commit_count == 1 else 's'})",
+                    )
+            if upstream == onto:
+                _emit(
+                    ctx,
+                    f"[stackman]   Skipping {branch_name!r}; stored fork-point already matches "
+                    f"current {parent_name!r} tip {onto[:7]}",
+                )
+                continue
             if verbose:
                 _emit(
                     ctx,
@@ -118,17 +170,21 @@ def run(ctx: AppContext, *, stack_id: str | None, dry_run: bool, verbose: bool) 
             )
             result = rebase_onto(branch_wt, onto=onto, upstream=upstream)
             if result.returncode != 0:
-                err = (result.stderr or "").strip() or (result.stdout or "").strip()
-                ctx.stderr.write(
-                    f"[stackman] Rebase failed on {branch_name!r} (exit {result.returncode}).\n"
-                )
-                if err:
-                    ctx.stderr.write(f"{err}\n")
-                ctx.stderr.write(
-                    "[stackman] Resolve conflicts, then `git rebase --continue` "
-                    "or `git rebase --abort`. Original branch not restored while rebase is in progress.\n"
-                )
-                return 1
+                if not _wait_for_rebase_resolution(
+                    ctx,
+                    branch_name=branch_name,
+                    branch_wt=branch_wt,
+                    parent_tip=parent_tip,
+                    result=result,
+                ):
+                    return 1
+
+            update_branch_fork_point(
+                ctx.db_path,
+                repo_root=repo_key,
+                branch_name=branch_name,
+                fork_point_sha=parent_tip,
+            )
 
             remote_ref = upstream_branch(branch_wt, branch_name)
             if remote_ref is None:
@@ -162,6 +218,39 @@ def _emit(ctx: AppContext, message: str) -> None:
     ctx.stdout.write(message)
     if not message.endswith("\n"):
         ctx.stdout.write("\n")
+    ctx.stdout.flush()
+
+
+def _wait_for_rebase_resolution(
+    ctx: AppContext,
+    *,
+    branch_name: str,
+    branch_wt: Path,
+    parent_tip: str,
+    result,
+) -> bool:
+    err = (result.stderr or "").strip() or (result.stdout or "").strip()
+    ctx.stderr.write(f"[stackman] Rebase failed on {branch_name!r} (exit {result.returncode}).\n")
+    if err:
+        ctx.stderr.write(f"{err}\n")
+
+    while True:
+        ctx.stdout.write(
+            "[stackman] Resolve conflicts, run `git rebase --continue` or `git rebase --abort`, "
+            "then press Enter to resume.\n"
+        )
+        ctx.stdout.flush()
+        if ctx.stdin.readline() == "":
+            ctx.stderr.write("[stackman] Input closed while waiting for rebase resolution.\n")
+            return False
+        if rebase_in_progress(branch_wt):
+            _emit(ctx, f"[stackman] Rebase on {branch_name!r} is still in progress.")
+            continue
+        if is_ancestor(branch_wt, parent_tip, "HEAD"):
+            _emit(ctx, f"[stackman] Rebase on {branch_name!r} completed; resuming sync.")
+            return True
+        ctx.stderr.write(f"[stackman] Rebase on {branch_name!r} was aborted.\n")
+        return False
 
 
 def _resolve_stack_id(

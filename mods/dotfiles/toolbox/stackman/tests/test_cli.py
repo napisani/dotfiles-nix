@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from click.testing import CliRunner
 
-from stackman.cli import cli
+from stackman.cli import cli, main
 
 
 def test_click_cli_help() -> None:
@@ -22,6 +22,14 @@ def test_sync_subcommand_is_wired() -> None:
     assert result.exit_code == 0
     assert "STACK_ID" in result.output or "stack" in result.output.lower()
     assert "--dry-run" in result.output
+    assert "--squash" in result.output
+
+
+def test_sync_subcommand_supports_squash_flag() -> None:
+    runner = CliRunner()
+    result = runner.invoke(cli, ["sync", "--help"])
+    assert result.exit_code == 0
+    assert "--squash" in result.output
 
 
 def test_stacks_and_stack_group_help() -> None:
@@ -51,3 +59,16 @@ def test_stack_delete_requires_confirmation_flag(tmp_path) -> None:
     result = runner.invoke(cli, ["--db-path", str(db_path), "stack", "delete", "x"])
     assert result.exit_code == 1
     assert "--yes" in result.output
+
+
+def test_main_prints_stack_delete_confirmation_error(tmp_path, capsys) -> None:
+    from stackman.store import initialize
+
+    db_path = tmp_path / "db.sqlite"
+    initialize(db_path)
+
+    exit_code = main(["--db-path", str(db_path), "stack", "delete", "x"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 1
+    assert "--yes" in captured.err

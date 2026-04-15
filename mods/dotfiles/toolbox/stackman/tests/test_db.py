@@ -19,6 +19,7 @@ from stackman.store import (
     label_branch,
     list_branch_labels,
     list_branches,
+    update_branch_fork_point,
     upsert_branch,
 )
 
@@ -91,3 +92,36 @@ def test_db_list_branches_returns_normalized_records(tmp_path: Path) -> None:
     branches = list_branches(db_path, repo_root)
     assert [branch.branch_name for branch in branches] == ["a", "b"]
     assert branches[0].repo_root == str(repo_root.resolve())
+
+
+def test_db_updates_branch_fork_point(tmp_path: Path) -> None:
+    db_path = tmp_path / "stackman.db"
+    initialize(db_path)
+
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    original = upsert_branch(
+        db_path,
+        repo_root=repo_root,
+        branch_name="feature",
+        parent_branch_name="main",
+        fork_point_sha="abc1234",
+    )
+
+    updated = update_branch_fork_point(
+        db_path,
+        repo_root=repo_root,
+        branch_name="feature",
+        fork_point_sha="def5678",
+    )
+
+    assert updated is not None
+    assert updated.id == original.id
+    assert updated.repo_id == original.repo_id
+    assert updated.repo_root == original.repo_root
+    assert updated.branch_name == original.branch_name
+    assert updated.parent_branch_name == original.parent_branch_name
+    assert updated.fork_point_sha == "def5678"
+
+    loaded = get_branch(db_path, repo_root, "feature")
+    assert loaded == updated

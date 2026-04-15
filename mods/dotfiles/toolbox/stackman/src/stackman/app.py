@@ -38,10 +38,18 @@ class StackmanApp:
         ctx = self._ctx()
         return runner.run_safely(ctx, lambda c: init_command.run(c, parent=parent, stacks=stacks))
 
-    def sync(self, *, stack_id: str | None = None, dry_run: bool = False, verbose: bool = False) -> int:
+    def sync(
+        self,
+        *,
+        stack_id: str | None = None,
+        dry_run: bool = False,
+        verbose: bool = False,
+        squash: bool = False,
+    ) -> int:
         ctx = self._ctx()
         return runner.run_safely(
-            ctx, lambda c: sync.run(c, stack_id=stack_id, dry_run=dry_run, verbose=verbose)
+            ctx,
+            lambda c: sync.run(c, stack_id=stack_id, dry_run=dry_run, verbose=verbose, squash=squash),
         )
 
     def list_stacks(self) -> int:
