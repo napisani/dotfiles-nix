@@ -20,6 +20,20 @@ class _ConflictResolverInput:
         return "\n"
 
 
+def _commit_subjects_in_range(git_repo, rev_range: str) -> list[str]:
+    output = git_repo.git("log", "--reverse", "--format=%s", rev_range)
+    return [line for line in output.splitlines() if line]
+
+
+def _commit_count_in_range(git_repo, rev_range: str) -> int:
+    return int(git_repo.git("rev-list", "--count", rev_range))
+
+
+def _ancestry_from(git_repo, ref: str) -> list[str]:
+    output = git_repo.git("rev-list", ref)
+    return [line for line in output.splitlines() if line]
+
+
 def test_sync_rebases_linear_stack_when_trunk_moves(
     git_repo,
     stackman_db_path,
@@ -118,7 +132,325 @@ def test_sync_second_run_skips_branch_already_synced_to_parent_tip(
     git_repo.checkout("feature")
     after = git_repo.rev_parse("HEAD")
     assert after == before
-    assert "stored fork-point already matches current 'main' tip" in second_stdout.getvalue()
+    assert (
+        "stored fork-point already matches current 'main' tip"
+        in second_stdout.getvalue()
+    )
+
+
+def test_sync_retains_post_fork_history_while_replacing_older_ancestry(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    git_repo.checkout_new("branch1", from_ref="main")
+    git_repo.commit("branch1 base", filename="branch1.txt", content="branch1 base\n")
+    git_repo.checkout_new("branch2", from_ref="branch1")
+    fork_branch2 = git_repo.merge_base("branch2", "branch1")
+    git_repo.commit("branch2 commit 1", filename="branch2.txt", content="one\n")
+    git_repo.commit("branch2 commit 2", filename="branch2.txt", content="two\n")
+
+    expected_subjects = _commit_subjects_in_range(git_repo, f"{fork_branch2}..branch2")
+    expected_count = _commit_count_in_range(git_repo, f"{fork_branch2}..branch2")
+
+    initialize(stackman_db_path)
+    upsert_branch(
+        stackman_db_path,
+        repo_root=git_repo.canonical_repo_key(),
+        branch_name="branch1",
+        parent_branch_name="main",
+        fork_point_sha=git_repo.merge_base("branch1", "main"),
+    )
+    upsert_branch(
+        stackman_db_path,
+        repo_root=git_repo.canonical_repo_key(),
+        branch_name="branch2",
+        parent_branch_name="branch1",
+        fork_point_sha=fork_branch2,
+    )
+    label_branch(
+        stackman_db_path, git_repo.canonical_repo_key(), "branch1", "stack-history"
+    )
+
+    git_repo.checkout("branch1")
+    git_repo.commit("branch1 moves", filename="branch1.txt", content="branch1 moves\n")
+    new_parent_tip = git_repo.rev_parse("branch1")
+    expected_parent_ancestry = _ancestry_from(git_repo, new_parent_tip)
+
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=io.StringIO(),
+        stderr=io.StringIO(),
+    )
+    assert app.sync(stack_id="stack-history") == 0
+
+    tracked = get_branch(stackman_db_path, git_repo.canonical_repo_key(), "branch2")
+    assert tracked is not None
+    assert tracked.fork_point_sha == new_parent_tip
+    assert (
+        _commit_count_in_range(git_repo, f"{new_parent_tip}..branch2") == expected_count
+    )
+    assert (
+        _commit_subjects_in_range(git_repo, f"{new_parent_tip}..branch2")
+        == expected_subjects
+    )
+    child_ancestry = _ancestry_from(git_repo, "branch2")
+    preserved_count = _commit_count_in_range(git_repo, f"{new_parent_tip}..branch2")
+    assert child_ancestry[preserved_count:] == expected_parent_ancestry
+
+
+def test_sync_rebases_only_tail_branch_when_middle_branch_advances(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    git_repo.checkout_new("branch1", from_ref="main")
+    git_repo.commit("branch1 base", filename="branch1.txt", content="branch1 base\n")
+    fork_branch1 = git_repo.merge_base("branch1", "main")
+
+    git_repo.checkout_new("branch2", from_ref="branch1")
+    fork_branch2 = git_repo.merge_base("branch2", "branch1")
+    git_repo.commit("branch2 base", filename="branch2.txt", content="branch2 base\n")
+
+    git_repo.checkout_new("branch3", from_ref="branch2")
+    fork_branch3 = git_repo.merge_base("branch3", "branch2")
+    git_repo.commit("branch3 commit 1", filename="branch3.txt", content="branch3 one\n")
+    git_repo.commit("branch3 commit 2", filename="branch3.txt", content="branch3 two\n")
+
+    branch1_tip_before_sync = git_repo.rev_parse("branch1")
+    branch3_tip_before_sync = git_repo.rev_parse("branch3")
+    branch3_subjects_before_sync = _commit_subjects_in_range(
+        git_repo, f"{fork_branch3}..branch3"
+    )
+    branch3_count_before_sync = _commit_count_in_range(
+        git_repo, f"{fork_branch3}..branch3"
+    )
+
+    initialize(stackman_db_path)
+    upsert_branch(
+        stackman_db_path,
+        repo_root=git_repo.canonical_repo_key(),
+        branch_name="branch1",
+        parent_branch_name="main",
+        fork_point_sha=fork_branch1,
+    )
+    upsert_branch(
+        stackman_db_path,
+        repo_root=git_repo.canonical_repo_key(),
+        branch_name="branch2",
+        parent_branch_name="branch1",
+        fork_point_sha=fork_branch2,
+    )
+    upsert_branch(
+        stackman_db_path,
+        repo_root=git_repo.canonical_repo_key(),
+        branch_name="branch3",
+        parent_branch_name="branch2",
+        fork_point_sha=fork_branch3,
+    )
+    label_branch(
+        stackman_db_path,
+        git_repo.canonical_repo_key(),
+        "branch1",
+        "stack-middle-change",
+    )
+
+    git_repo.checkout("branch2")
+    branch2_tip_before_manual_advance = git_repo.rev_parse("branch2")
+    git_repo.commit(
+        "branch2 advances", filename="branch2.txt", content="branch2 advances\n"
+    )
+    branch2_tip_after_manual_advance = git_repo.rev_parse("branch2")
+    branch2_ancestry_after_manual_advance = _ancestry_from(
+        git_repo, branch2_tip_after_manual_advance
+    )
+    git_repo.checkout("main")
+
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=io.StringIO(),
+        stderr=io.StringIO(),
+    )
+    assert app.sync(stack_id="stack-middle-change") == 0
+
+    git_repo.checkout("branch1")
+    branch1_tip_after_sync = git_repo.rev_parse("HEAD")
+    git_repo.checkout("branch2")
+    branch2_tip_after_sync = git_repo.rev_parse("HEAD")
+    branch2_ancestry_after_sync = _ancestry_from(git_repo, "HEAD")
+    git_repo.checkout("branch3")
+    branch3_tip_after_sync = git_repo.rev_parse("HEAD")
+
+    assert branch1_tip_after_sync == branch1_tip_before_sync
+    assert branch2_tip_before_manual_advance != branch2_tip_after_manual_advance
+    assert branch2_tip_after_sync == branch2_tip_after_manual_advance
+    assert branch3_tip_after_sync != branch3_tip_before_sync
+    assert (
+        _commit_count_in_range(git_repo, f"{branch2_tip_after_manual_advance}..branch3")
+        == branch3_count_before_sync
+    )
+    assert (
+        _commit_subjects_in_range(
+            git_repo, f"{branch2_tip_after_manual_advance}..branch3"
+        )
+        == branch3_subjects_before_sync
+    )
+    branch3_ancestry_after_sync = _ancestry_from(git_repo, "HEAD")
+    preserved_count = _commit_count_in_range(
+        git_repo, f"{branch2_tip_after_manual_advance}..branch3"
+    )
+    assert branch3_ancestry_after_sync[preserved_count:] == branch2_ancestry_after_sync
+    assert branch2_ancestry_after_sync == branch2_ancestry_after_manual_advance
+
+
+def test_sync_rebases_descendants_after_root_branch_changes_then_skips_second_run(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    git_repo.checkout_new("branch1", from_ref="main")
+    git_repo.commit("branch1 base", filename="branch1.txt", content="branch1 base\n")
+    fork_branch1 = git_repo.merge_base("branch1", "main")
+
+    git_repo.checkout_new("branch2", from_ref="branch1")
+    fork_branch2 = git_repo.merge_base("branch2", "branch1")
+    git_repo.commit("branch2 commit 1", filename="branch2.txt", content="branch2 one\n")
+    git_repo.commit("branch2 commit 2", filename="branch2.txt", content="branch2 two\n")
+
+    git_repo.checkout_new("branch3", from_ref="branch2")
+    fork_branch3 = git_repo.merge_base("branch3", "branch2")
+    git_repo.commit("branch3 commit 1", filename="branch3.txt", content="branch3 one\n")
+    git_repo.commit("branch3 commit 2", filename="branch3.txt", content="branch3 two\n")
+
+    branch2_tip_before_sync = git_repo.rev_parse("branch2")
+    branch3_tip_before_sync = git_repo.rev_parse("branch3")
+    branch2_subjects_before_sync = _commit_subjects_in_range(
+        git_repo, f"{fork_branch2}..branch2"
+    )
+    branch2_count_before_sync = _commit_count_in_range(
+        git_repo, f"{fork_branch2}..branch2"
+    )
+    branch3_subjects_before_sync = _commit_subjects_in_range(
+        git_repo, f"{fork_branch3}..branch3"
+    )
+    branch3_count_before_sync = _commit_count_in_range(
+        git_repo, f"{fork_branch3}..branch3"
+    )
+
+    initialize(stackman_db_path)
+    upsert_branch(
+        stackman_db_path,
+        repo_root=git_repo.canonical_repo_key(),
+        branch_name="branch1",
+        parent_branch_name="main",
+        fork_point_sha=fork_branch1,
+    )
+    upsert_branch(
+        stackman_db_path,
+        repo_root=git_repo.canonical_repo_key(),
+        branch_name="branch2",
+        parent_branch_name="branch1",
+        fork_point_sha=fork_branch2,
+    )
+    upsert_branch(
+        stackman_db_path,
+        repo_root=git_repo.canonical_repo_key(),
+        branch_name="branch3",
+        parent_branch_name="branch2",
+        fork_point_sha=fork_branch3,
+    )
+    label_branch(
+        stackman_db_path,
+        git_repo.canonical_repo_key(),
+        "branch1",
+        "stack-root-change",
+    )
+
+    git_repo.checkout("branch1")
+    git_repo.commit(
+        "branch1 manual advance",
+        filename="branch1.txt",
+        content="branch1 manual advance\n",
+    )
+    branch1_manual_new_tip = git_repo.rev_parse("branch1")
+    branch1_ancestry_after_manual_advance = _ancestry_from(git_repo, "branch1")
+    git_repo.checkout("main")
+
+    first_stdout = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=first_stdout,
+        stderr=io.StringIO(),
+    )
+    assert app.sync(stack_id="stack-root-change") == 0
+
+    git_repo.checkout("branch1")
+    branch1_tip_after_first_sync = git_repo.rev_parse("HEAD")
+    git_repo.checkout("branch2")
+    branch2_tip_after_first_sync = git_repo.rev_parse("HEAD")
+    branch2_ancestry_after_first_sync = _ancestry_from(git_repo, "HEAD")
+    git_repo.checkout("branch3")
+    branch3_tip_after_first_sync = git_repo.rev_parse("HEAD")
+    branch3_ancestry_after_first_sync = _ancestry_from(git_repo, "HEAD")
+
+    assert branch1_tip_after_first_sync == branch1_manual_new_tip
+    assert branch2_tip_after_first_sync != branch2_tip_before_sync
+    assert branch3_tip_after_first_sync != branch3_tip_before_sync
+    assert (
+        _commit_count_in_range(git_repo, f"{branch1_manual_new_tip}..branch2")
+        == branch2_count_before_sync
+    )
+    assert (
+        _commit_subjects_in_range(git_repo, f"{branch1_manual_new_tip}..branch2")
+        == branch2_subjects_before_sync
+    )
+    assert (
+        _commit_count_in_range(git_repo, f"{branch2_tip_after_first_sync}..branch3")
+        == branch3_count_before_sync
+    )
+    assert (
+        _commit_subjects_in_range(git_repo, f"{branch2_tip_after_first_sync}..branch3")
+        == branch3_subjects_before_sync
+    )
+    assert branch2_ancestry_after_first_sync[branch2_count_before_sync:] == (
+        branch1_ancestry_after_manual_advance
+    )
+    assert branch3_ancestry_after_first_sync[branch3_count_before_sync:] == (
+        branch2_ancestry_after_first_sync
+    )
+
+    git_repo.checkout("main")
+    second_stdout = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=second_stdout,
+        stderr=io.StringIO(),
+    )
+    assert app.sync(stack_id="stack-root-change") == 0
+
+    git_repo.checkout("branch1")
+    branch1_tip_after_second_sync = git_repo.rev_parse("HEAD")
+    git_repo.checkout("branch2")
+    branch2_tip_after_second_sync = git_repo.rev_parse("HEAD")
+    git_repo.checkout("branch3")
+    branch3_tip_after_second_sync = git_repo.rev_parse("HEAD")
+
+    assert branch1_tip_after_second_sync == branch1_tip_after_first_sync
+    assert branch2_tip_after_second_sync == branch2_tip_after_first_sync
+    assert branch3_tip_after_second_sync == branch3_tip_after_first_sync
+    assert (
+        f"[stackman]   Skipping 'branch2'; stored fork-point already matches current "
+        f"'branch1' tip {branch1_tip_after_first_sync[:7]}" in second_stdout.getvalue()
+    )
+    assert (
+        f"[stackman]   Skipping 'branch3'; stored fork-point already matches current "
+        f"'branch2' tip {branch2_tip_after_first_sync[:7]}" in second_stdout.getvalue()
+    )
 
 
 def test_sync_squash_collapses_multiple_post_fork_commits(
