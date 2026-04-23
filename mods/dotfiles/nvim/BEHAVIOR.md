@@ -207,74 +207,43 @@ Conflict resolution (active inside a diff/conflict view):
 
 ---
 
-## `<leader>a` — AI (inline / chat)
+## `<leader>a` — Wiremux agent + PromptBuilder (staged context)
 
-`<leader>a` → domain: AI assistant — chat, inline edit, context building, voice  
-`<leader>a` → contract: context (files, selections) is explicitly added by the user; nothing is sent automatically  
-`<leader>a` → note: chat adapter and model can be switched per-session without restarting
+`<leader>a` → domain: control the **Wiremux** target pane and **PromptBuilder** — a single **horizontal** split (opens **below** the current window, height capped to a fraction of the screen), markdown-syntax scratch buffer (tag `prompt_builder`) where you assemble `@` references and freeform text. At most one PromptBuilder buffer exists; new material **appends** to it. Nothing here talks to the agent by itself except **`ao` / `aq` / `aw` / `av`** and **`<C-g>` inside PromptBuilder** (see below)  
+`<leader>a` → contract: after a **send** to the agent (including from PromptBuilder via `<C-g>`) or after **`ao`** toggle / focus, the **Wiremux target pane** gets focus so the reply is visible. Staging keys (`af*`, `ae`, `a?`, `ap`, `am`) only update PromptBuilder until you `<C-g>` there; **`ai`** is different: it only opens or focuses PromptBuilder and appends no text  
+`<leader>a` → note: route (target) is per-session and defaults to the `opencode` pane for the current working directory
 
-`<leader>aa` → [n] leaf: open a new AI chat  
-`<leader>aa` → [v] leaf: add visual selection to a new chat  
-`<leader>aA` → [nv] leaf: show AI action picker (predefined operations)  
-`<leader>a?` → [n] leaf: free-text prompt (ask) with current file as context  
-`<leader>a?` → [v] leaf: free-text prompt (ask) with visual selection as context  
-`<leader>ae` → [n] leaf: free-text prompt (edit/build mode) with current file as context  
-`<leader>ae` → [v] leaf: free-text prompt (edit/build mode) with visual selection as context  
-`<leader>ao` → [nv] leaf: toggle (show/hide) an existing chat  
-`<leader>aq` → [nv] leaf: close/toggle chat  
-`<leader>aw` → leaf: switch AI adapter (model provider)  
-`<leader>aW` → leaf: switch AI model within current adapter  
-`<leader>am` → [nv] leaf: memo current file/selection into context register (accumulate context)  
-`<leader>ap` → [nv] leaf: paste memoized context register into chat  
-`<leader>ax` → [nv] leaf: clear the memoized context register  
+**Direct to Wiremux / voice (not PromptBuilder)**  
+`<leader>aq` → [n] leaf: close the current route target  
+`<leader>ao` → [n] leaf: show or hide the current route target and focus it  
 `<leader>av` → [nv] leaf: toggle voice recording; transcription replaces selection or inserts at cursor  
-`<leader>ma` → leaf: accept inline AI edit suggestion  
-`<leader>mr` → leaf: reject inline AI edit suggestion
+`<leader>aw` → [n] leaf: pick the active route/backend in a fuzzy list
 
-`<leader>af` → domain: add file context to the active chat  
-`<leader>aff` → [nv] leaf: add current buffer (or staged selection) to chat as context  
-`<leader>afr` → leaf: pick a file from root and add to chat  
-`<leader>aft` → leaf: pick a git-tracked file and add to chat  
-`<leader>afd` → leaf: pick from git-changed files and add to chat  
-`<leader>afD` → leaf: pick from files changed vs. base branch and add to chat  
-`<leader>afC` → leaf: pick from conflicted files and add to chat  
-`<leader>afe` → leaf: pick from open buffers and add to chat
+**`af` — append @-ref lines to PromptBuilder** (then edit; `<C-g>` in that buffer to send to the agent and close the builder)  
+`<leader>afe` → leaf: pick from open buffers; each choice appends an `@` reference line (and trailing newline) to PromptBuilder  
+`<leader>aff` → [n] leaf: append an `@` line for the **current file** to PromptBuilder  
+`<leader>aff` → [v] leaf: append an `@… lines s–e` line for the **visual line range** to PromptBuilder  
+`<leader>afr` → leaf: pick a file (from repo root search); append `@` ref(s) to PromptBuilder  
+`<leader>aft` → leaf: pick a git-tracked file; append `@` ref to PromptBuilder  
+`<leader>afd` → leaf: pick from files changed in git (unstaged); append ref(s) to PromptBuilder  
+`<leader>afD` → leaf: pick from files changed vs. the base branch; append ref(s) to PromptBuilder  
+`<leader>afC` → leaf: pick from git-conflicted files; append ref(s) to PromptBuilder
 
----
+**`ai` — open or focus PromptBuilder**  
+`<leader>ai` → [n] [v] leaf: if the PromptBuilder buffer does not exist yet, open it in a horizontal split (below, same rules as the rest of `<leader>a`); if it already exists, jump to the window that already shows it, or show it in a new lower split if it is hidden. Inserts nothing — use this when you only need the staging buffer in front of you
 
-## `<leader>o` — Agentic (inline agent)
+**`ae` / `a?` — Snacks prompt, then at-style block in PromptBuilder** (same interaction as `am`, then edit further or `<C-g>` to send)  
+`<leader>ae` → [n] [v] leaf: **Snacks.input** titled *Instruction*; the buffer gets `@path:line`, optional **Selection** fence in visual, and an **Instruction:** line with your text (then `<C-g>` to send the whole buffer)  
+`<leader>a?` → [n] [v] leaf: same, but Snacks title *Question* and a **Question:** line in the appended block
 
-`<leader>o` → domain: Agentic ACP chat — direct inline agent workspace in a Neovim sidebar  
-`<leader>o` → contract: prompts are staged in the Agentic input with explicit file / selection context first; review and press Enter to send  
-`<leader>o` → note: distinct from `<leader>O` (Wiremux); this uses the inline Agentic sidebar, not a tmux pane
+**Canned and submit**  
+`<leader>ap` → [n] leaf: pick a **canned prompt** from the library; the template (with `{file}` / `{this}` / `{selection}` expanded where possible) is **appended** to PromptBuilder for you to edit, then `<C-g>` to send
 
-`<leader>oo` → [nv] leaf: show or hide the Agentic sidebar without auto-adding context  
-`<leader>oq` → [nv] leaf: close the Agentic sidebar  
-`<leader>on` → leaf: start a fresh Agentic session  
-`<leader>os` → leaf: pick and restore a previous Agentic session  
-`<leader>ow` → [nv] leaf: pick a different model for the current Agentic session (when the provider supports it)  
-`<leader>oW` → [nv] leaf: switch which ACP provider backs the current Agentic workflow (picker; preserves history per plugin behavior)  
-`<leader>om` → [nv] leaf: pick a different agent mode for the current session (when the provider supports it)  
-`<leader>o?` → [n] leaf: prefill an Agentic prompt draft with current file context  
-`<leader>o?` → [v] leaf: prefill an Agentic prompt draft with visual selection context  
-`<leader>oe` → [n] leaf: prefill an Agentic edit/build prompt draft with current file context  
-`<leader>oe` → [v] leaf: prefill an Agentic edit/build prompt draft with visual selection context
+**Memo (accumulate rich context, replaces old register-`5` memos)**  
+`<leader>am` → [n] [v] leaf: **Snacks.input** titled *Instructions*; the buffer gets an `@path:line` ref (at-style), a fenced **Selection** block in visual mode, and an **Instructions:** line with your text — **appended** to PromptBuilder. A markdown `---` rule separates a new block from prior buffer content, matching the old `accumulate` behavior between register pastes
 
----
-
-## `<leader>O` — Wiremux (external agent pane)
-
-`<leader>O` → domain: send content to an external agent running in a tmux pane  
-`<leader>O` → contract: after any send, toggle, or focus action, the target pane gets focus so the reply is immediately visible  
-`<leader>O` → note: route (target) is per-session and defaults to the `opencode` pane for the current working directory
-
-`<leader>Oo` → leaf: show or hide the agent pane for the current route; focus it when shown  
-`<leader>O?` → [n] leaf: free-text prompt → send to current route  
-`<leader>O?` → [v] leaf: free-text prompt, append visual selection, send  
-`<leader>OP` → leaf: pick a canned prompt from the library → send (templates expanded by the integration)  
-`<leader>OS` → leaf: pick which route/backend receives subsequent sends  
-`<leader>Ox` → leaf: close or tear down the current route's target pane(s)  
-`<leader>Oa` → [v] leaf: send visual selection to current route as payload
+**Inside a PromptBuilder buffer**  
+`<C-g>` → [n] [i] leaf: send the **entire** buffer as one message to Wiremux **with submit**, then wipe the PromptBuilder buffer  
 
 ---
 

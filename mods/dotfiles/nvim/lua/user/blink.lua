@@ -1,8 +1,7 @@
 local M = {
 	opts = {
-		-- agentic.nvim prompt buffer: avoid blink fighting Agentic keymaps (:help agentic-blink-cmp)
 		enabled = function()
-			return not vim.tbl_contains({ "AgenticInput" }, vim.bo.filetype)
+			return true
 		end,
 
 		-- 'default' for mappings similar to built-in completion

@@ -22,6 +22,7 @@ in
     pkgs-unstable.mongosh
     pkgs-unstable.mongodb-tools
     pkgs-unstable.postgresql_17
+    pkgs-unstable.acli
     gcp_sdk_with_extras
   ];
 

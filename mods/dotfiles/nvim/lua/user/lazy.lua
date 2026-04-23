@@ -167,23 +167,9 @@ require("lazy").setup({
 		{
 			"MeanderingProgrammer/render-markdown.nvim",
 			dependencies = { "nvim-treesitter/nvim-treesitter" },
-			ft = { "markdown", "md", "AgenticChat" },
+			ft = { "markdown", "md" },
 			opts = {
-				file_types = { "markdown", "md", "AgenticChat" },
-			},
-		},
-		{
-			"carlos-algms/agentic.nvim",
-			dependencies = {
-				"folke/snacks.nvim",
-			},
-		},
-
-		{
-			"olimorris/codecompanion.nvim",
-			dependencies = {
-				"nvim-lua/plenary.nvim",
-				"nvim-treesitter/nvim-treesitter",
+				file_types = { "markdown", "md" },
 			},
 		},
 		{

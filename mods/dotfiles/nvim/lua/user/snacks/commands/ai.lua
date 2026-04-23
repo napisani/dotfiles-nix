@@ -1,14 +1,9 @@
-local gp_group = "AI > "
+local ai_group = "AI > "
 local commands = {
 	{
-		":CodeCompanionChat",
-		description = gp_group .. "CodeCompanionChat",
+		"lua require('user.plugins.ai.wiremux').focus_target()",
+		description = ai_group .. "Focus Wiremux target",
 	},
-
-	-- {
-	-- 	":GpNextAgent",
-	-- 	description = gp_group .. "Next agent",
-	-- },
 }
 
 return {

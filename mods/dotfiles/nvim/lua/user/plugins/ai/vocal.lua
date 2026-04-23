@@ -43,14 +43,11 @@ function M.setup()
 	})
 end
 
+-- Voice toggle lives on `<leader>av` in `ai.wiremux` (see BEHAVIOR.md).
 function M.get_keymaps()
 	return {
-		normal = {
-			{ "<leader>av", "<cmd>Vocal<cr>", desc = "(v)oice record toggle" },
-		},
-		visual = {
-			{ "<leader>av", "<cmd>Vocal<cr>", desc = "(v)oice record (replace selection)" },
-		},
+		normal = {},
+		visual = {},
 		shared = {},
 	}
 end

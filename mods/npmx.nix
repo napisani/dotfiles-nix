@@ -22,6 +22,7 @@ let
     "@agentclientprotocol/claude-agent-acp"
     "@zed-industries/codex-acp"
     "@google/gemini-cli"
+    "@playwright/cli"
   ];
 
   npm = "${pkgs-unstable.nodejs}/bin/npm";

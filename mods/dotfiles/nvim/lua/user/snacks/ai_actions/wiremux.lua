@@ -2,6 +2,68 @@ local common = require("user.snacks.ai_actions.common")
 
 local M = {}
 
+local function normalize_reference_item(spec)
+	if not spec then
+		return nil
+	end
+
+	local kind = spec.kind or spec.type
+	local relative_path = spec.relative_path or spec.path
+	if not kind or not relative_path or relative_path == "" then
+		return nil
+	end
+
+	return {
+		kind = kind,
+		relative_path = relative_path,
+		start_line = spec.start_line,
+		end_line = spec.end_line,
+	}
+end
+
+local function format_reference_item(spec)
+	spec = normalize_reference_item(spec)
+	if not spec then
+		return nil
+	end
+
+	if spec.kind == "file" then
+		return "@" .. spec.relative_path
+	end
+
+	if spec.kind == "selection" and spec.start_line and spec.end_line then
+		return string.format(
+			"@%s lines %s-%s",
+			spec.relative_path,
+			spec.start_line,
+			spec.end_line
+		)
+	end
+
+	return nil
+end
+
+function M.format_reference_payload(spec)
+	if not spec then
+		return ""
+	end
+
+	local items = spec.items or { spec }
+	local lines = {}
+	for _, item in ipairs(items) do
+		local line = format_reference_item(item)
+		if line then
+			table.insert(lines, line)
+		end
+	end
+
+	if #lines == 0 then
+		return ""
+	end
+
+	return table.concat(lines, "\n") .. "\n"
+end
+
 local function ensure_plugin()
 	local ok, plugin = pcall(require, "user.plugins.ai.wiremux")
 	if not ok then
@@ -16,7 +78,18 @@ local function format_file_payload(file_info)
 	if not relative or relative == "" then
 		return nil
 	end
-	return "@" .. relative
+	if file_info.start_line and file_info.end_line then
+		return M.format_reference_payload({
+			kind = "selection",
+			relative_path = relative,
+			start_line = file_info.start_line,
+			end_line = file_info.end_line,
+		})
+	end
+	return M.format_reference_payload({
+		kind = "file",
+		relative_path = relative,
+	})
 end
 
 -- Returns true only when a wiremux instance for the current route and cwd exists.
@@ -65,21 +138,49 @@ function M.send_file(file_info, _opts)
 	return plugin.send_text(payload, { focus = true })
 end
 
--- ctx: { file_path, relative_path, line, selection? }
-function M.send_prompt_with_context(ctx, prompt)
+function M.send_reference_batch(items)
 	local plugin = ensure_plugin()
 	if not plugin then
 		return false
 	end
-
-	local message = common.build_context_message(ctx, {
-		style = common.REF_STYLE_AT,
-		prompt = prompt,
-	})
-	if message == "" then
+	local payload = M.format_reference_payload({ items = items })
+	if payload == "" then
 		return false
 	end
+	return plugin.send_text(payload, { focus = true })
+end
 
+---@param ctx { relative_path?: string, file_path?: string, selection?: string, start_line?: number, end_line?: number }|nil
+function M.format_context_ref_line(ctx)
+	if not ctx then
+		return nil
+	end
+	local p = ctx.relative_path
+		or (ctx.file_path and vim.fn.fnamemodify(ctx.file_path, ":."))
+		or ""
+	if p == "" or p == "." then
+		return nil
+	end
+	if ctx.selection and ctx.start_line and ctx.end_line then
+		return string.format("@%s lines %d-%d", p, ctx.start_line, ctx.end_line)
+	end
+	return "@" .. p
+end
+
+-- ctx: { file_path, relative_path, line, selection? } — same shape as common.capture_context
+function M.send_prompt_with_context(ctx, prompt)
+	local plugin = ensure_plugin()
+	if not plugin or not ctx then
+		return false
+	end
+	if not prompt or prompt == "" then
+		return false
+	end
+	local ref = M.format_context_ref_line(ctx)
+	if not ref then
+		return false
+	end
+	local message = ref .. "\n\n" .. prompt
 	return plugin.send_text(message, { focus = true })
 end
 

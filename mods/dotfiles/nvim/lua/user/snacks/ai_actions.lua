@@ -1,5 +1,3 @@
-local codecompanion = require("user.snacks.ai_actions.codecompanion")
-local agentic = require("user.snacks.ai_actions.agentic")
 local wiremux = require("user.snacks.ai_actions.wiremux")
 local common = require("user.snacks.ai_actions.common")
 
@@ -7,34 +5,37 @@ local M = {}
 local MEMO_REGISTER = "5"
 local MEMO_ENTRY_SEPARATOR = "\n\n---\n\n"
 
-local function get_backend()
-	if wiremux.is_plugin_open() then
-		return wiremux
+local function prompt_builder_buffer_nonempty(b)
+	if not b or not vim.api.nvim_buf_is_valid(b) then
+		return false
 	end
-	if agentic.is_snacks_backend() then
-		return agentic
+	for _, l in ipairs(vim.api.nvim_buf_get_lines(b, 0, -1, false)) do
+		if l and vim.trim(l) ~= "" then
+			return true
+		end
 	end
-	return codecompanion
+	return false
 end
 
--- Gather file/line/selection context, open a Snacks input for the user's
--- prompt, then dispatch to the active backend.
--- opts:
---   mode        "n" | "v"              (default "n")
---   ai_mode     "plan" | "build" | nil  passed to backend as a prompt hint
---   prompt_label string
-function M.prompt_with_context(opts)
+-- Snacks.input (title = input_prompt) then append build_context_message (at-style
+-- ref, optional selection fence, and body under body_label) to PromptBuilder. Same
+-- code path for `<leader>am`, `<leader>ae`, and `<leader>a?`.
+-- opts: mode, input_prompt (Snacks), body_label (build: "Label:\n" for typed text);
+-- optional done_notify string
+function M.append_snack_context_to_prompt_builder(opts)
 	opts = opts or {}
 	local mode = opts.mode or "n"
-	local ai_mode = opts.ai_mode -- nil | "plan" | "build"
-	local prompt_label = opts.prompt_label or "Ask AI"
+	local input_prompt = opts.input_prompt
+	local body_label = opts.body_label
+	if not input_prompt or input_prompt == "" or not body_label or body_label == "" then
+		vim.notify("append_snack_context_to_prompt_builder: input_prompt and body_label are required", vim.log.levels.ERROR)
+		return
+	end
 
-	-- Capture context immediately (before the async input window steals it)
 	local ctx = common.capture_context(mode)
 	if not ctx then
 		return
 	end
-	ctx.mode = ai_mode
 
 	local ok_snacks, Snacks = pcall(require, "snacks")
 	if not ok_snacks then
@@ -42,12 +43,26 @@ function M.prompt_with_context(opts)
 		return
 	end
 
-	Snacks.input({ prompt = prompt_label }, function(value)
+	Snacks.input({ prompt = input_prompt }, function(value)
 		if not value or value == "" then
 			return
 		end
-		local backend = get_backend()
-		backend.send_prompt_with_context(ctx, value)
+		local entry = common.build_context_message(ctx, {
+			style = common.REF_STYLE_AT,
+			prompt = value,
+			prompt_label = body_label,
+		})
+		if entry == "" then
+			return
+		end
+		local pb = require("user.prompt_builder")
+		local pbb = pb.get_bufnr()
+		if pbb and prompt_builder_buffer_nonempty(pbb) then
+			pb.append_text("---\n\n" .. entry)
+		else
+			pb.append_text(entry)
+		end
+		vim.notify(opts.done_notify or "Appended to PromptBuilder", vim.log.levels.INFO)
 	end)
 end
 
@@ -59,8 +74,19 @@ function M.stage_context()
 		return
 	end
 
-	local backend = get_backend()
-	backend.stage_context(ctx)
+	wiremux.stage_context(ctx)
+end
+
+-- Like `<leader>ae` / `<leader>a?`, but with Snacks title + body `Instructions:`. Same path as the old register memoranda.
+-- opts: mode "n" | "v" (default "n"); optional input_prompt, body_label (default "Instructions")
+function M.append_memo_to_prompt_builder(opts)
+	opts = opts or {}
+	return M.append_snack_context_to_prompt_builder({
+		mode = opts.mode or "n",
+		input_prompt = opts.input_prompt or "Instructions",
+		body_label = opts.body_label or "Instructions",
+		done_notify = "Context appended to PromptBuilder",
+	})
 end
 
 -- Append current context + user memo text to the dedicated memo register.

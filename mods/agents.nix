@@ -71,6 +71,32 @@ let
       ];
     }
     {
+      repo = "intellectronica/agent-skills";
+      skills = [
+        "context7"
+      ];
+      agents = [
+        "claude-code"
+        "cursor"
+        "gemini-cli"
+        "opencode"
+        "codex"
+      ];
+    }
+  {
+       repo = "https://github.com/microsoft/playwright-cli";
+       skills = [
+         "playwright-cli"
+       ];
+       agents = [
+         "claude-code"
+         "cursor"
+         "gemini-cli"
+         "opencode"
+         "codex"
+       ];
+    }
+    {
       repo = "https://github.com/langchain-ai/deepagents";
       skills = [ "web-research" ];
       agents = [

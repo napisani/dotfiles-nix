@@ -40,10 +40,7 @@ M.modules = {
 	"ui.indentline",
 	-- AI plugins
 	"ai.copilot",
-	"ai.codecompanion",
-	"ai.agentic",
 	"ai.wiremux",
-	"ai.code_explain",
 	"ai.vocal",
 	-- Database plugins
 	"database.dadbod",
