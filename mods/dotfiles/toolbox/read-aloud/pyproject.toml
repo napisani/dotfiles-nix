@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "read-aloud"
+version = "0.1.0"
+description = "Convert web articles or piped text to speech"
+requires-python = "==3.12.*"
+dependencies = [
+    "click>=8.1,<9",
+    "trafilatura>=1.12,<2",
+    "edge-tts>=7.0,<8",
+]
+
+[project.scripts]
+read-aloud = "read_aloud.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/read_aloud"]
