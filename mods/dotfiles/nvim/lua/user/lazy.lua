@@ -113,9 +113,18 @@ require("lazy").setup({
 		{ "lewis6991/gitsigns.nvim" },
 		{ "tpope/vim-fugitive" },
 		{
-			"esmuellert/codediff.nvim",
-			dependencies = { "MunifTanjim/nui.nvim" },
-			cmd = "CodeDiff",
+			"dlyongemallo/diffview.nvim",
+			dependencies = { "nvim-lua/plenary.nvim" },
+			cmd = {
+				"DiffviewOpen",
+				"DiffviewClose",
+				"DiffviewToggleFiles",
+				"DiffviewFocusFiles",
+				"DiffviewRefresh",
+				"DiffviewFileHistory",
+				"DiffviewDiffFiles",
+				"DiffviewLog",
+			},
 		},
 
 		{

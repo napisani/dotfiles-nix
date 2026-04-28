@@ -75,6 +75,11 @@ function M.get_keymaps()
 			{
 				"]g",
 				function()
+					local ok, lib = pcall(require, "diffview.lib")
+					if ok and lib.get_current_view and lib.get_current_view() then
+						require("user.plugins.git.diff").hunk_next()
+						return
+					end
 					gitsigns.next_hunk()
 				end,
 				desc = "Next Hunk",
@@ -82,6 +87,11 @@ function M.get_keymaps()
 			{
 				"[g",
 				function()
+					local ok, lib = pcall(require, "diffview.lib")
+					if ok and lib.get_current_view and lib.get_current_view() then
+						require("user.plugins.git.diff").hunk_prev()
+						return
+					end
 					gitsigns.prev_hunk()
 				end,
 				desc = "Prev Hunk",

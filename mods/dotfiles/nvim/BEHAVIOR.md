@@ -155,7 +155,7 @@
 `<leader>gr` → leaf: set a git comparison reference (branch or commit) for diff views  
 `<leader>gR` → leaf: set a git comparison reference to a specific commit  
 `<leader>go` → leaf: open the full git status / commit UI  
-`]g` / `[g` → leaf: jump to next / previous hunk in the buffer (also under motions)
+`]g` / `[g` → leaf: jump to next / previous hunk in the buffer (also under motions; **inside Diffview** the same keys also move across files — see *Inside diff / conflict views*)
 
 ---
 
@@ -295,10 +295,11 @@ Conflict resolution (active inside a diff/conflict view):
 
 ## Inside diff / conflict views
 
-These bindings are active within the diff viewer tab (not global leader bindings):
+These bindings are active within the **Diffview** diff viewer tab (not global leader bindings):
 
 `q` → leaf: close the diff tab  
-`]g` / `[g` → leaf: jump to next / previous change hunk  
+`]g` / `[g` → leaf: move to the **next / previous diff hunk** in the current file (same idea as vim’s `]c` / `[c` in diff mode, including the **inline/unified** layout’s hunk list)  
+`]g` / `[g` → contract: when there is **no** later / earlier hunk left in the current file, move to the **next / previous file** in Diffview’s list and land on that file’s **first / last** hunk; if you are already on the **last** hunk of the **last** file (or **first** hunk of the **first** file), the cursor **stays** — there is nothing further to visit  
 `]f` / `[f` → leaf: next / previous file in the explorer  
 `do` → leaf: get change from the other buffer (vimdiff-style)  
 `dp` → leaf: put change to the other buffer  

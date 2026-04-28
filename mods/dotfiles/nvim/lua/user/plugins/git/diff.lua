@@ -1,7 +1,169 @@
 local M = {}
 
+local api = vim.api
+
+---Prefer the focused diff window; fall back to Diffview's "main" window.
+---@return unknown? win
+---@return integer? bufnr
+local function get_diffview_nav_win(view)
+	if not view or not view.cur_layout then
+		return nil, nil
+	end
+	local cur = api.nvim_get_current_win()
+	for _, w in ipairs(view.cur_layout.windows or {}) do
+		if w.id == cur and w:is_valid() and w.file and w.file:is_valid() then
+			return w, w.file.bufnr
+		end
+	end
+	local main = view.cur_layout:get_main_win()
+	if main and main:is_valid() and main.file and main.file:is_valid() then
+		return main, main.file.bufnr
+	end
+	return nil, nil
+end
+
+---Land on the last diff hunk in the current file (after switching to the previous file).
+local function jump_to_last_change(view)
+	local utils = require("diffview.utils")
+	local nav_win, bufnr = get_diffview_nav_win(view)
+	if not nav_win then
+		return
+	end
+
+	api.nvim_win_call(nav_win.id, function()
+		if view.cur_entry and view.cur_entry.kind == "conflicting" then
+			utils.set_cursor(0, api.nvim_buf_line_count(0), 0)
+			pcall(vim.cmd, "norm! [c")
+		elseif view.cur_layout.name == "diff1_inline" then
+			local rows = require("diffview.scene.inline_diff").hunk_anchor_rows(bufnr)
+			local last = rows[#rows]
+			if last then
+				api.nvim_win_set_cursor(0, { last + 1, 0 })
+			end
+		else
+			utils.set_cursor(0, api.nvim_buf_line_count(bufnr), 0)
+			pcall(vim.cmd, "norm! [c")
+		end
+		vim.cmd("norm! zz")
+	end)
+	view.cur_layout:sync_scroll()
+end
+
+local function diffview_next_hunk_or_next_file()
+	local lib = require("diffview.lib")
+	local actions = require("diffview.actions")
+	local view = lib.get_current_view()
+	if not view then
+		return
+	end
+
+	local nav_win, bufnr = get_diffview_nav_win(view)
+	if not nav_win then
+		return
+	end
+
+	local moved = false
+	api.nvim_win_call(nav_win.id, function()
+		if view.cur_layout.name == "diff1_inline" then
+			local cur = api.nvim_win_get_cursor(0)[1] - 1
+			local row = require("diffview.scene.inline_diff").next_hunk_row(bufnr, cur)
+			if row then
+				api.nvim_win_set_cursor(0, { row + 1, 0 })
+				moved = true
+			end
+		else
+			local row_before = api.nvim_win_get_cursor(0)[1]
+			pcall(vim.cmd, "norm! ]c")
+			moved = api.nvim_win_get_cursor(0)[1] ~= row_before
+		end
+		if moved then
+			vim.cmd("norm! zz")
+		end
+	end)
+
+	if moved then
+		view.cur_layout:sync_scroll()
+		return
+	end
+
+	local before_entry = view.cur_entry
+	require("diffview").emit("select_next_entry")
+	-- Diffview loads the next file asynchronously; defer twice so `cur_entry` has updated.
+	vim.schedule(function()
+		vim.schedule(function()
+			local v2 = lib.get_current_view()
+			if not v2 or v2.cur_entry == before_entry then
+				return
+			end
+			actions.jump_to_first_change(v2)
+		end)
+	end)
+end
+
+local function diffview_prev_hunk_or_prev_file()
+	local lib = require("diffview.lib")
+	local view = lib.get_current_view()
+	if not view then
+		return
+	end
+
+	local nav_win, bufnr = get_diffview_nav_win(view)
+	if not nav_win then
+		return
+	end
+
+	local moved = false
+	api.nvim_win_call(nav_win.id, function()
+		if view.cur_layout.name == "diff1_inline" then
+			local cur = api.nvim_win_get_cursor(0)[1] - 1
+			local row = require("diffview.scene.inline_diff").prev_hunk_row(bufnr, cur)
+			if row then
+				api.nvim_win_set_cursor(0, { row + 1, 0 })
+				moved = true
+			end
+		else
+			local row_before = api.nvim_win_get_cursor(0)[1]
+			pcall(vim.cmd, "norm! [c")
+			moved = api.nvim_win_get_cursor(0)[1] ~= row_before
+		end
+		if moved then
+			vim.cmd("norm! zz")
+		end
+	end)
+
+	if moved then
+		view.cur_layout:sync_scroll()
+		return
+	end
+
+	local before_entry = view.cur_entry
+	require("diffview").emit("select_prev_entry")
+	vim.schedule(function()
+		vim.schedule(function()
+			local v2 = lib.get_current_view()
+			if not v2 or v2.cur_entry == before_entry then
+				return
+			end
+			jump_to_last_change(v2)
+		end)
+	end)
+end
+
+---Exported for `gitsigns` which-key mappings: global `]g` / `[g` win over Diffview buffer maps.
+function M.hunk_next()
+	diffview_next_hunk_or_next_file()
+end
+
+function M.hunk_prev()
+	diffview_prev_hunk_or_prev_file()
+end
+
+local function split_diffopt(diffopt_str)
+	local parts = vim.split(diffopt_str, ",", { plain = true, trimempty = true })
+	return parts
+end
+
 function M.setup()
-	-- Create a new scratch buffer
 	vim.api.nvim_create_user_command("NewScratchBuf", function()
 		vim.cmd([[
       execute 'vsplit | enew'
@@ -11,9 +173,8 @@ function M.setup()
     ]])
 	end, { nargs = 0 })
 
-	-- Compare clipboard to current buffer
 	vim.api.nvim_create_user_command("CompareClipboard", function()
-		local ftype = vim.api.nvim_eval("&filetype") -- original filetype
+		local ftype = vim.api.nvim_eval("&filetype")
 		vim.cmd([[
       tabnew %
       NewScratchBuf
@@ -23,14 +184,10 @@ function M.setup()
 		vim.cmd("set filetype=" .. ftype)
 	end, { nargs = 0 })
 
-	-- Compare clipboard to visual selection
 	vim.api.nvim_create_user_command("CompareClipboardSelection", function()
 		vim.cmd([[
-      " yank visual selection to z register
       normal! gv"zy
-      " open new tab, set options to prevent save prompt when closing
       execute 'tabnew | setlocal buftype=nofile bufhidden=hide noswapfile'
-      " paste z register into new buffer
       normal! V"zp
       NewScratchBuf
       normal! Vp
@@ -41,42 +198,25 @@ function M.setup()
 		range = true,
 	})
 
-	-- improve the diff presentation
 	vim.o.diffopt = "internal,filler,closeoff,indent-heuristic,linematch:60,algorithm:histogram"
 
-	-- Helper function to check if we're in a CodeDiff view
-	local function is_in_codediff_view()
-		local current_tab = vim.api.nvim_get_current_tabpage()
-		local wins = vim.api.nvim_tabpage_list_wins(current_tab)
-
-		for _, win in ipairs(wins) do
-			local buf = vim.api.nvim_win_get_buf(win)
-			local buf_name = vim.api.nvim_buf_get_name(buf)
-			local filetype = vim.bo[buf].filetype
-
-			-- Check for CodeDiff indicators
-			if buf_name:match("codediff") or filetype == "codediff" then
-				return true
-			end
-
-			-- Check for CodeDiff window variable
-			local ok, is_codediff = pcall(vim.api.nvim_win_get_var, win, "codediff")
-			if ok and is_codediff then
-				return true
-			end
+	---@return boolean
+	local function is_in_diffview()
+		local ok, lib = pcall(require, "diffview.lib")
+		if not ok or not lib.get_current_view then
+			return false
 		end
-
-		return false
+		return lib.get_current_view() ~= nil
 	end
 
-	-- Refresh function for CodeDiff views
-	local function refresh_codediff()
-		if not is_in_codediff_view() then
-			vim.notify("No CodeDiff view open", vim.log.levels.INFO)
+	local function refresh_diffview()
+		if not is_in_diffview() then
+			vim.notify("No diff view open", vim.log.levels.INFO)
 			return
 		end
 
-		-- Get all windows in current tab
+		pcall(vim.cmd, "DiffviewRefresh")
+
 		local current_tab = vim.api.nvim_get_current_tabpage()
 		local wins = vim.api.nvim_tabpage_list_wins(current_tab)
 		local refreshed = false
@@ -86,12 +226,9 @@ function M.setup()
 			local buf_name = vim.api.nvim_buf_get_name(buf)
 			local buftype = vim.bo[buf].buftype
 
-			-- Only reload buffers that are backed by actual files (not scratch/nofile buffers)
 			if buftype == "" and buf_name ~= "" then
-				-- Check if file is modified externally
 				local modified = vim.bo[buf].modified
 				if not modified then
-					-- Reload the buffer from disk
 					vim.api.nvim_buf_call(buf, function()
 						vim.cmd("checktime")
 					end)
@@ -101,121 +238,93 @@ function M.setup()
 		end
 
 		if refreshed then
-			vim.notify("CodeDiff refreshed", vim.log.levels.INFO)
+			vim.notify("Diffview refreshed", vim.log.levels.INFO)
 		else
-			vim.notify("CodeDiff refresh: no file buffers to reload", vim.log.levels.INFO)
+			vim.notify("Diffview refresh: no file buffers to reload", vim.log.levels.INFO)
 		end
 	end
 
-	-- Create user commands for refreshing
-	vim.api.nvim_create_user_command("CodeDiffRefresh", refresh_codediff, {
-		desc = "Refresh CodeDiff view by reloading buffers from disk",
+	vim.api.nvim_create_user_command("DiffviewReloadBuffers", refresh_diffview, {
+		desc = "Refresh Diffview file list and reload on-disk file buffers in the tab",
 	})
 
-	-- Store the refresh function globally so keymaps can access it
-	_G.code_diff_refresh = refresh_codediff
+	_G.diffview_refresh = refresh_diffview
 
-	-- Configure CodeDiff.nvim
-	local status_ok, codediff = pcall(require, "codediff")
-	if status_ok then
-		codediff.setup({
-			-- Highlight configuration
-			highlights = {
-				-- Line-level: accepts highlight group names or hex colors
-				line_insert = "DiffAdd", -- Line-level insertions
-				line_delete = "DiffDelete", -- Line-level deletions
-
-				-- Character-level: accepts highlight group names or hex colors
-				-- If specified, these override char_brightness calculation
-				char_insert = nil, -- Character-level insertions (nil = auto-derive)
-				char_delete = nil, -- Character-level deletions (nil = auto-derive)
-
-				-- Brightness multiplier (only used when char_insert/char_delete are nil)
-				-- nil = auto-detect based on background (1.4 for dark, 0.92 for light)
-				char_brightness = nil, -- Auto-adjust based on your colorscheme
-
-				-- Conflict sign highlights (for merge conflict views)
-				conflict_sign = nil, -- Unresolved: DiagnosticSignWarn -> #f0883e
-				conflict_sign_resolved = nil, -- Resolved: Comment -> #6e7681
-				conflict_sign_accepted = nil, -- Accepted: GitSignsAdd -> DiagnosticSignOk -> #3fb950
-				conflict_sign_rejected = nil, -- Rejected: GitSignsDelete -> DiagnosticSignError -> #f85149
-			},
-
-			-- Diff view behavior
-			diff = {
-				disable_inlay_hints = true, -- Disable inlay hints in diff windows for cleaner view
-				max_computation_time_ms = 5000, -- Maximum time for diff computation (VSCode default)
-				hide_merge_artifacts = false, -- Hide merge tool temp files (*.orig, *.BACKUP.*, *.BASE.*, *.LOCAL.*, *.REMOTE.*)
-				original_position = "left", -- Position of original (old) content: "left" or "right"
-				conflict_ours_position = "right", -- Position of ours (:2) in conflict view: "left" or "right"
-			},
-
-			-- Explorer panel configuration
-			explorer = {
-				position = "left", -- "left" or "bottom"
-				width = 70, -- Width when position is "left" (columns)
-				height = 15, -- Height when position is "bottom" (lines)
-				indent_markers = true, -- Show indent markers in tree view (│, ├, └)
-				initial_focus = "explorer", -- Initial focus: "explorer", "original", or "modified"
-				icons = {
-					folder_closed = "", -- Nerd Font folder icon (customize as needed)
-					folder_open = "", -- Nerd Font folder-open icon
-				},
-				view_mode = "tree", -- "list" or "tree"
-				file_filter = {
-					ignore = {}, -- Glob patterns to hide (e.g., {"*.lock", "dist/*"})
-				},
-			},
-
-			-- History panel configuration (for :CodeDiff history)
-			history = {
-				position = "bottom", -- "left" or "bottom" (default: bottom)
-				width = 40, -- Width when position is "left" (columns)
-				height = 15, -- Height when position is "bottom" (lines)
-				initial_focus = "history", -- Initial focus: "history", "original", or "modified"
-				view_mode = "list", -- "list" or "tree" for files under commits
-			},
-
-			-- Keymaps in diff view
-			keymaps = {
-				view = {
-					quit = "q", -- Close diff tab
-					toggle_explorer = "<leader>t", -- Toggle explorer visibility (explorer mode only)
-					next_hunk = "]g", -- Jump to next change
-					prev_hunk = "[g", -- Jump to previous change
-					next_file = "]f", -- Next file in explorer/history mode
-					prev_file = "[f", -- Previous file in explorer/history mode
-					diff_get = "do", -- Get change from other buffer (like vimdiff)
-					diff_put = "dp", -- Put change to other buffer (like vimdiff)
-					open_in_prev_tab = "gf", -- Open current buffer in previous tab (or create one before)
-					toggle_stage = "-", -- Stage/unstage current file (works in explorer and diff buffers)
-				},
-				explorer = {
-					select = "<CR>", -- Open diff for selected file
-					hover = "K", -- Show file diff preview
-					refresh = "R", -- Refresh git status
-					toggle_view_mode = "i", -- Toggle between 'list' and 'tree' views
-					stage_all = "S", -- Stage all files
-					unstage_all = "U", -- Unstage all files
-					restore = "X", -- Discard changes (restore file)
-				},
-				history = {
-					select = "<CR>", -- Select commit/file or toggle expand
-					toggle_view_mode = "i", -- Toggle between 'list' and 'tree' views
-				},
-				conflict = {
-					accept_incoming = "<leader>ct", -- Accept incoming (theirs/left) change
-					accept_current = "<leader>co", -- Accept current (ours/right) change
-					accept_both = "<leader>cb", -- Accept both changes (incoming first)
-					discard = "<leader>cx", -- Discard both, keep base
-					next_conflict = "]x", -- Jump to next conflict
-					prev_conflict = "[x", -- Jump to previous conflict
-					diffget_incoming = "2do", -- Get hunk from incoming (left/theirs) buffer
-					diffget_current = "3do", -- Get hunk from current (right/ours) buffer
-				},
-			},
-		})
+	local status_ok, diffview = pcall(require, "diffview")
+	if not status_ok then
+		return
 	end
+
+	local actions = require("diffview.actions")
+
+	diffview.setup({
+		enhanced_diff_hl = true,
+		use_icons = true,
+		watch_index = true,
+		hide_merge_artifacts = false,
+		diffopt = split_diffopt(vim.o.diffopt),
+		file_panel = {
+			listing_style = "tree",
+			win_config = { position = "left", width = 70 },
+			tree_options = {
+				flatten_dirs = true,
+				folder_statuses = "only_folded",
+				folder_count_style = "grouped",
+				folder_trailing_slash = true,
+			},
+		},
+		file_history_panel = {
+			win_config = { position = "bottom", height = 15 },
+			stat_style = "number",
+			subject_highlight = "ref_aware",
+			commit_format = { "status", "files", "stats", "hash", "reflog", "ref", "subject", "author", "date" },
+		},
+		keymaps = {
+			disable_defaults = false,
+			view = {
+				["<leader>e"] = false,
+				["<leader>b"] = false,
+				["<leader>ca"] = false,
+				{ "n", "<leader>ge", actions.focus_files, { desc = "Bring focus to the file panel" } },
+				{ "n", "<leader>t", actions.toggle_files, { desc = "Toggle the file panel" } },
+				{ "n", "q", actions.close, { desc = "Close diffview" } },
+				{
+					"n",
+					"]g",
+					diffview_next_hunk_or_next_file,
+					{ desc = "Next hunk (next file at EOF)" },
+				},
+				{
+					"n",
+					"[g",
+					diffview_prev_hunk_or_prev_file,
+					{ desc = "Previous hunk (previous file at BOF)" },
+				},
+				{ "n", "]f", actions.select_next_entry, { desc = "Open the diff for the next file" } },
+				{ "n", "[f", actions.select_prev_entry, { desc = "Open the diff for the previous file" } },
+				{ "n", "<leader>cb", actions.conflict_choose("all"), { desc = "Accept both sides at conflict" } },
+				{ "n", "<leader>cx", actions.conflict_choose("none"), { desc = "Discard all sides; use base" } },
+			},
+			file_panel = {
+				["<leader>e"] = false,
+				["<leader>b"] = false,
+				{ "n", "<leader>ge", actions.focus_files, { desc = "Bring focus to the file panel" } },
+				{ "n", "<leader>t", actions.toggle_files, { desc = "Toggle the file panel" } },
+				{ "n", "q", actions.close, { desc = "Close diffview" } },
+				{ "n", "]f", actions.select_next_entry, { desc = "Open the diff for the next file" } },
+				{ "n", "[f", actions.select_prev_entry, { desc = "Open the diff for the previous file" } },
+			},
+			file_history_panel = {
+				["<leader>e"] = false,
+				["<leader>b"] = false,
+				{ "n", "<leader>ge", actions.focus_files, { desc = "Bring focus to the file panel" } },
+				{ "n", "<leader>t", actions.toggle_files, { desc = "Toggle the file panel" } },
+				{ "n", "q", actions.close, { desc = "Close diffview" } },
+				{ "n", "]f", actions.select_next_entry, { desc = "Open the diff for the next file" } },
+				{ "n", "[f", actions.select_prev_entry, { desc = "Open the diff for the previous file" } },
+			},
+		},
+	})
 end
 
 function M.get_keymaps()
@@ -223,48 +332,41 @@ function M.get_keymaps()
 
 	return {
 		normal = {
-			-- NOTE: <leader>e and <leader>E are defined in whichkey.lua
-			-- They will call _G.code_diff_refresh() when in a CodeDiff view
-
 			{ "<leader>c", group = "Changes" },
 
 			{
 				"<leader>cr",
 				function()
 					local ref = utils.get_git_ref()
-					vim.cmd("CodeDiff " .. ref)
+					vim.cmd("DiffviewOpen " .. ref)
 				end,
 				desc = "compare to ref",
 			},
 
 			{ "<leader>cB", "<Cmd>:G blame<CR>", desc = "Blame" },
-			{ "<leader>cH", "<Cmd>:CodeDiff HEAD<CR>", desc = "diff (H)ead" },
-			{ "<leader>ch", "<Cmd>:CodeDiff history<CR>", desc = "(h)istory" },
-			{ "<leader>co", "<Cmd>:CodeDiff<CR>", desc = "Open" },
+			{ "<leader>cH", "<Cmd>:DiffviewOpen HEAD<CR>", desc = "diff (H)ead" },
+			{ "<leader>ch", "<Cmd>:DiffviewFileHistory<CR>", desc = "(h)istory" },
+			{ "<leader>co", "<Cmd>:DiffviewOpen<CR>", desc = "Open" },
 			{
 				"<leader>cq",
 				function()
-					local current_tab = vim.api.nvim_get_current_tabpage()
-					local ok, lifecycle = pcall(require, "codediff.ui.lifecycle")
-					local in_codediff = ok and lifecycle.get_session(current_tab) ~= nil
-					if in_codediff then
-						vim.cmd("tabclose")
+					local ok, lib = pcall(require, "diffview.lib")
+					if ok and lib.get_current_view and lib.get_current_view() then
+						vim.cmd("DiffviewClose")
 					else
-						vim.notify("No CodeDiff view open", vim.log.levels.INFO)
+						vim.notify("No diff view open", vim.log.levels.INFO)
 					end
 				end,
-				desc = "Close CodeDiff view",
+				desc = "Close diff view",
 			},
-			-- NOTE: <leader>cx is not available in CodeDiff (no direct "choose delete" action)
-			-- Use the conflict resolution keymaps instead: <leader>ct, <leader>co, <leader>cb, <leader>cx
 
 			{ "<leader>cf", group = "(F)ile" },
-			{ "<leader>cfH", "<Cmd>:CodeDiff file HEAD<CR>", desc = "diff (H)ead" },
+			{ "<leader>cfH", "<Cmd>:DiffviewOpen HEAD -- %<CR>", desc = "diff (H)ead" },
 			{
 				"<leader>cfr",
 				function()
 					local ref = utils.get_git_ref()
-					vim.cmd("CodeDiff file " .. ref)
+					vim.cmd("DiffviewOpen " .. ref .. " -- %")
 				end,
 				desc = "compare to ref",
 			},
@@ -273,9 +375,7 @@ function M.get_keymaps()
 				"<cmd>lua require('user.snacks.compare').find_file_from_root_to_compare_to()<CR>",
 				desc = "(f)ile",
 			},
-			{ "<leader>cfh", "<Cmd>:CodeDiff history HEAD~20 %<CR>", desc = "(h)istory" },
-
-			-- changes
+			{ "<leader>cfh", "<Cmd>:DiffviewFileHistory --max-count=20 %<CR>", desc = "(h)istory" },
 			{ "<leader>cfc", "<cmd>CompareClipboard<cr>", desc = "compare (c)lipboard" },
 		},
 
@@ -284,9 +384,9 @@ function M.get_keymaps()
 			{ "<leader>cc", "<esc><cmd>CompareClipboardSelection<cr>", desc = "compare (c)lipboard" },
 			{
 				"<leader>ch",
-			function()
-				vim.cmd("CodeDiff history HEAD~20 %")
-			end,
+				function()
+					vim.cmd("DiffviewFileHistory --max-count=20 %")
+				end,
 				desc = "(h)istory",
 			},
 		},

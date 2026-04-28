@@ -70,31 +70,10 @@ local reload_all = {
 	{
 		"<leader>E",
 		function()
-			-- Check if we're in a CodeDiff view first
-			if _G.code_diff_refresh then
-				local current_tab = vim.api.nvim_get_current_tabpage()
-				local wins = vim.api.nvim_tabpage_list_wins(current_tab)
-				local in_codediff = false
-				
-				for _, win in ipairs(wins) do
-					local buf = vim.api.nvim_win_get_buf(win)
-					local buf_name = vim.api.nvim_buf_get_name(buf)
-					local filetype = vim.bo[buf].filetype
-					
-					if buf_name:match("codediff") or filetype == "codediff" then
-						in_codediff = true
-						break
-					end
-					
-					local ok, is_codediff = pcall(vim.api.nvim_win_get_var, win, "codediff")
-					if ok and is_codediff then
-						in_codediff = true
-						break
-					end
-				end
-				
-				if in_codediff then
-					_G.code_diff_refresh()
+			if _G.diffview_refresh then
+				local ok, lib = pcall(require, "diffview.lib")
+				if ok and lib.get_current_view and lib.get_current_view() then
+					_G.diffview_refresh()
 					return
 				end
 			end
@@ -165,7 +144,7 @@ local reload_all = {
 
 			vim.notify(message, vim.log.levels.INFO)
 		end,
-		desc = "R(e)load all buffers/CodeDiff",
+		desc = "R(e)load all buffers / Diffview",
 	},
 }
 
@@ -173,31 +152,10 @@ local smart_refresh = {
 	{
 		"<leader>e",
 		function()
-			-- Check if we're in a CodeDiff view
-			if _G.code_diff_refresh then
-				local current_tab = vim.api.nvim_get_current_tabpage()
-				local wins = vim.api.nvim_tabpage_list_wins(current_tab)
-				local in_codediff = false
-				
-				for _, win in ipairs(wins) do
-					local buf = vim.api.nvim_win_get_buf(win)
-					local buf_name = vim.api.nvim_buf_get_name(buf)
-					local filetype = vim.bo[buf].filetype
-					
-					if buf_name:match("codediff") or filetype == "codediff" then
-						in_codediff = true
-						break
-					end
-					
-					local ok, is_codediff = pcall(vim.api.nvim_win_get_var, win, "codediff")
-					if ok and is_codediff then
-						in_codediff = true
-						break
-					end
-				end
-				
-				if in_codediff then
-					_G.code_diff_refresh()
+			if _G.diffview_refresh then
+				local ok, lib = pcall(require, "diffview.lib")
+				if ok and lib.get_current_view and lib.get_current_view() then
+					_G.diffview_refresh()
 					return
 				end
 			end
@@ -206,7 +164,7 @@ local smart_refresh = {
 			vim.cmd("edit!")
 			vim.notify("Buffer reloaded", vim.log.levels.INFO)
 		end,
-		desc = "r(e)fresh buffer/CodeDiff",
+		desc = "r(e)fresh buffer / Diffview",
 	},
 }
 
