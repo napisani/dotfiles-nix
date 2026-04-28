@@ -18,6 +18,36 @@ local function get_current_file_path()
 	return file_path, bufnr
 end
 
+---Get a stable visual line range.
+---When called from a visual mapping callback, '< and '> can be unset (0),
+---so prefer the live visual anchor (`v`) and current cursor.
+---@return integer|nil start_line
+---@return integer|nil end_line
+local function get_visual_line_range()
+	local mode = vim.fn.mode(1)
+	local start_line
+	local end_line
+
+	if mode and mode:match("[vV\22]") then
+		start_line = vim.fn.getpos("v")[2]
+		end_line = vim.api.nvim_win_get_cursor(0)[1]
+	else
+		start_line = vim.fn.line("'<")
+		end_line = vim.fn.line("'>")
+	end
+
+	start_line = tonumber(start_line) or 0
+	end_line = tonumber(end_line) or 0
+	if start_line <= 0 or end_line <= 0 then
+		return nil, nil
+	end
+	if start_line > end_line then
+		start_line, end_line = end_line, start_line
+	end
+
+	return start_line, end_line
+end
+
 local function process_selection(selection, callback)
 	if type(selection) == "table" and #selection > 0 then
 		for _, sel in ipairs(selection) do
@@ -114,9 +144,9 @@ function M.add_visual_range_to_chat()
 	if not file_path then
 		return
 	end
-	local start_line = vim.fn.line("'<")
-	local end_line = vim.fn.line("'>")
+	local start_line, end_line = get_visual_line_range()
 	if not start_line or not end_line then
+		vim.notify("No visual range found", vim.log.levels.WARN)
 		return
 	end
 

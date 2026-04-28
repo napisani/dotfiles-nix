@@ -58,6 +58,45 @@ chars = "\u001B[72;6u"
 key = "H"
 mods = "Control|Shift"
 
+# Specialty TUI key combos (CSI-u encoded) so apps can distinguish modified keys.
+# Format: ESC [ <keycode> ; <mods> u, where mods: 2=Shift, 3=Alt, 5=Ctrl, 6=Ctrl+Shift.
+
+# Shift+Enter: alternate "submit/accept" action in TUIs.
+[[keyboard.bindings]]
+chars = "\u001B[13;2u"
+key = "Return"
+mods = "Shift"
+
+# Ctrl+Enter: explicit "run/execute" chord separate from plain Enter.
+[[keyboard.bindings]]
+chars = "\u001B[13;5u"
+key = "Return"
+mods = "Control"
+
+# Ctrl+Shift+Enter: power variant for actions like "run all" or "force submit".
+[[keyboard.bindings]]
+chars = "\u001B[13;6u"
+key = "Return"
+mods = "Control|Shift"
+
+# Alt+Enter: alternate accept/newline behavior in some prompt UIs.
+[[keyboard.bindings]]
+chars = "\u001B[13;3u"
+key = "Return"
+mods = "Alt"
+
+# Alt+Backspace: delete previous word in apps that support modified Backspace.
+[[keyboard.bindings]]
+chars = "\u001B[127;3u"
+key = "Back"
+mods = "Alt"
+
+# Ctrl+Shift+Backspace: stronger backward-delete variant for editors/shells.
+[[keyboard.bindings]]
+chars = "\u001B[127;6u"
+key = "Back"
+mods = "Control|Shift"
+
 [colors.bright]
 black = "0x444b6a"
 blue = "0x7da6ff"
@@ -83,7 +122,7 @@ background = "0x1a1b26"
 foreground = "0xa9b1d6"
 
 [env]
-TERM = "screen-256color"
+TERM = "xterm-256color"
 
 [font]
 size = 12

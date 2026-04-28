@@ -104,11 +104,38 @@ local function set_current_route(name)
 	end
 end
 
+local function normalize_picker_items(items)
+	local normalized = {}
+	for _, item in ipairs(items or {}) do
+		if type(item) == "table" then
+			local copy = vim.tbl_deep_extend("force", {}, item)
+			if not copy.text then
+				copy.text = copy.label or copy.name or copy.value or tostring(copy)
+			end
+			if not copy.file then
+				copy.file = copy.name or copy.label or copy.text
+			end
+			table.insert(normalized, copy)
+		else
+			local text = tostring(item)
+			table.insert(normalized, {
+				text = text,
+				label = text,
+				name = text,
+				value = item,
+				file = text,
+			})
+		end
+	end
+	return normalized
+end
+
 local function with_snacks_picker(opts, on_choice)
 	local ok, Snacks = pcall(require, "snacks")
 	if ok and Snacks.picker and Snacks.picker.pick then
+		local items = normalize_picker_items(opts.items)
 		Snacks.picker.pick({
-			items = opts.items,
+			items = items,
 			prompt = opts.prompt,
 			format_item = opts.format_item,
 			confirm = function(picker, item)
@@ -273,8 +300,11 @@ function M.select_route()
 		items = items,
 		prompt = "Wiremux Routes",
 		format_item = function(item)
+			if not item then
+				return ""
+			end
 			local marker = item.name == state.current_route and "* " or "  "
-			return marker .. item.label
+			return marker .. (item.label or item.name or item.text or "")
 		end,
 	}, function(item)
 		if not item then
@@ -307,7 +337,10 @@ local function pick_prompt()
 		items = state.options.prompts or default_prompts,
 		prompt = "Canned prompts → PromptBuilder",
 		format_item = function(item)
-			return item.label or item.value
+			if not item then
+				return ""
+			end
+			return item.label or item.value or item.text or ""
 		end,
 	}, function(item)
 		if not item or not item.value then
