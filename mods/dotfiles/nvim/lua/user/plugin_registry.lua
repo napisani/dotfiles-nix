@@ -53,6 +53,7 @@ M.modules = {
 	"debug.nvim-dap",
 	-- Util plugins
 	-- "util.sidekick",  -- Commented out - plugin not currently available
+	"util.fff",
 }
 
 -- Get all plugin modules in proper load order

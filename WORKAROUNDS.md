@@ -11,7 +11,8 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 3. [Nix overlays and package overrides](#nix-overlays-and-package-overrides)
 4. [Nix / Home Manager config notes](#nix--home-manager-config-notes)
 5. [Neovim 0.12 `:checkhealth` remediation plan](#neovim-012-checkhealth-remediation-plan)
-6. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
+6. [fff.nvim binary (lazy.nvim build hook)](#fffnvim-binary-lazyvim-build-hook)
+7. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
 
 ---
 
@@ -148,6 +149,19 @@ cd ~/.config/home-manager/mods/dotfiles/nvim && nvim -u init.vim "+checkhealth" 
 
 ---
 
+## fff.nvim binary (lazy.nvim build hook)
+
+| Item | Detail |
+|------|--------|
+| **Location** | `mods/dotfiles/nvim/lua/user/lazy.lua` (`dmtrKovalenko/fff.nvim` spec, `build` hook) |
+| **What** | `fff.nvim` ships a Rust binary (`libfff_nvim.dylib` / `.so`). The lazy.nvim `build` hook calls `require("fff.download").download_or_build_binary()` to fetch or compile it on first install. |
+| **Why** | The Nix setup uses lazy.nvim for all plugin management (no `extraPlugins`), so plugins are not provided by Nix. The binary is not available until `:Lazy sync` (or the build hook) runs on first setup. |
+| **nixpkgs status** | `vimPlugins.fff-nvim` **is** packaged in nixpkgs (as of 0.5.1). The nixpkgs variant patches `download.lua` to hardcode the Nix store path, bypassing the download. |
+| **Revisit when** | If lazy.nvim is replaced with Nix-managed plugins (`programs.neovim.extraPlugins`), switch to `pkgs-unstable.vimPlugins.fff-nvim` and remove the build hook. The nixpkgs package is already Nix-aware. |
+| **Impact** | On a fresh install, fff.nvim will not work until `:Lazy sync` completes and the build hook runs (downloads ~4–5 MB from GitHub). Subsequent starts are fine. |
+
+---
+
 ## Future improvements (consolidation and monitoring)
 
 ### Consolidate duplicated Nix
@@ -183,4 +197,5 @@ cd ~/.config/home-manager/mods/dotfiles/nvim && nvim -u init.vim "+checkhealth" 
 | 2026-04-07 | Migrated `treesitter.lua` for nvim-treesitter **`main`** (no `configs` module; `FileType` + `install()` API); updated nvim-treesitter table above. |
 | 2026-04-07 | Opt-in-out **ui2** in `options.lua` + init.vim comment; WORKAROUNDS markdown TS row + future checklist (`:restart`, post-upgrade `:TSUpdate`). |
 | 2026-04-07 | `completeopt` adds `menu` + `popup`; `<leader>PR` → `:restart`; LSP keymaps comment (`:h lsp-defaults`); WORKAROUNDS `NVIM_APPNAME` note. |
+| 2026-04-28 | Documented fff.nvim binary download via lazy.nvim build hook; noted nixpkgs has `vimPlugins.fff-nvim` 0.5.1 (Nix-aware, patches download.lua). |
 | *(add entries when adding/removing workarounds)* | |

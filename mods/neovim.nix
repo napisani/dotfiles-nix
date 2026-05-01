@@ -13,6 +13,7 @@ in
     defaultEditor = true;
     package = pkgs-unstable.neovim-unwrapped;
     #package = pkgs-unstable.neovim-unwrapped;
+    sideloadInitLua = true;
     viAlias = false;
     vimAlias = true;
     withNodeJs = false;

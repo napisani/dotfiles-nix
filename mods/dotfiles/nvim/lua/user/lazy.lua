@@ -300,6 +300,15 @@ require("lazy").setup({
 				"nvim-lua/plenary.nvim",
 			},
 		},
+
+		-- File manager
+		{
+			"dmtrKovalenko/fff.nvim",
+			lazy = false, -- load at startup so fff's Rust engine is ready before first grep
+			build = function()
+				require("fff.download").download_or_build_binary()
+			end,
+		},
 	},
 	-- Configure any other settings here. See the documentation for more details.
 	-- colorscheme that will be used when installing plugins.

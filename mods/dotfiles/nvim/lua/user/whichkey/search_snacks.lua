@@ -3,6 +3,7 @@ local git_search = require("user.snacks.git_search")
 local snacks_common = require("user.snacks.common")
 local paste_to_search = snacks_common.paste_to_search
 local Snacks = require("snacks")
+local fff_grep = require("user.snacks.fff_grep")
 
 local method_search_opts = {
 	search = "Methods",
@@ -43,9 +44,9 @@ local mapping_n = {
 	{
 		"<leader>hr",
 		function()
-			search_files.live_grep_from_root()
+			fff_grep.live_grep_from_root()
 		end,
-		desc = "grep from (r)oot",
+		desc = "fff grep from (r)oot",
 	},
 
 	{
@@ -113,10 +114,10 @@ local mapping_v = {
 		"<leader>hr",
 		function()
 			paste_to_search(function(opts)
-				return search_files.live_grep_from_root(opts)
+				return fff_grep.live_grep_from_root(opts)
 			end)
 		end,
-		desc = "grep from (r)oot",
+		desc = "fff grep from (r)oot",
 	},
 
 	{
