@@ -27,16 +27,13 @@ M.modules = {
 	"navigation.hop",
 	-- Code plugins
 	"code.treesitter",
-	"code.blink",
 	-- Editing plugins
-	-- "editing.autopairs",
 	"editing.comment",
 	"navigation.nvim-tree",
 	-- UI plugins (remaining)
 	"ui.colorizer",
 	"ui.bufferline",
 	"ui.lualine",
-	-- "ui.outline",
 	"ui.indentline",
 	-- AI plugins
 	"ai.copilot",
@@ -52,7 +49,6 @@ M.modules = {
 	-- Debug plugins
 	"debug.nvim-dap",
 	-- Util plugins
-	-- "util.sidekick",  -- Commented out - plugin not currently available
 	"util.fff",
 }
 

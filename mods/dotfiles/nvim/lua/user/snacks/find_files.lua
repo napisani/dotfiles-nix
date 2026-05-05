@@ -24,6 +24,11 @@ M.toggle_explorer_tree = function()
 		hidden = true,
 		ignored = false,
 		layout = { preset = "sidebar", preview = false },
+		win = {
+			input = { keys = { ["<Esc>"] = false } },
+			list = { keys = { ["<Esc>"] = false } },
+			preview = { keys = { ["<Esc>"] = false } },
+		},
 	})
 end
 

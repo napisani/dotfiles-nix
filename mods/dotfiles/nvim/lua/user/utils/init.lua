@@ -28,32 +28,6 @@ function M.python_path()
 	return python_bin
 end
 
-function M.get_db_connections()
-	local sql_rc = M.get_root_dir() .. "/.sqllsrc.json"
-	local json_file = M.read_json_file(sql_rc)
-	if json_file == nil then
-		return {}
-	end
-	local conns = {}
-	if json_file["connections"] ~= nil then
-		conns = json_file["connections"]
-	end
-	if json_file["host"] ~= nil then
-		table.insert(conns, json_file)
-	end
-	return conns
-end
-
-function M.connection_to_golang_string(conn)
-	local user = conn["user"]
-	local password = conn["password"]
-	local database = conn["database"]
-	local host = conn["host"]
-	local port = conn["port"] or 3306
-	local conn_string = user .. ":" .. password .. "@tcp(" .. host .. ":" .. port .. ")/" .. database
-	return conn_string
-end
-
 function M.debug_log(data, file_path)
 	file_path = file_path or "/tmp/nvim.log"
 
@@ -78,4 +52,3 @@ function M.debug_log(data, file_path)
 end
 
 return M
-

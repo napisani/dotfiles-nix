@@ -72,7 +72,6 @@ in
   };
   home.file = {
     ".config/pet".source = ./dotfiles/pet;
-    ".aider.conf.yml".source = ./dotfiles/aider.conf.yml;
     ".config/mcphub/servers.json" = mkForcedSym "mcphub-servers.json";
     ".aerospace.toml" = mkForcedSym ".aerospace.toml";
     "Library/Application Support/com.mitchellh.ghostty/config" = mkForcedSym "ghostty-config";
@@ -91,7 +90,6 @@ in
     ".config/rift/config.toml" = mkForcedSym "riftrc";
     ".config/alacritty/alacritty.toml" = mkForcedSym "alacritty.toml";
 
-    ".aider.model.settings.yml".source = ./dotfiles/aider.model.settings.yml;
     ".bashrc.d".source = ./dotfiles/.bashrc.d;
     ".inputrc".source = ./dotfiles/.inputrc;
     ".ideavimrc".source = ./dotfiles/.ideavimrc;

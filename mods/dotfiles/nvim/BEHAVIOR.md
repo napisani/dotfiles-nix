@@ -161,13 +161,16 @@
 
 ## `<leader>c` — changes / diff
 
-`<leader>c` → domain: diff, compare, conflict resolution, and change review  
+`<leader>c` → domain: diff, compare, changed-file trees, conflict resolution, and change review
+`<leader>c` → contract: changed-file tree commands show the tree file browser containing only files in the requested git change set; choosing a file opens/focuses that file
 `<leader>co` → leaf: open diff view for current working changes  
 `<leader>cH` → leaf: open diff view comparing current state to HEAD  
 `<leader>ch` → [nv] leaf: open file history (recent commits affecting current file)  
 `<leader>cr` → leaf: open diff view comparing to the stored reference  
 `<leader>cq` → leaf: close the diff view tab  
 `<leader>cB` → leaf: show full-file git blame
+`<leader>ct` → leaf: outside a diff/merge view, open a file tree filtered to files with local git changes only (same file set as `<leader>fd`)
+`<leader>cT` → leaf: outside a diff/merge view, open a file tree filtered to files changed on the current branch compared with the base branch (default `main`; same file set as `<leader>fD`)
 
 `<leader>cf` → domain: file-level diff operations  
 `<leader>cff` → leaf: pick a file to compare the current file against (side-by-side diff)  
@@ -178,11 +181,17 @@
 
 `<leader>cc` → [v] leaf: compare visual selection against clipboard (side-by-side diff)
 
-Conflict resolution (active inside a diff/conflict view):  
-`<leader>ct` → leaf: accept incoming (theirs) change at current conflict  
-`<leader>co` → leaf: accept current (ours) change at current conflict  
-`<leader>cb` → leaf: accept both changes (incoming first)  
-`<leader>cx` → leaf: discard both, restore base
+Merge conflict resolution (contextual inside a diff/merge view):
+`<leader>co` → leaf: accept ours/current branch for the conflict under the cursor
+`<leader>ct` → leaf: accept theirs/incoming branch for the conflict under the cursor
+`<leader>cb` → leaf: accept base for the conflict under the cursor
+`<leader>ca` → leaf: keep all sides for the conflict under the cursor, removing conflict markers
+`dx` → leaf: delete the conflict region under the cursor
+`<leader>cO` → leaf: accept ours/current branch for every conflict in the current file
+`<leader>cT` → leaf: accept theirs/incoming branch for every conflict in the current file
+`<leader>cB` → leaf: accept base for every conflict in the current file
+`<leader>cA` → leaf: keep all sides for every conflict in the current file, removing conflict markers
+`dX` → leaf: delete every conflict region in the current file
 
 ---
 
@@ -328,4 +337,5 @@ These bindings are active within the **Diffview** diff viewer tab (not global le
 `f` / `F` → leaf: start / clear live filter  
 `H` → leaf: toggle hidden (dotfiles) visibility  
 `R` → leaf: refresh tree  
+`<Esc>` → note: does not close the tree; use `:q` to close the tree window
 `q` → leaf: close tree

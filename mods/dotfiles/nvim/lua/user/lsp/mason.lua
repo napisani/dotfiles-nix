@@ -10,22 +10,17 @@ if not mason_lsp_ok then
 end
 local M = {}
 local servers = {
-	"angularls",
 	"bashls",
 	"cssls",
 	"gopls",
 	"denols",
-	"docker_compose_language_service",
-	"dockerls",
 	"expert",
-	"html",
 	"jsonls",
 	"lua_ls",
 	"copilot",
 	-- "pyright",
 	"basedpyright",
 	"ruff",
-	"tailwindcss",
 	"yamlls",
 	"vtsls",
 	"efm",

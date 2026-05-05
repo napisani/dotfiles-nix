@@ -158,6 +158,14 @@ function M.hunk_prev()
 	diffview_prev_hunk_or_prev_file()
 end
 
+local function open_local_changes_tree()
+	require("user.snacks.git_files").git_changed_files_tree()
+end
+
+local function open_branch_changes_tree()
+	require("user.snacks.git_files").git_changed_cmp_base_branch_tree()
+end
+
 local function split_diffopt(diffopt_str)
 	local parts = vim.split(diffopt_str, ",", { plain = true, trimempty = true })
 	return parts
@@ -284,7 +292,6 @@ function M.setup()
 			view = {
 				["<leader>e"] = false,
 				["<leader>b"] = false,
-				["<leader>ca"] = false,
 				{ "n", "<leader>ge", actions.focus_files, { desc = "Bring focus to the file panel" } },
 				{ "n", "<leader>t", actions.toggle_files, { desc = "Toggle the file panel" } },
 				{ "n", "q", actions.close, { desc = "Close diffview" } },
@@ -302,8 +309,6 @@ function M.setup()
 				},
 				{ "n", "]f", actions.select_next_entry, { desc = "Open the diff for the next file" } },
 				{ "n", "[f", actions.select_prev_entry, { desc = "Open the diff for the previous file" } },
-				{ "n", "<leader>cb", actions.conflict_choose("all"), { desc = "Accept both sides at conflict" } },
-				{ "n", "<leader>cx", actions.conflict_choose("none"), { desc = "Discard all sides; use base" } },
 			},
 			file_panel = {
 				["<leader>e"] = false,
@@ -347,6 +352,8 @@ function M.get_keymaps()
 			{ "<leader>cH", "<Cmd>:DiffviewOpen HEAD<CR>", desc = "diff (H)ead" },
 			{ "<leader>ch", "<Cmd>:DiffviewFileHistory<CR>", desc = "(h)istory" },
 			{ "<leader>co", "<Cmd>:DiffviewOpen<CR>", desc = "Open" },
+			{ "<leader>ct", open_local_changes_tree, desc = "local changes tree" },
+			{ "<leader>cT", open_branch_changes_tree, desc = "branch changes tree" },
 			{
 				"<leader>cq",
 				function()

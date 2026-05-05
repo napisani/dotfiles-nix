@@ -34,9 +34,6 @@ require("lazy").setup({
 		-- Useful lua functions used by lots of plugins
 		{ "nvim-lua/plenary.nvim" },
 
-		-- Autopairs, integrates with both cmp and treesitter
-		-- { "windwp/nvim-autopairs" },
-
 		{ "tpope/vim-commentary" },
 		{ "JoosepAlviste/nvim-ts-context-commentstring" },
 		{ "nvim-tree/nvim-web-devicons", opts = {} },
@@ -135,9 +132,6 @@ require("lazy").setup({
 			},
 		},
 
-		-- java
-		{ "nvim-java/nvim-java" },
-
 		{
 			"kylechui/nvim-surround",
 			version = "*", -- Use for stability; omit to use `main` branch for the latest features
@@ -168,11 +162,6 @@ require("lazy").setup({
 		-- copilot (disabled: using native vim.lsp.inline_completion with copilot-language-server instead)
 		-- { "github/copilot.vim" },
 
-		-- 		{
-		-- 			"folke/sidekick.nvim",
-		-- 			opts = require("user.sidekick").opts,
-		-- 			keys = require("user.sidekick").keys,
-		-- 		},
 		{
 			"MeanderingProgrammer/render-markdown.nvim",
 			dependencies = { "nvim-treesitter/nvim-treesitter" },
@@ -190,10 +179,6 @@ require("lazy").setup({
 				"nvim-lua/plenary.nvim",
 			},
 		},
-		-- {
-		-- 	"yioneko/nvim-vtsls",
-		-- },
-
 		{
 			"tpope/vim-dadbod",
 			lazy = true,
@@ -225,10 +210,6 @@ require("lazy").setup({
 
 		{
 			"stevearc/oil.nvim",
-		},
-
-		{
-			"hedyhli/outline.nvim",
 		},
 
 		{ "jinh0/eyeliner.nvim" },
