@@ -4,66 +4,7 @@
   "model": "openai/gpt-5.4",
   "autoshare": false,
   "autoupdate": true,
-  "mcp": {
-    "context7": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@upstash/context7-mcp"
-      ],
-      "environment": {
-        "DEFAULT_MINIMUM_TOKENS": "6000"
-      },
-      "enabled": true
-    },
-    "atlassian": {
-      "type": "local",
-      "command": [
-        "uvx",
-        "--python=3.12",
-        "mcp-atlassian",
-        "--no-jira-ssl-verify",
-        "--no-confluence-ssl-verify"
-      ],
-      "environment": {
-        "JIRA_URL": "https://axionray.atlassian.net",
-        "JIRA_USERNAME": "nick.pisani@axionray.com",
-        "JIRA_API_TOKEN": "{env:JIRA_API_TOKEN}"
-      },
-      "enabled": true
-    },
-    "mongodb": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "mongodb-mcp-server@latest",
-        "--readOnly"
-      ],
-      "environment": {
-        "MDB_MCP_CONNECTION_STRING": "mongodb://localhost:27017/?directConnection=true"
-      },
-      "enabled": false
-    },
-    "postgres": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "postgres-mcp-server@latest",
-        "--readOnly"
-      ],
-      "environment": {
-        "PG_MCP_CONNECTION_STRING": "postgresql://postgres:postgres@localhost:5432/postgres"
-      },
-      "enabled": false
-    },
-    "gh_codesearch": {
-      "type": "remote",
-      "url": "https://mcp.grep.app"
-    }
-  },
+  "mcp": {},
   "tools": {},
   "command": {
     "ticket-and-pr": {
@@ -78,8 +19,7 @@
   },
   "plugin": [
     "opencode-antigravity-auth@beta",
-    "opencode-cursor-oauth",
-    "openrtk",
+    "openrtk"
   ],
   "provider": {
     "cursor": {

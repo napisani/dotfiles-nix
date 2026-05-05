@@ -49,6 +49,13 @@
 }:
 let
   dotfiles = "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles";
+  allAgents = [
+    "claude-code"
+    "cursor"
+    "gemini-cli"
+    "opencode"
+    "codex"
+  ];
 
   # ── Community skill sources ─────────────────────────────────────────────
   # `agents` uses skill CLI IDs (lowercase, hyphened).
@@ -62,50 +69,67 @@ let
         "skill-creator"
         "doc-coauthoring"
       ];
-      agents = [
-        "claude-code"
-        "cursor"
-        "gemini-cli"
-        "opencode"
-        "codex"
+      agents = allAgents;
+    }
+    {
+      repo = "obra/superpowers";
+      skills = [
+        "brainstorming"
+        "using-superpowers"
+        "systematic-debugging"
+        "writing-plans"
+        "test-driven-development"
+        "requesting-code-review"
+        "executing-plans"
+        "subagent-driven-development"
+        "verification-before-completion"
+        "receiving-code-review"
+        "writing-skills"
+        "dispatching-parallel-agents"
+        "using-git-worktrees"
+        "finishing-a-development-branch"
       ];
+      agents = allAgents;
     }
     {
       repo = "intellectronica/agent-skills";
       skills = [
         "context7"
       ];
-      agents = [
-        "claude-code"
-        "cursor"
-        "gemini-cli"
-        "opencode"
-        "codex"
-      ];
+      agents = allAgents;
     }
-  {
-       repo = "https://github.com/microsoft/playwright-cli";
-       skills = [
-         "playwright-cli"
-       ];
-       agents = [
-         "claude-code"
-         "cursor"
-         "gemini-cli"
-         "opencode"
-         "codex"
-       ];
+    {
+      repo = "https://github.com/addyosmani/agent-skills";
+      skills = [
+        "code-simplification"
+      ];
+      agents = allAgents;
+    }
+    {
+      repo = "https://github.com/mattpocock/skills";
+      skills = [
+        "improve-codebase-architecture"
+      ];
+      agents = allAgents;
+    }
+    {
+      repo = "https://github.com/arjunmahishi/dotfiles";
+      skills = [
+        "acli-jira"
+      ];
+      agents = allAgents;
+    }
+    {
+      repo = "https://github.com/microsoft/playwright-cli";
+      skills = [
+        "playwright-cli"
+      ];
+      agents = allAgents;
     }
     {
       repo = "https://github.com/langchain-ai/deepagents";
       skills = [ "web-research" ];
-      agents = [
-        "claude-code"
-        "cursor"
-        "gemini-cli"
-        "opencode"
-        "codex"
-      ];
+      agents = allAgents;
     }
   ];
 
@@ -195,10 +219,40 @@ in
           "$HOME/.gemini/antigravity/skills" \
           "$HOME/.codex/skills"
 
-        # ── Shared local skills → all agents via ~/.agents/skills/ ──────────
+        # ── Shared local skills → all agents ────────────────────────────────
         ${mkLocalSkillSyncScript {
           sourceRelPath = "agents/shared-skills";
           targetAbsPath = "${home}/.agents/skills";
+        }}
+
+        ${mkLocalSkillSyncScript {
+          sourceRelPath = "agents/shared-skills";
+          targetAbsPath = "${home}/.claude/skills";
+        }}
+
+        ${mkLocalSkillSyncScript {
+          sourceRelPath = "agents/shared-skills";
+          targetAbsPath = "${home}/.cursor/skills";
+        }}
+
+        ${mkLocalSkillSyncScript {
+          sourceRelPath = "agents/shared-skills";
+          targetAbsPath = "${home}/.gemini/skills";
+        }}
+
+        ${mkLocalSkillSyncScript {
+          sourceRelPath = "agents/shared-skills";
+          targetAbsPath = "${home}/.gemini/antigravity/skills";
+        }}
+
+        ${mkLocalSkillSyncScript {
+          sourceRelPath = "agents/shared-skills";
+          targetAbsPath = "${home}/.codex/skills";
+        }}
+
+        ${mkLocalSkillSyncScript {
+          sourceRelPath = "agents/shared-skills";
+          targetAbsPath = "${home}/.config/opencode/skills";
         }}
 
         # ── Per-agent local skills ───────────────────────────────────────────

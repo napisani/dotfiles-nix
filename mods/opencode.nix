@@ -1,15 +1,13 @@
 # opencode.nix — Declarative OpenCode (~/.config/opencode) layout:
 #
 # - Dotfiles: config, commands, agents, modes, themes → symlinks into mods/dotfiles (edit without rebuild).
-# - plugins/: Nix store paths (e.g. superpowers.js) + symlinked repo files.
+# - plugins/: symlinked repo files.
 # - skills:
 #   - local/       → symlink mods/dotfiles/opencode/local-skills (your custom opencode skills)
-#   - superpowers/ → flake input obra/superpowers
 #   - community skills (from git repos) → managed in mods/agents.nix (shared with all agents)
 {
   config,
   lib,
-  inputs,
   pkgs-unstable,
   ...
 }:
@@ -46,12 +44,9 @@ in
       ".config/opencode/modes" = mkForcedSym "opencode/modes";
       ".config/opencode/themes" = mkForcedSym "opencode/themes";
 
-      ".config/opencode/plugins/superpowers.js".source =
-        inputs.superpowers-src + "/.opencode/plugins/superpowers.js";
       ".config/opencode/plugins/tmux-status.ts" = mkForcedSym "opencode/plugins/tmux-status.ts";
 
       ".config/opencode/skills/local" = mkForcedSym "opencode/local-skills";
-      ".config/opencode/skills/superpowers".source = inputs.superpowers-src + "/skills";
     };
   };
 }

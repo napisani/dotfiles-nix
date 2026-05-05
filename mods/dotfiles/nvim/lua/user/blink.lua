@@ -34,9 +34,20 @@ local M = {
 		-- Default list of enabled providers defined so that you can extend it
 		-- elsewhere in your config, without redefining it, due to `opts_extend`
 		sources = {
-			default = { "lsp", "path", "buffer" },
+			default = { "lsp", "path", "buffer", "skills" },
 			per_filetype = {},
-			providers = {},
+			providers = {
+				skills = {
+					name = "Skills",
+					module = "user.completion.sources.skills",
+					min_keyword_length = 0,
+					score_offset = 100,
+					enabled = function()
+						local ok, value = pcall(vim.api.nvim_buf_get_var, 0, "prompt_builder")
+						return ok and value == true
+					end,
+				},
+			},
 		},
 	},
 	opts_extend = { "sources.default" },

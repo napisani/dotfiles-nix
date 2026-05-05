@@ -210,7 +210,7 @@ Conflict resolution (active inside a diff/conflict view):
 ## `<leader>a` — Wiremux agent + PromptBuilder (staged context)
 
 `<leader>a` → domain: control the **Wiremux** target pane and **PromptBuilder** — a single **horizontal** split (opens **below** the current window, height capped to a fraction of the screen), markdown-syntax scratch buffer (tag `prompt_builder`) where you assemble `@` references and freeform text. At most one PromptBuilder buffer exists; new material **appends** to it. Nothing here talks to the agent by itself except **`ao` / `aq` / `aw` / `av`** and **`<C-g>` inside PromptBuilder** (see below)  
-`<leader>a` → contract: after a **send** to the agent (including from PromptBuilder via `<C-g>`) or after **`ao`** toggle / focus, the **Wiremux target pane** gets focus so the reply is visible. Staging keys (`af*`, `ae`, `a?`, `ap`, `am`) only update PromptBuilder until you `<C-g>` there; **`ai`** is different: it only opens or focuses PromptBuilder and appends no text  
+`<leader>a` → contract: after a **send** to the agent (including from PromptBuilder via `<C-g>`) or after **`ao`** toggle / focus, the **Wiremux target pane** gets focus so the reply is visible. Staging keys (`af*`, `ae`, `a?`, `as`, `ap`, `am`) only update PromptBuilder until you `<C-g>` there; **`ai`** is different: it only opens or focuses PromptBuilder and appends no text
 `<leader>a` → note: route (target) is per-session and defaults to the `opencode` pane for the current working directory
 
 **Direct to Wiremux / voice (not PromptBuilder)**  
@@ -223,8 +223,9 @@ Conflict resolution (active inside a diff/conflict view):
 `<leader>afe` → leaf: pick from open buffers; each choice appends an `@` reference line (and trailing newline) to PromptBuilder  
 `<leader>aff` → [n] leaf: append an `@` line for the **current file** to PromptBuilder  
 `<leader>aff` → [v] leaf: append an `@… lines s–e` line for the **visual line range** to PromptBuilder  
-`<leader>afr` → leaf: pick a file (from repo root search); append `@` ref(s) to PromptBuilder  
-`<leader>aft` → leaf: pick a git-tracked file; append `@` ref to PromptBuilder  
+`<leader>afp` → [n] leaf: pick file(s) by path from the current file's directory (same picker behavior as `<leader>fp`; `<Tab>` multi-select is honored); append `@` ref(s) to PromptBuilder
+`<leader>afr` → leaf: pick file(s) from repo root search; append `@` ref(s) to PromptBuilder
+`<leader>aft` → leaf: pick git-tracked file(s); append `@` ref(s) to PromptBuilder
 `<leader>afd` → leaf: pick from files changed in git (unstaged); append ref(s) to PromptBuilder  
 `<leader>afD` → leaf: pick from files changed vs. the base branch; append ref(s) to PromptBuilder  
 `<leader>afC` → leaf: pick from git-conflicted files; append ref(s) to PromptBuilder
@@ -235,6 +236,9 @@ Conflict resolution (active inside a diff/conflict view):
 **`ae` / `a?` — Snacks prompt, then at-style block in PromptBuilder** (same interaction as `am`, then edit further or `<C-g>` to send)  
 `<leader>ae` → [n] [v] leaf: **Snacks.input** titled *Instruction*; the buffer gets `@path:line`, optional **Selection** fence in visual, and an **Instruction:** line with your text (then `<C-g>` to send the whole buffer)  
 `<leader>a?` → [n] [v] leaf: same, but Snacks title *Question* and a **Question:** line in the appended block
+
+**`as` — skill slash command to PromptBuilder**
+`<leader>as` → [n] leaf: pick an AI skill from the shared skill list (`~/.agents/skills` plus the current repo's `.agents/skills`); append `/skill-name` to PromptBuilder for editing, then `<C-g>` to send
 
 **Canned and submit**  
 `<leader>ap` → [n] leaf: pick a **canned prompt** from the library; the template (with `{file}` / `{this}` / `{selection}` expanded where possible) is **appended** to PromptBuilder for you to edit, then `<C-g>` to send

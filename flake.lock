@@ -463,7 +463,6 @@
         "rift": "rift",
         "scrollbacktamer": "scrollbacktamer",
         "secret_inject": "secret_inject",
-        "superpowers-src": "superpowers-src",
         "workmux": "workmux"
       }
     },
@@ -521,22 +520,6 @@
       "original": {
         "owner": "napisani",
         "repo": "secret_inject",
-        "type": "github"
-      }
-    },
-    "superpowers-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1776996157,
-        "narHash": "sha256-0WupTacT1jIwVBloj1i0RF7wIllVtP8eMPRl7VrXdbE=",
-        "owner": "obra",
-        "repo": "superpowers",
-        "rev": "6efe32c9e2dd002d0c394e861e0529675d1ab32e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "obra",
-        "repo": "superpowers",
         "type": "github"
       }
     },

@@ -68,7 +68,10 @@ local function coerce_and_validate_selection(selection)
 		or selection.file
 		or selection.path
 		or selection.filename
-		or (selection.item and (selection.item._path or selection.item.path or selection.item.file or selection.item.filename))
+		or (
+			selection.item
+			and (selection.item._path or selection.item.path or selection.item.file or selection.item.filename)
+		)
 
 	if not file or file == "" then
 		vim.notify(
@@ -106,7 +109,30 @@ local function to_reference_item(file_info)
 	}
 end
 
-local function get_picker_selection()
+local function get_selection_from_picker(picker, fallback_item)
+	if picker and type(picker.selected) == "function" then
+		local ok, selection = pcall(function()
+			return picker:selected({ fallback = true })
+		end)
+		if ok and type(selection) == "table" and #selection > 0 then
+			return selection
+		end
+	end
+
+	if fallback_item then
+		return { fallback_item }
+	end
+
+	return nil
+end
+
+local function close_picker(picker)
+	if picker and type(picker.close) == "function" then
+		picker:close()
+	end
+end
+
+local function get_active_picker_selection()
 	local ok, Snacks = pcall(require, "snacks")
 	if not ok then
 		vim.notify("Snacks not available", vim.log.levels.ERROR)
@@ -120,8 +146,8 @@ local function get_picker_selection()
 	end
 
 	local active_picker = active_pickers[1]
-	local selection = active_picker:selected({ fallback = true })
-	active_picker:close()
+	local selection = get_selection_from_picker(active_picker)
+	close_picker(active_picker)
 	return selection
 end
 
@@ -159,28 +185,58 @@ function M.add_visual_range_to_chat()
 	})
 end
 
+function M.append_file_selection_to_chat(selection)
+	local refs = {}
+	process_selection(selection, function(sel)
+		local file_info = coerce_and_validate_selection(sel)
+		if file_info then
+			table.insert(refs, to_reference_item(file_info))
+		end
+	end)
+
+	if #refs == 0 then
+		return false
+	end
+
+	prompt_builder.append_references(refs)
+	return true
+end
+
+function M.append_picker_selection_to_chat(picker, fallback_item)
+	local selection = get_selection_from_picker(picker, fallback_item)
+	close_picker(picker)
+	if not selection then
+		return false
+	end
+
+	return M.append_file_selection_to_chat(selection)
+end
+
+function M.add_parent_path_file_to_chat()
+	require("user.snacks.find_files").find_path_files({
+		multi_select = true,
+		confirm = function(picker, item)
+			M.append_picker_selection_to_chat(picker, item)
+		end,
+	})
+end
+
 function M.add_file_to_chat(picker_fn, picker_opts)
 	picker_opts = picker_opts or {}
 
-	local function custom_confirm_action()
-		local selection = get_picker_selection()
+	local function custom_confirm_action(picker, item)
+		local selection
+		if picker then
+			selection = get_selection_from_picker(picker, item)
+			close_picker(picker)
+		else
+			selection = get_active_picker_selection()
+		end
 		if not selection then
 			return
 		end
 
-		local refs = {}
-		process_selection(selection, function(sel)
-			local file_info = coerce_and_validate_selection(sel)
-			if file_info then
-				table.insert(refs, to_reference_item(file_info))
-			end
-		end)
-
-		if #refs == 0 then
-			return
-		end
-
-		prompt_builder.append_references(refs)
+		M.append_file_selection_to_chat(selection)
 	end
 
 	picker_opts.actions = picker_opts.actions or {}

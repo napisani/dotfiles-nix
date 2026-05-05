@@ -54,6 +54,7 @@
       "koekeishiya/formulae/yabai"
       "opencode"
       "rtk"
+      "kitlangton/tap/ghui"
     ];
 
     taps = [

@@ -66,21 +66,33 @@ function M.find_path_files(opts)
 					items = items,
 					format = "text",
 					confirm = function(picker, item)
-						picker:close()
+						if not item then
+							if picker then
+								picker:close()
+							end
+							return
+						end
+
 						if item.text:sub(-1) == "/" then
 							-- its a directory - recurse
+							if picker then
+								picker:close()
+							end
 							local removed_slash = item.text:sub(1, -2)
 							local new_start_path = parent_path .. "/" .. removed_slash
 							M.find_path_files(vim.tbl_extend("force", opts, { start_path = new_start_path }))
 						else
 							-- its a file - open it
-							local file_path = parent_path .. "/" .. item.text
+							local file_path = item.file or parent_path .. "/" .. item.text
 							local file_exists = vim.fn.filereadable(file_path) == 1
 							if file_exists then
 								if opts.confirm then
 									opts.confirm(picker, item)
 								else
-									vim.cmd("edit " .. file_path)
+									if picker then
+										picker:close()
+									end
+									vim.cmd("edit " .. vim.fn.fnameescape(file_path))
 								end
 							else
 								vim.notify("File does not exist: " .. file_path, vim.log.levels.ERROR)

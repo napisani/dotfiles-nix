@@ -418,6 +418,9 @@ function M.get_keymaps()
 			{ "<leader>aff", function()
 				require(ai_context).add_current_buffer_to_chat()
 			end, desc = "ref current file (aff) → builder" },
+			{ "<leader>afp", function()
+				require(ai_context).add_parent_path_file_to_chat()
+			end, desc = "ref path file → builder" },
 			{ "<leader>afr", ref_from_repo_root, desc = "ref from repo → builder" },
 			{ "<leader>aft", ref_from_git_tracked, desc = "ref git files → builder" },
 			{ "<leader>afd", ref_from_git_changed, desc = "ref unstaged → builder" },
@@ -429,6 +432,9 @@ function M.get_keymaps()
 			{ "<leader>a?", function()
 				snack_context_to_builder("n", "Question", "Question")
 			end, desc = "question (Snacks) → builder" },
+			{ "<leader>as", function()
+				require("user.snacks.ai_skills").pick_to_prompt_builder()
+			end, desc = "skill → builder" },
 			{ "<leader>ap", pick_prompt, desc = "canned prompt → builder" },
 			{ "<leader>am", function()
 				require("user.snacks.ai_actions").append_memo_to_prompt_builder({ mode = "n" })
