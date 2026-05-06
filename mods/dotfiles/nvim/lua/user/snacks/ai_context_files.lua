@@ -114,8 +114,13 @@ local function get_selection_from_picker(picker, fallback_item)
 		local ok, selection = pcall(function()
 			return picker:selected({ fallback = true })
 		end)
-		if ok and type(selection) == "table" and #selection > 0 then
-			return selection
+		if ok and type(selection) == "table" then
+			if #selection > 0 then
+				return selection
+			end
+			if selection._path or selection.file or selection.path or selection.filename or selection.item then
+				return { selection }
+			end
 		end
 	end
 

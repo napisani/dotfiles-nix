@@ -49,6 +49,8 @@ local ai_actions_source_path = vim.fs.joinpath(nvim_root, "lua", "user", "snacks
 local wiremux = require("user.plugins.ai.wiremux")
 local wiremux_actions = require("user.snacks.ai_actions.wiremux")
 local ai_actions = require("user.snacks.ai_actions")
+local ai_skills = require("user.snacks.ai_skills")
+local skill_source = require("user.completion.sources.skills")
 local keymaps = wiremux.get_keymaps()
 
 assert(type(ai_actions.append_snack_context_to_prompt_builder) == "function")
@@ -92,6 +94,56 @@ assert_missing_mapping(keymaps.normal, "<leader>A?")
 assert_missing_mapping(keymaps.normal, "<leader>AP")
 assert_missing_mapping(keymaps.normal, "<leader>AS")
 assert_missing_mapping(keymaps.visual, "<leader>Ao")
+
+assert(ai_skills.skill_invocation("example", { provider = "opencode" }) == "/skill example")
+assert(ai_skills.skill_invocation("example", { provider = "claude" }) == "/example")
+assert(ai_skills.skill_invocation("example", { provider = "codex" }) == "$example")
+
+do
+	local function completion_for(provider, line)
+		local b = vim.api.nvim_create_buf(false, true)
+		vim.api.nvim_buf_set_var(b, "prompt_builder", true)
+		vim.api.nvim_buf_set_lines(b, 0, -1, false, { line })
+
+		local result
+		with_temporary_value(wiremux, "get_current_route", function()
+			return provider
+		end, function()
+			with_temporary_value(ai_skills, "list", function()
+				return {
+					{
+						name = "test-skill",
+						description = "Test skill",
+						path = "/tmp/test-skill/SKILL.md",
+					},
+				}
+			end, function()
+				skill_source.new({}):get_completions({
+					bufnr = b,
+					line = line,
+					cursor = { line = 0, character = #line },
+				}, function(payload)
+					result = payload
+				end)
+			end)
+		end)
+
+		vim.api.nvim_buf_delete(b, { force = true })
+		return result
+	end
+
+	assert(skill_source.new({}):get_trigger_characters()[1] == "$")
+	assert(completion_for("opencode", "$").items[1].textEdit.newText == "/skill test-skill")
+	assert(completion_for("claude", "$").items[1].textEdit.newText == "/test-skill")
+	local claude_completion = completion_for("claude", "$test").items[1]
+	assert(claude_completion.textEdit.newText == "/test-skill")
+	assert(claude_completion.filterText:match("%$test%-skill"))
+	assert(claude_completion.textEdit.range.start.character == 0)
+	assert(claude_completion.textEdit.range["end"].character == #"$test")
+	assert(completion_for("codex", "$").items[1].textEdit.newText == "$test-skill")
+	assert(#completion_for("opencode", "/").items == 0)
+	assert(#completion_for("claude", "/").items == 0)
+end
 
 -- Temporary migration scaffold: these payload assertions stay colocated here for now
 -- so the migration helper remains covered until the follow-up cleanup splits them out.

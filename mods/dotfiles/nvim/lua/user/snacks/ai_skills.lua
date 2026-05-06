@@ -10,6 +10,26 @@ local cache = {
 	cached_at = 0,
 }
 
+local completion_trigger = "$"
+
+local skill_callouts = {
+	claude = {
+		format = function(name)
+			return "/" .. name
+		end,
+	},
+	codex = {
+		format = function(name)
+			return "$" .. name
+		end,
+	},
+	opencode = {
+		format = function(name)
+			return "/skill " .. name
+		end,
+	},
+}
+
 local function joinpath(...)
 	local parts = { ... }
 	if vim.fs and vim.fs.joinpath then
@@ -65,6 +85,36 @@ function M.is_prompt_builder(bufnr)
 	end
 	local ok, value = pcall(vim.api.nvim_buf_get_var, bufnr, "prompt_builder")
 	return ok and value == true
+end
+
+function M.current_provider()
+	local ok, wiremux = pcall(require, "user.plugins.ai.wiremux")
+	if not ok or type(wiremux.get_current_route) ~= "function" then
+		return "opencode"
+	end
+
+	local route = wiremux.get_current_route()
+	if type(route) ~= "string" or route == "" then
+		return "opencode"
+	end
+
+	return route:lower()
+end
+
+function M.skill_callout(provider)
+	provider = provider or M.current_provider()
+	if type(provider) == "string" then
+		provider = provider:lower()
+	end
+	return skill_callouts[provider] or skill_callouts.claude
+end
+
+function M.completion_trigger()
+	return completion_trigger
+end
+
+function M.completion_trigger_characters()
+	return { completion_trigger }
 end
 
 local function parse_frontmatter(lines)
@@ -164,13 +214,14 @@ function M.list(opts)
 	return skills
 end
 
-function M.skill_invocation(skill)
+function M.skill_invocation(skill, opts)
+	opts = opts or {}
 	local name = type(skill) == "table" and skill.name or skill
 	name = trim(name)
 	if name == "" then
 		return ""
 	end
-	return "/" .. name
+	return M.skill_callout(opts.provider).format(name)
 end
 
 local function format_picker_item(item)
@@ -183,10 +234,11 @@ local function format_picker_item(item)
 	return item.label or M.skill_invocation(item)
 end
 
-local function picker_items(skills)
+local function picker_items(skills, opts)
+	opts = opts or {}
 	local items = {}
 	for _, skill in ipairs(skills) do
-		local invocation = M.skill_invocation(skill)
+		local invocation = M.skill_invocation(skill, opts)
 		table.insert(items, {
 			name = skill.name,
 			description = skill.description,
@@ -201,7 +253,8 @@ end
 
 function M.pick_to_prompt_builder(opts)
 	opts = opts or {}
-	local items = picker_items(M.list(opts))
+	local provider = opts.provider or M.current_provider()
+	local items = picker_items(M.list(opts), { provider = provider })
 	if #items == 0 then
 		vim.notify("No AI skills found", vim.log.levels.WARN)
 		return
@@ -212,7 +265,7 @@ function M.pick_to_prompt_builder(opts)
 		if not item then
 			return
 		end
-		local invocation = M.skill_invocation(item)
+		local invocation = item.label or M.skill_invocation(item, { provider = provider })
 		if invocation ~= "" then
 			require("user.prompt_builder").append_text(invocation)
 		end

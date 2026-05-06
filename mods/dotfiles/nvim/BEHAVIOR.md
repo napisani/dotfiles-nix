@@ -162,7 +162,7 @@
 ## `<leader>c` — changes / diff
 
 `<leader>c` → domain: diff, compare, changed-file trees, conflict resolution, and change review
-`<leader>c` → contract: changed-file tree commands show the tree file browser containing only files in the requested git change set; choosing a file opens/focuses that file
+`<leader>c` → contract: changed-file tree commands show the tree file browser containing only files in the requested git change set; choosing a file opens it in the main editor window while focus stays in the tree
 `<leader>co` → leaf: open diff view for current working changes  
 `<leader>cH` → leaf: open diff view comparing current state to HEAD  
 `<leader>ch` → [nv] leaf: open file history (recent commits affecting current file)  
@@ -246,8 +246,8 @@ Merge conflict resolution (contextual inside a diff/merge view):
 `<leader>ae` → [n] [v] leaf: **Snacks.input** titled *Instruction*; the buffer gets `@path:line`, optional **Selection** fence in visual, and an **Instruction:** line with your text (then `<C-g>` to send the whole buffer)  
 `<leader>a?` → [n] [v] leaf: same, but Snacks title *Question* and a **Question:** line in the appended block
 
-**`as` — skill slash command to PromptBuilder**
-`<leader>as` → [n] leaf: pick an AI skill from the shared skill list (`~/.agents/skills` plus the current repo's `.agents/skills`); append `/skill-name` to PromptBuilder for editing, then `<C-g>` to send
+**`as` — skill callout to PromptBuilder**
+`<leader>as` → [n] leaf: pick an AI skill from the shared skill list (`~/.agents/skills` plus the current repo's `.agents/skills`); append the active Wiremux route's skill callout (`/skill name` for opencode, `/name` for claude, `$name` for codex) to PromptBuilder for editing, then `<C-g>` to send
 
 **Canned and submit**  
 `<leader>ap` → [n] leaf: pick a **canned prompt** from the library; the template (with `{file}` / `{this}` / `{selection}` expanded where possible) is **appended** to PromptBuilder for you to edit, then `<C-g>` to send
@@ -256,6 +256,7 @@ Merge conflict resolution (contextual inside a diff/merge view):
 `<leader>am` → [n] [v] leaf: **Snacks.input** titled *Instructions*; the buffer gets an `@path:line` ref (at-style), a fenced **Selection** block in visual mode, and an **Instructions:** line with your text — **appended** to PromptBuilder. A markdown `---` rule separates a new block from prior buffer content, matching the old `accumulate` behavior between register pastes
 
 **Inside a PromptBuilder buffer**  
+`$…` → [i] leaf: blink skill completion always uses `$` as the draft trigger; accepting a skill replaces the `$…` token with the active Wiremux route's callout (`/skill name` for opencode, `/name` for claude, `$name` for codex)
 `<C-g>` → [n] [i] leaf: send the **entire** buffer as one message to Wiremux **with submit**, then wipe the PromptBuilder buffer  
 
 ---
@@ -326,7 +327,7 @@ These bindings are active within the **Diffview** diff viewer tab (not global le
 
 ## Inside file tree (nvim-tree)
 
-`<CR>` / `l` / `o` → leaf: open selected file or expand directory  
+`<CR>` / `l` / `o` → leaf: open selected file in the main editor window while keeping focus in the tree, or expand directory
 `h` / `<BS>` → leaf: close directory or go to parent  
 `v` → leaf: open in vertical split  
 `a` → leaf: create a new file or directory  

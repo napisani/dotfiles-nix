@@ -1,4 +1,5 @@
 local Snacks = require("snacks")
+local common = require("user.snacks.common")
 local scope = require("user.snacks.scope")
 
 local find_opts = {
@@ -24,6 +25,22 @@ M.toggle_explorer_tree = function()
 		hidden = true,
 		ignored = false,
 		layout = { preset = "sidebar", preview = false },
+		config = function(opts)
+			local explorer_actions = require("snacks.explorer.actions").actions
+			opts.actions = opts.actions or {}
+			opts.actions.confirm = function(picker, item, action)
+				if not item then
+					return
+				end
+
+				if picker.input.filter.meta.searching or item.dir then
+					return explorer_actions.confirm(picker, item, action)
+				end
+
+				common.open_file_keep_picker_focus(picker, item)
+			end
+			return opts
+		end,
 		win = {
 			input = { keys = { ["<Esc>"] = false } },
 			list = { keys = { ["<Esc>"] = false } },

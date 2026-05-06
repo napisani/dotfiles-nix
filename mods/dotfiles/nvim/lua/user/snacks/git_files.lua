@@ -129,11 +129,7 @@ local function changed_files_tree(file_list, opts)
 			fuzzy = true,
 		},
 		confirm = function(picker, item)
-			if not item or item.dir then
-				return
-			end
-
-			require("snacks.picker.actions").jump(picker, item, { cmd = "edit" })
+			common.open_file_keep_picker_focus(picker, item)
 		end,
 	}))
 end

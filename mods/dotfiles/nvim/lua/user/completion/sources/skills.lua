@@ -28,19 +28,20 @@ local function current_context(ctx)
 	return bufnr, row, col, ctx and ctx.line
 end
 
-local function slash_token_range(ctx)
+local function skill_token_range(ctx)
 	local bufnr, row, col, context_line = current_context(ctx)
 	local line = context_line or vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false)[1] or ""
 	local prefix = line:sub(1, col)
-	local slash_start = prefix:match(".*()%/[%w_.-]*$")
+	local trigger = ai_skills.completion_trigger()
+	local token_start = prefix:match(".*()" .. vim.pesc(trigger) .. "[%w_.-]*$")
 
-	if not slash_start then
+	if not token_start then
 		return nil
 	end
 
 	return bufnr,
 		{
-			start = { line = row, character = slash_start - 1 },
+			start = { line = row, character = token_start - 1 },
 			["end"] = { line = row, character = col },
 		}
 end
@@ -56,11 +57,12 @@ function source:enabled()
 end
 
 function source:get_trigger_characters()
-	return { "/" }
+	return ai_skills.completion_trigger_characters()
 end
 
 function source:get_completions(ctx, callback)
-	local bufnr, range = slash_token_range(ctx)
+	local provider = ai_skills.current_provider()
+	local bufnr, range = skill_token_range(ctx)
 	if not range or not ai_skills.is_prompt_builder(bufnr) then
 		callback({ items = {}, is_incomplete_backward = false, is_incomplete_forward = false })
 		return
@@ -68,12 +70,13 @@ function source:get_completions(ctx, callback)
 
 	local items = {}
 	for index, skill in ipairs(ai_skills.list(self.opts)) do
-		local insert_text = ai_skills.skill_invocation(skill)
+		local insert_text = ai_skills.skill_invocation(skill, { provider = provider })
+		local draft_text = ai_skills.completion_trigger() .. skill.name
 		table.insert(items, {
 			label = insert_text,
 			kind = vim.lsp.protocol.CompletionItemKind.Text,
 			detail = skill.description ~= "" and skill.description or "Skill",
-			filterText = insert_text .. " " .. skill.name,
+			filterText = draft_text .. " " .. insert_text .. " " .. skill.name,
 			sortText = string.format("%04d_%s", index, skill.name),
 			textEdit = {
 				newText = insert_text,
@@ -82,7 +85,7 @@ function source:get_completions(ctx, callback)
 			insertTextFormat = vim.lsp.protocol.InsertTextFormat.PlainText,
 			documentation = skill.description ~= "" and {
 				kind = "markdown",
-				value = string.format("**/%s**\n\n%s\n\n`%s`", skill.name, skill.description, skill.path),
+				value = string.format("**%s**\n\n%s\n\n`%s`", insert_text, skill.description, skill.path),
 			} or nil,
 		})
 	end

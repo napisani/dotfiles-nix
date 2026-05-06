@@ -59,4 +59,56 @@ function M.file_list_to_picker(file_list, opts)
 	return Snacks.picker.pick(all_opts)
 end
 
+function M.open_file_keep_picker_focus(picker, item)
+	if not picker or not item or item.dir then
+		return false
+	end
+
+	local path = Snacks.picker.util.path(item) or item.file
+	if not path then
+		return false
+	end
+
+	local list_win = picker.list and picker.list.win and picker.list.win.win
+	local target_win = picker.main
+
+	local function is_edit_target(win)
+		return win
+			and vim.api.nvim_win_is_valid(win)
+			and win ~= list_win
+			and vim.api.nvim_win_get_config(win).relative == ""
+	end
+
+	if not is_edit_target(target_win) then
+		for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+			if is_edit_target(win) then
+				target_win = win
+				break
+			end
+		end
+	end
+
+	if not is_edit_target(target_win) then
+		vim.notify("No editor window available for " .. vim.fn.fnamemodify(path, ":~:."), vim.log.levels.WARN)
+		return false
+	end
+
+	local bufnr = item.buf or vim.fn.bufadd(path)
+	vim.bo[bufnr].buflisted = true
+
+	vim.api.nvim_win_call(target_win, function()
+		vim.cmd("buffer " .. bufnr)
+		if item.pos and item.pos[1] > 0 then
+			vim.api.nvim_win_set_cursor(0, { item.pos[1], item.pos[2] or 0 })
+			vim.cmd("normal! zzzv")
+		end
+	end)
+
+	if list_win and vim.api.nvim_win_is_valid(list_win) then
+		vim.api.nvim_set_current_win(list_win)
+	end
+
+	return true
+end
+
 return M
