@@ -12,6 +12,8 @@ local scopes = require("user.whichkey.scopes")
 local lsp = require("user.whichkey.lsp")
 local global_mappings = require("user.whichkey.global")
 local plugin_keymaps = require("user.whichkey.plugins")
+local diff = require("user.plugins.git.diff")
+local discovered_plugin_keymaps = plugin_keymaps.get_all_plugin_keymaps()
 
 local root_mapping = {
 	{ '<leader>"', "<cmd>:split<cr>", desc = "Horizontal Split" },
@@ -27,10 +29,6 @@ local root_mapping = {
 	{ "<leader>q", "<cmd>q!<CR>", desc = "Quit" },
 	-- { "<leader>K", "<cmd>:LegendaryRepeat<CR>", desc = "Repeat last (K)command" },
 	-- { "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" },
-}
-
-local database = {
-	{ "<leader>D", group = "Database" },
 }
 
 local lazy_system = {
@@ -70,14 +68,11 @@ local reload_all = {
 	{
 		"<leader>E",
 		function()
-			if _G.diffview_refresh then
-				local ok, lib = pcall(require, "diffview.lib")
-				if ok and lib.get_current_view and lib.get_current_view() then
-					_G.diffview_refresh()
-					return
-				end
+			if diff.is_open() then
+				diff.refresh()
+				return
 			end
-			
+
 			-- Default: reload all buffers
 			local reloaded = 0
 			local failed = 0
@@ -95,9 +90,8 @@ local reload_all = {
 					if buftype == "" and bufname ~= "" then
 						-- Check if file exists
 						if vim.fn.filereadable(bufname) == 1 then
-							-- Save the current window and buffer
+							-- Save the current window
 							local current_win = vim.api.nvim_get_current_win()
-							local current_buf = vim.api.nvim_get_current_buf()
 
 							-- Switch to the buffer's window if it's visible
 							local win = vim.fn.bufwinid(bufnr)
@@ -152,14 +146,11 @@ local smart_refresh = {
 	{
 		"<leader>e",
 		function()
-			if _G.diffview_refresh then
-				local ok, lib = pcall(require, "diffview.lib")
-				if ok and lib.get_current_view and lib.get_current_view() then
-					_G.diffview_refresh()
-					return
-				end
+			if diff.is_open() then
+				diff.refresh()
+				return
 			end
-			
+
 			-- Default: reload current buffer
 			vim.cmd("edit!")
 			vim.notify("Buffer reloaded", vim.log.levels.INFO)
@@ -235,30 +226,6 @@ local buffers = {
 -- 	{ "<leader>oq", "<cmd>:OverseerClose<CR>", desc = "(q)uit" },
 -- }
 
-local debugging = {
-	{ "<leader>d", group = "Debug" },
-	{
-		"<leader>dB",
-		"<Cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>",
-		desc = "conditional breakpoint",
-	},
-	{
-		"<leader>dL",
-		"<Cmd>lua require'dap'.set_breakpoint(vim.fn.input(nil, nil, vim.fn.input('Log point message: ')))<CR>",
-		desc = "log point",
-	},
-	{ "<leader>dX", "<Cmd>lua require'dap'.clear_breakpoints()<CR>", desc = "Clear all Breakpoints" },
-	{ "<leader>db", "<Cmd>lua require'dap'.toggle_breakpoint()<CR>", desc = "toggle breakpoint" },
-	{ "<leader>dc", "<Cmd>lua require'dap'.continue()<CR>", desc = "continue/launch" },
-	{ "<leader>dh", "<Cmd>lua require'dap'.step_into()<CR>", desc = "step_into" },
-	{ "<leader>dj", "<Cmd>lua require'dap'.step_over()<CR>", desc = "step over" },
-	{ "<leader>dk", "<Cmd>lua require'dap'.step_out()<CR>", desc = "step out" },
-	{ "<leader>dl", "<Cmd>lua require'dap'.run_last()<CR>", desc = "run last" },
-	{ "<leader>do", "<Cmd>lua require'dapui'.open()<CR>", desc = "open debugger" },
-	{ "<leader>dq", "<Cmd>lua require'dapui'.close()<CR>", desc = "close debugger" },
-	{ "<leader>dr", "<Cmd>lua require'dap'.repl.open()<CR>", desc = "open REPL" },
-}
-
 local mapping_n = utils.extend_lists(
 	find_mapping.mapping_n,
 	search_mapping.mapping_n,
@@ -267,7 +234,7 @@ local mapping_n = utils.extend_lists(
 	scopes.mapping_n,
 	lsp.mapping_n,
 	global_mappings.mapping_n,
-	plugin_keymaps.get_normal_keymaps()
+	plugin_keymaps.get_normal_keymaps(discovered_plugin_keymaps)
 )
 
 local mapping_v = {
@@ -283,7 +250,7 @@ local mapping_v = {
 		scopes.mapping_v,
 		lsp.mapping_v,
 		global_mappings.mapping_v,
-		plugin_keymaps.get_visual_keymaps()
+		plugin_keymaps.get_visual_keymaps(discovered_plugin_keymaps)
 	),
 }
 
@@ -292,7 +259,6 @@ which_key.setup({})
 
 local shared_mapping = {
 	root_mapping,
-	database,
 	lazy_system,
 	quit,
 	write_all,
@@ -300,7 +266,6 @@ local shared_mapping = {
 	smart_refresh,
 	buffers,
 	-- overseer,
-	debugging,
 	scopes.mapping_shared,
 	lsp.mapping_shared,
 	global_mappings.mapping_shared,

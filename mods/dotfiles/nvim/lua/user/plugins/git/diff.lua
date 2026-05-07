@@ -171,6 +171,54 @@ local function split_diffopt(diffopt_str)
 	return parts
 end
 
+local function get_current_diffview()
+	local ok, lib = pcall(require, "diffview.lib")
+	if not ok or type(lib.get_current_view) ~= "function" then
+		return nil
+	end
+	return lib.get_current_view()
+end
+
+---@return boolean
+function M.is_open()
+	return get_current_diffview() ~= nil
+end
+
+function M.refresh()
+	if not M.is_open() then
+		vim.notify("No diff view open", vim.log.levels.INFO)
+		return
+	end
+
+	pcall(vim.cmd, "DiffviewRefresh")
+
+	local current_tab = vim.api.nvim_get_current_tabpage()
+	local wins = vim.api.nvim_tabpage_list_wins(current_tab)
+	local refreshed = false
+
+	for _, win in ipairs(wins) do
+		local buf = vim.api.nvim_win_get_buf(win)
+		local buf_name = vim.api.nvim_buf_get_name(buf)
+		local buftype = vim.bo[buf].buftype
+
+		if buftype == "" and buf_name ~= "" then
+			local modified = vim.bo[buf].modified
+			if not modified then
+				vim.api.nvim_buf_call(buf, function()
+					vim.cmd("checktime")
+				end)
+				refreshed = true
+			end
+		end
+	end
+
+	if refreshed then
+		vim.notify("Diffview refreshed", vim.log.levels.INFO)
+	else
+		vim.notify("Diffview refresh: no file buffers to reload", vim.log.levels.INFO)
+	end
+end
+
 function M.setup()
 	vim.api.nvim_create_user_command("NewScratchBuf", function()
 		vim.cmd([[
@@ -208,55 +256,9 @@ function M.setup()
 
 	vim.o.diffopt = "internal,filler,closeoff,indent-heuristic,linematch:60,algorithm:histogram"
 
-	---@return boolean
-	local function is_in_diffview()
-		local ok, lib = pcall(require, "diffview.lib")
-		if not ok or not lib.get_current_view then
-			return false
-		end
-		return lib.get_current_view() ~= nil
-	end
-
-	local function refresh_diffview()
-		if not is_in_diffview() then
-			vim.notify("No diff view open", vim.log.levels.INFO)
-			return
-		end
-
-		pcall(vim.cmd, "DiffviewRefresh")
-
-		local current_tab = vim.api.nvim_get_current_tabpage()
-		local wins = vim.api.nvim_tabpage_list_wins(current_tab)
-		local refreshed = false
-
-		for _, win in ipairs(wins) do
-			local buf = vim.api.nvim_win_get_buf(win)
-			local buf_name = vim.api.nvim_buf_get_name(buf)
-			local buftype = vim.bo[buf].buftype
-
-			if buftype == "" and buf_name ~= "" then
-				local modified = vim.bo[buf].modified
-				if not modified then
-					vim.api.nvim_buf_call(buf, function()
-						vim.cmd("checktime")
-					end)
-					refreshed = true
-				end
-			end
-		end
-
-		if refreshed then
-			vim.notify("Diffview refreshed", vim.log.levels.INFO)
-		else
-			vim.notify("Diffview refresh: no file buffers to reload", vim.log.levels.INFO)
-		end
-	end
-
-	vim.api.nvim_create_user_command("DiffviewReloadBuffers", refresh_diffview, {
+	vim.api.nvim_create_user_command("DiffviewReloadBuffers", M.refresh, {
 		desc = "Refresh Diffview file list and reload on-disk file buffers in the tab",
 	})
-
-	_G.diffview_refresh = refresh_diffview
 
 	local status_ok, diffview = pcall(require, "diffview")
 	if not status_ok then
@@ -357,8 +359,7 @@ function M.get_keymaps()
 			{
 				"<leader>cq",
 				function()
-					local ok, lib = pcall(require, "diffview.lib")
-					if ok and lib.get_current_view and lib.get_current_view() then
+					if M.is_open() then
 						vim.cmd("DiffviewClose")
 					else
 						vim.notify("No diff view open", vim.log.levels.INFO)

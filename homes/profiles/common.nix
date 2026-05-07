@@ -7,19 +7,6 @@
   overlays,
   ...
 }:
-let
-  direnvOverlay = final: prev: {
-    direnv = prev.direnv.overrideAttrs (old: {
-      env = (old.env or { }) // {
-        CGO_ENABLED = 1;
-      };
-    });
-
-    mise = prev.mise.override {
-      direnv = final.direnv;
-    };
-  };
-in
 {
   imports = [
     ../../mods/base-packages.nix
@@ -34,8 +21,6 @@ in
   ];
 
   nixpkgs = {
-    overlays = [ direnvOverlay ];
-
     config = {
       allowUnfree = true;
       allowUnfreePredicate = (_: true);

@@ -172,9 +172,6 @@ require("lazy").setup({
 		},
 		{
 			"MSmaili/wiremux.nvim",
-			config = function(_, opts)
-				require("user.plugins.ai.wiremux").setup(opts)
-			end,
 			dependencies = {
 				"nvim-lua/plenary.nvim",
 			},

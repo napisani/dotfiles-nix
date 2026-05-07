@@ -57,16 +57,4 @@ function M.get_all_modules()
 	return M.modules
 end
 
--- Get plugin modules by category
-function M.get_modules_by_category(category)
-	local result = {}
-	local prefix = category .. "."
-	for _, module_path in ipairs(M.modules) do
-		if vim.startswith(module_path, prefix) then
-			table.insert(result, module_path)
-		end
-	end
-	return result
-end
-
 return M

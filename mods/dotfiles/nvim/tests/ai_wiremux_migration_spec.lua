@@ -48,6 +48,7 @@ local ai_actions_source_path = vim.fs.joinpath(nvim_root, "lua", "user", "snacks
 
 local wiremux = require("user.plugins.ai.wiremux")
 local wiremux_actions = require("user.snacks.ai_actions.wiremux")
+local ai_action_common = require("user.snacks.ai_actions.common")
 local ai_actions = require("user.snacks.ai_actions")
 local ai_skills = require("user.snacks.ai_skills")
 local skill_source = require("user.completion.sources.skills")
@@ -145,8 +146,34 @@ do
 	assert(#completion_for("claude", "/").items == 0)
 end
 
--- Temporary migration scaffold: these payload assertions stay colocated here for now
--- so the migration helper remains covered until the follow-up cleanup splits them out.
+-- Reference payload contract: common owns formatting; Wiremux keeps compatibility wrappers.
+assert(ai_action_common.format_context_ref_line({ relative_path = "foo/bar.lua" }) == "@foo/bar.lua")
+assert(
+	ai_action_common.format_context_ref_line({
+		relative_path = "foo/bar.lua",
+		selection = "x",
+		start_line = 3,
+		end_line = 9,
+	})
+		== "@foo/bar.lua lines 3-9"
+)
+assert(
+	ai_action_common.format_reference_payload({
+		items = {
+			{
+				type = "file",
+				path = "lua/user/plugins/ai/wiremux.lua",
+			},
+			{
+				type = "selection",
+				path = "lua/user/snacks/ai_context_files.lua",
+				start_line = 10,
+				end_line = 22,
+			},
+		},
+	}) == "@lua/user/plugins/ai/wiremux.lua\n@lua/user/snacks/ai_context_files.lua lines 10-22\n"
+)
+
 assert(wiremux_actions.format_context_ref_line({ relative_path = "foo/bar.lua" }) == "@foo/bar.lua")
 assert(
 	wiremux_actions.format_context_ref_line({

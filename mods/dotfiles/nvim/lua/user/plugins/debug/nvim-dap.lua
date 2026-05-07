@@ -54,6 +54,7 @@ function M.get_keymaps()
 	return {
 		shared = {},
 		normal = {
+			{ "<leader>d", group = "Debug" },
 			{
 				"<leader>dB",
 				"<Cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>",

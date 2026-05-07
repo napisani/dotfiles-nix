@@ -7,7 +7,7 @@ local function preferred_win_height()
 	return math.max(10, math.min(32, math.floor(vim.o.lines * 0.32)))
 end
 
-local wiremux_actions = require("user.snacks.ai_actions.wiremux")
+local ai_action_common = require("user.snacks.ai_actions.common")
 
 local M = {}
 
@@ -97,12 +97,12 @@ local function append_raw_text(b, text)
 	vim.api.nvim_buf_set_lines(b, count, count, true, vim.split("\n\n" .. chunk, "\n", { plain = true }))
 end
 
----@param items table[] same shape as for wiremux `format_reference_payload` (kind/type + path, optional lines)
+---@param items table[] same shape as for `ai_actions.common.format_reference_payload`
 function M.append_references(items)
 	if not items or #items == 0 then
 		return
 	end
-	local text = wiremux_actions.format_reference_payload({ items = items })
+	local text = ai_action_common.format_reference_payload({ items = items })
 	if text == "" then
 		return
 	end

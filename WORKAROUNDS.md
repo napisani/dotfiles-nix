@@ -8,11 +8,10 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 
 1. [Neovim / Lua](#neovim--lua)
 2. [nvim-treesitter configuration](#nvim-treesitter-configuration)
-3. [Nix overlays and package overrides](#nix-overlays-and-package-overrides)
-4. [Nix / Home Manager config notes](#nix--home-manager-config-notes)
-5. [Neovim 0.12 `:checkhealth` remediation plan](#neovim-012-checkhealth-remediation-plan)
-6. [fff.nvim binary (lazy.nvim build hook)](#fffnvim-binary-lazyvim-build-hook)
-7. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
+3. [Nix / Home Manager config notes](#nix--home-manager-config-notes)
+4. [Neovim 0.12 `:checkhealth` remediation plan](#neovim-012-checkhealth-remediation-plan)
+5. [fff.nvim binary (lazy.nvim build hook)](#fffnvim-binary-lazyvim-build-hook)
+6. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
 
 ---
 
@@ -75,26 +74,12 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 
 ---
 
-## Nix overlays and package overrides
-
-### `direnv` built with `CGO_ENABLED = 1`
-
-| Item | Detail |
-|------|--------|
-| **What** | `direnv` is overridden so the build sees `CGO_ENABLED = 1` in `env`. |
-| **Where defined** | Same pattern in several places (keep in sync): `mods/shell.nix` (`fixedDirenv`), `mods/base-packages.nix` (`fixedDirenv` + `fixedMise`), `homes/profiles/common.nix` (`direnvOverlay`), `homes/home-supermicro.nix` (`direnvOverlay`). |
-| **Why** | Upstream nixpkgs often disables CGO for reproducible Go builds; enabling CGO addresses real-world issues with **direnv** (and anything linking it) when the stock binary is insufficient. *Document the concrete symptom you hit here if you add one — e.g. load-time failures, missing libc hooks.* |
-| **Mise coupling** | `mise` is overridden to use `final.direnv` / `fixedDirenv` so the CLI and Home Manager use the same direnv derivation. |
-| **Remove when** | nixpkgs’ default `direnv` (or a module flag) satisfies your environment without a local override; run `nix-store -q --tree` / `direnv version` and integration tests after removing. |
-
----
-
 ## Nix / Home Manager config notes
 
 | Item | Detail |
 |------|--------|
 | **`allowUnfreePredicate = (_: true)`** | Documented in `homes/home-supermicro.nix` as a workaround for [home-manager#2942](https://github.com/nix-community/home-manager/issues/2942)-style unfree evaluation. Revisit if HM/nixpkgs simplify unfree handling. |
-| **`lib.builders.mkSpecialArgs`** | `overlays = [ ];` is empty at the builder level; home profiles attach `direnvOverlay` via `nixpkgs.overlays` in `common.nix` / `home-supermicro.nix`. |
+| **`lib.builders.mkSpecialArgs`** | `overlays = [ ];` is empty at the builder level. Add shared overlays there only when a cross-profile package override is intentionally needed. |
 
 ---
 
@@ -164,10 +149,6 @@ cd ~/.config/home-manager/mods/dotfiles/nvim && nvim -u init.vim "+checkhealth" 
 
 ## Future improvements (consolidation and monitoring)
 
-### Consolidate duplicated Nix
-
-- **Single source for `direnv` + `mise` overrides** — today the CGO `direnv` override is repeated across `shell.nix`, `base-packages.nix`, and profile overlays. Prefer one overlay imported by all consumers to avoid drift.
-
 ### Neovim
 
 - **After each Neovim upgrade:** run **`:TSUpdate`** (and ensure Nix `tree-sitter` CLI is on `PATH`) so parsers match `vim.treesitter.language_version`.
@@ -198,4 +179,5 @@ cd ~/.config/home-manager/mods/dotfiles/nvim && nvim -u init.vim "+checkhealth" 
 | 2026-04-07 | Opt-in-out **ui2** in `options.lua` + init.vim comment; WORKAROUNDS markdown TS row + future checklist (`:restart`, post-upgrade `:TSUpdate`). |
 | 2026-04-07 | `completeopt` adds `menu` + `popup`; `<leader>PR` → `:restart`; LSP keymaps comment (`:h lsp-defaults`); WORKAROUNDS `NVIM_APPNAME` note. |
 | 2026-04-28 | Documented fff.nvim binary download via lazy.nvim build hook; noted nixpkgs has `vimPlugins.fff-nvim` 0.5.1 (Nix-aware, patches download.lua). |
+| 2026-05-07 | Removed the temporary `direnv` `CGO_ENABLED = 1` override and matching `mise` override after the locked stock `direnv-2.37.1` substituted from cache and passed a basic allow/export smoke test. |
 | *(add entries when adding/removing workarounds)* | |

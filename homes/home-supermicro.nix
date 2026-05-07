@@ -7,19 +7,6 @@
   overlays,
   ...
 }:
-let
-  direnvOverlay = final: prev: {
-    direnv = prev.direnv.overrideAttrs (old: {
-      env = (old.env or { }) // {
-        CGO_ENABLED = 1;
-      };
-    });
-
-    mise = prev.mise.override {
-      direnv = final.direnv;
-    };
-  };
-in
 {
   imports = [
     # if you want to use home-manager modules from other flakes (such as nix-colors):
@@ -35,7 +22,7 @@ in
 
   nixpkgs = {
     # you can add overlays here
-    overlays = overlays ++ [ direnvOverlay ];
+    overlays = overlays;
 
     # configure your nixpkgs instance
     config = {

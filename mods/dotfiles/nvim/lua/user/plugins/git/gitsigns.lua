@@ -42,6 +42,7 @@ end
 function M.get_keymaps()
 	local gitsigns = require("gitsigns")
 	local compare = require("user.snacks.compare")
+	local diff = require("user.plugins.git.diff")
 
 	return {
 		normal = {},
@@ -75,9 +76,8 @@ function M.get_keymaps()
 			{
 				"]g",
 				function()
-					local ok, lib = pcall(require, "diffview.lib")
-					if ok and lib.get_current_view and lib.get_current_view() then
-						require("user.plugins.git.diff").hunk_next()
+					if diff.is_open() then
+						diff.hunk_next()
 						return
 					end
 					gitsigns.next_hunk()
@@ -87,9 +87,8 @@ function M.get_keymaps()
 			{
 				"[g",
 				function()
-					local ok, lib = pcall(require, "diffview.lib")
-					if ok and lib.get_current_view and lib.get_current_view() then
-						require("user.plugins.git.diff").hunk_prev()
+					if diff.is_open() then
+						diff.hunk_prev()
 						return
 					end
 					gitsigns.prev_hunk()

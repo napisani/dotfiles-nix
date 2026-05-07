@@ -93,6 +93,90 @@ function M.build_context_message(ctx, opts)
 	return table.concat(parts, sep)
 end
 
+local function normalize_reference_item(spec)
+	if not spec then
+		return nil
+	end
+
+	local kind = spec.kind or spec.type
+	local relative_path = spec.relative_path or spec.path
+	if not kind or not relative_path or relative_path == "" then
+		return nil
+	end
+
+	return {
+		kind = kind,
+		relative_path = relative_path,
+		start_line = spec.start_line,
+		end_line = spec.end_line,
+	}
+end
+
+local function format_at_reference(relative_path, start_line, end_line)
+	if start_line and end_line then
+		return string.format("@%s lines %s-%s", relative_path, start_line, end_line)
+	end
+	return "@" .. relative_path
+end
+
+local function format_reference_item(spec)
+	spec = normalize_reference_item(spec)
+	if not spec then
+		return nil
+	end
+
+	if spec.kind == "file" then
+		return format_at_reference(spec.relative_path)
+	end
+
+	if spec.kind == "selection" and spec.start_line and spec.end_line then
+		return format_at_reference(spec.relative_path, spec.start_line, spec.end_line)
+	end
+
+	return nil
+end
+
+function M.format_reference_payload(spec)
+	if not spec then
+		return ""
+	end
+
+	local items = spec.items or { spec }
+	local lines = {}
+	for _, item in ipairs(items) do
+		local line = format_reference_item(item)
+		if line then
+			table.insert(lines, line)
+		end
+	end
+
+	if #lines == 0 then
+		return ""
+	end
+
+	return table.concat(lines, "\n") .. "\n"
+end
+
+---@param ctx { relative_path?: string, file_path?: string, selection?: string, start_line?: number, end_line?: number }|nil
+function M.format_context_ref_line(ctx)
+	if not ctx then
+		return nil
+	end
+
+	local relative_path = ctx.relative_path
+		or (ctx.file_path and vim.fn.fnamemodify(ctx.file_path, ":."))
+		or ""
+	if relative_path == "" or relative_path == "." then
+		return nil
+	end
+
+	if ctx.selection and ctx.start_line and ctx.end_line then
+		return format_at_reference(relative_path, ctx.start_line, ctx.end_line)
+	end
+
+	return format_at_reference(relative_path)
+end
+
 --- Capture buffer / file / line / selection context from the current window.
 --
 -- Must be called synchronously before any async operation (e.g. Snacks.input)
