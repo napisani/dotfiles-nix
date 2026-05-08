@@ -60,7 +60,8 @@
       backup-homelab = "sudo --preserve-env=HOMELAB_BACKUP_RESTIC_PASSWORD /home/nick/toolbox/homelab_backup.py backup";
       nixswitchup = "pushd ~/.config/home-manager; git pull && sudo nixos-rebuild --show-trace --flake .#supermicro switch --impure ; popd";
       nixswitch = "pushd ~/.config/home-manager; sudo nixos-rebuild --show-trace --flake .#supermicro switch --impure ; popd";
-      nixflakeup = "pushd ~/.config/home-manager; sudo nix flake update && sudo nix flake lock --override-input workmux github:raine/workmux/1764fe71affc24984b084e1ce9409985a0d11afb && sudo nixswitch; popd";
+      nixflakeup = "pushd ~/.config/home-manager; sudo nix flake update && sudo nixswitch; popd";
+      nixupgrade = "nixflakeup";
       nixclean = "echo 'Collecting garbage...'; nix-collect-garbage -d && echo 'Optimizing store...'; nix store optimise && echo 'Cleaning up old profiles...'; sudo nix-collect-garbage -d && echo 'Done! Space freed.'";
     };
   };

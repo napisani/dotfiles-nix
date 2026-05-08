@@ -156,10 +156,6 @@ cd ~/.config/home-manager/mods/dotfiles/nvim && nvim -u init.vim "+checkhealth" 
 - After a **Neovim point release**, try `let g:user_ts_markdown_treesitter = v:true` (or Lua equivalent) and remove the `vim.treesitter.start` wrapper if no crashes in daily use.
 - Watch **nvim-treesitter** `main` README/changelog; the rewrite dropped `nvim-treesitter.configs` — keep `treesitter.lua` aligned with upstream.
 
-### Operational (optional)
-
-- `nixflakeup` in `homes/profiles/darwin.nix` / `home-supermicro.nix` pins `workmux` via `--override-input`; update when you intentionally bump that input.
-
 ### Neovim side configs (`NVIM_APPNAME`)
 
 - Run an alternate config without touching the default: `NVIM_APPNAME=nvim-next nvim` (use matching dirs under `~/.config/`, `~/.local/share/`, `~/.local/state/`, `~/.cache/` as in `:h $NVIM_APPNAME`). Useful for testing plugins or a scratch `init.lua` next to this flake-managed config.

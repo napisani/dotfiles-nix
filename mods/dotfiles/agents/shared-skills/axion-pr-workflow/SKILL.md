@@ -13,10 +13,16 @@ This skill replaces the older OpenCode-only `axion-pr-opener`, `axion-pr-new-tic
 
 - Use `git` for repository inspection and branch state.
 - Use `gh` for GitHub pull request creation and updates.
-- Use the `acli-jira` skill for Jira operations, and run Jira commands through `acli jira`.
+- Use the `axion-jira` skill for Jira operations. It selects `axionray.atlassian.net`, then delegates command syntax to `acli-jira`.
 - Do not use Jira MCP tools for this workflow, even if they are available.
 
-Before any Jira read or write, apply the `acli-jira` skill's conventions:
+Before any Jira read or write, apply the `axion-jira` skill's site-selection rule:
+
+```sh
+acli jira auth switch --site axionray.atlassian.net
+```
+
+Then apply the `acli-jira` skill's conventions:
 
 - Use `--json` for Jira read commands.
 - Use `--yes` for Jira mutation commands that support it.

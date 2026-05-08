@@ -204,7 +204,9 @@ in
         done
       '';
 
-      # Sync local skills from dotfiles into agent dirs, then install community skills.
+      # Install community skills, then overlay local dotfile skills.
+      # Local skills intentionally run last so repo-managed fixes and overrides
+      # replace copied community skill dirs with live symlinks.
       installAgentSkills = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
         export DISABLE_TELEMETRY=1
         export NPM_CONFIG_PREFIX="$HOME/.local"
@@ -218,6 +220,9 @@ in
           "$HOME/.gemini/skills" \
           "$HOME/.gemini/antigravity/skills" \
           "$HOME/.codex/skills"
+
+        # ── Community skills (from git repos, copied into agent dirs) ────────
+        ${communitySkillCmds}
 
         # ── Shared local skills → all agents ────────────────────────────────
         ${mkLocalSkillSyncScript {
@@ -293,9 +298,6 @@ in
           sourceRelPath = "agents/claude/commands";
           targetAbsPath = "${home}/.claude/commands";
         }}
-
-        # ── Community skills (from git repos, copied into agent dirs) ────────
-        ${communitySkillCmds}
       '';
 
       # Install RTK Bash-rewrite hooks for each agent when rtk is available.
