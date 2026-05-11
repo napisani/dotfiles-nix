@@ -315,6 +315,34 @@ in
           rtk init -g --gemini           && echo "agents: RTK hook installed for gemini-cli"  || echo "agents: WARNING: RTK hook failed for gemini-cli"
           rtk init -g --codex            && echo "agents: RTK hook installed for codex"       || echo "agents: WARNING: RTK hook failed for codex"
           rtk init -g --opencode         && echo "agents: RTK hook installed for opencode"    || echo "agents: WARNING: RTK hook failed for opencode"
+
+          _inline_rtk_reference() {
+            _target="$1"
+            _source="$2"
+
+            [ -f "$_target" ] && [ -f "$_source" ] || return 0
+
+            # RTK's global init writes a bare "@RTK.md" include. Some agents
+            # surface that literal include in project sessions, where it is
+            # resolved relative to the repository and repeatedly misses.
+            # Inline the generated global RTK file so the instructions are
+            # available without requiring a project-local RTK.md.
+            if grep -qx '@RTK\.md' "$_target"; then
+              _tmp="$(mktemp)"
+              while IFS= read -r _line || [ -n "$_line" ]; do
+                if [ "$_line" = "@RTK.md" ]; then
+                  cat "$_source"
+                else
+                  printf '%s\n' "$_line"
+                fi
+              done < "$_target" > "$_tmp"
+              mv "$_tmp" "$_target"
+              echo "agents: inlined RTK instructions in $_target"
+            fi
+          }
+
+          _inline_rtk_reference "$HOME/.claude/CLAUDE.md" "$HOME/.claude/RTK.md"
+          _inline_rtk_reference "$HOME/.codex/AGENTS.md" "$HOME/.codex/RTK.md"
         else
           echo "agents: rtk not found on PATH — skipping RTK hook installation (install via: brew install rtk)"
         fi
