@@ -31,7 +31,7 @@
     };
 
     workmux = {
-      url = "github:raine/workmux";
+      url = "github:raine/workmux/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

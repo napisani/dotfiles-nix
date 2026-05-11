@@ -1,6 +1,9 @@
 { pkgs, rift, ... }:
 let
   system = pkgs.stdenv.hostPlatform.system;
+  homeManagerDir = "~/.config/home-manager";
+  switchCommand = "sudo darwin-rebuild switch --show-trace --no-update-lock-file --flake ~/.config/home-manager/.#";
+  flakeUpdateCommand = "pushd ${homeManagerDir}; nix flake update --refresh && ${switchCommand}; popd";
 in
 {
   home.packages = [
@@ -9,10 +12,10 @@ in
 
   programs.bash = {
     shellAliases = {
-      nixswitchup = "pushd ~/.config/home-manager; git pull && sudo darwin-rebuild switch --show-trace --flake ~/.config/home-manager/.# ; popd";
-      nixswitch = "pushd ~/.config/home-manager; sudo darwin-rebuild switch --show-trace --flake ~/.config/home-manager/.# ; popd";
-      nixflakeup = "pushd ~/.config/home-manager; nix flake update && nixswitch; popd";
-      nixupgrade = "nixflakeup";
+      nixswitchup = "pushd ${homeManagerDir}; git pull && ${switchCommand}; popd";
+      nixswitch = "pushd ${homeManagerDir}; ${switchCommand}; popd";
+      nixflakeup = flakeUpdateCommand;
+      nixupgrade = flakeUpdateCommand;
       nixclean = "echo 'Collecting garbage...'; nix-collect-garbage -d && echo 'Optimizing store...'; nix store optimise && echo 'Cleaning up old profiles...'; sudo nix-collect-garbage -d && echo 'Done! Space freed.'";
     };
   };

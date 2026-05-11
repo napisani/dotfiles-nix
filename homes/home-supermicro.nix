@@ -7,6 +7,11 @@
   overlays,
   ...
 }:
+let
+  homeManagerDir = "~/.config/home-manager";
+  switchCommand = "sudo nixos-rebuild --show-trace --no-update-lock-file --flake .#supermicro switch --impure";
+  flakeUpdateCommand = "pushd ${homeManagerDir}; nix flake update --refresh && ${switchCommand}; popd";
+in
 {
   imports = [
     # if you want to use home-manager modules from other flakes (such as nix-colors):
@@ -58,10 +63,10 @@
     };
     shellAliases = {
       backup-homelab = "sudo --preserve-env=HOMELAB_BACKUP_RESTIC_PASSWORD /home/nick/toolbox/homelab_backup.py backup";
-      nixswitchup = "pushd ~/.config/home-manager; git pull && sudo nixos-rebuild --show-trace --flake .#supermicro switch --impure ; popd";
-      nixswitch = "pushd ~/.config/home-manager; sudo nixos-rebuild --show-trace --flake .#supermicro switch --impure ; popd";
-      nixflakeup = "pushd ~/.config/home-manager; sudo nix flake update && sudo nixswitch; popd";
-      nixupgrade = "nixflakeup";
+      nixswitchup = "pushd ${homeManagerDir}; git pull && ${switchCommand}; popd";
+      nixswitch = "pushd ${homeManagerDir}; ${switchCommand}; popd";
+      nixflakeup = flakeUpdateCommand;
+      nixupgrade = flakeUpdateCommand;
       nixclean = "echo 'Collecting garbage...'; nix-collect-garbage -d && echo 'Optimizing store...'; nix store optimise && echo 'Cleaning up old profiles...'; sudo nix-collect-garbage -d && echo 'Done! Space freed.'";
     };
   };
