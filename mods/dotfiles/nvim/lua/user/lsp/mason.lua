@@ -24,6 +24,7 @@ local servers = {
 	"yamlls",
 	"vtsls",
 	"efm",
+	"zls",
 }
 
 mason.setup({})

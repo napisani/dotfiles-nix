@@ -1,0 +1,23 @@
+{
+  "skill_name": "address-pr-feedback",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Here is PR https://github.com/example/widgets/pull/42. I already replied to one thread saying \"I'll rename parseThing to parseWidget and add the missing null case\". There are two other unanswered review comments. Triage the feedback and help me address it.",
+      "expected_output": "The agent fetches or requests PR comment context, separates the already-promised fix from unanswered feedback, presents a dense PR Feedback Decision Sheet with Already Promised and Needs Decision tables, uses compact R/I/W ratings, expands undecided items with original reviewer comment, file, relevant code section, recommendation, and next step, and waits for user confirmation before changing code for unanswered comments.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I pasted these review comments from my PR. Reviewer A says `src/auth/session.ts` line `return user.role === 'admin'`: \"Can we avoid hardcoding admin here?\" I replied \"yes, I'll move this to canManageUsers\". Reviewer B says `src/auth/session.ts` line `const timeout = 5000`: \"nit: make this 3000\". Please handle the feedback.",
+      "expected_output": "The agent treats the canManageUsers change as decided in the Already Promised table, analyzes the timeout suggestion as undecided in the Needs Decision table, shows the exact timeout comment, file, code section, recommendation, and next step in a compact expanded card, asks for confirmation on the undecided item, and does not post to GitHub.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Address the comments below, but don't commit. `components/UserCard.tsx`: reviewer jane: \"This new conditional render probably needs a test.\" `components/UserCard.tsx`: reviewer sam: \"Could use a ternary here instead of early return.\" I have not replied to either comment.",
+      "expected_output": "The agent provides a dense decision sheet for both comments with a Needs Decision table and compact expanded cards containing each original comment, file, relevant code section, recommendation, and next step; likely recommends fixing the missing test and responding-only or low-importance handling for the ternary preference; waits for user-selected IDs, implements only approved code changes, and drafts responses for both comments in chat.",
+      "files": []
+    }
+  ]
+}

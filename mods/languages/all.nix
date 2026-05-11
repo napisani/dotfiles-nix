@@ -18,6 +18,10 @@ let
   bashPackages = import ./bash.nix { inherit pkgs pkgs-unstable; };
   miscPackages = import ./misc.nix { inherit pkgs pkgs-unstable; };
   elixirPackages = import ./elixir.nix { inherit pkgs pkgs-unstable; };
+  zigPackages = with pkgs-unstable; [
+    zig
+    zls
+  ];
 in
 jsPackages
 ++ pythonPackages
@@ -29,3 +33,4 @@ jsPackages
 ++ miscPackages
 ++ javaPackages
 ++ elixirPackages
+++ zigPackages

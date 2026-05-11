@@ -44,6 +44,7 @@ vim.lsp.enable({
 	"ruff",
 	"yamlls",
 	"expert",
+	"zls",
 })
 
 vim.lsp.enable("copilot")
