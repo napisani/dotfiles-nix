@@ -9,3 +9,6 @@ labk9s() {
 macimessage() {
   homelab.py imessage maclab
 }
+
+alias macsleep='homelab.py run maclab -- pmset sleepnow'
+alias macwake='homelab.py wake maclab'

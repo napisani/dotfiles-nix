@@ -40,6 +40,8 @@ def test_server_registry_contains_initial_hosts() -> None:
         "maclab",
         "192.168.1.52",
     ]
+    assert homelab.SERVERS["maclab"]["wake_mac"] == "14:7d:da:ce:bb:9c"
+    assert homelab.SERVERS["maclab"]["wake_broadcast"] == "192.168.1.255"
 
 
 def test_local_hostname_match_bypasses_ssh() -> None:
@@ -126,6 +128,65 @@ def test_macimessage_spec_starts_server_with_nohup_then_runs_itui() -> None:
         spec.remote_script
     )
     assert "exec itui" in spec.remote_script
+
+
+def test_magic_packet_repeats_maclab_wake_mac() -> None:
+    homelab = load_module()
+
+    packet = homelab.build_magic_packet("14:7d:da:ce:bb:9c")
+    mac_bytes = bytes.fromhex("147ddacebb9c")
+
+    assert len(packet) == 102
+    assert packet[:6] == b"\xff" * 6
+    assert packet[6:12] == mac_bytes
+    assert packet[-6:] == mac_bytes
+
+
+def test_invalid_magic_packet_mac_exits() -> None:
+    homelab = load_module()
+
+    with pytest.raises(SystemExit):
+        homelab.build_magic_packet("not-a-mac")
+
+
+def test_send_wake_packet_uses_configured_broadcast(monkeypatch) -> None:
+    homelab = load_module()
+    sockets = []
+
+    class FakeSocket:
+        def __init__(self, family, kind):
+            self.family = family
+            self.kind = kind
+            self.options = []
+            self.sent = []
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, _exc_type, _exc_value, _traceback):
+            return None
+
+        def setsockopt(self, *args):
+            self.options.append(args)
+
+        def sendto(self, packet, target):
+            self.sent.append((packet, target))
+            return len(packet)
+
+    def fake_socket(family, kind):
+        sock = FakeSocket(family, kind)
+        sockets.append(sock)
+        return sock
+
+    monkeypatch.setattr(homelab.socket, "socket", fake_socket)
+
+    assert homelab.send_wake_packet("maclab") == 0
+    assert sockets[0].family == homelab.socket.AF_INET
+    assert sockets[0].kind == homelab.socket.SOCK_DGRAM
+    assert sockets[0].options == [
+        (homelab.socket.SOL_SOCKET, homelab.socket.SO_BROADCAST, 1)
+    ]
+    assert sockets[0].sent[0][1] == ("192.168.1.255", 9)
 
 
 def test_ssh_command_quotes_remote_script_as_single_bash_lc_argument() -> None:

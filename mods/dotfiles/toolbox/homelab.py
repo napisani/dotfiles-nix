@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shlex
 import socket
 import subprocess
@@ -28,6 +29,9 @@ SERVERS: dict[str, dict[str, list[str] | str]] = {
         "candidates": ["maclab", "192.168.1.52"],
         "tailscale_names": ["maclab"],
         "tailscale_fallbacks": [],
+        "wake_mac": "14:7d:da:ce:bb:9c",
+        "wake_broadcast": "192.168.1.255",
+        "wake_port": "9",
     },
 }
 
@@ -74,6 +78,14 @@ def _string_config_value(config: dict[str, list[str] | str], key: str) -> str:
     if isinstance(value, str):
         return value
     raise SystemExit(f"Invalid server config: {key} must be a string")
+
+
+def _int_config_value(config: dict[str, list[str] | str], key: str) -> int:
+    value = _string_config_value(config, key)
+    try:
+        return int(value)
+    except ValueError as exc:
+        raise SystemExit(f"Invalid server config: {key} must be an integer") from exc
 
 
 def is_local_server(server_name: str, current_hostname: str | None = None) -> bool:
@@ -168,6 +180,36 @@ def build_imessage_spec() -> CommandSpec:
     return CommandSpec(argv=["bash", "-lc", script], tty=True, remote_script=script)
 
 
+def mac_address_bytes(mac_address: str) -> bytes:
+    normalized = re.sub(r"[-:]", "", mac_address)
+    if not re.fullmatch(r"[0-9A-Fa-f]{12}", normalized):
+        raise SystemExit(f"Invalid MAC address: {mac_address}")
+    return bytes.fromhex(normalized)
+
+
+def build_magic_packet(mac_address: str) -> bytes:
+    mac = mac_address_bytes(mac_address)
+    return b"\xff" * 6 + mac * 16
+
+
+def send_wake_packet(server_name: str) -> int:
+    config = server_config(server_name)
+    mac_address = _string_config_value(config, "wake_mac")
+    broadcast = _string_config_value(config, "wake_broadcast")
+    port = _int_config_value(config, "wake_port")
+    packet = build_magic_packet(mac_address)
+
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        sock.sendto(packet, (broadcast, port))
+
+    print(
+        "Sent Wake-on-LAN packet for "
+        f"{server_name} to {mac_address} via {broadcast}:{port}"
+    )
+    return 0
+
+
 def ssh_probe(target: str) -> bool:
     return (
         subprocess.run(
@@ -239,6 +281,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     imessage_parser.add_argument("server")
 
+    wake_parser = subparsers.add_parser("wake", help="Send a Wake-on-LAN packet")
+    wake_parser.add_argument("server")
+
     return parser.parse_args(argv)
 
 
@@ -256,6 +301,8 @@ def main(argv: list[str] | None = None) -> int:
         return execute(args.server, spec)
     if args.command == "imessage":
         return execute(args.server, build_imessage_spec())
+    if args.command == "wake":
+        return send_wake_packet(args.server)
     raise SystemExit(f"Unsupported command: {args.command}")
 
 
