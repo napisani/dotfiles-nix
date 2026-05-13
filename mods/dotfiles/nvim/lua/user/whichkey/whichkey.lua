@@ -6,13 +6,14 @@ local utils = require("user.utils")
 local replace_mapping = require("user.whichkey.replace")
 local find_mapping = require("user.whichkey.find_snacks")
 local search_mapping = require("user.whichkey.search_snacks")
+local refresh = require("user.refresh")
+local snacks_find_files = require("user.snacks.find_files")
 local Snacks = require("snacks")
 local repl = require("user.whichkey.repl")
 local scopes = require("user.whichkey.scopes")
 local lsp = require("user.whichkey.lsp")
 local global_mappings = require("user.whichkey.global")
 local plugin_keymaps = require("user.whichkey.plugins")
-local diff = require("user.plugins.git.diff")
 local discovered_plugin_keymaps = plugin_keymaps.get_all_plugin_keymaps()
 
 local root_mapping = {
@@ -22,7 +23,7 @@ local root_mapping = {
 	{
 		"<leader>t",
 		function()
-			require("user.snacks.find_files").toggle_explorer_tree()
+			snacks_find_files.toggle_explorer_tree()
 		end,
 		desc = "project (t)ree",
 	},
@@ -67,95 +68,16 @@ local write_all = {
 local reload_all = {
 	{
 		"<leader>E",
-		function()
-			if diff.is_open() then
-				diff.refresh()
-				return
-			end
-
-			-- Default: reload all buffers
-			local reloaded = 0
-			local failed = 0
-			local skipped = 0
-
-			-- Iterate through all buffers
-			for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-				-- Only process loaded buffers
-				if vim.api.nvim_buf_is_loaded(bufnr) then
-					local bufname = vim.api.nvim_buf_get_name(bufnr)
-					local buftype = vim.bo[bufnr].buftype
-
-					-- Skip special buffers (help, terminal, quickfix, etc.)
-					-- Only reload normal file buffers
-					if buftype == "" and bufname ~= "" then
-						-- Check if file exists
-						if vim.fn.filereadable(bufname) == 1 then
-							-- Save the current window
-							local current_win = vim.api.nvim_get_current_win()
-
-							-- Switch to the buffer's window if it's visible
-							local win = vim.fn.bufwinid(bufnr)
-							if win ~= -1 then
-								vim.api.nvim_set_current_win(win)
-							end
-
-							-- Try to reload the buffer
-							local success, err = pcall(function()
-								vim.api.nvim_buf_call(bufnr, function()
-									vim.cmd("edit!")
-								end)
-							end)
-
-							if success then
-								reloaded = reloaded + 1
-							else
-								failed = failed + 1
-								vim.notify(
-									"Failed to reload " .. vim.fn.fnamemodify(bufname, ":.") .. ": " .. tostring(err),
-									vim.log.levels.WARN
-								)
-							end
-
-							-- Restore the original window
-							vim.api.nvim_set_current_win(current_win)
-						else
-							skipped = skipped + 1
-						end
-					else
-						skipped = skipped + 1
-					end
-				end
-			end
-
-			-- Provide feedback
-			local message = string.format("Reloaded %d buffer(s)", reloaded)
-			if failed > 0 then
-				message = message .. string.format(", %d failed", failed)
-			end
-			if skipped > 0 then
-				message = message .. string.format(", %d skipped", skipped)
-			end
-
-			vim.notify(message, vim.log.levels.INFO)
-		end,
-		desc = "R(e)load all buffers / Diffview",
+		refresh.all,
+		desc = "R(e)fresh all buffers / trees / Diffview",
 	},
 }
 
 local smart_refresh = {
 	{
 		"<leader>e",
-		function()
-			if diff.is_open() then
-				diff.refresh()
-				return
-			end
-
-			-- Default: reload current buffer
-			vim.cmd("edit!")
-			vim.notify("Buffer reloaded", vim.log.levels.INFO)
-		end,
-		desc = "r(e)fresh buffer / Diffview",
+		refresh.current,
+		desc = "r(e)fresh buffer / tree / Diffview",
 	},
 }
 

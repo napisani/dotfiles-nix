@@ -1,5 +1,6 @@
 local Snacks = require("snacks")
 local common = require("user.snacks.common")
+local refresh = require("user.refresh")
 local scope = require("user.snacks.scope")
 
 local find_opts = {
@@ -42,9 +43,9 @@ M.toggle_explorer_tree = function()
 			return opts
 		end,
 		win = {
-			input = { keys = { ["<Esc>"] = false } },
-			list = { keys = { ["<Esc>"] = false } },
-			preview = { keys = { ["<Esc>"] = false } },
+			input = { keys = refresh.explorer_keys() },
+			list = { keys = refresh.explorer_keys() },
+			preview = { keys = refresh.explorer_keys() },
 		},
 	})
 end
