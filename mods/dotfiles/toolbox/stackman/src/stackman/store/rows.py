@@ -29,4 +29,9 @@ def branch_from_row(row: sqlite3.Row | None) -> BranchRecord:
 def stack_from_row(row: sqlite3.Row | None) -> StackRecord:
     if row is None:
         raise LookupError("Expected stack row")
-    return StackRecord(id=row["id"], name=row["name"], created_at=row["created_at"])
+    return StackRecord(
+        id=row["id"],
+        name=row["name"],
+        anchor_branch_name=row["anchor_branch_name"],
+        created_at=row["created_at"],
+    )

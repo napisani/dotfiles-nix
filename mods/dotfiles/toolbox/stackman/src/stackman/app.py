@@ -59,13 +59,16 @@ class StackmanApp:
         ctx = self._ctx()
         return runner.run_safely(ctx, lambda c: stacks.run_stack_branches(c, stack_id))
 
-    def stack_unlabel(self, stack_id: str, *, branch: str | None) -> int:
+    def stack_remove_branch(self, stack_id: str, *, branch: str | None) -> int:
         ctx = self._ctx()
-        return runner.run_safely(ctx, lambda c: stacks.run_stack_unlabel(c, stack_id, branch=branch))
+        return runner.run_safely(
+            ctx,
+            lambda c: stacks.run_stack_remove_branch(c, stack_id, branch=branch),
+        )
 
-    def stack_delete(self, stack_id: str) -> int:
+    def stack_remove(self, stack_id: str) -> int:
         ctx = self._ctx()
-        return runner.run_safely(ctx, lambda c: stacks.run_stack_delete(c, stack_id))
+        return runner.run_safely(ctx, lambda c: stacks.run_stack_remove(c, stack_id))
 
     def merged(self, *, branch: str | None = None, dry_run: bool = False) -> int:
         ctx = self._ctx()

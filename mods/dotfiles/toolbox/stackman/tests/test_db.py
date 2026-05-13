@@ -14,7 +14,9 @@ if "stackman" not in sys.modules:
     sys.modules["stackman"] = package
 
 from stackman.store import (
+    create_stack,
     get_branch,
+    get_stack,
     initialize,
     label_branch,
     list_branch_labels,
@@ -66,6 +68,31 @@ def test_db_supports_stack_labels(tmp_path: Path) -> None:
     label_branch(db_path, repo_root, "feature", "stack-1")
 
     assert list_branch_labels(db_path, repo_root, "feature") == ["stack-1", "stack-2"]
+
+
+def test_stack_anchor_is_persisted(tmp_path: Path) -> None:
+    db_path = tmp_path / "stackman.db"
+    initialize(db_path)
+
+    created = create_stack(db_path, "stack-a", anchor_branch_name="release/1.2")
+    loaded = get_stack(db_path, "stack-a")
+
+    assert created.anchor_branch_name == "release/1.2"
+    assert loaded is not None
+    assert loaded.anchor_branch_name == "release/1.2"
+
+
+def test_stack_anchor_is_filled_but_not_overwritten(tmp_path: Path) -> None:
+    db_path = tmp_path / "stackman.db"
+    initialize(db_path)
+
+    create_stack(db_path, "stack-a")
+    create_stack(db_path, "stack-a", anchor_branch_name="main")
+    create_stack(db_path, "stack-a", anchor_branch_name="release/1.2")
+
+    loaded = get_stack(db_path, "stack-a")
+    assert loaded is not None
+    assert loaded.anchor_branch_name == "main"
 
 
 def test_db_list_branches_returns_normalized_records(tmp_path: Path) -> None:

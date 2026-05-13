@@ -113,13 +113,13 @@ def sync(app: StackmanApp, stack_id: str | None, dry_run: bool, verbose: bool, s
 @cli.command("stacks")
 @click.pass_obj
 def stacks_command(app: StackmanApp) -> None:
-    """List stack labels and all tracked branches in the global stackman database."""
+    """List stack ids and all tracked branches in the global stackman database."""
     raise SystemExit(app.list_stacks())
 
 
 @cli.group()
 def stack() -> None:
-    """Inspect or change stack labels (does not delete Git branches)."""
+    """Inspect or remove stack membership (does not delete Git branches)."""
 
 
 @stack.command("branches")
@@ -130,35 +130,36 @@ def stack_branches_cmd(app: StackmanApp, stack_id: str) -> None:
     raise SystemExit(app.stack_branches(stack_id))
 
 
-@stack.command("unlabel")
+@stack.command("remove-branch")
 @click.argument("stack_id")
 @click.option(
     "--branch",
     help="Branch to remove from the stack (default: current branch in the --cwd repository).",
 )
 @click.pass_obj
-def stack_unlabel_cmd(app: StackmanApp, stack_id: str, branch: str | None) -> None:
-    """Remove STACK_ID from a branch in the current repository."""
-    raise SystemExit(app.stack_unlabel(stack_id, branch=branch))
+def stack_remove_branch_cmd(app: StackmanApp, stack_id: str, branch: str | None) -> None:
+    """Remove a branch from STACK_ID in the current repository."""
+    raise SystemExit(app.stack_remove_branch(stack_id, branch=branch))
 
 
-@stack.command("delete")
+@stack.command("remove")
 @click.argument("stack_id")
 @click.option(
     "--yes",
     is_flag=True,
-    help="Confirm deletion of this stack id and all label rows (required).",
+    help="Confirm removal of this stack and its tracked branches (required).",
 )
 @click.pass_obj
-def stack_delete_cmd(app: StackmanApp, stack_id: str, yes: bool) -> None:
-    """Delete STACK_ID from the database and drop every branch label for it."""
+def stack_remove_cmd(app: StackmanApp, stack_id: str, yes: bool) -> None:
+    """Remove STACK_ID and every tracked branch associated with it."""
     if not yes:
         raise SystemExit(
-            "Refusing to delete a stack without --yes. "
-            "This removes only the stack id and label rows (tracked branch metadata is kept). "
-            "Re-run with: stackman stack delete STACK_ID --yes"
+            "Refusing to remove a stack without --yes. "
+            "This removes the stack id and every tracked branch currently associated with it "
+            "from stackman. Git branches are unchanged. "
+            "Re-run with: stackman stack remove STACK_ID --yes"
         )
-    raise SystemExit(app.stack_delete(stack_id))
+    raise SystemExit(app.stack_remove(stack_id))
 
 
 def main(argv: list[str] | None = None) -> int:

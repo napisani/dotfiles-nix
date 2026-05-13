@@ -132,8 +132,8 @@
 
 ## `<leader>l` — LSP / language
 
-`<leader>l` → domain: language server actions — code intelligence, formatting, diagnostics  
-`<leader>l` → contract: actions only activate when an LSP server is attached to the current buffer
+`<leader>l` → domain: language and document actions — code intelligence, formatting, diagnostics, and rendered document views
+`<leader>l` → contract: LSP-backed actions require an attached language server; document actions work from the current buffer without requiring LSP
 
 `<leader>la` → [n] leaf: show code actions at cursor position (pick from list)  
 `<leader>lr` → leaf: rename symbol under cursor (LSP rename, updates all references)  
@@ -143,6 +143,7 @@
 `<leader>lE` → leaf: populate location list with all diagnostics in current buffer  
 `<leader>lR` → leaf: restart all attached LSP servers  
 `<leader>lc` → [nv] leaf: toggle comment on current line or selection  
+`<leader>ld` → leaf: render the current Mermaid diagram file to SVG and open a browser-based pan/zoom viewer
 `<leader>lm` → leaf: toggle markdown rendering (preview rendered output inline)  
 `<leader>lw` → leaf: toggle line wrap in current window
 

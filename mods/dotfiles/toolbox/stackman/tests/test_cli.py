@@ -38,8 +38,9 @@ def test_stacks_and_stack_group_help() -> None:
     r = runner.invoke(cli, ["stack", "--help"])
     assert r.exit_code == 0
     assert "branches" in r.output
-    assert "unlabel" in r.output
-    assert "delete" in r.output
+    assert "remove" in r.output
+    assert "remove-branch" in r.output
+    assert "unlabel" not in r.output
 
 
 def test_merged_subcommand_help() -> None:
@@ -50,24 +51,24 @@ def test_merged_subcommand_help() -> None:
     assert "--dry-run" in r.output
 
 
-def test_stack_delete_requires_confirmation_flag(tmp_path) -> None:
+def test_stack_remove_requires_confirmation_flag(tmp_path) -> None:
     from stackman.store import initialize
 
     db_path = tmp_path / "db.sqlite"
     initialize(db_path)
     runner = CliRunner()
-    result = runner.invoke(cli, ["--db-path", str(db_path), "stack", "delete", "x"])
+    result = runner.invoke(cli, ["--db-path", str(db_path), "stack", "remove", "x"])
     assert result.exit_code == 1
     assert "--yes" in result.output
 
 
-def test_main_prints_stack_delete_confirmation_error(tmp_path, capsys) -> None:
+def test_main_prints_stack_remove_confirmation_error(tmp_path, capsys) -> None:
     from stackman.store import initialize
 
     db_path = tmp_path / "db.sqlite"
     initialize(db_path)
 
-    exit_code = main(["--db-path", str(db_path), "stack", "delete", "x"])
+    exit_code = main(["--db-path", str(db_path), "stack", "remove", "x"])
 
     captured = capsys.readouterr()
     assert exit_code == 1

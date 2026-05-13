@@ -59,3 +59,29 @@ def test_roots_are_minimal_above_trunk() -> None:
     ]
     plan = build_sync_plan("s", branches, ["branch_b"])
     assert plan.roots == frozenset({"branch_a"})
+
+
+def test_sync_plan_stops_root_resolution_at_tracked_anchor() -> None:
+    branches = [
+        _branch("release_base", "main"),
+        _branch("feature_a", "release_base"),
+        _branch("feature_b", "feature_a"),
+    ]
+
+    plan = build_sync_plan(
+        "stack1",
+        branches,
+        ["feature_a", "feature_b"],
+        anchor_branch_name="release_base",
+    )
+
+    assert plan.anchor_branch_name == "release_base"
+    assert plan.roots == frozenset({"feature_a"})
+    assert plan.sync_branches == frozenset({"feature_a", "feature_b"})
+    assert "release_base" not in plan.sync_branches
+
+
+def test_sync_plan_records_anchor_branch_name() -> None:
+    branches = [_branch("feature", "main")]
+    plan = build_sync_plan("stack1", branches, ["feature"], anchor_branch_name="main")
+    assert plan.anchor_branch_name == "main"

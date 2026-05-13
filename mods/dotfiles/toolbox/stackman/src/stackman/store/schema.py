@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS repos (
 CREATE TABLE IF NOT EXISTS stacks (
     id TEXT PRIMARY KEY,
     name TEXT,
+    anchor_branch_name TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -52,4 +53,14 @@ def initialize(db_path: Path | str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with connect(path) as conn:
         conn.executescript(SCHEMA_SQL)
+        _ensure_stack_anchor_column(conn)
         migrate_repo_roots_to_git_common_dir(conn)
+
+
+def _ensure_stack_anchor_column(conn) -> None:
+    columns = {
+        row["name"]
+        for row in conn.execute("PRAGMA table_info(stacks)").fetchall()
+    }
+    if "anchor_branch_name" not in columns:
+        conn.execute("ALTER TABLE stacks ADD COLUMN anchor_branch_name TEXT")

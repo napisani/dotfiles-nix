@@ -21,8 +21,11 @@ from ..git_ops import (
     worktree_dirty_preview,
     worktree_path_for_branch,
 )
+from ..models import BranchRecord
 from ..store import (
+    create_stack,
     get_branch,
+    get_stack,
     initialize,
     list_branch_labels,
     list_branch_names_with_stack_label,
@@ -50,10 +53,26 @@ def run(ctx: AppContext, *, stack_id: str | None, dry_run: bool, verbose: bool, 
         stack_id,
     )
     labeled_names = list_branch_names_with_stack_label(ctx.db_path, repo_key, resolved_stack)
-    plan = build_sync_plan(resolved_stack, all_branches, labeled_names)
+    stack = get_stack(ctx.db_path, resolved_stack)
+    stored_anchor = stack.anchor_branch_name if stack is not None else None
+    plan = build_sync_plan(
+        resolved_stack,
+        all_branches,
+        labeled_names,
+        anchor_branch_name=stored_anchor,
+    )
     if not plan.sync_branches:
         raise SystemExit(
             f"Stack {resolved_stack!r} resolved to an empty sync set (nothing to update)."
+        )
+    anchor_branch_name = _resolve_stack_anchor(ctx, plan, all_branches)
+    if anchor_branch_name != stored_anchor:
+        create_stack(ctx.db_path, resolved_stack, anchor_branch_name=anchor_branch_name)
+        plan = build_sync_plan(
+            resolved_stack,
+            all_branches,
+            labeled_names,
+            anchor_branch_name=anchor_branch_name,
         )
 
     if not dry_run:
@@ -82,7 +101,7 @@ def run(ctx: AppContext, *, stack_id: str | None, dry_run: bool, verbose: bool, 
         )
         for branch_name in plan.order:
             record = next(b for b in all_branches if b.branch_name == branch_name)
-            parent = record.parent_branch_name or "<none>"
+            parent = _sync_parent_name(plan, record) or "<none>"
             wt_hint = ""
             holder = worktree_path_for_branch(worktree, branch_name)
             if holder is not None and holder != worktree:
@@ -112,7 +131,7 @@ def run(ctx: AppContext, *, stack_id: str | None, dry_run: bool, verbose: bool, 
     try:
         for branch_name in plan.order:
             record = by_name[branch_name]
-            parent_name = record.parent_branch_name
+            parent_name = _sync_parent_name(plan, record)
             if parent_name is None:
                 _emit(ctx, f"[stackman] Skipping {branch_name!r} (no parent recorded).")
                 continue
@@ -221,6 +240,46 @@ def _emit(ctx: AppContext, message: str) -> None:
     ctx.stdout.flush()
 
 
+def _sync_parent_name(plan: SyncPlan, record: BranchRecord) -> str | None:
+    if record.branch_name in plan.roots:
+        return plan.anchor_branch_name
+    return record.parent_branch_name
+
+
+def _resolve_stack_anchor(
+    ctx: AppContext,
+    plan: SyncPlan,
+    all_branches: list[BranchRecord],
+) -> str:
+    if plan.anchor_branch_name:
+        return plan.anchor_branch_name
+
+    by_name = {branch.branch_name: branch for branch in all_branches}
+    parent_names = {
+        by_name[root].parent_branch_name
+        for root in plan.roots
+        if root in by_name
+    }
+    if len(parent_names) == 1:
+        anchor = next(iter(parent_names))
+        if anchor:
+            _emit(
+                ctx,
+                f"[stackman] Inferred anchor branch {anchor!r} for legacy stack {plan.stack_id!r}.",
+            )
+            return anchor
+
+    if not parent_names or parent_names == {None}:
+        detail = "no recorded parent for the resolved root branch"
+    else:
+        rendered = ", ".join(sorted(p for p in parent_names if p is not None))
+        detail = f"multiple root parents: {rendered}"
+    raise SystemExit(
+        f"Stack {plan.stack_id!r} has no anchor branch and Stackman could not infer one "
+        f"({detail})."
+    )
+
+
 def _wait_for_rebase_resolution(
     ctx: AppContext,
     *,
@@ -296,6 +355,7 @@ def _print_plan(ctx: AppContext, plan: SyncPlan, worktree: Path, *, dry_run: boo
         ctx,
         f"[stackman] Labeled branches: {', '.join(sorted(plan.labeled_branches)) or '<none>'}",
     )
+    _emit(ctx, f"[stackman] Anchor branch: {plan.anchor_branch_name!r}")
     _emit(ctx, f"[stackman] Resolved roots: {', '.join(sorted(plan.roots)) or '<none>'}")
     _emit(
         ctx,

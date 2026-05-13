@@ -8,25 +8,52 @@ from .connection import connect, normalize_path
 from .rows import stack_from_row
 
 
-def create_stack(db_path: Path | str, stack_id: str, name: str | None = None) -> StackRecord:
+def create_stack(
+    db_path: Path | str,
+    stack_id: str,
+    name: str | None = None,
+    *,
+    anchor_branch_name: str | None = None,
+) -> StackRecord:
     with connect(db_path) as conn:
         conn.execute(
-            "INSERT INTO stacks(id, name) VALUES (?, ?) "
-            "ON CONFLICT(id) DO UPDATE SET name=COALESCE(excluded.name, name)",
-            (stack_id, name),
+            """
+            INSERT INTO stacks(id, name, anchor_branch_name)
+            VALUES (?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+                name = COALESCE(excluded.name, stacks.name),
+                anchor_branch_name = COALESCE(stacks.anchor_branch_name, excluded.anchor_branch_name)
+            """,
+            (stack_id, name, anchor_branch_name),
         )
         row = conn.execute(
-            "SELECT id, name, created_at FROM stacks WHERE id = ?",
+            "SELECT id, name, anchor_branch_name, created_at FROM stacks WHERE id = ?",
             (stack_id,),
         ).fetchone()
     return stack_from_row(row)
 
 
-def label_branch(db_path: Path | str, repo_root: Path | str, branch_name: str, stack_id: str) -> None:
+def get_stack(db_path: Path | str, stack_id: str) -> StackRecord | None:
+    with connect(db_path) as conn:
+        row = conn.execute(
+            "SELECT id, name, anchor_branch_name, created_at FROM stacks WHERE id = ?",
+            (stack_id,),
+        ).fetchone()
+    return stack_from_row(row) if row else None
+
+
+def label_branch(
+    db_path: Path | str,
+    repo_root: Path | str,
+    branch_name: str,
+    stack_id: str,
+    *,
+    anchor_branch_name: str | None = None,
+) -> None:
     branch = get_branch(db_path, repo_root, branch_name)
     if branch is None:
         raise LookupError(f"Unknown branch {branch_name!r} in repo {repo_root!s}")
-    create_stack(db_path, stack_id)
+    create_stack(db_path, stack_id, anchor_branch_name=anchor_branch_name)
     with connect(db_path) as conn:
         conn.execute(
             """
@@ -161,7 +188,7 @@ def list_labeled_branches_for_stack(db_path: Path | str, stack_id: str) -> list[
     ]
 
 
-def remove_branch_stack_label(
+def remove_branch_from_stack(
     db_path: Path | str,
     *,
     repo_root: Path | str,
@@ -179,11 +206,59 @@ def remove_branch_stack_label(
             """,
             (branch.id, stack_id),
         )
+        if cur.rowcount > 0:
+            conn.execute(
+                """
+                DELETE FROM stacks
+                WHERE id = ?
+                  AND NOT EXISTS (
+                      SELECT 1 FROM branch_stack_labels WHERE stack_id = ?
+                  )
+                """,
+                (stack_id, stack_id),
+            )
         return cur.rowcount > 0
 
 
-def delete_stack(db_path: Path | str, stack_id: str) -> bool:
-    """Remove the stack row; CASCADE deletes all label rows for this stack id."""
+def remove_stack_with_branches(db_path: Path | str, stack_id: str) -> int | None:
+    """Remove a stack and every tracked branch currently associated with it."""
     with connect(db_path) as conn:
-        cur = conn.execute("DELETE FROM stacks WHERE id = ?", (stack_id,))
-        return cur.rowcount > 0
+        stack = conn.execute("SELECT 1 FROM stacks WHERE id = ?", (stack_id,)).fetchone()
+        if stack is None:
+            return None
+
+        affected_stack_ids = {stack_id}
+        branch_ids = [
+            row[0]
+            for row in conn.execute(
+                "SELECT branch_id FROM branch_stack_labels WHERE stack_id = ?",
+                (stack_id,),
+            ).fetchall()
+        ]
+        if branch_ids:
+            placeholders = ", ".join("?" for _ in branch_ids)
+            affected_stack_ids.update(
+                row[0]
+                for row in conn.execute(
+                    f"""
+                    SELECT DISTINCT stack_id
+                    FROM branch_stack_labels
+                    WHERE branch_id IN ({placeholders})
+                    """,
+                    branch_ids,
+                ).fetchall()
+            )
+            conn.execute(f"DELETE FROM branches WHERE id IN ({placeholders})", branch_ids)
+
+        stack_placeholders = ", ".join("?" for _ in affected_stack_ids)
+        conn.execute(
+            f"""
+            DELETE FROM stacks
+            WHERE id IN ({stack_placeholders})
+              AND NOT EXISTS (
+                  SELECT 1 FROM branch_stack_labels WHERE stack_id = stacks.id
+              )
+            """,
+            list(affected_stack_ids),
+        )
+        return len(branch_ids)

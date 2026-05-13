@@ -1,18 +1,11 @@
 ---@diagnostic disable: undefined-global
 
 local M = {}
-
-local default_prompts = {
-	{ label = "Explain selection", value = "Explain the following selection in detail:\n{selection}" },
-	{ label = "Review selection", value = "Review this selection for potential issues:\n{selection}" },
-	{ label = "Summarize file", value = "Summarize the key points from {file}" },
-	{ label = "Suggest improvements", value = "How can we improve {this}?" },
-	{ label = "Generate tests", value = "Write tests that cover this code:\n{selection}" },
-}
+local ai_prompts = require("user.plugins.ai.ai_prompts")
 
 local default_config = {
 	default_route = "opencode",
-	prompts = default_prompts,
+	prompts = ai_prompts.defaults,
 	targets = {
 		definitions = {
 			claude = {
@@ -112,9 +105,6 @@ local function normalize_picker_items(items)
 			if not copy.text then
 				copy.text = copy.label or copy.name or copy.value or tostring(copy)
 			end
-			if not copy.file then
-				copy.file = copy.name or copy.label or copy.text
-			end
 			table.insert(normalized, copy)
 		else
 			local text = tostring(item)
@@ -123,7 +113,6 @@ local function normalize_picker_items(items)
 				label = text,
 				name = text,
 				value = item,
-				file = text,
 			})
 		end
 	end
@@ -137,6 +126,8 @@ local function with_snacks_picker(opts, on_choice)
 		Snacks.picker.pick({
 			items = items,
 			prompt = opts.prompt,
+			format = opts.format or "text",
+			preview = opts.preview or "none",
 			format_item = opts.format_item,
 			confirm = function(picker, item)
 				if item then
@@ -332,10 +323,26 @@ local function expand_prompt_template(value)
 	return s
 end
 
+local function prompt_picker_items()
+	local items = {}
+	for _, prompt in ipairs(state.options.prompts or ai_prompts.defaults) do
+		local item = vim.tbl_deep_extend("force", {}, prompt)
+		item.text = item.label or item.value or ""
+		item.preview = {
+			text = item.value or "",
+			ft = "markdown",
+			loc = false,
+		}
+		table.insert(items, item)
+	end
+	return items
+end
+
 local function pick_prompt()
 	with_snacks_picker({
-		items = state.options.prompts or default_prompts,
+		items = prompt_picker_items(),
 		prompt = "Canned prompts → PromptBuilder",
+		preview = "preview",
 		format_item = function(item)
 			if not item then
 				return ""

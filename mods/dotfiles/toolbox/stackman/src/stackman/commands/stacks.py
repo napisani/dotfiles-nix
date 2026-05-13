@@ -3,13 +3,13 @@ from __future__ import annotations
 from ..context import AppContext
 from ..git_ops import current_branch, format_repo_key_for_display, repo_db_key, repo_root
 from ..store import (
-    delete_stack,
     get_branch,
     initialize,
     list_global_tracked_branches,
     list_labeled_branches_for_stack,
     list_stack_summaries,
-    remove_branch_stack_label,
+    remove_branch_from_stack,
+    remove_stack_with_branches,
 )
 
 
@@ -20,20 +20,20 @@ def run_list_stacks(ctx: AppContext) -> int:
 
     if not summaries and not tracked:
         ctx.stdout.write(
-            "Nothing in the stackman database yet (no stack labels and no tracked branches).\n"
+            "Nothing in the stackman database yet (no stacks and no tracked branches).\n"
         )
         return 0
 
     ctx.stdout.write(
-        "Stack labels identify a slice for `stackman sync` and `stackman stack branches`. "
-        "On `init`, use `--stack` for explicit ids; otherwise labels are inherited from a "
+        "Stack ids identify a slice for `stackman sync` and `stackman stack branches`. "
+        "On `init`, use `--stack` for explicit ids; otherwise stack membership is inherited from a "
         "tracked parent when possible, else a new sm_… id is minted.\n"
         "Tracked lineage (parent and fork-point) is always stored and is listed below.\n\n"
     )
 
-    ctx.stdout.write("Stack labels\n")
+    ctx.stdout.write("Stacks\n")
     if not summaries:
-        ctx.stdout.write("  (none — no stack rows in the database yet)\n")
+        ctx.stdout.write("  (none — no stacks in the database yet)\n")
     else:
         ctx.stdout.write(f"  {'STACK ID':<34} {'REPOS':>6} {'BRANCHES':>9}\n")
         for row in summaries:
@@ -53,9 +53,9 @@ def run_list_stacks(ctx: AppContext) -> int:
             current_repo = row.repo_root
             ctx.stdout.write(f"  {format_repo_key_for_display(row.repo_root)}\n")
         parent = row.parent_branch_name or "<none>"
-        labels = ", ".join(row.stack_labels) if row.stack_labels else "<none>"
+        stack_ids = ", ".join(row.stack_labels) if row.stack_labels else "<none>"
         ctx.stdout.write(
-            f"    {row.branch_name:<32}  parent {parent:<24}  labels {labels}\n"
+            f"    {row.branch_name:<32}  parent {parent:<24}  stacks {stack_ids}\n"
         )
     return 0
 
@@ -78,7 +78,7 @@ def run_stack_branches(ctx: AppContext, stack_id: str) -> int:
     return 0
 
 
-def run_stack_unlabel(ctx: AppContext, stack_id: str, *, branch: str | None) -> int:
+def run_stack_remove_branch(ctx: AppContext, stack_id: str, *, branch: str | None) -> int:
     initialize(ctx.db_path)
     known_ids = {s.stack_id for s in list_stack_summaries(ctx.db_path)}
     if stack_id not in known_ids:
@@ -87,7 +87,7 @@ def run_stack_unlabel(ctx: AppContext, stack_id: str, *, branch: str | None) -> 
     worktree = repo_root(ctx.cwd)
     repo_key = repo_db_key(ctx.cwd)
     branch_name = branch or current_branch(worktree)
-    removed = remove_branch_stack_label(
+    removed = remove_branch_from_stack(
         ctx.db_path,
         repo_root=repo_key,
         branch_name=branch_name,
@@ -97,25 +97,26 @@ def run_stack_unlabel(ctx: AppContext, stack_id: str, *, branch: str | None) -> 
         tracked = get_branch(ctx.db_path, repo_key, branch_name)
         if tracked is None:
             raise SystemExit(
-                f"Branch {branch_name!r} is not tracked in this repo; nothing to unlabel."
+                f"Branch {branch_name!r} is not tracked in this repo; nothing to remove."
             )
         raise SystemExit(
-            f"Branch {branch_name!r} does not carry stack label {stack_id!r}."
+            f"Branch {branch_name!r} is not part of stack {stack_id!r}."
         )
     ctx.stdout.write(
-        f"Removed stack label {stack_id!r} from branch {branch_name!r} "
-        f"in worktree {worktree} ({format_repo_key_for_display(repo_key)}).\n"
+        f"Removed branch {branch_name!r} from stack {stack_id!r} "
+        f"in worktree {worktree} ({format_repo_key_for_display(repo_key)}). "
+        "Git branches unchanged.\n"
     )
     return 0
 
 
-def run_stack_delete(ctx: AppContext, stack_id: str) -> int:
+def run_stack_remove(ctx: AppContext, stack_id: str) -> int:
     initialize(ctx.db_path)
-    deleted = delete_stack(ctx.db_path, stack_id)
-    if not deleted:
+    removed_branch_count = remove_stack_with_branches(ctx.db_path, stack_id)
+    if removed_branch_count is None:
         raise SystemExit(f"Unknown stack id {stack_id!r} (not present in the database).")
     ctx.stdout.write(
-        f"Deleted stack {stack_id!r} and all of its branch labels across repositories.\n"
-        "Tracked branch metadata (parent / fork-point) was not removed.\n"
+        f"Removed stack {stack_id!r} and {removed_branch_count} tracked branch(es) "
+        "from stackman. Git branches unchanged.\n"
     )
     return 0

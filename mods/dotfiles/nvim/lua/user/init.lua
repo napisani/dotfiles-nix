@@ -33,6 +33,8 @@ require("user.whichkey.whichkey")
 -- PromptBuilder (Wiremux staging buffer); load after which-key for buffer-local <C-g>
 require("user.prompt_builder").setup()
 
+require("user.mermaid").setup()
+
 -- Autocommands load after which-key
 require("user.autocommands")
 

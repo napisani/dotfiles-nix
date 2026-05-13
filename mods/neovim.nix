@@ -19,6 +19,7 @@ in
     withNodeJs = false;
     withPython3 = true;
     extraPackages = with pkgs-unstable; langPackages ++ [ ];
+    withRuby= true;
   };
   # home.file.".config/nvim".source = config.lib.file.mkOutOfStoreSymlink ./dotfiles/nvim;
 

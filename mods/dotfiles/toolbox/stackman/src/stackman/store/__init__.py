@@ -12,14 +12,15 @@ from .repos import get_repo, upsert_repo
 from .schema import initialize
 from .stacks import (
     create_stack,
-    delete_stack,
+    get_stack,
     label_branch,
     list_branch_labels,
     list_branch_names_with_stack_label,
     list_global_tracked_branches,
     list_labeled_branches_for_stack,
     list_stack_summaries,
-    remove_branch_stack_label,
+    remove_branch_from_stack,
+    remove_stack_with_branches,
 )
 
 __all__ = [
@@ -33,12 +34,13 @@ __all__ = [
     "list_branches_with_parent",
     "delete_branch",
     "create_stack",
+    "get_stack",
     "label_branch",
     "list_branch_labels",
     "list_branch_names_with_stack_label",
     "list_stack_summaries",
     "list_global_tracked_branches",
     "list_labeled_branches_for_stack",
-    "remove_branch_stack_label",
-    "delete_stack",
+    "remove_branch_from_stack",
+    "remove_stack_with_branches",
 ]

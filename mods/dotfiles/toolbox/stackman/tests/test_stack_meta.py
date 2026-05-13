@@ -5,10 +5,17 @@ import io
 from pathlib import Path
 
 from stackman.app import StackmanApp
-from stackman.store import initialize, label_branch, list_branch_labels, list_stack_summaries, upsert_branch
+from stackman.store import (
+    get_branch,
+    initialize,
+    label_branch,
+    list_branch_labels,
+    list_stack_summaries,
+    upsert_branch,
+)
 
 
-def test_list_stacks_and_branches_and_unlabel_and_delete(
+def test_list_stacks_and_branches_and_remove_branch_and_remove_stack(
     git_repo,
     stackman_db_path,
 ) -> None:
@@ -27,6 +34,7 @@ def test_list_stacks_and_branches_and_unlabel_and_delete(
     )
     label_branch(db_path, git_repo.canonical_repo_key(), "feature", "stack-a")
     label_branch(db_path, git_repo.canonical_repo_key(), "feature", "stack-b")
+    label_branch(db_path, git_repo.canonical_repo_key(), "feature", "stack-c")
 
     stdout = io.StringIO()
     app = StackmanApp(
@@ -38,9 +46,9 @@ def test_list_stacks_and_branches_and_unlabel_and_delete(
     )
     assert app.list_stacks() == 0
     out = stdout.getvalue()
-    assert "Stack labels" in out
+    assert "Stacks" in out
     assert "Tracked branches" in out
-    assert "stack-a" in out and "stack-b" in out
+    assert "stack-a" in out and "stack-b" in out and "stack-c" in out
     assert "feature" in out
 
     stdout2 = io.StringIO()
@@ -63,7 +71,7 @@ def test_list_stacks_and_branches_and_unlabel_and_delete(
             stdin=io.StringIO(""),
             stdout=io.StringIO(),
             stderr=io.StringIO(),
-        ).stack_unlabel("stack-a", branch=None)
+        ).stack_remove_branch("stack-a", branch=None)
         == 0
     )
     assert "stack-a" not in list_branch_labels(db_path, git_repo.canonical_repo_key(), "feature")
@@ -76,12 +84,14 @@ def test_list_stacks_and_branches_and_unlabel_and_delete(
             stdin=io.StringIO(""),
             stdout=io.StringIO(),
             stderr=io.StringIO(),
-        ).stack_delete("stack-a")
+        ).stack_remove("stack-b")
         == 0
     )
     summaries = {s.stack_id for s in list_stack_summaries(db_path)}
     assert "stack-a" not in summaries
-    assert "stack-b" in summaries
+    assert "stack-b" not in summaries
+    assert "stack-c" not in summaries
+    assert get_branch(db_path, git_repo.canonical_repo_key(), "feature") is None
 
 
 def test_stacks_shows_tracked_branches_without_stack_labels(
@@ -115,7 +125,7 @@ def test_stacks_shows_tracked_branches_without_stack_labels(
         == 0
     )
     out = stdout.getvalue()
-    assert "Stack labels" in out
+    assert "Stacks" in out
     assert "(none" in out
     assert "Tracked branches" in out
     assert "dead-code2" in out

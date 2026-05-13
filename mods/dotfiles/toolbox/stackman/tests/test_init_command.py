@@ -3,7 +3,7 @@ from __future__ import annotations
 import io
 
 from stackman.app import StackmanApp
-from stackman.store import initialize, list_branch_labels
+from stackman.store import get_stack, initialize, list_branch_labels
 
 
 def test_init_with_explicit_parent_persists_branch_lineage(
@@ -200,3 +200,85 @@ def test_init_uses_injected_stack_id_factory(
     assert app.init(parent="main") == 0
     initialize(stackman_db_path)
     assert list_branch_labels(stackman_db_path, git_repo.canonical_repo_key(), "solo") == ["sm_custom000001"]
+
+
+def test_init_records_anchor_for_new_auto_stack(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    git_repo.checkout_new("root_feature", from_ref="main")
+    git_repo.commit("root", filename="root.txt", content="root\n")
+
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=io.StringIO(),
+        stderr=io.StringIO(),
+        stack_id_factory=lambda: "sm_root",
+    )
+
+    assert app.init(parent="main") == 0
+    stack = get_stack(stackman_db_path, "sm_root")
+    assert stack is not None
+    assert stack.anchor_branch_name == "main"
+
+
+def test_init_inherited_stack_label_does_not_change_anchor(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    git_repo.checkout_new("root_feature", from_ref="main")
+    git_repo.commit("root", filename="root.txt", content="root\n")
+    git_repo.checkout_new("child_feature", from_ref="root_feature")
+    git_repo.commit("child", filename="child.txt", content="child\n")
+
+    root_app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=io.StringIO(),
+        stderr=io.StringIO(),
+        stack_id_factory=lambda: "sm_root",
+    )
+    git_repo.checkout("root_feature")
+    assert root_app.init(parent="main") == 0
+
+    child_app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=io.StringIO(),
+        stderr=io.StringIO(),
+    )
+    git_repo.checkout("child_feature")
+    assert child_app.init(parent="root_feature") == 0
+
+    stack = get_stack(stackman_db_path, "sm_root")
+    assert stack is not None
+    assert stack.anchor_branch_name == "main"
+
+
+def test_init_explicit_stack_fills_but_does_not_overwrite_anchor(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    git_repo.checkout_new("first", from_ref="main")
+    git_repo.commit("first", filename="first.txt", content="first\n")
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=io.StringIO(),
+        stderr=io.StringIO(),
+    )
+    assert app.init(parent="main", stacks=("custom",)) == 0
+
+    git_repo.checkout("main")
+    git_repo.checkout_new("second", from_ref="first")
+    git_repo.commit("second", filename="second.txt", content="second\n")
+    assert app.init(parent="first", stacks=("custom",)) == 0
+
+    stack = get_stack(stackman_db_path, "custom")
+    assert stack is not None
+    assert stack.anchor_branch_name == "main"

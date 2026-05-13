@@ -131,6 +131,11 @@ let
       skills = [ "web-research" ];
       agents = allAgents;
     }
+    {
+      repo = "https://github.com/softaworks/agent-toolkit";
+      skills = [ "mermaid-diagrams" ];
+      agents = allAgents;
+    }
   ];
 
   mkCommunitySkillCmd =

@@ -14,6 +14,7 @@ class SyncPlan:
     """Resolved sync scope for a repo from a stack label."""
 
     stack_id: str
+    anchor_branch_name: str | None
     labeled_branches: frozenset[str]
     roots: frozenset[str]
     sync_branches: frozenset[str]
@@ -33,14 +34,17 @@ def _ancestor_chain_toward_trunk(
     by_name: dict[str, BranchRecord],
     tracked: frozenset[str],
     trunk_names: frozenset[str],
+    anchor_branch_name: str | None,
 ) -> list[str]:
-    """Walk from start along stored parents until parent is trunk, untracked, or missing."""
+    """Walk from start along stored parents until parent is anchor, trunk, untracked, or missing."""
     chain: list[str] = []
     current = start
     while current in tracked:
         chain.append(current)
         parent = _parent_name(by_name[current])
         if parent is None:
+            break
+        if parent == anchor_branch_name:
             break
         if parent in trunk_names:
             break
@@ -63,6 +67,7 @@ def resolve_roots(
     all_branches: list[BranchRecord],
     *,
     trunk_names: frozenset[str] = DEFAULT_TRUNK_NAMES,
+    anchor_branch_name: str | None = None,
 ) -> frozenset[str]:
     """Branches in the labeled upward closure whose parent is outside that closure (or trunk / untracked)."""
     by_name = {b.branch_name: b for b in all_branches}
@@ -70,12 +75,25 @@ def resolve_roots(
 
     upward: set[str] = set()
     for name in labeled:
-        upward.update(_ancestor_chain_toward_trunk(name, by_name, tracked, trunk_names))
+        upward.update(
+            _ancestor_chain_toward_trunk(
+                name,
+                by_name,
+                tracked,
+                trunk_names,
+                anchor_branch_name,
+            )
+        )
 
     roots: set[str] = set()
     for name in upward:
         parent = _parent_name(by_name[name])
-        if parent is None or parent not in tracked or parent in trunk_names:
+        if (
+            parent is None
+            or parent == anchor_branch_name
+            or parent not in tracked
+            or parent in trunk_names
+        ):
             roots.add(name)
     return frozenset(roots)
 
@@ -145,13 +163,20 @@ def build_sync_plan(
     branches_with_label: list[str],
     *,
     trunk_names: frozenset[str] = DEFAULT_TRUNK_NAMES,
+    anchor_branch_name: str | None = None,
 ) -> SyncPlan:
     labeled = labeled_branches_in_repo(all_branches, branches_with_label)
-    roots = resolve_roots(labeled, all_branches, trunk_names=trunk_names)
+    roots = resolve_roots(
+        labeled,
+        all_branches,
+        trunk_names=trunk_names,
+        anchor_branch_name=anchor_branch_name,
+    )
     sync_branches = resolve_sync_set(roots, all_branches)
     order = topological_sync_order(sync_branches, all_branches)
     return SyncPlan(
         stack_id=stack_id,
+        anchor_branch_name=anchor_branch_name,
         labeled_branches=labeled,
         roots=roots,
         sync_branches=sync_branches,

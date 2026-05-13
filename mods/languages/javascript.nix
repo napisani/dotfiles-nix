@@ -5,6 +5,7 @@ with pkgs-unstable;
   deno
   nodejs
   bun
+  mermaid-cli
   typescript
   typescript-language-server
   eslint_d
@@ -26,4 +27,7 @@ with pkgs-unstable;
 
   # yaml
   yq
+]
+++ pkgs-unstable.lib.optionals pkgs-unstable.stdenv.isLinux [
+  chromium
 ]

@@ -55,8 +55,15 @@ def run(ctx: AppContext, *, parent: str | None, stacks: Sequence[str]) -> int:
             effective_stack_ids = [_new_stack_id(ctx)]
             label_mode = "new_auto"
 
+    anchor_branch_name = None if label_mode == "inherited" else parent_branch
     for stack_id in effective_stack_ids:
-        label_branch(ctx.db_path, repo_key, branch_name, stack_id)
+        label_branch(
+            ctx.db_path,
+            repo_key,
+            branch_name,
+            stack_id,
+            anchor_branch_name=anchor_branch_name,
+        )
 
     ctx.stdout.write(
         f"Tracked branch {branch_name!r} with parent {parent_branch!r} at {fork_point_sha[:7]}.\n"

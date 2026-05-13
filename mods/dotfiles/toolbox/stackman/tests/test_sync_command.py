@@ -78,6 +78,91 @@ def test_sync_rebases_linear_stack_when_trunk_moves(
     assert git_repo.is_ancestor(git_repo.rev_parse("main"), "HEAD")
 
 
+def test_sync_dry_run_reports_anchor_and_uses_it_for_root_rebase(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    git_repo.checkout_new("release_base", from_ref="main")
+    git_repo.commit("release", filename="release.txt", content="release\n")
+    git_repo.checkout_new("feature", from_ref="release_base")
+    git_repo.commit("feature", filename="feature.txt", content="feature\n")
+
+    db_path = stackman_db_path
+    initialize(db_path)
+    upsert_branch(
+        db_path,
+        repo_root=git_repo.canonical_repo_key(),
+        branch_name="feature",
+        parent_branch_name="main",
+        fork_point_sha=git_repo.merge_base("feature", "main"),
+    )
+    label_branch(
+        db_path,
+        git_repo.canonical_repo_key(),
+        "feature",
+        "stack-anchor",
+        anchor_branch_name="release_base",
+    )
+
+    stdout = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=stdout,
+        stderr=io.StringIO(),
+    )
+
+    assert app.sync(stack_id="stack-anchor", dry_run=True) == 0
+    out = stdout.getvalue()
+    assert "[stackman] Anchor branch: 'release_base'" in out
+    assert "feature: rebase onto tip of 'release_base'" in out
+
+
+def test_sync_rebases_root_branch_onto_non_main_anchor(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    git_repo.checkout_new("release_base", from_ref="main")
+    git_repo.commit("release 1", filename="release.txt", content="release 1\n")
+    git_repo.checkout_new("feature", from_ref="release_base")
+    git_repo.commit("feature", filename="feature.txt", content="feature\n")
+    fork = git_repo.merge_base("feature", "release_base")
+
+    git_repo.checkout("release_base")
+    git_repo.commit("release 2", filename="release2.txt", content="release 2\n")
+    release_tip = git_repo.rev_parse("release_base")
+
+    db_path = stackman_db_path
+    initialize(db_path)
+    upsert_branch(
+        db_path,
+        repo_root=git_repo.canonical_repo_key(),
+        branch_name="feature",
+        parent_branch_name="release_base",
+        fork_point_sha=fork,
+    )
+    label_branch(
+        db_path,
+        git_repo.canonical_repo_key(),
+        "feature",
+        "stack-anchor",
+        anchor_branch_name="release_base",
+    )
+
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=io.StringIO(),
+        stderr=io.StringIO(),
+    )
+
+    assert app.sync(stack_id="stack-anchor") == 0
+    git_repo.checkout("feature")
+    assert git_repo.merge_base("feature", "release_base") == release_tip
+
+
 def test_sync_second_run_skips_branch_already_synced_to_parent_tip(
     git_repo,
     stackman_db_path,

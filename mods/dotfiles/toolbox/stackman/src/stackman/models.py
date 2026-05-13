@@ -26,6 +26,7 @@ class BranchRecord:
 class StackRecord:
     id: str
     name: str | None = None
+    anchor_branch_name: str | None = None
     created_at: str | None = None
 
 

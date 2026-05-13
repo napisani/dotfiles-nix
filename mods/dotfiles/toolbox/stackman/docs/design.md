@@ -160,6 +160,8 @@ Indexes for: `repo_id` + `parent_branch_name` (children lookup); `stack_id` (bra
 | `stackman merged` | Post-merge cleanup: if the **parent** is tracked, remove it and reparent its children onto the **grandparent**; if the **parent** is not tracked (e.g. `main`), remove the **current** branch row and reparent its children onto that parent name. Does not delete Git branches. |
 | `stackman sync <stack_id>` | Resolve sync set `S`, topological rebase + push sequence as above. |
 | `stackman status` | Show current branch’s place in the tree / labels (later). |
+| `stackman stack remove <stack_id> --yes` | Remove a stack id and every tracked branch currently associated with it. Does not delete Git branches. |
+| `stackman stack remove-branch <stack_id> [--branch <name>]` | Remove one branch from a stack id in the current repository. If omitted, branch defaults to the current branch. Does not delete Git branches. |
 | `stackman doctor` | DB path, repo match, clean worktree hints (later). |
 
 Exact flags (`--repo`, dry-run, etc.) belong in an implementation plan.
