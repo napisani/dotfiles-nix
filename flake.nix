@@ -20,7 +20,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    proctmux.url = "github:napisani/proctmux";
+    proctmux.url = "github:napisani/proctmux/zig-spike";
     secret_inject.url = "github:napisani/secret_inject";
     animal_rescue.url = "github:napisani/animal-rescue";
     scrollbacktamer.url = "github:napisani/scrollbacktamer";

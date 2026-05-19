@@ -257,6 +257,7 @@ Merge conflict resolution (contextual inside a diff/merge view):
 `<leader>am` → [n] [v] leaf: **Snacks.input** titled *Instructions*; the buffer gets an `@path:line` ref (at-style), a fenced **Selection** block in visual mode, and an **Instructions:** line with your text — **appended** to PromptBuilder. A markdown `---` rule separates a new block from prior buffer content, matching the old `accumulate` behavior between register pastes
 
 **Inside a PromptBuilder buffer**  
+`@…` → [i] leaf: blink file completion uses `@` as the draft trigger; accepting a file replaces the `@…` token with `@relative/path/to/file`
 `$…` → [i] leaf: blink skill completion always uses `$` as the draft trigger; accepting a skill replaces the `$…` token with the active Wiremux route's callout (`/skill name` for opencode, `/name` for claude, `$name` for codex)
 `<C-g>` → [n] [i] leaf: send the **entire** buffer as one message to Wiremux **with submit**, then wipe the PromptBuilder buffer  
 

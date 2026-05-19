@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "agent-tui-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1776234668,
+        "narHash": "sha256-GK61FwZKcXMsWeB2Pu4o19eg/gBwTVq+uyP20ZNBdR4=",
+        "owner": "pproenca",
+        "repo": "agent-tui",
+        "rev": "a6d490fda60de936f5a5366a9c6b83d933e38972",
+        "type": "github"
+      },
+      "original": {
+        "owner": "pproenca",
+        "repo": "agent-tui",
+        "type": "github"
+      }
+    },
     "animal_rescue": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -174,27 +190,6 @@
     "goflake_2": {
       "inputs": {
         "nixpkgs": [
-          "proctmux",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1735843521,
-        "narHash": "sha256-MPYh1Y1vfZXlyy+bAgkfS/szVhXXa5/3UwP08BSfj2I=",
-        "owner": "sagikazarmark",
-        "repo": "go-flake",
-        "rev": "fbd90665126896c15b52f03cd44aad86cb5c4e18",
-        "type": "github"
-      },
-      "original": {
-        "owner": "sagikazarmark",
-        "repo": "go-flake",
-        "type": "github"
-      }
-    },
-    "goflake_3": {
-      "inputs": {
-        "nixpkgs": [
           "scrollbacktamer",
           "nixpkgs"
         ]
@@ -213,7 +208,7 @@
         "type": "github"
       }
     },
-    "goflake_4": {
+    "goflake_3": {
       "inputs": {
         "nixpkgs": [
           "secret_inject",
@@ -361,20 +356,21 @@
     },
     "proctmux": {
       "inputs": {
+        "agent-tui-src": "agent-tui-src",
         "flake-utils": "flake-utils_2",
-        "goflake": "goflake_2",
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1775156621,
-        "narHash": "sha256-Q9dO/tNKcVT5+glmt4sabU8QEgPCkHSj9ug3zX0gk8w=",
+        "lastModified": 1778859683,
+        "narHash": "sha256-mRq6WbAhBP9NCWlVGJKwZsdd0A8H9yc1YoOjl2AiioQ=",
         "owner": "napisani",
         "repo": "proctmux",
-        "rev": "9d967a8100c4a49602141c4fe6fe73eecdce3e3c",
+        "rev": "1fa5bd658e1040d39df8d3862117abd00714eaa9",
         "type": "github"
       },
       "original": {
         "owner": "napisani",
+        "ref": "zig-spike",
         "repo": "proctmux",
         "type": "github"
       }
@@ -486,7 +482,7 @@
     "scrollbacktamer": {
       "inputs": {
         "flake-utils": "flake-utils_3",
-        "goflake": "goflake_3",
+        "goflake": "goflake_2",
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
@@ -506,7 +502,7 @@
     "secret_inject": {
       "inputs": {
         "flake-utils": "flake-utils_4",
-        "goflake": "goflake_4",
+        "goflake": "goflake_3",
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
