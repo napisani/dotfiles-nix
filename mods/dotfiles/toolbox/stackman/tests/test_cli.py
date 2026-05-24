@@ -25,6 +25,13 @@ def test_sync_subcommand_is_wired() -> None:
     assert "--squash" in result.output
 
 
+def test_init_subcommand_supports_branch_chain_option() -> None:
+    runner = CliRunner()
+    result = runner.invoke(cli, ["init", "--help"])
+    assert result.exit_code == 0
+    assert "--branches" in result.output
+
+
 def test_sync_subcommand_supports_squash_flag() -> None:
     runner = CliRunner()
     result = runner.invoke(cli, ["sync", "--help"])

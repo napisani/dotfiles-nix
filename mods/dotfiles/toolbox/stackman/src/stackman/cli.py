@@ -56,6 +56,13 @@ def status(app: StackmanApp) -> None:
     help="Explicit parent branch. If omitted, stackman will prompt for confirmation.",
 )
 @click.option(
+    "--branches",
+    help=(
+        "Comma-separated branch chain from anchor to tip, e.g. main,stack1,stack2. "
+        "Registers stack1 with parent main and stack2 with parent stack1."
+    ),
+)
+@click.option(
     "--stack",
     "stacks",
     multiple=True,
@@ -65,9 +72,14 @@ def status(app: StackmanApp) -> None:
     ),
 )
 @click.pass_obj
-def init(app: StackmanApp, parent: str | None, stacks: tuple[str, ...]) -> None:
+def init(
+    app: StackmanApp,
+    parent: str | None,
+    branches: str | None,
+    stacks: tuple[str, ...],
+) -> None:
     """Register the current branch."""
-    raise SystemExit(app.init(parent=parent, stacks=stacks))
+    raise SystemExit(app.init(parent=parent, stacks=stacks, branches=branches))
 
 
 @cli.command()

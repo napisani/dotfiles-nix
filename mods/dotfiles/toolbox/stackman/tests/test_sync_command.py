@@ -29,6 +29,10 @@ def _commit_count_in_range(git_repo, rev_range: str) -> int:
     return int(git_repo.git("rev-list", "--count", rev_range))
 
 
+def _file_at(git_repo, ref: str, path: str) -> str:
+    return git_repo.git("show", f"{ref}:{path}")
+
+
 def _ancestry_from(git_repo, ref: str) -> list[str]:
     output = git_repo.git("rev-list", ref)
     return [line for line in output.splitlines() if line]
@@ -650,6 +654,214 @@ def test_sync_dry_run_reports_squash_plan(
     out = stdout.getvalue()
     assert "optional squash" in out
     assert "would collapse 2 post-fork commits into one before rebasing" in out
+
+
+def test_sync_squash_preserves_code_changes_across_entire_stack(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    git_repo.checkout_new("foo", from_ref="main")
+    git_repo.commit(
+        "foo public api",
+        filename="foo.py",
+        content="def foo():\n    return 'foo'\n",
+    )
+    git_repo.commit(
+        "foo helper",
+        filename="foo_helper.py",
+        content="def foo_helper():\n    return 'foo helper'\n",
+    )
+    foo_fork = git_repo.merge_base("foo", "main")
+
+    git_repo.checkout_new("bar", from_ref="foo")
+    git_repo.commit(
+        "bar public api",
+        filename="bar.py",
+        content="def bar():\n    return 'bar'\n",
+    )
+    git_repo.commit(
+        "bar helper",
+        filename="bar_helper.py",
+        content="def bar_helper():\n    return 'bar helper'\n",
+    )
+    bar_fork = git_repo.merge_base("bar", "foo")
+
+    git_repo.checkout_new("zep", from_ref="bar")
+    git_repo.commit(
+        "zep public api",
+        filename="zep.py",
+        content="def zep():\n    return 'zep'\n",
+    )
+    git_repo.commit(
+        "zep helper",
+        filename="zep_helper.py",
+        content="def zep_helper():\n    return 'zep helper'\n",
+    )
+    zep_fork = git_repo.merge_base("zep", "bar")
+
+    initialize(stackman_db_path)
+    repo_key = git_repo.canonical_repo_key()
+    upsert_branch(
+        stackman_db_path,
+        repo_root=repo_key,
+        branch_name="foo",
+        parent_branch_name="main",
+        fork_point_sha=foo_fork,
+    )
+    upsert_branch(
+        stackman_db_path,
+        repo_root=repo_key,
+        branch_name="bar",
+        parent_branch_name="foo",
+        fork_point_sha=bar_fork,
+    )
+    upsert_branch(
+        stackman_db_path,
+        repo_root=repo_key,
+        branch_name="zep",
+        parent_branch_name="bar",
+        fork_point_sha=zep_fork,
+    )
+    label_branch(stackman_db_path, repo_key, "foo", "stack-squash-code")
+
+    git_repo.checkout("main")
+    git_repo.commit(
+        "main dependency update",
+        filename="requirements.txt",
+        content="click==8.1.8\n",
+    )
+
+    stdout = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=stdout,
+        stderr=io.StringIO(),
+    )
+    assert app.sync(stack_id="stack-squash-code", squash=True) == 0
+
+    assert _file_at(git_repo, "foo", "requirements.txt") == "click==8.1.8"
+    assert _file_at(git_repo, "foo", "foo.py") == "def foo():\n    return 'foo'"
+    assert _file_at(git_repo, "foo", "foo_helper.py") == (
+        "def foo_helper():\n    return 'foo helper'"
+    )
+
+    assert _file_at(git_repo, "bar", "requirements.txt") == "click==8.1.8"
+    assert _file_at(git_repo, "bar", "foo.py") == "def foo():\n    return 'foo'"
+    assert _file_at(git_repo, "bar", "foo_helper.py") == (
+        "def foo_helper():\n    return 'foo helper'"
+    )
+    assert _file_at(git_repo, "bar", "bar.py") == "def bar():\n    return 'bar'"
+    assert _file_at(git_repo, "bar", "bar_helper.py") == (
+        "def bar_helper():\n    return 'bar helper'"
+    )
+
+    assert _file_at(git_repo, "zep", "requirements.txt") == "click==8.1.8"
+    assert _file_at(git_repo, "zep", "foo.py") == "def foo():\n    return 'foo'"
+    assert _file_at(git_repo, "zep", "foo_helper.py") == (
+        "def foo_helper():\n    return 'foo helper'"
+    )
+    assert _file_at(git_repo, "zep", "bar.py") == "def bar():\n    return 'bar'"
+    assert _file_at(git_repo, "zep", "bar_helper.py") == (
+        "def bar_helper():\n    return 'bar helper'"
+    )
+    assert _file_at(git_repo, "zep", "zep.py") == "def zep():\n    return 'zep'"
+    assert _file_at(git_repo, "zep", "zep_helper.py") == (
+        "def zep_helper():\n    return 'zep helper'"
+    )
+    assert "Sync finished successfully" in stdout.getvalue()
+
+
+def test_sync_squash_preserves_code_changes_after_middle_branch_conflict_resolution(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    git_repo.commit("shared base", filename="shared.py", content="VALUE = 'base'\n")
+    git_repo.checkout_new("foo", from_ref="main")
+    git_repo.commit(
+        "foo api",
+        filename="foo.py",
+        content="def foo():\n    return 'foo'\n",
+    )
+    foo_fork = git_repo.merge_base("foo", "main")
+
+    git_repo.checkout_new("bar", from_ref="foo")
+    git_repo.commit(
+        "bar edits shared",
+        filename="shared.py",
+        content="VALUE = 'bar'\n",
+    )
+    bar_fork = git_repo.merge_base("bar", "foo")
+
+    git_repo.checkout_new("zep", from_ref="bar")
+    git_repo.commit(
+        "zep api",
+        filename="zep.py",
+        content="def zep():\n    return 'zep'\n",
+    )
+    zep_fork = git_repo.merge_base("zep", "bar")
+
+    initialize(stackman_db_path)
+    repo_key = git_repo.canonical_repo_key()
+    upsert_branch(
+        stackman_db_path,
+        repo_root=repo_key,
+        branch_name="foo",
+        parent_branch_name="main",
+        fork_point_sha=foo_fork,
+    )
+    upsert_branch(
+        stackman_db_path,
+        repo_root=repo_key,
+        branch_name="bar",
+        parent_branch_name="foo",
+        fork_point_sha=bar_fork,
+    )
+    upsert_branch(
+        stackman_db_path,
+        repo_root=repo_key,
+        branch_name="zep",
+        parent_branch_name="bar",
+        fork_point_sha=zep_fork,
+    )
+    label_branch(stackman_db_path, repo_key, "foo", "stack-squash-conflict")
+
+    git_repo.checkout("foo")
+    git_repo.commit("foo edits shared", filename="shared.py", content="VALUE = 'foo'\n")
+
+    def resolve_bar_conflict(_call_count: int) -> None:
+        (git_repo.root / "shared.py").write_text("VALUE = 'foo + bar'\n")
+        git_repo.git("add", "shared.py")
+        subprocess.run(
+            ["git", "-c", "core.editor=true", "rebase", "--continue"],
+            cwd=git_repo.root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=_ConflictResolverInput(resolve_bar_conflict),
+        stdout=stdout,
+        stderr=stderr,
+    )
+    assert app.sync(stack_id="stack-squash-conflict", squash=True) == 0
+
+    assert "Rebase failed on 'bar'" in stderr.getvalue()
+    assert _file_at(git_repo, "foo", "foo.py") == "def foo():\n    return 'foo'"
+    assert _file_at(git_repo, "foo", "shared.py") == "VALUE = 'foo'"
+
+    assert _file_at(git_repo, "bar", "foo.py") == "def foo():\n    return 'foo'"
+    assert _file_at(git_repo, "bar", "shared.py") == "VALUE = 'foo + bar'"
+
+    assert _file_at(git_repo, "zep", "foo.py") == "def foo():\n    return 'foo'"
+    assert _file_at(git_repo, "zep", "shared.py") == "VALUE = 'foo + bar'"
+    assert _file_at(git_repo, "zep", "zep.py") == "def zep():\n    return 'zep'"
 
 
 def test_sync_propagates_to_descendant_without_label(

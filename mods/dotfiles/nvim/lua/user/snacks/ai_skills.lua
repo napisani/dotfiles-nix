@@ -28,6 +28,11 @@ local skill_callouts = {
 			return "/skill " .. name
 		end,
 	},
+	pi = {
+		format = function(name)
+			return "/skill:" .. name
+		end,
+	},
 }
 
 local function joinpath(...)

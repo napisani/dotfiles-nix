@@ -17,12 +17,14 @@
 
     brews = [
       "anomalyco/tap/opencode"
+      "datadog-labs/pack/pup"
       "hashicorp/tap/terraform"
     ];
 
     taps = [
-      "hashicorp/tap"
       "anomalyco/tap"
+      "datadog-labs/pack"
+      "hashicorp/tap"
     ];
 
   };

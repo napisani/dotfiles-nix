@@ -6,6 +6,7 @@ from typing import Sequence
 from ..context import AppContext
 from ..git_ops import (
     ParentCandidate,
+    branch_exists,
     candidate_parent_branches,
     current_branch,
     merge_base,
@@ -17,11 +18,28 @@ from ..stack_ids import new_auto_stack_id
 from ..store import get_branch, initialize, label_branch, list_branch_labels, list_branches, upsert_branch
 
 
-def run(ctx: AppContext, *, parent: str | None, stacks: Sequence[str]) -> int:
+def run(
+    ctx: AppContext,
+    *,
+    parent: str | None,
+    stacks: Sequence[str],
+    branches: str | None = None,
+) -> int:
     initialize(ctx.db_path)
 
     worktree = repo_root(ctx.cwd)
     repo_key = repo_db_key(ctx.cwd)
+    if branches is not None:
+        if parent is not None:
+            raise SystemExit("--branches already includes the parent chain; do not pass --parent.")
+        return _run_branch_chain(
+            ctx,
+            worktree=worktree,
+            repo_key=repo_key,
+            branches_csv=branches,
+            stacks=stacks,
+        )
+
     branch_name = current_branch(worktree)
     parent_branch = parent or _confirm_parent_branch(
         ctx=ctx,
@@ -80,6 +98,59 @@ def run(ctx: AppContext, *, parent: str | None, stacks: Sequence[str]) -> int:
             f"Stack label(s): {joined} (auto-generated; use `init --stack <id>` to choose your own).\n"
         )
     return 0
+
+
+def _run_branch_chain(
+    ctx: AppContext,
+    *,
+    worktree: Path,
+    repo_key: str,
+    branches_csv: str,
+    stacks: Sequence[str],
+) -> int:
+    chain = _parse_branch_chain(branches_csv)
+    missing = [branch_name for branch_name in chain if not branch_exists(worktree, branch_name)]
+    if missing:
+        joined = ", ".join(repr(branch_name) for branch_name in missing)
+        raise SystemExit(f"--branches contains unknown local branch(es): {joined}.")
+
+    anchor_branch = chain[0]
+    effective_stack_ids = list(stacks) if stacks else [_new_stack_id(ctx)]
+    for parent_branch, branch_name in zip(chain, chain[1:]):
+        fork_point_sha = merge_base(worktree, branch_name, parent_branch)
+        upsert_branch(
+            ctx.db_path,
+            repo_root=repo_key,
+            branch_name=branch_name,
+            parent_branch_name=parent_branch,
+            fork_point_sha=fork_point_sha,
+        )
+        for stack_id in effective_stack_ids:
+            label_branch(
+                ctx.db_path,
+                repo_key,
+                branch_name,
+                stack_id,
+                anchor_branch_name=anchor_branch,
+            )
+
+    rendered_chain = " -> ".join(repr(branch_name) for branch_name in chain)
+    ctx.stdout.write(f"Tracked stack chain {rendered_chain}.\n")
+    ctx.stdout.write(f"Stack label(s): {', '.join(effective_stack_ids)}.\n")
+    return 0
+
+
+def _parse_branch_chain(branches_csv: str) -> list[str]:
+    chain = [part.strip() for part in branches_csv.split(",")]
+    if any(not branch_name for branch_name in chain):
+        raise SystemExit("--branches must be a comma-separated list without empty branch names.")
+    if len(chain) < 2:
+        raise SystemExit("--branches must include an anchor and at least one stack branch.")
+    duplicates = sorted({branch_name for branch_name in chain if chain.count(branch_name) > 1})
+    if duplicates:
+        joined = ", ".join(repr(branch_name) for branch_name in duplicates)
+        raise SystemExit(f"--branches must not repeat branch names: {joined}.")
+    return chain
 
 
 def _new_stack_id(ctx: AppContext) -> str:

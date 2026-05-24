@@ -34,9 +34,18 @@ class StackmanApp:
     def status(self) -> int:
         return runner.run_safely(self._ctx(), status.run)
 
-    def init(self, *, parent: str | None = None, stacks: Sequence[str] = ()) -> int:
+    def init(
+        self,
+        *,
+        parent: str | None = None,
+        stacks: Sequence[str] = (),
+        branches: str | None = None,
+    ) -> int:
         ctx = self._ctx()
-        return runner.run_safely(ctx, lambda c: init_command.run(c, parent=parent, stacks=stacks))
+        return runner.run_safely(
+            ctx,
+            lambda c: init_command.run(c, parent=parent, stacks=stacks, branches=branches),
+        )
 
     def sync(
         self,

@@ -279,6 +279,13 @@ require("lazy").setup({
 			},
 		},
 
+		-- Inline AI annotations and review lenses
+		{
+			dir = "/Users/nick/code/learn-lsp",
+			name = "vantage.nvim",
+			build = "npm run compile",
+		},
+
 		-- File manager
 		{
 			"dmtrKovalenko/fff.nvim",

@@ -1,7 +1,7 @@
 # agents.nix — Declarative multi-agent configuration
 #
 # Manages skills, commands, and RTK hooks across all AI coding agents:
-#   claude-code, cursor, gemini-cli, codex, opencode
+#   claude-code, cursor, gemini-cli, codex, opencode, pi
 #
 # ARCHITECTURE
 # ─────────────────────────────────────────────────────────────────────────────
@@ -16,8 +16,21 @@
 #   ~/.codex/skills/<name>
 #   ~/.config/opencode/skills/<name>
 #
+# Pi is the exception: it auto-discovers both ~/.pi/agent/skills and
+# ~/.agents/skills. Shared/community skills must live only in ~/.agents/skills
+# for Pi, otherwise Pi reports name collisions at startup.
+#
 # Per-agent dotfiles (commands) live in:
 #   mods/dotfiles/agents/<agent>/
+#
+# Shared agent instructions live in one editable base file:
+#   mods/dotfiles/agents/AGENTS.md
+# Applied after RTK hook installation to:
+#   ~/.codex/AGENTS.md
+#   ~/.config/opencode/AGENTS.md
+#   ~/.claude/CLAUDE.md
+#   ~/.gemini/GEMINI.md
+#   ~/.pi/agent/AGENTS.md
 #
 # SKILLS INSTALLATION MATRIX
 # ─────────────────────────────────────────────────────────────────────────────
@@ -28,7 +41,7 @@
 #     Use ["*"] to install to all known agents.
 #
 # Local skills (from dotfiles, always current without rebuilding):
-#   - shared-skills/  → all agents
+#   - shared-skills/  → ~/.agents/skills + non-Pi agent skill dirs
 #   - <agent>/skills/ → that agent only
 #
 # RTK HOOKS
@@ -41,6 +54,7 @@
 #   Gemini CLI:   rtk init -g --gemini
 #   Codex:        rtk init -g --codex
 #   OpenCode:     rtk init -g --opencode
+#   Pi:           no rtk init target in the current rtk CLI
 {
   config,
   lib,
@@ -55,11 +69,14 @@ let
     "gemini-cli"
     "opencode"
     "codex"
+    "pi"
   ];
+  allAgentsExceptPi = builtins.filter (agent: agent != "pi") allAgents;
+  isAxionMac = (config.home.sessionVariables.MACHINE_NAME or "") == "axion-mbp";
 
   # ── Community skill sources ─────────────────────────────────────────────
   # `agents` uses skill CLI IDs (lowercase, hyphened).
-  # Valid IDs: claude-code, cursor, gemini-cli, codex, opencode,
+  # Valid IDs: claude-code, cursor, gemini-cli, codex, opencode, pi,
   #            amp, antigravity, augment, cline, codebuddy, continue,
   #            github-copilot, goose, windsurf, and many more.
   agentCommunitySkillSources = [
@@ -69,72 +86,88 @@ let
         "skill-creator"
         "doc-coauthoring"
       ];
-      agents = allAgents;
+      agents = allAgentsExceptPi;
     }
-    {
-      repo = "obra/superpowers";
-      skills = [
-        "brainstorming"
-        "using-superpowers"
-        "systematic-debugging"
-        "writing-plans"
-        "test-driven-development"
-        "requesting-code-review"
-        "executing-plans"
-        "subagent-driven-development"
-        "verification-before-completion"
-        "receiving-code-review"
-        "writing-skills"
-        "dispatching-parallel-agents"
-        "using-git-worktrees"
-        "finishing-a-development-branch"
-      ];
-      agents = allAgents;
-    }
+    # Temporarily disabled. Restore this block to reinstall superpowers skills.
+    # {
+    #   repo = "obra/superpowers";
+    #   skills = [
+    #     "brainstorming"
+    #     "using-superpowers"
+    #     "systematic-debugging"
+    #     "writing-plans"
+    #     "test-driven-development"
+    #     "requesting-code-review"
+    #     "executing-plans"
+    #     "subagent-driven-development"
+    #     "verification-before-completion"
+    #     "receiving-code-review"
+    #     "writing-skills"
+    #     "dispatching-parallel-agents"
+    #     "using-git-worktrees"
+    #     "finishing-a-development-branch"
+    #   ];
+    #   agents = allAgentsExceptPi;
+    # }
     {
       repo = "intellectronica/agent-skills";
       skills = [
         "context7"
       ];
-      agents = allAgents;
+      agents = allAgentsExceptPi;
     }
     {
       repo = "https://github.com/addyosmani/agent-skills";
       skills = [
         "code-simplification"
       ];
-      agents = allAgents;
+      agents = allAgentsExceptPi;
     }
     {
       repo = "https://github.com/mattpocock/skills";
       skills = [
+        "diagnose"
+        "grill-me"
+        "grill-with-docs"
+        "handoff"
         "improve-codebase-architecture"
+        "tdd"
+        "to-prd"
+        "to-issues"
       ];
-      agents = allAgents;
+      agents = allAgentsExceptPi;
     }
     {
       repo = "https://github.com/arjunmahishi/dotfiles";
       skills = [
         "acli-jira"
       ];
-      agents = allAgents;
+      agents = allAgentsExceptPi;
     }
     {
       repo = "https://github.com/microsoft/playwright-cli";
       skills = [
         "playwright-cli"
       ];
-      agents = allAgents;
+      agents = allAgentsExceptPi;
     }
     {
       repo = "https://github.com/langchain-ai/deepagents";
       skills = [ "web-research" ];
-      agents = allAgents;
+      agents = allAgentsExceptPi;
     }
     {
       repo = "https://github.com/softaworks/agent-toolkit";
       skills = [ "mermaid-diagrams" ];
-      agents = allAgents;
+      agents = allAgentsExceptPi;
+    }
+  ]
+  ++ lib.optionals isAxionMac [
+    {
+      repo = "https://github.com/datadog-labs/agent-skills";
+      skills = [ "dd-logs" ];
+      agents = allAgentsExceptPi;
+      fullDepth = true;
     }
   ];
 
@@ -147,17 +180,36 @@ let
       skillArgs = builtins.concatStringsSep " " (
         map (s: "--skill ${lib.escapeShellArg s}") source.skills
       );
+      fullDepthArg = lib.optionalString (source.fullDepth or false) " --full-depth";
     in
     ''
-      skills add ${lib.escapeShellArg source.repo} --global ${agentArgs} --yes --copy ${skillArgs}
+      skills add ${lib.escapeShellArg source.repo} --global ${agentArgs} --yes --copy ${skillArgs}${fullDepthArg}
     '';
 
   communitySkillCmds = builtins.concatStringsSep "\n" (
     map mkCommunitySkillCmd agentCommunitySkillSources
   );
 
+  # Pi discovers ~/.agents/skills in addition to ~/.pi/agent/skills. Keep Pi's
+  # agent-local directory for Pi-only skills, and delete duplicate entries that
+  # are already available through the global store.
+  removePiGlobalSkillDuplicates = ''
+    if [ -d "$HOME/.agents/skills" ] && [ -d "$HOME/.pi/agent/skills" ]; then
+      for _global_skill_dir in "$HOME/.agents/skills"/*/; do
+        [ -d "$_global_skill_dir" ] || continue
+        _skill_name=$(basename "$_global_skill_dir")
+        _pi_skill="$HOME/.pi/agent/skills/$_skill_name"
+        if [ -e "$_pi_skill" ] || [ -L "$_pi_skill" ]; then
+          rm -rf "$_pi_skill"
+          echo "agents: removed duplicate Pi skill '$_skill_name' already provided by ~/.agents/skills"
+        fi
+      done
+    fi
+  '';
+
   nodeBin = "${pkgs-unstable.nodejs}/bin";
   gitBin = "${pkgs-unstable.git}/bin";
+  sharedAgentInstructions = "${dotfiles}/agents/AGENTS.md";
 
   # Activation script: symlink all subdirs of a dotfiles source dir into a target dir.
   # Creates target/<name> → source/<name> for each entry, without touching other entries.
@@ -201,10 +253,28 @@ in
           "$HOME/.cursor/skills" \
           "$HOME/.gemini/skills" \
           "$HOME/.gemini/antigravity/skills" \
-          "$HOME/.codex/skills"; do
+          "$HOME/.codex/skills" \
+          "$HOME/.pi/agent/skills"; do
           if [ -L "$p" ] || { [ -e "$p" ] && [ ! -d "$p" ]; }; then
             echo "agents: removing stale non-directory at $p"
             rm -rf "$p"
+          fi
+        done
+      '';
+
+      # Previous versions symlinked these files back into the dotfiles repo.
+      # RTK writes global agent instruction files during init, so remove those
+      # symlinks before RTK runs to keep repo-managed instructions immutable.
+      prepareAgentInstructionsForRtk = lib.hm.dag.entryBefore [ "installRtkHooks" ] ''
+        for p in \
+          "$HOME/.codex/AGENTS.md" \
+          "$HOME/.config/opencode/AGENTS.md" \
+          "$HOME/.claude/CLAUDE.md" \
+          "$HOME/.gemini/GEMINI.md" \
+          "$HOME/.pi/agent/AGENTS.md"; do
+          if [ -L "$p" ]; then
+            echo "agents: removing old instruction symlink at $p"
+            rm -f "$p"
           fi
         done
       '';
@@ -224,12 +294,13 @@ in
           "$HOME/.cursor/skills" \
           "$HOME/.gemini/skills" \
           "$HOME/.gemini/antigravity/skills" \
-          "$HOME/.codex/skills"
+          "$HOME/.codex/skills" \
+          "$HOME/.pi/agent/skills"
 
         # ── Community skills (from git repos, copied into agent dirs) ────────
         ${communitySkillCmds}
 
-        # ── Shared local skills → all agents ────────────────────────────────
+        # ── Shared local skills → global store + non-Pi agent dirs ──────────
         ${mkLocalSkillSyncScript {
           sourceRelPath = "agents/shared-skills";
           targetAbsPath = "${home}/.agents/skills";
@@ -298,6 +369,15 @@ in
           targetAbsPath = "${home}/.config/opencode/skills";
         }}
 
+        ${mkLocalSkillSyncScript {
+          sourceRelPath = "agents/pi/skills";
+          targetAbsPath = "${home}/.pi/agent/skills";
+        }}
+
+        # Pi also discovers ~/.agents/skills, so remove stale/accidental copies
+        # from ~/.pi/agent/skills when the same skill exists globally.
+        ${removePiGlobalSkillDuplicates}
+
         # ── Per-agent local commands (claude slash commands) ─────────────────
         ${mkLocalSkillSyncScript {
           sourceRelPath = "agents/claude/commands";
@@ -320,37 +400,38 @@ in
           rtk init -g --gemini           && echo "agents: RTK hook installed for gemini-cli"  || echo "agents: WARNING: RTK hook failed for gemini-cli"
           rtk init -g --codex            && echo "agents: RTK hook installed for codex"       || echo "agents: WARNING: RTK hook failed for codex"
           rtk init -g --opencode         && echo "agents: RTK hook installed for opencode"    || echo "agents: WARNING: RTK hook failed for opencode"
-
-          _inline_rtk_reference() {
-            _target="$1"
-            _source="$2"
-
-            [ -f "$_target" ] && [ -f "$_source" ] || return 0
-
-            # RTK's global init writes a bare "@RTK.md" include. Some agents
-            # surface that literal include in project sessions, where it is
-            # resolved relative to the repository and repeatedly misses.
-            # Inline the generated global RTK file so the instructions are
-            # available without requiring a project-local RTK.md.
-            if grep -qx '@RTK\.md' "$_target"; then
-              _tmp="$(mktemp)"
-              while IFS= read -r _line || [ -n "$_line" ]; do
-                if [ "$_line" = "@RTK.md" ]; then
-                  cat "$_source"
-                else
-                  printf '%s\n' "$_line"
-                fi
-              done < "$_target" > "$_tmp"
-              mv "$_tmp" "$_target"
-              echo "agents: inlined RTK instructions in $_target"
-            fi
-          }
-
-          _inline_rtk_reference "$HOME/.claude/CLAUDE.md" "$HOME/.claude/RTK.md"
-          _inline_rtk_reference "$HOME/.codex/AGENTS.md" "$HOME/.codex/RTK.md"
         else
           echo "agents: rtk not found on PATH — skipping RTK hook installation (install via: brew install rtk)"
         fi
+      '';
+
+      # Write normal files, not symlinks. RTK may write these paths during init;
+      # this step deliberately restores the single repo-managed instruction body
+      # afterward so all agents receive identical global context.
+      applySharedAgentInstructions = lib.hm.dag.entryAfter [ "installRtkHooks" ] ''
+        _base="${sharedAgentInstructions}"
+
+        _write_agent_instructions() {
+          _target="$1"
+
+          mkdir -p "$(dirname "$_target")"
+
+          if [ -d "$_target" ] && [ ! -L "$_target" ]; then
+            echo "agents: refusing to replace directory at $_target"
+            return 0
+          fi
+
+          _tmp="$(mktemp)"
+          cat "$_base" > "$_tmp"
+          mv "$_tmp" "$_target"
+          echo "agents: wrote shared instructions -> $_target"
+        }
+
+        _write_agent_instructions "$HOME/.codex/AGENTS.md"
+        _write_agent_instructions "$HOME/.config/opencode/AGENTS.md"
+        _write_agent_instructions "$HOME/.claude/CLAUDE.md"
+        _write_agent_instructions "$HOME/.gemini/GEMINI.md"
+        _write_agent_instructions "$HOME/.pi/agent/AGENTS.md"
       '';
     };
   };

@@ -30,11 +30,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    workmux = {
-      url = "github:raine/workmux/main";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
   };
 
   outputs =

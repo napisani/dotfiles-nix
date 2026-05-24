@@ -29,8 +29,9 @@ function M.setup()
 		-- Delete recordings after transcription
 		delete_recordings = true,
 
-		-- Disable default keymap (we set our own via which-key)
-		keymap = nil,
+		-- Disable default keymap (we set our own via which-key).
+		-- `nil` does not override vocal.nvim's default during table merge.
+		keymap = false,
 
 		-- API configuration (OpenAI Whisper)
 		api = {

@@ -149,6 +149,21 @@
 
 ---
 
+## `<leader>v` — inline code annotations
+
+`<leader>v` → domain: request inline AI annotations for the current buffer  
+`<leader>v` → contract: annotation commands add or remove inline review notes without changing buffer text; visual-mode requests use the selected line range
+
+`<leader>va` → [n] leaf: annotate the current line  
+`<leader>vA` → [n] leaf: annotate the visible window  
+`<leader>vx` → [n] leaf: clear inline annotations from the current buffer  
+`<leader>vl` → [n] leaf: set or replace the guidance lens used by subsequent annotation requests  
+`<leader>v?` → [n] leaf: explain the current line without changing buffer text
+`<leader>va` → [v] leaf: annotate the selected line range
+`<leader>v?` → [v] leaf: explain the selected line range without changing buffer text
+
+---
+
 ## `<leader>g` — git
 
 `<leader>g` → domain: git operations — status, blame, hunk navigation, diff reference  
@@ -221,7 +236,7 @@ Merge conflict resolution (contextual inside a diff/merge view):
 
 `<leader>a` → domain: control the **Wiremux** target pane and **PromptBuilder** — a single **horizontal** split (opens **below** the current window, height capped to a fraction of the screen), markdown-syntax scratch buffer (tag `prompt_builder`) where you assemble `@` references and freeform text. At most one PromptBuilder buffer exists; new material **appends** to it. Nothing here talks to the agent by itself except **`ao` / `aq` / `aw` / `av`** and **`<C-g>` inside PromptBuilder** (see below)  
 `<leader>a` → contract: after a **send** to the agent (including from PromptBuilder via `<C-g>`) or after **`ao`** toggle / focus, the **Wiremux target pane** gets focus so the reply is visible. Staging keys (`af*`, `ae`, `a?`, `as`, `ap`, `am`) only update PromptBuilder until you `<C-g>` there; **`ai`** is different: it only opens or focuses PromptBuilder and appends no text
-`<leader>a` → note: route (target) is per-session and defaults to the `opencode` pane for the current working directory
+`<leader>a` → note: route (target) is per-session and defaults to the `opencode` pane for the current working directory; available coding-agent routes include OpenCode, Claude Code, Codex, Cursor Agent, Gemini, and Pi
 
 **Direct to Wiremux / voice (not PromptBuilder)**  
 `<leader>aq` → [n] leaf: close the current route target  
@@ -248,7 +263,7 @@ Merge conflict resolution (contextual inside a diff/merge view):
 `<leader>a?` → [n] [v] leaf: same, but Snacks title *Question* and a **Question:** line in the appended block
 
 **`as` — skill callout to PromptBuilder**
-`<leader>as` → [n] leaf: pick an AI skill from the shared skill list (`~/.agents/skills` plus the current repo's `.agents/skills`); append the active Wiremux route's skill callout (`/skill name` for opencode, `/name` for claude, `$name` for codex) to PromptBuilder for editing, then `<C-g>` to send
+`<leader>as` → [n] leaf: pick an AI skill from the shared skill list (`~/.agents/skills` plus the current repo's `.agents/skills`); append the active Wiremux route's skill callout (`/skill name` for opencode, `/name` for claude, `$name` for codex, `/skill:name` for pi) to PromptBuilder for editing, then `<C-g>` to send
 
 **Canned and submit**  
 `<leader>ap` → [n] leaf: pick a **canned prompt** from the library; the template (with `{file}` / `{this}` / `{selection}` expanded where possible) is **appended** to PromptBuilder for you to edit, then `<C-g>` to send
@@ -258,7 +273,7 @@ Merge conflict resolution (contextual inside a diff/merge view):
 
 **Inside a PromptBuilder buffer**  
 `@…` → [i] leaf: blink file completion uses `@` as the draft trigger; accepting a file replaces the `@…` token with `@relative/path/to/file`
-`$…` → [i] leaf: blink skill completion always uses `$` as the draft trigger; accepting a skill replaces the `$…` token with the active Wiremux route's callout (`/skill name` for opencode, `/name` for claude, `$name` for codex)
+`$…` → [i] leaf: blink skill completion always uses `$` as the draft trigger; accepting a skill replaces the `$…` token with the active Wiremux route's callout (`/skill name` for opencode, `/name` for claude, `$name` for codex, `/skill:name` for pi)
 `<C-g>` → [n] [i] leaf: send the **entire** buffer as one message to Wiremux **with submit**, then wipe the PromptBuilder buffer  
 
 ---

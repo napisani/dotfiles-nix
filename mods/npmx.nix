@@ -19,6 +19,7 @@ let
     "@napisani/scute@latest"
     "skills@latest"
     "openrtk"
+    "@mariozechner/pi-coding-agent"
     "@agentclientprotocol/claude-agent-acp"
     "@zed-industries/codex-acp"
     "@google/gemini-cli"

@@ -53,6 +53,7 @@ local ai_actions = require("user.snacks.ai_actions")
 local ai_skills = require("user.snacks.ai_skills")
 local skill_source = require("user.completion.sources.skills")
 local keymaps = wiremux.get_keymaps()
+local route_definitions = wiremux.get_route_definitions()
 
 assert(type(ai_actions.append_snack_context_to_prompt_builder) == "function")
 assert(type(ai_actions.append_memo_to_prompt_builder) == "function")
@@ -96,9 +97,14 @@ assert_missing_mapping(keymaps.normal, "<leader>AP")
 assert_missing_mapping(keymaps.normal, "<leader>AS")
 assert_missing_mapping(keymaps.visual, "<leader>Ao")
 
+assert(route_definitions.pi, "expected pi route definition")
+assert(route_definitions.pi.label == "Pi", "expected Pi route label")
+assert(route_definitions.pi.cmd == "pi", "expected Pi route command")
+
 assert(ai_skills.skill_invocation("example", { provider = "opencode" }) == "/skill example")
 assert(ai_skills.skill_invocation("example", { provider = "claude" }) == "/example")
 assert(ai_skills.skill_invocation("example", { provider = "codex" }) == "$example")
+assert(ai_skills.skill_invocation("example", { provider = "pi" }) == "/skill:example")
 
 do
 	local function completion_for(provider, line)
@@ -142,6 +148,7 @@ do
 	assert(claude_completion.textEdit.range.start.character == 0)
 	assert(claude_completion.textEdit.range["end"].character == #"$test")
 	assert(completion_for("codex", "$").items[1].textEdit.newText == "$test-skill")
+	assert(completion_for("pi", "$").items[1].textEdit.newText == "/skill:test-skill")
 	assert(#completion_for("opencode", "/").items == 0)
 	assert(#completion_for("claude", "/").items == 0)
 end

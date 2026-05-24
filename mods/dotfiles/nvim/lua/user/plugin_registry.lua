@@ -39,6 +39,7 @@ M.modules = {
 	"ai.copilot",
 	"ai.wiremux",
 	"ai.vocal",
+	"ai.vantage",
 	-- Database plugins
 	"database.dadbod",
 	-- Navigation plugins (remaining)

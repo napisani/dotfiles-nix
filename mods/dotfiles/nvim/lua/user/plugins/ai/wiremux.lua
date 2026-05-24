@@ -43,6 +43,13 @@ local default_config = {
 				split = "horizontal", -- horizontal split -> pane opens on the right
 				shell = false,
 			},
+			pi = {
+				label = "Pi",
+				cmd = "pi",
+				kind = "pane",
+				split = "horizontal",
+				shell = false,
+			},
 		},
 	},
 	actions = {
@@ -206,6 +213,10 @@ end
 
 function M.get_current_route()
 	return state.current_route
+end
+
+function M.get_route_definitions()
+	return state.options.targets and state.options.targets.definitions or {}
 end
 
 local function send_via_wiremux(payload, opts)

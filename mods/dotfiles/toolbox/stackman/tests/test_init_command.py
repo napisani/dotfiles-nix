@@ -3,7 +3,7 @@ from __future__ import annotations
 import io
 
 from stackman.app import StackmanApp
-from stackman.store import get_stack, initialize, list_branch_labels
+from stackman.store import get_branch, get_stack, initialize, list_branch_labels
 
 
 def test_init_with_explicit_parent_persists_branch_lineage(
@@ -46,6 +46,58 @@ def test_init_with_explicit_parent_persists_branch_lineage(
     assert "branch: feature" in rendered
     assert "parent: main" in rendered
     assert "labels: stack-1" in rendered
+
+
+def test_init_with_csv_branch_chain_tracks_lineage_under_one_stack_label(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    git_repo.checkout_new("stack1", from_ref="main")
+    git_repo.commit("stack1 commit", filename="stack1.txt", content="stack1\n")
+    git_repo.checkout_new("stack2", from_ref="stack1")
+    git_repo.commit("stack2 commit", filename="stack2.txt", content="stack2\n")
+
+    calls: list[str] = []
+
+    def factory() -> str:
+        calls.append("x")
+        return "sm_csv_chain"
+
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=stdout,
+        stderr=stderr,
+        stack_id_factory=factory,
+    )
+
+    exit_code = app.init(branches="main,stack1,stack2")
+
+    assert exit_code == 0
+    assert stderr.getvalue() == ""
+    assert calls == ["x"]
+
+    repo_key = git_repo.canonical_repo_key()
+    stack1 = get_branch(stackman_db_path, repo_key, "stack1")
+    stack2 = get_branch(stackman_db_path, repo_key, "stack2")
+    assert stack1 is not None
+    assert stack1.parent_branch_name == "main"
+    assert stack1.fork_point_sha == git_repo.merge_base("stack1", "main")
+    assert stack2 is not None
+    assert stack2.parent_branch_name == "stack1"
+    assert stack2.fork_point_sha == git_repo.merge_base("stack2", "stack1")
+    assert list_branch_labels(stackman_db_path, repo_key, "stack1") == ["sm_csv_chain"]
+    assert list_branch_labels(stackman_db_path, repo_key, "stack2") == ["sm_csv_chain"]
+
+    stack = get_stack(stackman_db_path, "sm_csv_chain")
+    assert stack is not None
+    assert stack.anchor_branch_name == "main"
+    out = stdout.getvalue()
+    assert "Tracked stack chain 'main' -> 'stack1' -> 'stack2'." in out
+    assert "Stack label(s): sm_csv_chain." in out
 
 
 def test_init_without_parent_uses_interactive_selection(

@@ -9,12 +9,14 @@ Run with:
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 from pathlib import Path
 
 import pytest
 
 SCRIPT = Path(__file__).parent.parent / "homelab.py"
+HOMELAB_BASHRC = SCRIPT.parent.parent / ".bashrc.d" / "0140_homelab.bashrc"
 
 
 def load_module():
@@ -199,4 +201,29 @@ def test_ssh_command_quotes_remote_script_as_single_bash_lc_argument() -> None:
         "bash",
         "-lc",
         "'kubectl get pods -n home'",
+    ]
+
+
+def test_labopenclaw_discovers_running_pod_and_execs_openclaw(tmp_path: Path) -> None:
+    calls = tmp_path / "calls.txt"
+    script = f"""
+set -euo pipefail
+source {HOMELAB_BASHRC}
+
+labkubectl() {{
+  printf '%s\\n' "$*" >> {calls}
+  if [ "$1" = "get" ]; then
+    printf '%s\\n' openclaw-5758dcb88d-mf64s
+  fi
+}}
+
+labopenclaw status --json
+"""
+
+    result = subprocess.run(["bash", "-lc", script], capture_output=True, text=True)
+
+    assert result.returncode == 0, result.stderr
+    assert calls.read_text().splitlines() == [
+        "get pods -n home -l app=openclaw --field-selector=status.phase=Running -o jsonpath={.items[0].metadata.name}",
+        "exec -n home openclaw-5758dcb88d-mf64s -c gateway -- openclaw status --json",
     ]

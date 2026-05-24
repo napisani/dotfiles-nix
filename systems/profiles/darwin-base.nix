@@ -54,6 +54,7 @@
       "koekeishiya/formulae/yabai"
       "opencode"
       "rtk"
+      "raine/workmux/workmux"
       "kitlangton/tap/ghui"
     ];
 
@@ -62,6 +63,7 @@
       # "homebrew/cask-versions"
       "mongodb/brew"
       "koekeishiya/formulae"
+      "raine/workmux"
     ];
   };
 

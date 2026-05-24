@@ -157,6 +157,7 @@ Indexes for: `repo_id` + `parent_branch_name` (children lookup); `stack_id` (bra
 | Command | Role |
 |---------|------|
 | `stackman init` | Register current branch with parent + fork point; assign stack label(s) per [default rules](#init-behavior-sketch) or `--stack`. |
+| `stackman init --branches main,stack1,stack2` | Register a complete linear branch chain at once: `main` is the untracked anchor, `stack1`'s parent is `main`, and `stack2`'s parent is `stack1`. |
 | `stackman merged` | Post-merge cleanup: if the **parent** is tracked, remove it and reparent its children onto the **grandparent**; if the **parent** is not tracked (e.g. `main`), remove the **current** branch row and reparent its children onto that parent name. Does not delete Git branches. |
 | `stackman sync <stack_id>` | Resolve sync set `S`, topological rebase + push sequence as above. |
 | `stackman status` | Show current branch’s place in the tree / labels (later). |
@@ -189,6 +190,8 @@ Exact flags (`--repo`, dry-run, etc.) belong in an implementation plan.
 - **Sibling branches** from the same trunk (e.g. two branches off `main` that are not stacked on each other): each first init mints its **own** id because `main` is not tracked, so they are **not** lumped together—consistent with [Ambiguity example](#ambiguity-example) (overlap alone must not imply one stack).
 
 The user does **not** need to pass `--stack` to get a sensible default; they use `--stack` when they want a human-readable name or an explicit fork from the parent’s labels.
+
+`stackman init --branches <csv>` is a batch form for an already-created linear stack. The first CSV entry is the root/anchor and is not tracked as a stack branch; every later entry is tracked with the previous entry as its parent. For example, `stackman init --branches main,stack1,stack2` records `stack1 -> main` and `stack2 -> stack1`. If `--stack` is omitted, all tracked branches in the CSV receive one new opaque stack id; if `--stack` is repeated, all tracked branches receive exactly those labels.
 
 ### `merged` (post-merge cleanup)
 
