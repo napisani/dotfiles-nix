@@ -112,6 +112,9 @@ require("lazy").setup({
 		{
 			"dlyongemallo/diffview.nvim",
 			dependencies = { "nvim-lua/plenary.nvim" },
+			config = function()
+				require("user.plugins.git.diff").configure_diffview()
+			end,
 			cmd = {
 				"DiffviewOpen",
 				"DiffviewClose",
@@ -126,6 +129,9 @@ require("lazy").setup({
 
 		{
 			"NeogitOrg/neogit",
+			lazy = true,
+			cmd = "Neogit",
+			opts = {},
 			dependencies = {
 				"nvim-lua/plenary.nvim", -- required
 				"folke/snacks.nvim", -- optional
@@ -183,6 +189,15 @@ require("lazy").setup({
 				{
 					"joryeugene/dadbod-grip.nvim",
 					version = "*",
+					opts = {
+						picker = "snacks",
+						keymaps = {
+							qpad_execute = "<leader>De",
+						},
+					},
+					config = function(_, opts)
+						require("user.plugins.database.dadbod").configure_grip(opts)
+					end,
 				},
 			},
 			cmd = {
@@ -284,6 +299,24 @@ require("lazy").setup({
 			dir = "/Users/nick/code/learn-lsp",
 			name = "vantage.nvim",
 			build = "npm run compile",
+			cmd = {
+				"VantageSetLens",
+				"VantageClearLens",
+				"VantageExplain",
+				"VantageQuestion",
+				"VantageEdit",
+				"VantageAnnotate",
+				"VantageAnnotationClear",
+				"VantageAnnotationStatus",
+				"VantageContextStatus",
+				"VantageAgentReset",
+				"VantageAgentStatus",
+				"VantageReviewHunk",
+			},
+			opts = require("user.plugins.ai.vantage").opts,
+			config = function(_, opts)
+				require("user.plugins.ai.vantage").configure(opts)
+			end,
 		},
 
 		-- File manager

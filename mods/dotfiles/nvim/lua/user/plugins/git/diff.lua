@@ -259,7 +259,9 @@ function M.setup()
 	vim.api.nvim_create_user_command("DiffviewReloadBuffers", M.refresh, {
 		desc = "Refresh Diffview file list and reload on-disk file buffers in the tab",
 	})
+end
 
+function M.configure_diffview()
 	local status_ok, diffview = pcall(require, "diffview")
 	if not status_ok then
 		return

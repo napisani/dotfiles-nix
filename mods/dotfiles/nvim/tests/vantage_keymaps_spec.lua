@@ -35,50 +35,12 @@ local function with_stubbed_vantage(module, callback)
 	end
 
 	local ok, result = xpcall(function()
-		module.setup()
+		module.configure(module.opts)
 		return callback(captured_config)
 	end, debug.traceback)
 
 	package.loaded.vantage = original_loaded
 	package.preload.vantage = original_preload
-
-	if not ok then
-		error(result, 0)
-	end
-
-	return result
-end
-
-local function with_stubbed_lens(module, callback)
-	local original_loaded = package.loaded.vantage
-	local original_preload = package.preload.vantage
-	local original_input = vim.ui.input
-	local captured_lens = nil
-	local input_calls = {}
-	local responses = { "prefer small focused explanations" }
-
-	package.loaded.vantage = nil
-	package.preload.vantage = function()
-		return {
-			set_lens = function(mode, text)
-				captured_lens = { mode = mode, text = text }
-			end,
-		}
-	end
-
-	vim.ui.input = function(opts, on_confirm)
-		table.insert(input_calls, opts)
-		on_confirm(table.remove(responses, 1))
-	end
-
-	local ok, result = xpcall(function()
-		module.set_lens()
-		return callback(captured_lens, input_calls)
-	end, debug.traceback)
-
-	package.loaded.vantage = original_loaded
-	package.preload.vantage = original_preload
-	vim.ui.input = original_input
 
 	if not ok then
 		error(result, 0)
@@ -102,22 +64,23 @@ assert_has_mapping(keymaps.shared, "<leader>v")
 assert_rhs(assert_has_mapping(keymaps.normal, "<leader>va"), "<cmd>VantageAnnotate<cr>")
 assert_rhs(assert_has_mapping(keymaps.normal, "<leader>vA"), "<cmd>VantageAnnotate visible<cr>")
 assert_rhs(assert_has_mapping(keymaps.normal, "<leader>vx"), "<cmd>VantageAnnotationClear<cr>")
-assert(type(assert_has_mapping(keymaps.normal, "<leader>vl")[2]) == "function", "expected <leader>vl to set lens")
-assert_rhs(assert_has_mapping(keymaps.normal, "<leader>v?"), "<cmd>VantageExplain<cr>")
+assert_rhs(assert_has_mapping(keymaps.normal, "<leader>vl"), "<cmd>VantageSetLens learning<cr>")
+assert_rhs(assert_has_mapping(keymaps.normal, "<leader>ve"), "<cmd>VantageEdit<cr>")
+assert_missing_mapping(keymaps.normal, "<leader>vE")
+assert_rhs(assert_has_mapping(keymaps.normal, "<leader>v?"), "<cmd>VantageQuestion<cr>")
 assert_rhs(assert_has_mapping(keymaps.visual, "<leader>va"), ":VantageAnnotate<cr>")
-assert_rhs(assert_has_mapping(keymaps.visual, "<leader>v?"), ":VantageExplain<cr>")
-
-with_stubbed_lens(vantage, function(lens, input_calls)
-	assert(#input_calls == 1, "expected one lens input dialog")
-	assert(input_calls[1].prompt == "Lens: ", "expected lens text prompt")
-	assert(lens.mode == "learning", "expected fixed learning lens mode")
-	assert(lens.text == "prefer small focused explanations", "expected lens text from prompt")
-end)
+assert_rhs(assert_has_mapping(keymaps.visual, "<leader>ve"), ":VantageEdit<cr>")
+assert_missing_mapping(keymaps.visual, "<leader>vE")
+assert_rhs(assert_has_mapping(keymaps.visual, "<leader>v?"), ":VantageQuestion<cr>")
 
 with_stubbed_vantage(vantage, function(config)
-	assert(config.provider.name == "pi", "expected Vantage provider to be pi")
-	assert(config.provider.pi.provider == "openai", "expected Pi to use the OpenAI backend")
-	assert(config.provider.pi.model == "gpt-4o-mini", "expected Pi to use gpt-4o-mini")
+	assert(config.provider == nil, "expected no legacy Vantage provider adapter config")
+	assert(config.agent.provider == "openai-codex", "expected Pi to use the OpenAI Codex subscription provider")
+	assert(config.ui == nil, "expected Vantage to use the plugin default UI config")
+	assert(config.agent.model == "gpt-5.4-mini", "expected Pi to use the configured Codex model")
+	assert(config.agent.auth == nil, "expected Vantage to use its default Pi OAuth auth path lookup")
+	assert(config.agent.options.reasoning == "minimal", "expected configured Codex reasoning")
+	assert((config.agent.options or {}).apiKey == nil, "expected credentials to be delegated to Pi")
 end)
 
 do

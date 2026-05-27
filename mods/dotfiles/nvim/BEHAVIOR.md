@@ -143,24 +143,28 @@
 `<leader>lE` → leaf: populate location list with all diagnostics in current buffer  
 `<leader>lR` → leaf: restart all attached LSP servers  
 `<leader>lc` → [nv] leaf: toggle comment on current line or selection  
+`<leader>lC` → leaf: toggle AI inline code suggestions on or off for the editor session
 `<leader>ld` → leaf: render the current Mermaid diagram file to SVG and open a browser-based pan/zoom viewer
 `<leader>lm` → leaf: toggle markdown rendering (preview rendered output inline)  
 `<leader>lw` → leaf: toggle line wrap in current window
 
 ---
 
-## `<leader>v` — inline code annotations
+## `<leader>v` — inline AI assistance
 
-`<leader>v` → domain: request inline AI annotations for the current buffer  
-`<leader>v` → contract: annotation commands add or remove inline review notes without changing buffer text; visual-mode requests use the selected line range
+`<leader>v` → domain: request AI help for the current buffer — annotations, guided edits, questions, and guidance lens updates
+`<leader>v` → contract: normal-mode requests use the current line or visible window as their scope; visual-mode requests use the selected line range
+`<leader>v` → contract: annotation and question commands do not change buffer text; edit commands may change only the requested scope
 
 `<leader>va` → [n] leaf: annotate the current line  
 `<leader>vA` → [n] leaf: annotate the visible window  
 `<leader>vx` → [n] leaf: clear inline annotations from the current buffer  
 `<leader>vl` → [n] leaf: set or replace the guidance lens used by subsequent annotation requests  
-`<leader>v?` → [n] leaf: explain the current line without changing buffer text
+`<leader>ve` → [n] leaf: request an AI edit for the current line
+`<leader>v?` → [n] leaf: ask an ad hoc question about the current line without changing buffer text
 `<leader>va` → [v] leaf: annotate the selected line range
-`<leader>v?` → [v] leaf: explain the selected line range without changing buffer text
+`<leader>ve` → [v] leaf: request an AI edit for the selected line range
+`<leader>v?` → [v] leaf: ask an ad hoc question about the selected line range without changing buffer text
 
 ---
 

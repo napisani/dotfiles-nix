@@ -1,30 +1,24 @@
 local M = {}
 
 function M.setup()
-  local status_ok, neogit = pcall(require, "neogit")
-  if not status_ok then
-    vim.notify("neogit not found")
-    return
-  end
-
-  neogit.setup({})
+	-- Configured lazily by the Neogit plugin spec when :Neogit is used.
 end
 
 function M.get_keymaps()
-  return {
-    normal = {},
-    visual = {},
+	return {
+		normal = {},
+		visual = {},
 
-    shared = {
-      {
-        "<leader>go",
-        function()
-          vim.cmd(":Neogit")
-        end,
-        desc = "Open neogit",
-      },
-    },
-  }
+		shared = {
+			{
+				"<leader>go",
+				function()
+					vim.cmd(":Neogit")
+				end,
+				desc = "Open neogit",
+			},
+		},
+	}
 end
 
 return M

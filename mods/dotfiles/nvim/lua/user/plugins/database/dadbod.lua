@@ -24,6 +24,11 @@ local function close_grip_windows()
 end
 
 function M.setup()
+	-- Database plugin setup is deferred to lazy.nvim's dadbod-grip config.
+	-- This keeps project-root discovery out of the startup keymap path.
+end
+
+function M.configure_grip(opts)
 	local utils = require("user.utils")
 
 	--[=====[ 
@@ -59,18 +64,7 @@ function M.setup()
 	vim.g.dbs = get_project_db_urls()
 	vim.g.db_ui_use_nerd_fonts = 1
 
-	local ok_grip, grip = pcall(require, "dadbod-grip")
-	if not ok_grip then
-		vim.notify("dadbod-grip not found", vim.log.levels.ERROR)
-		return
-	end
-
-	grip.setup({
-		picker = "snacks",
-		keymaps = {
-			qpad_execute = "<leader>De",
-		},
-	})
+	require("dadbod-grip").setup(opts)
 end
 
 --- Get keymaps for dadbod-grip
