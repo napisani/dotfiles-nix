@@ -153,6 +153,44 @@ do
 	assert(#completion_for("claude", "/").items == 0)
 end
 
+do
+	local appended
+	local closed = false
+
+	with_temporary_value(package.loaded, "snacks", {
+		picker = {
+			pick = function(opts)
+				assert(opts.items[1].label == "/skill:test-skill")
+				opts.confirm({
+					close = function()
+						closed = true
+					end,
+				}, opts.items[1])
+			end,
+		},
+	}, function()
+		with_temporary_value(ai_skills, "list", function()
+			return {
+				{
+					name = "test-skill",
+					description = "Test skill",
+					path = "/tmp/test-skill/SKILL.md",
+				},
+			}
+		end, function()
+			local prompt_builder = require("user.prompt_builder")
+			with_temporary_value(prompt_builder, "append_text", function(text)
+				appended = text
+			end, function()
+				ai_skills.pick_to_prompt_builder({ provider = "pi" })
+			end)
+		end)
+	end)
+
+	assert(appended == "/skill:test-skill", "expected Pi skill picker to append /skill:<name>")
+	assert(closed, "expected skill picker to close after selection")
+end
+
 -- Reference payload contract: common owns formatting; Wiremux keeps compatibility wrappers.
 assert(ai_action_common.format_context_ref_line({ relative_path = "foo/bar.lua" }) == "@foo/bar.lua")
 assert(

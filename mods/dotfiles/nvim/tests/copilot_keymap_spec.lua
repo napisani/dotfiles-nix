@@ -12,6 +12,11 @@ local function assert_has_mapping(entries, lhs)
 	return entry
 end
 
+local function assert_buffer_filter(call, bufnr, context)
+	assert(call.filter.bufnr == bufnr, context .. " should target the attached buffer")
+	assert(call.filter.client_id == nil, context .. " should not pass client_id with bufnr")
+end
+
 local function with_inline_completion_stub(callback)
 	local original_inline = vim.lsp.inline_completion
 	local original_get_clients = vim.lsp.get_clients
@@ -69,11 +74,9 @@ with_inline_completion_stub(function(calls)
 	assert(vim.g.user_copilot_inline_completion_enabled == false, "expected toggle to disable copilot")
 	assert(#calls == 2, "expected disable call for each attached copilot buffer")
 	assert(calls[1].enabled == false, "expected first call to disable inline completion")
-	assert(calls[1].filter.client_id == 42, "expected first call to target copilot client")
-	assert(calls[1].filter.bufnr == 7, "expected first call to target attached buffer")
+	assert_buffer_filter(calls[1], 7, "expected first call")
 	assert(calls[2].enabled == false, "expected second call to disable inline completion")
-	assert(calls[2].filter.client_id == 42, "expected second call to target copilot client")
-	assert(calls[2].filter.bufnr == 9, "expected second call to target attached buffer")
+	assert_buffer_filter(calls[2], 9, "expected second call")
 
 	copilot.toggle_inline_completion()
 	assert(vim.g.user_copilot_inline_completion_enabled == true, "expected second toggle to enable copilot")
@@ -94,8 +97,7 @@ with_inline_completion_stub(function(calls)
 	assert(enabled == true, "expected enabled preference to allow LspAttach enable")
 	assert(#calls == 1, "expected one inline enable call")
 	assert(calls[1].enabled == true, "expected LspAttach helper to enable inline completion")
-	assert(calls[1].filter.client_id == 44, "expected LspAttach helper to target copilot client")
-	assert(calls[1].filter.bufnr == 11, "expected LspAttach helper to target attached buffer")
+	assert_buffer_filter(calls[1], 11, "expected LspAttach helper")
 end)
 
 print("copilot_keymap_spec: ok")

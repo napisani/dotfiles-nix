@@ -1,4 +1,0 @@
-interface:
-  display_name: "Axion Local DB Access"
-  short_description: "Query local Axion Postgres and Mongo"
-  default_prompt: "Use $axion-local-db-access to inspect a tenant's local Postgres or Mongo data."

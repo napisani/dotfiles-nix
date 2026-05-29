@@ -7,6 +7,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # ~/.agents/skills/<name>/          Global skill store (managed by skills@latest)
 #   ├── shared from dotfiles         mods/dotfiles/agents/shared-skills/<name>/
+#   ├── Axion from git               github.com/napisani/axion-skills
 #   └── community (from git repos)   installed via activation hook
 #
 # Per-agent skill dirs receive symlinks from ~/.agents/skills/:
@@ -19,6 +20,11 @@
 # Pi is the exception: it auto-discovers both ~/.pi/agent/skills and
 # ~/.agents/skills. Shared/community skills must live only in ~/.agents/skills
 # for Pi, otherwise Pi reports name collisions at startup.
+#
+# Pi extensions are symlinked from:
+#   mods/dotfiles/agents/pi/extensions/*.js and *.ts
+# into:
+#   ~/.pi/agent/extensions/
 #
 # Per-agent dotfiles (commands) live in:
 #   mods/dotfiles/agents/<agent>/
@@ -43,6 +49,9 @@
 # Local skills (from dotfiles, always current without rebuilding):
 #   - shared-skills/  → ~/.agents/skills + non-Pi agent skill dirs
 #   - <agent>/skills/ → that agent only
+#
+# Axion-specific skills are installed from:
+#   https://github.com/napisani/axion-skills
 #
 # RTK HOOKS
 # ─────────────────────────────────────────────────────────────────────────────
@@ -145,6 +154,16 @@ let
       agents = allAgentsExceptPi;
     }
     {
+      repo = "https://github.com/napisani/axion-skills";
+      skills = [
+        "axion-jira"
+        "axion-local-db-access"
+        "axion-pr-workflow"
+        "raygun-script-all-script-writer"
+      ];
+      agents = allAgentsExceptPi;
+    }
+    {
       repo = "https://github.com/microsoft/playwright-cli";
       skills = [
         "playwright-cli"
@@ -207,6 +226,34 @@ let
     fi
   '';
 
+  syncPiExtensions = ''
+    _src="${dotfiles}/agents/pi/extensions"
+    _dst="$HOME/.pi/agent/extensions"
+    mkdir -p "$_dst"
+
+    if [ -d "$_src" ]; then
+      for _extension_file in "$_src"/*.js "$_src"/*.ts; do
+        [ -f "$_extension_file" ] || continue
+
+        _extension_name=$(basename "$_extension_file")
+        case "$_extension_name" in
+          *.test.*) continue ;;
+        esac
+
+        _target_link="$_dst/$_extension_name"
+        if [ -e "$_target_link" ] && [ ! -L "$_target_link" ]; then
+          echo "agents: refusing to replace non-symlink Pi extension at $_target_link"
+          continue
+        fi
+
+        if [ ! -L "$_target_link" ] || [ "$(readlink "$_target_link")" != "$_extension_file" ]; then
+          ln -sfn "$_extension_file" "$_target_link"
+          echo "agents: linked Pi extension '$_extension_name' -> $_target_link"
+        fi
+      done
+    fi
+  '';
+
   nodeBin = "${pkgs-unstable.nodejs}/bin";
   gitBin = "${pkgs-unstable.git}/bin";
   sharedAgentInstructions = "${dotfiles}/agents/AGENTS.md";
@@ -254,7 +301,8 @@ in
           "$HOME/.gemini/skills" \
           "$HOME/.gemini/antigravity/skills" \
           "$HOME/.codex/skills" \
-          "$HOME/.pi/agent/skills"; do
+          "$HOME/.pi/agent/skills" \
+          "$HOME/.pi/agent/extensions"; do
           if [ -L "$p" ] || { [ -e "$p" ] && [ ! -d "$p" ]; }; then
             echo "agents: removing stale non-directory at $p"
             rm -rf "$p"
@@ -295,7 +343,8 @@ in
           "$HOME/.gemini/skills" \
           "$HOME/.gemini/antigravity/skills" \
           "$HOME/.codex/skills" \
-          "$HOME/.pi/agent/skills"
+          "$HOME/.pi/agent/skills" \
+          "$HOME/.pi/agent/extensions"
 
         # ── Community skills (from git repos, copied into agent dirs) ────────
         ${communitySkillCmds}
@@ -373,6 +422,9 @@ in
           sourceRelPath = "agents/pi/skills";
           targetAbsPath = "${home}/.pi/agent/skills";
         }}
+
+        # ── Pi local extensions ─────────────────────────────────────────────
+        ${syncPiExtensions}
 
         # Pi also discovers ~/.agents/skills, so remove stale/accidental copies
         # from ~/.pi/agent/skills when the same skill exists globally.

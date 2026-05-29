@@ -26,19 +26,11 @@ local function attached_copilot_buffers()
 	for _, client in ipairs(clients) do
 		for bufnr, attached in pairs(client.attached_buffers or {}) do
 			if attached then
-				table.insert(buffers, {
-					client_id = client.id,
-					bufnr = bufnr,
-				})
+				table.insert(buffers, bufnr)
 			end
 		end
 	end
-	table.sort(buffers, function(left, right)
-		if left.client_id == right.client_id then
-			return left.bufnr < right.bufnr
-		end
-		return left.client_id < right.client_id
-	end)
+	table.sort(buffers)
 	return buffers
 end
 
@@ -52,10 +44,9 @@ function M.set_inline_completion_enabled(enabled, opts)
 		return enabled
 	end
 
-	for _, target in ipairs(attached_copilot_buffers()) do
+	for _, bufnr in ipairs(attached_copilot_buffers()) do
 		inline.enable(enabled, {
-			client_id = target.client_id,
-			bufnr = target.bufnr,
+			bufnr = bufnr,
 		})
 	end
 
@@ -71,7 +62,7 @@ function M.toggle_inline_completion()
 	return M.set_inline_completion_enabled(not M.is_enabled())
 end
 
-function M.enable_for_client(client, bufnr)
+function M.enable_for_client(_client, bufnr)
 	if not M.is_enabled() then
 		return false
 	end
@@ -82,7 +73,6 @@ function M.enable_for_client(client, bufnr)
 	end
 
 	inline.enable(true, {
-		client_id = client.id,
 		bufnr = bufnr,
 	})
 	return true

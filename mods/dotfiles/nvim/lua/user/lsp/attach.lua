@@ -8,7 +8,7 @@ end
 local function apply_keymap(client, bufnr, keymap, mode)
 	mode = mode or "n"
 
-	if keymap.method and not client.supports_method(keymap.method) then
+	if keymap.method and not client:supports_method(keymap.method, bufnr) then
 		return
 	end
 

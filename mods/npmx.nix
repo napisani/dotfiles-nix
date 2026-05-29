@@ -19,16 +19,32 @@ let
     "@napisani/scute@latest"
     "skills@latest"
     "openrtk"
-    "@mariozechner/pi-coding-agent"
+    "@earendil-works/pi-coding-agent"
     "@agentclientprotocol/claude-agent-acp"
     "@zed-industries/codex-acp"
     "@google/gemini-cli"
     "@playwright/cli"
   ];
 
+  removedNpmPackages = [
+    "@mariozechner/pi-coding-agent"
+    "pi-skillful"
+  ];
+
+  # Pi packages are managed through the Pi CLI after npm tools are present.
+  # Package IDs use the same form as `pi install`, for example `npm:example-package`.
+  removedPiPackages = [
+    "npm:pi-skillful"
+  ];
+
+  piPackages = [
+    "npm:@datspike/pi-inline-slash-extension"
+  ];
+
   npm = "${pkgs-unstable.nodejs}/bin/npm";
   nodeBin = "${pkgs-unstable.nodejs}/bin";
   gitBin = "${pkgs-unstable.git}/bin";
+  npmPrefix = "${config.home.homeDirectory}/.local";
 in
 {
   home.packages = [
@@ -36,24 +52,67 @@ in
     pkgs-unstable.git
   ];
 
+  home.sessionVariables = {
+    NPM_CONFIG_PREFIX = npmPrefix;
+  };
+
   home.activation.installNpmxTools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    export NPM_CONFIG_PREFIX="$HOME/.local"
+    export NPM_CONFIG_PREFIX="${npmPrefix}"
     mkdir -p "$NPM_CONFIG_PREFIX/bin" "$NPM_CONFIG_PREFIX/lib"
     export DISABLE_TELEMETRY=1
+    failed=0
+
+    # Persist npm's global prefix for tools such as Pi that shell out to
+    # `npm install -g` during normal interactive use.
+    if ! ${npm} config set prefix "$NPM_CONFIG_PREFIX" --location=user; then
+      echo "installNpmxTools: ERROR: npm config set prefix failed for: $NPM_CONFIG_PREFIX" >&2
+      failed=1
+    fi
 
     # Home Manager activation runs with a minimal PATH; ensure npm scripts can
     # find `node`.
     export PATH="${gitBin}:${nodeBin}:$NPM_CONFIG_PREFIX/bin:$PATH"
 
-    failed=0
+    for package in ${builtins.concatStringsSep " " removedNpmPackages}; do
+      if ${npm} list -g --depth=0 "$package" >/dev/null 2>&1; then
+        if ! ${npm} uninstall -g "$package"; then
+          echo "installNpmxTools: ERROR: npm uninstall -g failed for removed package: $package" >&2
+          failed=$((failed + 1))
+        fi
+      fi
+    done
+
     for tool in ${builtins.concatStringsSep " " npmxTools}; do
       if ! ${npm} install -g --no-fund --no-audit "$tool"; then
         echo "installNpmxTools: ERROR: npm install -g failed for: $tool" >&2
         failed=$((failed + 1))
       fi
     done
+
+    pi="$NPM_CONFIG_PREFIX/bin/pi"
+    if [ -x "$pi" ]; then
+      for package in ${builtins.concatStringsSep " " removedPiPackages}; do
+        if "$pi" list | grep -F "$package" >/dev/null 2>&1; then
+          if ! "$pi" remove "$package"; then
+            echo "installNpmxTools: ERROR: pi remove failed for: $package" >&2
+            failed=$((failed + 1))
+          fi
+        fi
+      done
+
+      for package in ${builtins.concatStringsSep " " piPackages}; do
+        if ! "$pi" install "$package"; then
+          echo "installNpmxTools: ERROR: pi install failed for: $package" >&2
+          failed=$((failed + 1))
+        fi
+      done
+    else
+      echo "installNpmxTools: ERROR: pi executable not found at $pi; skipping Pi package installs." >&2
+      failed=$((failed + 1))
+    fi
+
     if [ "$failed" -gt 0 ]; then
-      echo "installNpmxTools: $failed tool(s) failed (Neovim agentic ACP CLIs need a successful install). Re-run with network and check the errors above." >&2
+      echo "installNpmxTools: $failed install step(s) failed (Neovim agentic ACP CLIs and Pi packages need a successful install). Re-run with network and check the errors above." >&2
     fi
 
     # Some npm packages ship their bin entrypoints without the executable bit.
