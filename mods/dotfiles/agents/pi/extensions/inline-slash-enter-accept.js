@@ -47,27 +47,29 @@ function isConfirmInput(data, keybindings) {
   return data === "\r" || data === "\n";
 }
 
-function isSlashAutocompleteContext(editor) {
+function autocompleteToken(editor) {
   if (!editor || typeof editor.isShowingAutocomplete !== "function") {
-    return false;
+    return "";
   }
 
   if (!editor.isShowingAutocomplete()) {
-    return false;
+    return "";
   }
 
   if (typeof editor.getLines !== "function" || typeof editor.getCursor !== "function") {
-    return false;
+    return "";
   }
 
   const cursor = editor.getCursor();
-  const token = currentTokenAtCursor(
+  return currentTokenAtCursor(
     editor.getLines(),
     cursor && cursor.line,
     cursor && cursor.col,
   );
+}
 
-  return token.startsWith("/");
+function isSlashAutocompleteContext(editor) {
+  return autocompleteToken(editor).startsWith("/");
 }
 
 function shouldAcceptSlashAutocompleteWithoutSubmit(editor, data, keybindings) {
@@ -115,6 +117,7 @@ function wrapEditorComponentFactory(factory) {
 
   return wrappedFactory;
 }
+
 
 function patchEditorComponentRegistration(ui) {
   if (!ui || typeof ui.setEditorComponent !== "function" || ui[UI_WRAPPED]) {

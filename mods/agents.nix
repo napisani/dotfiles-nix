@@ -21,10 +21,12 @@
 # ~/.agents/skills. Shared/community skills must live only in ~/.agents/skills
 # for Pi, otherwise Pi reports name collisions at startup.
 #
-# Pi extensions are symlinked from:
+# Pi extensions and themes are symlinked from:
 #   mods/dotfiles/agents/pi/extensions/*.js and *.ts
+#   mods/dotfiles/agents/pi/themes/*.json
 # into:
 #   ~/.pi/agent/extensions/
+#   ~/.pi/agent/themes/
 #
 # Per-agent dotfiles (commands) live in:
 #   mods/dotfiles/agents/<agent>/
@@ -97,27 +99,6 @@ let
       ];
       agents = allAgentsExceptPi;
     }
-    # Temporarily disabled. Restore this block to reinstall superpowers skills.
-    # {
-    #   repo = "obra/superpowers";
-    #   skills = [
-    #     "brainstorming"
-    #     "using-superpowers"
-    #     "systematic-debugging"
-    #     "writing-plans"
-    #     "test-driven-development"
-    #     "requesting-code-review"
-    #     "executing-plans"
-    #     "subagent-driven-development"
-    #     "verification-before-completion"
-    #     "receiving-code-review"
-    #     "writing-skills"
-    #     "dispatching-parallel-agents"
-    #     "using-git-worktrees"
-    #     "finishing-a-development-branch"
-    #   ];
-    #   agents = allAgentsExceptPi;
-    # }
     {
       repo = "intellectronica/agent-skills";
       skills = [
@@ -209,6 +190,38 @@ let
     map mkCommunitySkillCmd agentCommunitySkillSources
   );
 
+  agentSkillTargets = {
+    claude-code = "${home}/.claude/skills";
+    cursor = "${home}/.cursor/skills";
+    gemini-cli = "${home}/.gemini/skills";
+    opencode = "${home}/.config/opencode/skills";
+    codex = "${home}/.codex/skills";
+    pi = "${home}/.pi/agent/skills";
+  };
+
+  agentsForCleanup = agents:
+    if builtins.elem "*" agents then builtins.attrNames agentSkillTargets else agents;
+
+  mkCommunitySkillCleanupCmds =
+    source:
+    builtins.concatStringsSep "\n" (
+      lib.flatten (
+        map
+          (agent:
+            let
+              target = agentSkillTargets.${agent} or "";
+            in
+            lib.optionals (target != "") (
+              map (skill: "_remove_managed_skill ${lib.escapeShellArg target} ${lib.escapeShellArg skill}") source.skills
+            ))
+          (agentsForCleanup source.agents)
+      )
+    );
+
+  communitySkillCleanupCmds = builtins.concatStringsSep "\n" (
+    map mkCommunitySkillCleanupCmds agentCommunitySkillSources
+  );
+
   # Pi discovers ~/.agents/skills in addition to ~/.pi/agent/skills. Keep Pi's
   # agent-local directory for Pi-only skills, and delete duplicate entries that
   # are already available through the global store.
@@ -254,9 +267,82 @@ let
     fi
   '';
 
+  syncPiThemes = ''
+    _src="${dotfiles}/agents/pi/themes"
+    _dst="$HOME/.pi/agent/themes"
+    mkdir -p "$_dst"
+
+    if [ -d "$_src" ]; then
+      for _theme_file in "$_src"/*.json; do
+        [ -f "$_theme_file" ] || continue
+
+        _theme_name=$(basename "$_theme_file")
+        _target_link="$_dst/$_theme_name"
+        if [ -e "$_target_link" ] && [ ! -L "$_target_link" ]; then
+          echo "agents: refusing to replace non-symlink Pi theme at $_target_link"
+          continue
+        fi
+
+        if [ ! -L "$_target_link" ] || [ "$(readlink "$_target_link")" != "$_theme_file" ]; then
+          ln -sfn "$_theme_file" "$_target_link"
+          echo "agents: linked Pi theme '$_theme_name' -> $_target_link"
+        fi
+      done
+    fi
+  '';
+
+  applyPiSettings = ''
+    _settings="$HOME/.pi/agent/settings.json"
+    mkdir -p "$(dirname "$_settings")"
+
+    ${nodeBin}/node -e '
+      const fs = require("node:fs");
+      const path = process.env.HOME + "/.pi/agent/settings.json";
+
+      let settings = {};
+      if (fs.existsSync(path)) {
+        try {
+          settings = JSON.parse(fs.readFileSync(path, "utf8"));
+        } catch (error) {
+          console.error("agents: refusing to update invalid Pi settings JSON at " + path + ": " + error.message);
+          process.exit(0);
+        }
+      }
+
+      const managed = {
+        defaultProvider: "openai-codex",
+        defaultModel: "gpt-5.5",
+        defaultThinkingLevel: "xhigh",
+        theme: "kanagawa",
+      };
+
+      let changed = false;
+      for (const [key, value] of Object.entries(managed)) {
+        if (settings[key] !== value) {
+          settings[key] = value;
+          changed = true;
+        }
+      }
+
+      const currentOpenAI = settings.openaiReasoningMode && typeof settings.openaiReasoningMode === "object"
+        ? settings.openaiReasoningMode
+        : {};
+      if (currentOpenAI.fast !== true) {
+        settings.openaiReasoningMode = { ...currentOpenAI, fast: true };
+        changed = true;
+      }
+
+      if (changed) {
+        fs.writeFileSync(path, JSON.stringify(settings, null, 2) + "\n");
+        console.log("agents: applied Pi defaults -> openai-codex/gpt-5.5/xhigh, fast:on, theme:kanagawa");
+      }
+    '
+  '';
+
   nodeBin = "${pkgs-unstable.nodejs}/bin";
   gitBin = "${pkgs-unstable.git}/bin";
   sharedAgentInstructions = "${dotfiles}/agents/AGENTS.md";
+
 
   # Activation script: symlink all subdirs of a dotfiles source dir into a target dir.
   # Creates target/<name> → source/<name> for each entry, without touching other entries.
@@ -302,12 +388,109 @@ in
           "$HOME/.gemini/antigravity/skills" \
           "$HOME/.codex/skills" \
           "$HOME/.pi/agent/skills" \
-          "$HOME/.pi/agent/extensions"; do
+          "$HOME/.pi/agent/extensions" \
+          "$HOME/.pi/agent/themes"; do
           if [ -L "$p" ] || { [ -e "$p" ] && [ ! -d "$p" ]; }; then
             echo "agents: removing stale non-directory at $p"
             rm -rf "$p"
           fi
         done
+      '';
+
+      cleanupLegacyAgentInstalls = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+        _remove_managed_skill() {
+          _target_dir="$1"
+          _skill_name="$2"
+          _target="$_target_dir/$_skill_name"
+
+          if [ -e "$_target" ] || [ -L "$_target" ]; then
+            rm -rf "$_target"
+            echo "agents: removed legacy managed skill $_target"
+          fi
+        }
+
+        _cleanup_local_skill_source() {
+          _src="$1"
+          _dst="$2"
+
+          [ -d "$_src" ] || return 0
+
+          for _skill_dir in "$_src"/*/; do
+            [ -d "$_skill_dir" ] || continue
+            _remove_managed_skill "$_dst" "$(basename "$_skill_dir")"
+          done
+        }
+
+        # Community skills copied by skills@latest. Remove only names declared
+        # in this module so old manual installs are replaced without touching
+        # unrelated user skills.
+        ${communitySkillCleanupCmds}
+
+        # Local skills managed by this repo. They will be recreated as symlinks
+        # by installAgentSkills.
+        _cleanup_local_skill_source "${dotfiles}/agents/shared-skills" "${home}/.agents/skills"
+        _cleanup_local_skill_source "${dotfiles}/agents/shared-skills" "${home}/.claude/skills"
+        _cleanup_local_skill_source "${dotfiles}/agents/shared-skills" "${home}/.cursor/skills"
+        _cleanup_local_skill_source "${dotfiles}/agents/shared-skills" "${home}/.gemini/skills"
+        _cleanup_local_skill_source "${dotfiles}/agents/shared-skills" "${home}/.gemini/antigravity/skills"
+        _cleanup_local_skill_source "${dotfiles}/agents/shared-skills" "${home}/.codex/skills"
+        _cleanup_local_skill_source "${dotfiles}/agents/shared-skills" "${home}/.config/opencode/skills"
+        _cleanup_local_skill_source "${dotfiles}/agents/claude/skills" "${home}/.claude/skills"
+        _cleanup_local_skill_source "${dotfiles}/agents/cursor/skills" "${home}/.cursor/skills"
+        _cleanup_local_skill_source "${dotfiles}/agents/gemini/skills" "${home}/.gemini/skills"
+        _cleanup_local_skill_source "${dotfiles}/agents/gemini/skills" "${home}/.gemini/antigravity/skills"
+        _cleanup_local_skill_source "${dotfiles}/agents/codex/skills" "${home}/.codex/skills"
+        _cleanup_local_skill_source "${dotfiles}/agents/opencode/skills" "${home}/.config/opencode/skills"
+        _cleanup_local_skill_source "${dotfiles}/agents/pi/skills" "${home}/.pi/agent/skills"
+
+        # Retired plugin/skill installs previously managed by this module.
+        # Remove them from all known skill locations so disabling a package also
+        # uninstalls stale copies from pre-flake or older-flake installs.
+        for _retired_skill in \
+          brainstorming \
+          dispatching-parallel-agents \
+          executing-plans \
+          finishing-a-development-branch \
+          receiving-code-review \
+          requesting-code-review \
+          subagent-driven-development \
+          systematic-debugging \
+          test-driven-development \
+          using-git-worktrees \
+          using-superpowers \
+          verification-before-completion \
+          writing-plans \
+          writing-skills \
+          understand \
+          understand-chat \
+          understand-dashboard \
+          understand-diff \
+          understand-domain \
+          understand-explain \
+          understand-knowledge \
+          understand-onboard; do
+          for _dst in \
+            "$HOME/.agents/skills" \
+            "$HOME/.claude/skills" \
+            "$HOME/.cursor/skills" \
+            "$HOME/.gemini/skills" \
+            "$HOME/.gemini/antigravity/skills" \
+            "$HOME/.codex/skills" \
+            "$HOME/.config/opencode/skills" \
+            "$HOME/.pi/agent/skills"; do
+            _remove_managed_skill "$_dst" "$_retired_skill"
+          done
+        done
+
+        if [ -e "$HOME/.understand-anything-plugin" ] || [ -L "$HOME/.understand-anything-plugin" ]; then
+          rm -rf "$HOME/.understand-anything-plugin"
+          echo "agents: removed retired plugin root $HOME/.understand-anything-plugin"
+        fi
+
+        if [ -d "$HOME/.understand-anything" ]; then
+          rm -rf "$HOME/.understand-anything"
+          echo "agents: removed retired plugin checkout $HOME/.understand-anything"
+        fi
       '';
 
       # Previous versions symlinked these files back into the dotfiles repo.
@@ -330,7 +513,7 @@ in
       # Install community skills, then overlay local dotfile skills.
       # Local skills intentionally run last so repo-managed fixes and overrides
       # replace copied community skill dirs with live symlinks.
-      installAgentSkills = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+      installAgentSkills = lib.hm.dag.entryAfter [ "cleanupLegacyAgentInstalls" ] ''
         export DISABLE_TELEMETRY=1
         export NPM_CONFIG_PREFIX="$HOME/.local"
         export PATH="${gitBin}:${nodeBin}:$NPM_CONFIG_PREFIX/bin:$PATH"
@@ -344,7 +527,8 @@ in
           "$HOME/.gemini/antigravity/skills" \
           "$HOME/.codex/skills" \
           "$HOME/.pi/agent/skills" \
-          "$HOME/.pi/agent/extensions"
+          "$HOME/.pi/agent/extensions" \
+          "$HOME/.pi/agent/themes"
 
         # ── Community skills (from git repos, copied into agent dirs) ────────
         ${communitySkillCmds}
@@ -423,8 +607,10 @@ in
           targetAbsPath = "${home}/.pi/agent/skills";
         }}
 
-        # ── Pi local extensions ─────────────────────────────────────────────
+        # ── Pi local extensions and themes ──────────────────────────────────
         ${syncPiExtensions}
+        ${syncPiThemes}
+        ${applyPiSettings}
 
         # Pi also discovers ~/.agents/skills, so remove stale/accidental copies
         # from ~/.pi/agent/skills when the same skill exists globally.

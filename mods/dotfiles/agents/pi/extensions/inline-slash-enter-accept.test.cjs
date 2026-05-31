@@ -20,20 +20,31 @@ function makeEditor({
   showingAutocomplete = true,
 } = {}) {
   const calls = [];
+  const autocompleteTriggers = [];
+  let currentText = text;
+  let currentCursorCol = cursorCol;
 
   return {
     calls,
+    autocompleteTriggers,
     getLines() {
-      return [text];
+      return [currentText];
     },
     getCursor() {
-      return { line: 0, col: cursorCol };
+      return { line: 0, col: currentCursorCol };
     },
     isShowingAutocomplete() {
       return showingAutocomplete;
     },
+    tryTriggerAutocomplete() {
+      autocompleteTriggers.push(currentText);
+    },
     handleInput(data) {
       calls.push(data);
+      if (data.length === 1 && data !== "\r" && data !== "\n" && data !== "\t") {
+        currentText = `${currentText.slice(0, currentCursorCol)}${data}${currentText.slice(currentCursorCol)}`;
+        currentCursorCol += data.length;
+      }
     },
   };
 }
@@ -91,6 +102,9 @@ test("extension patches editor factories registered after session_start", async 
     on(event, handler) {
       assert.equal(event, "session_start");
       handlers.push(handler);
+    },
+    getCommands() {
+      return [{ name: "skill:brainstorming", source: "skill" }];
     },
   };
   let activeFactory;

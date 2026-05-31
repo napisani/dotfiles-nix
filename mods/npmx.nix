@@ -39,6 +39,9 @@ let
 
   piPackages = [
     "npm:@datspike/pi-inline-slash-extension"
+    "npm:@juicesharp/rpiv-btw"
+    "npm:pi-vim"
+    "npm:pi-web-access"
   ];
 
   npm = "${pkgs-unstable.nodejs}/bin/npm";
