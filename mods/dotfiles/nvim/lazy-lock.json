@@ -2,7 +2,7 @@
   "blink.cmp": { "branch": "main", "commit": "78336bc89ee5365633bcf754d93df01678b5c08f" },
   "bufferline.nvim": { "branch": "main", "commit": "655133c3b4c3e5e05ec549b9f8cc2894ac6f51b3" },
   "dadbod-grip.nvim": { "branch": "main", "commit": "c0bd4dc541eb0daab9d4aa9ab3247acbbcdce68a" },
-  "diffview.nvim": { "branch": "main", "commit": "06685829495ac5d7367a0693ef02ef0d6b97fda0" },
+  "diffview.nvim": { "branch": "main", "commit": "744db31ffbde8ec162934c2ca15e236a62d0d828" },
   "efmls-configs-nvim": { "branch": "main", "commit": "0b0ca5462a0a9c1233cc8359e64741d7d49fbbe4" },
   "eyeliner.nvim": { "branch": "main", "commit": "8f197eb30cecdf4c2cc9988a5eecc6bc34c0c7d6" },
   "fff.nvim": { "branch": "main", "commit": "5e53b6e8cf83913d51a63b54f606b07d6e4de4bc" },
@@ -12,9 +12,9 @@
   "kanagawa.nvim": { "branch": "master", "commit": "bb85e4bfc8d89b0e62c8fa53ccdd13d12e2f77b3" },
   "lazy.nvim": { "branch": "main", "commit": "306a05526ada86a7b30af95c5cc81ffba93fef97" },
   "lazydev.nvim": { "branch": "main", "commit": "ff2cbcba459b637ec3fd165a2be59b7bbaeedf0d" },
-  "lualine.nvim": { "branch": "master", "commit": "131a558e13f9f28b15cd235557150ccb23f89286" },
+  "lualine.nvim": { "branch": "master", "commit": "221ce6b2d999187044529f49da6554a92f740a96" },
   "luvit-meta": { "branch": "main", "commit": "cc9b2d412d2fbd30b94a70cfc214c2a3be27a0a2" },
-  "mason-lspconfig.nvim": { "branch": "main", "commit": "7b01e2974a47d489bb92f47a41e4c0088ea8f86e" },
+  "mason-lspconfig.nvim": { "branch": "main", "commit": "0a695750d747db1e7e70bcf0267ef8951c95fc83" },
   "mason-nvim-dap.nvim": { "branch": "main", "commit": "9a10e096703966335bd5c46c8c875d5b0690dade" },
   "mason.nvim": { "branch": "main", "commit": "16ba83bfc8a25f52bb545134f5bee082b195c460" },
   "mini.icons": { "branch": "main", "commit": "520995f1d75da0e4cc901ee95080b1ff2bc46b94" },
@@ -46,5 +46,5 @@
   "vim-slime": { "branch": "main", "commit": "2cfdc3b24e7ebaa64f5a1a04b00555600c622b79" },
   "vocal.nvim": { "branch": "master", "commit": "8535dd0dbb61a4461fac07c9d5b906383199231a" },
   "which-key.nvim": { "branch": "main", "commit": "3aab2147e74890957785941f0c1ad87d0a44c15a" },
-  "wiremux.nvim": { "branch": "main", "commit": "d58be6fc01a182a9aa885bfcb44de235c1dd1c58" }
+  "wiremux.nvim": { "branch": "main", "commit": "77a951b67d1bffead55e49c22f13ebedf536f3b9" }
 }
