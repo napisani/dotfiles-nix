@@ -23,7 +23,11 @@
     global.brewfile = true;
     onActivation = {
       upgrade = false;
-      cleanup = "zap";
+      # Homebrew 5 requires --force/--force-cleanup or HOMEBREW_ASK for
+      # `brew bundle install --cleanup`. nix-darwin currently emits --cleanup
+      # without those flags, so keep activation non-interactive and avoid
+      # cleanup during system switches.
+      cleanup = "none";
       autoUpdate = false;
     };
 

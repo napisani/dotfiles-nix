@@ -82,7 +82,6 @@ let
     "codex"
     "pi"
   ];
-  allAgentsExceptPi = builtins.filter (agent: agent != "pi") allAgents;
   isAxionMac = (config.home.sessionVariables.MACHINE_NAME or "") == "axion-mbp";
 
   # ── Community skill sources ─────────────────────────────────────────────
@@ -97,21 +96,29 @@ let
         "skill-creator"
         "doc-coauthoring"
       ];
-      agents = allAgentsExceptPi;
+      agents = allAgents;
     }
     {
       repo = "intellectronica/agent-skills";
       skills = [
         "context7"
       ];
-      agents = allAgentsExceptPi;
+      agents = allAgents;
     }
     {
       repo = "https://github.com/addyosmani/agent-skills";
       skills = [
         "code-simplification"
       ];
-      agents = allAgentsExceptPi;
+      agents = allAgents;
+    }
+    {
+      repo = "https://github.com/obra/superpowers";
+      skills = [
+        "brainstorming"
+        "systematic-debugging"
+      ];
+      agents = allAgents;
     }
     {
       repo = "https://github.com/mattpocock/skills";
@@ -122,17 +129,18 @@ let
         "handoff"
         "improve-codebase-architecture"
         "tdd"
+        "write-a-skill"
         "to-prd"
         "to-issues"
       ];
-      agents = allAgentsExceptPi;
+      agents = allAgents;
     }
     {
       repo = "https://github.com/arjunmahishi/dotfiles";
       skills = [
         "acli-jira"
       ];
-      agents = allAgentsExceptPi;
+      agents = allAgents;
     }
     {
       repo = "https://github.com/napisani/axion-skills";
@@ -142,31 +150,46 @@ let
         "axion-pr-workflow"
         "raygun-script-all-script-writer"
       ];
-      agents = allAgentsExceptPi;
+      agents = allAgents;
     }
     {
       repo = "https://github.com/microsoft/playwright-cli";
       skills = [
         "playwright-cli"
       ];
-      agents = allAgentsExceptPi;
+      agents = allAgents;
     }
     {
       repo = "https://github.com/langchain-ai/deepagents";
       skills = [ "web-research" ];
-      agents = allAgentsExceptPi;
+      agents = allAgents;
     }
     {
       repo = "https://github.com/softaworks/agent-toolkit";
       skills = [ "mermaid-diagrams" ];
-      agents = allAgentsExceptPi;
+      agents = allAgents;
+    }
+    {
+      repo = "https://github.com/Lum1104/Understand-Anything";
+      skills = [
+        "understand"
+        "understand-chat"
+        "understand-dashboard"
+        "understand-diff"
+        "understand-domain"
+        "understand-explain"
+        "understand-knowledge"
+        "understand-onboard"
+      ];
+      agents = [ "pi" ];
+      fullDepth = true;
     }
   ]
   ++ lib.optionals isAxionMac [
     {
       repo = "https://github.com/datadog-labs/agent-skills";
       skills = [ "dd-logs" ];
-      agents = allAgentsExceptPi;
+      agents = allAgents;
       fullDepth = true;
     }
   ];
@@ -288,6 +311,46 @@ let
           echo "agents: linked Pi theme '$_theme_name' -> $_target_link"
         fi
       done
+    fi
+  '';
+
+  installUnderstandAnythingPlugin = ''
+    _ua_repo_url="https://github.com/Lum1104/Understand-Anything.git"
+    _ua_repo_dir="$HOME/.understand-anything/repo"
+    _ua_plugin_root="$_ua_repo_dir/understand-anything-plugin"
+    _ua_plugin_link="$HOME/.understand-anything-plugin"
+
+    if [ -d "$_ua_repo_dir/.git" ]; then
+      echo "agents: updating Understand-Anything checkout at $_ua_repo_dir"
+      if ! ${gitBin}/git -C "$_ua_repo_dir" fetch --depth=1 origin main; then
+        echo "agents: WARNING: failed to fetch Understand-Anything" >&2
+      elif ! ${gitBin}/git -C "$_ua_repo_dir" reset --hard origin/main; then
+        echo "agents: WARNING: failed to reset Understand-Anything checkout" >&2
+      fi
+    else
+      if [ -e "$_ua_repo_dir" ] || [ -L "$_ua_repo_dir" ]; then
+        echo "agents: replacing unmanaged Understand-Anything checkout at $_ua_repo_dir"
+        rm -rf "$_ua_repo_dir"
+      fi
+      mkdir -p "$(dirname "$_ua_repo_dir")"
+      echo "agents: cloning Understand-Anything -> $_ua_repo_dir"
+      if ! ${gitBin}/git clone --depth=1 "$_ua_repo_url" "$_ua_repo_dir"; then
+        echo "agents: WARNING: failed to clone Understand-Anything" >&2
+      fi
+    fi
+
+    if [ -d "$_ua_plugin_root" ]; then
+      if [ -e "$_ua_plugin_link" ] && [ ! -L "$_ua_plugin_link" ]; then
+        echo "agents: replacing unmanaged Understand-Anything plugin root at $_ua_plugin_link"
+        rm -rf "$_ua_plugin_link"
+      fi
+
+      if [ ! -L "$_ua_plugin_link" ] || [ "$(readlink "$_ua_plugin_link")" != "$_ua_plugin_root" ]; then
+        ln -sfn "$_ua_plugin_root" "$_ua_plugin_link"
+        echo "agents: linked Understand-Anything plugin root -> $_ua_plugin_link"
+      fi
+    else
+      echo "agents: WARNING: Understand-Anything plugin root missing at $_ua_plugin_root" >&2
     fi
   '';
 
@@ -443,54 +506,6 @@ in
         _cleanup_local_skill_source "${dotfiles}/agents/opencode/skills" "${home}/.config/opencode/skills"
         _cleanup_local_skill_source "${dotfiles}/agents/pi/skills" "${home}/.pi/agent/skills"
 
-        # Retired plugin/skill installs previously managed by this module.
-        # Remove them from all known skill locations so disabling a package also
-        # uninstalls stale copies from pre-flake or older-flake installs.
-        for _retired_skill in \
-          brainstorming \
-          dispatching-parallel-agents \
-          executing-plans \
-          finishing-a-development-branch \
-          receiving-code-review \
-          requesting-code-review \
-          subagent-driven-development \
-          systematic-debugging \
-          test-driven-development \
-          using-git-worktrees \
-          using-superpowers \
-          verification-before-completion \
-          writing-plans \
-          writing-skills \
-          understand \
-          understand-chat \
-          understand-dashboard \
-          understand-diff \
-          understand-domain \
-          understand-explain \
-          understand-knowledge \
-          understand-onboard; do
-          for _dst in \
-            "$HOME/.agents/skills" \
-            "$HOME/.claude/skills" \
-            "$HOME/.cursor/skills" \
-            "$HOME/.gemini/skills" \
-            "$HOME/.gemini/antigravity/skills" \
-            "$HOME/.codex/skills" \
-            "$HOME/.config/opencode/skills" \
-            "$HOME/.pi/agent/skills"; do
-            _remove_managed_skill "$_dst" "$_retired_skill"
-          done
-        done
-
-        if [ -e "$HOME/.understand-anything-plugin" ] || [ -L "$HOME/.understand-anything-plugin" ]; then
-          rm -rf "$HOME/.understand-anything-plugin"
-          echo "agents: removed retired plugin root $HOME/.understand-anything-plugin"
-        fi
-
-        if [ -d "$HOME/.understand-anything" ]; then
-          rm -rf "$HOME/.understand-anything"
-          echo "agents: removed retired plugin checkout $HOME/.understand-anything"
-        fi
       '';
 
       # Previous versions symlinked these files back into the dotfiles repo.
@@ -529,6 +544,31 @@ in
           "$HOME/.pi/agent/skills" \
           "$HOME/.pi/agent/extensions" \
           "$HOME/.pi/agent/themes"
+
+        _reset_managed_skill_dir() {
+          _dst="$1"
+          [ -d "$_dst" ] || return 0
+
+          # Skills are declarative in this module: each activation rebuilds the
+          # managed skill directories from agentCommunitySkillSources and local
+          # dotfiles. Preserve hidden/system entries such as Codex's .system.
+          for _entry in "$_dst"/*; do
+            [ -e "$_entry" ] || [ -L "$_entry" ] || continue
+            rm -rf "$_entry"
+          done
+        }
+
+        for _managed_skill_dir in \
+          "$HOME/.agents/skills" \
+          "$HOME/.claude/skills" \
+          "$HOME/.cursor/skills" \
+          "$HOME/.gemini/skills" \
+          "$HOME/.gemini/antigravity/skills" \
+          "$HOME/.codex/skills" \
+          "$HOME/.config/opencode/skills" \
+          "$HOME/.pi/agent/skills"; do
+          _reset_managed_skill_dir "$_managed_skill_dir"
+        done
 
         # ── Community skills (from git repos, copied into agent dirs) ────────
         ${communitySkillCmds}
@@ -606,6 +646,9 @@ in
           sourceRelPath = "agents/pi/skills";
           targetAbsPath = "${home}/.pi/agent/skills";
         }}
+
+        # ── Pi-only Understand-Anything plugin root ─────────────────────────
+        ${installUnderstandAnythingPlugin}
 
         # ── Pi local extensions and themes ──────────────────────────────────
         ${syncPiExtensions}
