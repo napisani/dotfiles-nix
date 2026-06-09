@@ -166,6 +166,21 @@ local function open_branch_changes_tree()
 	require("user.snacks.git_files").git_changed_cmp_base_branch_tree()
 end
 
+local function cycle_diff_layout()
+	if not M.is_open() then
+		vim.notify("No diff view open", vim.log.levels.INFO)
+		return
+	end
+
+	local ok, actions = pcall(require, "diffview.actions")
+	if not ok then
+		vim.notify("Diffview actions not available", vim.log.levels.ERROR)
+		return
+	end
+
+	actions.cycle_layout()
+end
+
 local function split_diffopt(diffopt_str)
 	local parts = vim.split(diffopt_str, ",", { plain = true, trimempty = true })
 	return parts
@@ -275,6 +290,19 @@ function M.configure_diffview()
 		watch_index = true,
 		hide_merge_artifacts = false,
 		diffopt = split_diffopt(vim.o.diffopt),
+		view = {
+			default = { layout = "diff2_horizontal" },
+			file_history = { layout = "diff1_inline" },
+			inline = {
+				-- "unified" shows git/GitHub-style deleted lines as virtual lines;
+				-- "overleaf" renders deleted text inline with strikethrough for a track-changes feel.
+				style = "unified",
+				-- style = "overleaf",
+			},
+			cycle_layouts = {
+				default = { "diff1_inline", "diff2_horizontal" },
+			},
+		},
 		file_panel = {
 			listing_style = "tree",
 			win_config = { position = "left", width = 70 },
@@ -299,6 +327,7 @@ function M.configure_diffview()
 				{ "n", "<leader>ge", actions.focus_files, { desc = "Bring focus to the file panel" } },
 				{ "n", "<leader>t", actions.toggle_files, { desc = "Toggle the file panel" } },
 				{ "n", "q", actions.close, { desc = "Close diffview" } },
+				{ "n", "<leader>cw", cycle_diff_layout, { desc = "Cycle inline/horizontal diff layout" } },
 				{
 					"n",
 					"]g",
@@ -320,6 +349,7 @@ function M.configure_diffview()
 				{ "n", "<leader>ge", actions.focus_files, { desc = "Bring focus to the file panel" } },
 				{ "n", "<leader>t", actions.toggle_files, { desc = "Toggle the file panel" } },
 				{ "n", "q", actions.close, { desc = "Close diffview" } },
+				{ "n", "<leader>cw", cycle_diff_layout, { desc = "Cycle inline/horizontal diff layout" } },
 				{ "n", "]f", actions.select_next_entry, { desc = "Open the diff for the next file" } },
 				{ "n", "[f", actions.select_prev_entry, { desc = "Open the diff for the previous file" } },
 			},
@@ -329,6 +359,7 @@ function M.configure_diffview()
 				{ "n", "<leader>ge", actions.focus_files, { desc = "Bring focus to the file panel" } },
 				{ "n", "<leader>t", actions.toggle_files, { desc = "Toggle the file panel" } },
 				{ "n", "q", actions.close, { desc = "Close diffview" } },
+				{ "n", "<leader>cw", cycle_diff_layout, { desc = "Cycle inline/horizontal diff layout" } },
 				{ "n", "]f", actions.select_next_entry, { desc = "Open the diff for the next file" } },
 				{ "n", "[f", actions.select_prev_entry, { desc = "Open the diff for the previous file" } },
 			},
@@ -356,6 +387,7 @@ function M.get_keymaps()
 			{ "<leader>cH", "<Cmd>:DiffviewOpen HEAD<CR>", desc = "diff (H)ead" },
 			{ "<leader>ch", "<Cmd>:DiffviewFileHistory<CR>", desc = "(h)istory" },
 			{ "<leader>co", "<Cmd>:DiffviewOpen<CR>", desc = "Open" },
+			{ "<leader>cw", cycle_diff_layout, desc = "cycle inline/horizontal diff layout" },
 			{ "<leader>ct", open_local_changes_tree, desc = "local changes tree" },
 			{ "<leader>cT", open_branch_changes_tree, desc = "branch changes tree" },
 			{

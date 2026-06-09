@@ -188,6 +188,7 @@
 `<leader>ch` → [nv] leaf: open file history (recent commits affecting current file)  
 `<leader>cr` → leaf: open diff view comparing to the stored reference  
 `<leader>cq` → leaf: close the diff view tab  
+`<leader>cw` → leaf: cycle an open diff view between inline single-window review and horizontal two-pane review; skip vertical layouts  
 `<leader>cB` → leaf: show full-file git blame
 `<leader>ct` → leaf: outside a diff/merge view, open a file tree filtered to files with local git changes only (same file set as `<leader>fd`)
 `<leader>cT` → leaf: outside a diff/merge view, open a file tree filtered to files changed on the current branch compared with the base branch (default `main`; same file set as `<leader>fD`)
@@ -240,7 +241,7 @@ Merge conflict resolution (contextual inside a diff/merge view):
 
 `<leader>a` → domain: control the **Wiremux** target pane and **PromptBuilder** — a single **horizontal** split (opens **below** the current window, height capped to a fraction of the screen), markdown-syntax scratch buffer (tag `prompt_builder`) where you assemble `@` references and freeform text. At most one PromptBuilder buffer exists; new material **appends** to it. Nothing here talks to the agent by itself except **`ao` / `aq` / `aw` / `av`** and **`<C-g>` inside PromptBuilder** (see below)  
 `<leader>a` → contract: after a **send** to the agent (including from PromptBuilder via `<C-g>`) or after **`ao`** toggle / focus, the **Wiremux target pane** gets focus so the reply is visible. Staging keys (`af*`, `ae`, `a?`, `as`, `ap`, `am`) only update PromptBuilder until you `<C-g>` there; **`ai`** is different: it only opens or focuses PromptBuilder and appends no text
-`<leader>a` → note: route (target) is per-session and defaults to the `opencode` pane for the current working directory; available coding-agent routes include OpenCode, Claude Code, Codex, Cursor Agent, Gemini, and Pi
+`<leader>a` → note: route (target) is per-session and defaults to the `pi` pane for the current working directory; available coding-agent routes include OpenCode, Claude Code, Codex, Cursor Agent, Gemini, and Pi
 
 **Direct to Wiremux / voice (not PromptBuilder)**  
 `<leader>aq` → [n] leaf: close the current route target  

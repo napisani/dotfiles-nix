@@ -4,7 +4,7 @@ local M = {}
 local ai_prompts = require("user.plugins.ai.ai_prompts")
 
 local default_config = {
-	default_route = "opencode",
+	default_route = "pi",
 	prompts = ai_prompts.defaults,
 	targets = {
 		definitions = {
