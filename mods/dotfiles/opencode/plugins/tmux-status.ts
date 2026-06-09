@@ -4,8 +4,8 @@ import type { Plugin } from "@opencode-ai/plugin"
  * OpenCode plugin that sets a tmux session-level user option (@opencode_state)
  * to "thinking" while the agent is busy and "complete" when idle.
  *
- * The tmux-session-picker.sh script reads this option to display status
- * indicators in the fzf session switcher.
+ * Legacy OpenCode-only status channel. The session picker now reads Workmux's
+ * @workmux_status value instead.
  */
 export const TmuxStatusPlugin: Plugin = async ({ $ }) => {
   const inTmux = !!process.env.TMUX

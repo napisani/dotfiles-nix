@@ -165,9 +165,6 @@ require("lazy").setup({
 		-- hex colors to actual colors (for css)
 		{ "norcalli/nvim-colorizer.lua" },
 
-		-- copilot (disabled: using native vim.lsp.inline_completion with copilot-language-server instead)
-		-- { "github/copilot.vim" },
-
 		{
 			"MeanderingProgrammer/render-markdown.nvim",
 			dependencies = { "nvim-treesitter/nvim-treesitter" },

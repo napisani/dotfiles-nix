@@ -36,7 +36,6 @@ M.modules = {
 	"ui.lualine",
 	"ui.indentline",
 	-- AI plugins
-	"ai.copilot",
 	"ai.wiremux",
 	"ai.vocal",
 	"ai.vantage",

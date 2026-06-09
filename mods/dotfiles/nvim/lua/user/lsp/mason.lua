@@ -17,7 +17,6 @@ local servers = {
 	"expert",
 	"jsonls",
 	"lua_ls",
-	"copilot",
 	-- "pyright",
 	"basedpyright",
 	"ruff",

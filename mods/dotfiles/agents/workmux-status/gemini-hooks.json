@@ -1,0 +1,53 @@
+{
+  "AfterAgent": [
+    {
+      "hooks": [
+        {
+          "command": "workmux set-window-status done",
+          "type": "command"
+        }
+      ]
+    }
+  ],
+  "AfterTool": [
+    {
+      "hooks": [
+        {
+          "command": "workmux set-window-status working",
+          "type": "command"
+        }
+      ]
+    }
+  ],
+  "BeforeAgent": [
+    {
+      "hooks": [
+        {
+          "command": "workmux set-window-status working",
+          "type": "command"
+        }
+      ]
+    }
+  ],
+  "Notification": [
+    {
+      "hooks": [
+        {
+          "command": "workmux set-window-status waiting",
+          "type": "command"
+        }
+      ],
+      "matcher": "ToolPermission"
+    }
+  ],
+  "SessionEnd": [
+    {
+      "hooks": [
+        {
+          "command": "workmux set-window-status done",
+          "type": "command"
+        }
+      ]
+    }
+  ]
+}

@@ -47,7 +47,7 @@
 ## Session management
 
 `prefix+f` → domain: session switcher  
-`prefix+f` → contract: shows only user-facing sessions (hides `_popup_*` and `_proctmux*` internal sessions); supports OpenCode status indicators  
+`prefix+f` → contract: shows only user-facing sessions (hides `_popup_*` and `_proctmux*` internal sessions); supports Workmux status indicators  
 `prefix+f` → leaf: open fuzzy session picker; Enter switches, `C-x` kills the selected session
 
 `prefix+F` → leaf: open tree session chooser filtered to user-facing sessions only (no popup sessions)  

@@ -28,12 +28,20 @@ in
     activation = {
       # plugins/skills must be directories; broken symlinks slip past `test -e`.
       fixOpencodePathConflicts = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
-        for p in "$HOME/.config/opencode/plugins" "$HOME/.config/opencode/skills"; do
+        for p in "$HOME/.config/opencode/plugin" "$HOME/.config/opencode/plugins" "$HOME/.config/opencode/skills"; do
           if [ -L "$p" ] || { [ -e "$p" ] && [ ! -d "$p" ]; }; then
             echo "home-manager: removing stale path at $p (OpenCode expects a directory here)"
             rm -rf "$p"
           fi
         done
+
+        # OpenCode's current plugin directory is plural (`plugins/`). Remove the
+        # old singular workmux symlink so the status plugin is not loaded twice.
+        _stale_workmux_plugin="$HOME/.config/opencode/plugin/workmux-status.ts"
+        if [ -L "$_stale_workmux_plugin" ]; then
+          rm -f "$_stale_workmux_plugin"
+          rmdir "$HOME/.config/opencode/plugin" 2>/dev/null || true
+        fi
       '';
     };
 
@@ -45,6 +53,7 @@ in
       ".config/opencode/themes" = mkForcedSym "opencode/themes";
 
       ".config/opencode/plugins/tmux-status.ts" = mkForcedSym "opencode/plugins/tmux-status.ts";
+      ".config/opencode/plugins/workmux-status.ts" = mkForcedSym "opencode/plugins/workmux-status.ts";
 
       ".config/opencode/skills/local" = mkForcedSym "opencode/local-skills";
     };

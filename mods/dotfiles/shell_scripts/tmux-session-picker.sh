@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# tmux-session-picker.sh — fzf session switcher with OpenCode status indicators.
+# tmux-session-picker.sh — fzf session switcher with Workmux status indicators.
 #
-# Shows:  🤖 = OpenCode is thinking   ✅ = OpenCode is idle/complete
-#         No prefix when no OpenCode state is set for a session.
+# Shows Workmux's @workmux_status value for each session's windows, e.g.
+# 🤖 = working, 💬 = waiting, ✅ = done. No prefix when Workmux has no status
+# for a session.
 #
 # Bindings inside fzf:
 #   enter   → switch to session
@@ -16,12 +17,15 @@ set -euo pipefail
 # Exclude _popup_* and _proctmux* sessions (same filter as before).
 SESSION_FILTER='#{?#{||:#{m:_popup_*,#S},#{m:_proctmux*,#S}},0,1}'
 
-# ── Read @opencode_state for a session ──
-# Uses show-options (not display-message) because display-message -t doesn't
-# reliably resolve session-level user options.
+# ── Read Workmux status for a session ──
+# Workmux stores status in the @workmux_status tmux option on windows. Aggregate
+# unique non-empty window statuses so a session shows a prefix if any window has
+# a tracked agent.
 _get_state() {
 	local session="$1"
-	tmux show-options -t "$session" @opencode_state 2>/dev/null | awk '{print $2}' || true
+	tmux list-windows -t "$session" -F '#{@workmux_status}' 2>/dev/null \
+		| awk 'NF && !seen[$0]++ { statuses = statuses ? statuses " " $0 : $0 } END { print statuses }' \
+		|| true
 }
 
 # ── Shared listing logic ──
@@ -49,11 +53,11 @@ _list_sessions() {
 		local state="${states[$i]}"
 		if $has_any_state; then
 			local prefix
-			case "$state" in
-			thinking) prefix="🤖 " ;;
-			complete) prefix="✅ " ;;
-			*) prefix="   " ;;
-			esac
+			if [[ -n "$state" ]]; then
+				prefix="$state "
+			else
+				prefix="   "
+			fi
 			printf '%s%s\t%s\n' "$prefix" "$session" "$session"
 		else
 			printf '%s\t%s\n' "$session" "$session"
@@ -70,7 +74,9 @@ cat >"$RELOAD_SCRIPT" <<'INNER'
 set -euo pipefail
 SESSION_FILTER='#{?#{||:#{m:_popup_*,#S},#{m:_proctmux*,#S}},0,1}'
 _get_state() {
-    tmux show-options -t "$1" @opencode_state 2>/dev/null | awk '{print $2}' || true
+    tmux list-windows -t "$1" -F '#{@workmux_status}' 2>/dev/null \
+        | awk 'NF && !seen[$0]++ { statuses = statuses ? statuses " " $0 : $0 } END { print statuses }' \
+        || true
 }
 has_any_state=false
 sessions=() states=()
@@ -84,11 +90,11 @@ for i in "${!sessions[@]}"; do
     session="${sessions[$i]}"
     state="${states[$i]}"
     if $has_any_state; then
-        case "$state" in
-            thinking) prefix="🤖 " ;;
-            complete) prefix="✅ " ;;
-            *)        prefix="   " ;;
-        esac
+        if [[ -n "$state" ]]; then
+            prefix="$state "
+        else
+            prefix="   "
+        fi
         printf '%s%s\t%s\n' "$prefix" "$session" "$session"
     else
         printf '%s\t%s\n' "$session" "$session"
