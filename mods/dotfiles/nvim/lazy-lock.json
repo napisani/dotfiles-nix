@@ -5,7 +5,7 @@
   "diffview.nvim": { "branch": "main", "commit": "a60c3331a341c983907796cf09efc2151cc4a1df" },
   "efmls-configs-nvim": { "branch": "main", "commit": "0b0ca5462a0a9c1233cc8359e64741d7d49fbbe4" },
   "eyeliner.nvim": { "branch": "main", "commit": "8f197eb30cecdf4c2cc9988a5eecc6bc34c0c7d6" },
-  "fff.nvim": { "branch": "main", "commit": "535b44374e02049a5f35d9daebc15f66bba2cfaf" },
+  "fff.nvim": { "branch": "main", "commit": "373d240b13c82940e65e92fec04bbce6493e4bd7" },
   "gitsigns.nvim": { "branch": "main", "commit": "25050e4ed39e628282831d4cbecb1850454ce915" },
   "hop.nvim": { "branch": "master", "commit": "707049feaca9ae65abb3696eff9aefc7879e66aa" },
   "indent-blankline.nvim": { "branch": "master", "commit": "d28a3f70721c79e3c5f6693057ae929f3d9c0a03" },

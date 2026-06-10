@@ -56,6 +56,8 @@ M.opts = get_opts({
 		win = {
 			input = {
 				keys = {
+					["<c-q>"] = { "qflist", mode = { "i", "n" } },
+					["<c-s-q>"] = { "qflist", mode = { "i", "n" } },
 					["p"] = {
 						"history_back",
 						mode = { "n" },
@@ -64,6 +66,12 @@ M.opts = get_opts({
 						"history_forward",
 						mode = { "n" },
 					},
+				},
+			},
+			list = {
+				keys = {
+					["<c-q>"] = "qflist",
+					["<c-s-q>"] = "qflist",
 				},
 			},
 		},

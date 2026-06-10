@@ -18,6 +18,12 @@
 
 ---
 
+## Inside fuzzy pickers
+
+`<C-q>` → leaf: send the currently displayed picker results to the quickfix list and open it; if items are explicitly selected, send only the selection
+
+---
+
 ## Motions & Navigation (no leader)
 
 `<C-h>` → leaf: move focus left (Neovim split or tmux pane, zoom-aware)  
