@@ -7,7 +7,7 @@ name = "stackman"
 version = "0.1.0"
 description = "Stacked pull request manager for local Git workflows"
 requires-python = "==3.12.*"
-dependencies = ["click>=8.1,<9", "InquirerPy>=0.3,<1"]
+dependencies = ["click>=8.1,<9"]
 
 [project.scripts]
 stackman = "stackman.cli:main"

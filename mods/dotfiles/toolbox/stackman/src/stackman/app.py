@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Sequence, TextIO
 
-from .commands import init_command, merged, runner, stacks, status, sync
-from .context import AppContext, ParentChooser
+from .commands import discover, done, forget, listing, runner, status, sync, track
+from .context import AppContext
 
 
 @dataclass(slots=True)
@@ -17,7 +17,6 @@ class StackmanApp:
     stdin: TextIO
     stdout: TextIO
     stderr: TextIO
-    parent_chooser: ParentChooser | None = None
     stack_id_factory: Callable[[], str] | None = None
 
     def _ctx(self) -> AppContext:
@@ -27,58 +26,54 @@ class StackmanApp:
             stdin=self.stdin,
             stdout=self.stdout,
             stderr=self.stderr,
-            parent_chooser=self.parent_chooser,
             stack_id_factory=self.stack_id_factory,
         )
 
-    def status(self) -> int:
-        return runner.run_safely(self._ctx(), status.run)
-
-    def init(
-        self,
-        *,
-        parent: str | None = None,
-        stacks: Sequence[str] = (),
-        branches: str | None = None,
-    ) -> int:
+    def status(self, *, branch: str | None = None) -> int:
         ctx = self._ctx()
-        return runner.run_safely(
-            ctx,
-            lambda c: init_command.run(c, parent=parent, stacks=stacks, branches=branches),
-        )
+        return runner.run_safely(ctx, lambda c: status.run(c, branch=branch))
+
+    def track(self, *, branch: str | None = None, parent: str) -> int:
+        ctx = self._ctx()
+        return runner.run_safely(ctx, lambda c: track.run_track(c, branch=branch, parent=parent))
+
+    def chain(self, *, anchor: str, branches: Sequence[str]) -> int:
+        ctx = self._ctx()
+        return runner.run_safely(ctx, lambda c: track.run_chain(c, anchor=anchor, branches=branches))
 
     def sync(
         self,
         *,
-        stack_id: str | None = None,
+        branch: str | None = None,
         dry_run: bool = False,
         verbose: bool = False,
         squash: bool = False,
+        allow_dirty: bool = False,
     ) -> int:
         ctx = self._ctx()
         return runner.run_safely(
             ctx,
-            lambda c: sync.run(c, stack_id=stack_id, dry_run=dry_run, verbose=verbose, squash=squash),
+            lambda c: sync.run(
+                c,
+                branch=branch,
+                dry_run=dry_run,
+                verbose=verbose,
+                squash=squash,
+                allow_dirty=allow_dirty,
+            ),
         )
 
-    def list_stacks(self) -> int:
-        return runner.run_safely(self._ctx(), stacks.run_list_stacks)
+    def list(self) -> int:
+        return runner.run_safely(self._ctx(), listing.run_repo_list)
 
-    def stack_branches(self, stack_id: str) -> int:
+    def discover(self, *, pr_number: int, apply: bool = False) -> int:
         ctx = self._ctx()
-        return runner.run_safely(ctx, lambda c: stacks.run_stack_branches(c, stack_id))
+        return runner.run_safely(ctx, lambda c: discover.run(c, pr_number=pr_number, apply=apply))
 
-    def stack_remove_branch(self, stack_id: str, *, branch: str | None) -> int:
+    def done(self, *, branch: str | None = None, dry_run: bool = False) -> int:
         ctx = self._ctx()
-        return runner.run_safely(
-            ctx,
-            lambda c: stacks.run_stack_remove_branch(c, stack_id, branch=branch),
-        )
+        return runner.run_safely(ctx, lambda c: done.run(c, branch=branch, dry_run=dry_run))
 
-    def stack_remove(self, stack_id: str) -> int:
+    def forget(self, *, branch: str | None = None) -> int:
         ctx = self._ctx()
-        return runner.run_safely(ctx, lambda c: stacks.run_stack_remove(c, stack_id))
-
-    def merged(self, *, branch: str | None = None, dry_run: bool = False) -> int:
-        ctx = self._ctx()
-        return runner.run_safely(ctx, lambda c: merged.run(c, branch=branch, dry_run=dry_run))
+        return runner.run_safely(ctx, lambda c: forget.run(c, branch=branch))

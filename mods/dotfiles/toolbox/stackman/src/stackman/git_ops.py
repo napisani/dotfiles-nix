@@ -1,23 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import subprocess
 from collections.abc import Sequence
 from pathlib import Path
-
-
-@dataclass(frozen=True, slots=True)
-class ParentCandidate:
-    branch_name: str
-    merge_base_sha: str
-    ahead: int
-    behind: int
-    is_trunk: bool = False
-    is_tracked: bool = False
-
-    @property
-    def likelihood_score(self) -> int:
-        return (self.behind * 5) + self.ahead
 
 
 def _run_git(
@@ -36,10 +21,6 @@ def _run_git(
 
 def git_output(cwd: Path, *args: str) -> str:
     return _run_git(cwd, *args, check=True).stdout.strip()
-
-
-def working_tree_clean(cwd: Path) -> bool:
-    return _run_git(cwd, "status", "--porcelain", check=True).stdout == ""
 
 
 def rebase_in_progress(cwd: Path) -> bool:
@@ -93,14 +74,6 @@ def rebase_in_progress_any_linked(cwd: Path) -> bool:
         if rebase_in_progress(path):
             return True
     return False
-
-
-def all_linked_worktrees_clean(cwd: Path) -> bool:
-    """True if every linked worktree has a clean working tree."""
-    for path, _ in iter_worktree_entries(cwd):
-        if not working_tree_clean(path):
-            return False
-    return True
 
 
 def sync_relevant_worktrees(start_worktree: Path, branch_names: Sequence[str]) -> list[Path]:
@@ -255,50 +228,3 @@ def is_ancestor(cwd: Path, older: str, newer: str) -> bool:
     return result.returncode == 0
 
 
-def ahead_behind(cwd: Path, left: str, right: str) -> tuple[int, int]:
-    output = git_output(cwd, "rev-list", "--left-right", "--count", f"{left}...{right}")
-    ahead_s, behind_s = output.split()
-    return int(ahead_s), int(behind_s)
-
-
-def candidate_parent_branches(
-    cwd: Path,
-    *,
-    current: str | None = None,
-    trunk_branches: tuple[str, ...] = ("main", "master"),
-    limit: int = 25,
-) -> list[ParentCandidate]:
-    if current is None:
-        current = current_branch(cwd)
-
-    candidates: list[ParentCandidate] = []
-    for branch in local_branches(cwd):
-        if branch == current:
-            continue
-
-        try:
-            base = merge_base(cwd, current, branch)
-        except subprocess.CalledProcessError:
-            continue
-
-        ahead, behind = ahead_behind(cwd, branch, current)
-        candidates.append(
-            ParentCandidate(
-                branch_name=branch,
-                merge_base_sha=base,
-                ahead=ahead,
-                behind=behind,
-                is_trunk=branch in trunk_branches,
-            )
-        )
-
-    candidates.sort(
-        key=lambda candidate: (
-            candidate.likelihood_score,
-            candidate.behind,
-            candidate.ahead,
-            not candidate.is_trunk,
-            candidate.branch_name,
-        )
-    )
-    return candidates[:limit]

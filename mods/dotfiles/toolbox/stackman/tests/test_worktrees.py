@@ -25,7 +25,7 @@ def test_init_from_linked_worktree_inherits_parent_labels(
         stack_id_factory=lambda: "sm_shared_wt",
     )
     git_repo.checkout("parent_line")
-    assert main_app.init(parent="main") == 0
+    assert main_app.track(parent="main") == 0
 
     wt = tmp_path / "linked-wt"
     git_repo.add_worktree(wt, new_branch="wt_tip")
@@ -38,7 +38,7 @@ def test_init_from_linked_worktree_inherits_parent_labels(
         stdout=io.StringIO(),
         stderr=io.StringIO(),
     )
-    assert wt_app.init(parent="parent_line") == 0
+    assert wt_app.track(parent="parent_line") == 0
 
     initialize(stackman_db_path)
     key = git_repo.canonical_repo_key()

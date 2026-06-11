@@ -69,11 +69,11 @@ def test_sync_rebases_linear_stack_when_trunk_moves(
         stdout=stdout,
         stderr=stderr,
     )
-    assert app.sync(stack_id="stack-1") == 0
+    assert app.sync(branch="feature") == 0
     assert stderr.getvalue() == ""
 
     out = stdout.getvalue()
-    assert "[stackman] Stack label: 'stack-1'" in out
+    assert "stack-1" not in out
     assert "feature" in out
     assert "Sync finished successfully" in out
 
@@ -117,7 +117,7 @@ def test_sync_dry_run_reports_anchor_and_uses_it_for_root_rebase(
         stderr=io.StringIO(),
     )
 
-    assert app.sync(stack_id="stack-anchor", dry_run=True) == 0
+    assert app.sync(branch="feature", dry_run=True) == 0
     out = stdout.getvalue()
     assert "[stackman] Anchor branch: 'release_base'" in out
     assert "feature: rebase onto tip of 'release_base'" in out
@@ -162,7 +162,7 @@ def test_sync_rebases_root_branch_onto_non_main_anchor(
         stderr=io.StringIO(),
     )
 
-    assert app.sync(stack_id="stack-anchor") == 0
+    assert app.sync(branch="feature") == 0
     git_repo.checkout("feature")
     assert git_repo.merge_base("feature", "release_base") == release_tip
 
@@ -198,7 +198,7 @@ def test_sync_second_run_skips_branch_already_synced_to_parent_tip(
         stdout=first_stdout,
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id="stack-1") == 0
+    assert app.sync(branch="feature") == 0
 
     tracked = get_branch(stackman_db_path, git_repo.canonical_repo_key(), "feature")
     assert tracked is not None
@@ -216,7 +216,7 @@ def test_sync_second_run_skips_branch_already_synced_to_parent_tip(
         stdout=second_stdout,
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id="stack-1") == 0
+    assert app.sync(branch="feature") == 0
 
     git_repo.checkout("feature")
     after = git_repo.rev_parse("HEAD")
@@ -272,7 +272,7 @@ def test_sync_retains_post_fork_history_while_replacing_older_ancestry(
         stdout=io.StringIO(),
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id="stack-history") == 0
+    assert app.sync(branch="branch1") == 0
 
     tracked = get_branch(stackman_db_path, git_repo.canonical_repo_key(), "branch2")
     assert tracked is not None
@@ -362,7 +362,7 @@ def test_sync_rebases_only_tail_branch_when_middle_branch_advances(
         stdout=io.StringIO(),
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id="stack-middle-change") == 0
+    assert app.sync(branch="branch1") == 0
 
     git_repo.checkout("branch1")
     branch1_tip_after_sync = git_repo.rev_parse("HEAD")
@@ -474,7 +474,7 @@ def test_sync_rebases_descendants_after_root_branch_changes_then_skips_second_ru
         stdout=first_stdout,
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id="stack-root-change") == 0
+    assert app.sync(branch="branch1") == 0
 
     git_repo.checkout("branch1")
     branch1_tip_after_first_sync = git_repo.rev_parse("HEAD")
@@ -520,7 +520,7 @@ def test_sync_rebases_descendants_after_root_branch_changes_then_skips_second_ru
         stdout=second_stdout,
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id="stack-root-change") == 0
+    assert app.sync(branch="branch1") == 0
 
     git_repo.checkout("branch1")
     branch1_tip_after_second_sync = git_repo.rev_parse("HEAD")
@@ -574,7 +574,7 @@ def test_sync_squash_collapses_multiple_post_fork_commits(
         stdout=stdout,
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id="stack-squash", squash=True) == 0
+    assert app.sync(branch="feature", squash=True) == 0
 
     after_commits = git_repo.git("rev-list", "--count", f"{fork}..feature")
     assert after_commits == "1"
@@ -611,7 +611,7 @@ def test_sync_squash_leaves_single_post_fork_commit_unchanged(
         stdout=stdout,
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id="stack-one", squash=True) == 0
+    assert app.sync(branch="feature", squash=True) == 0
 
     after = git_repo.rev_parse("feature")
     assert after == before
@@ -647,7 +647,7 @@ def test_sync_dry_run_reports_squash_plan(
         stdout=stdout,
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id="stack-dry-squash", dry_run=True, squash=True) == 0
+    assert app.sync(branch="feature", dry_run=True, squash=True) == 0
 
     after = git_repo.rev_parse("feature")
     assert after == before
@@ -739,7 +739,7 @@ def test_sync_squash_preserves_code_changes_across_entire_stack(
         stdout=stdout,
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id="stack-squash-code", squash=True) == 0
+    assert app.sync(branch="foo", squash=True) == 0
 
     assert _file_at(git_repo, "foo", "requirements.txt") == "click==8.1.8"
     assert _file_at(git_repo, "foo", "foo.py") == "def foo():\n    return 'foo'"
@@ -850,7 +850,7 @@ def test_sync_squash_preserves_code_changes_after_middle_branch_conflict_resolut
         stdout=stdout,
         stderr=stderr,
     )
-    assert app.sync(stack_id="stack-squash-conflict", squash=True) == 0
+    assert app.sync(branch="foo", squash=True) == 0
 
     assert "Rebase failed on 'bar'" in stderr.getvalue()
     assert _file_at(git_repo, "foo", "foo.py") == "def foo():\n    return 'foo'"
@@ -903,7 +903,7 @@ def test_sync_propagates_to_descendant_without_label(
         stdout=io.StringIO(),
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id="stack-x") == 0
+    assert app.sync(branch="branch_a") == 0
 
     git_repo.checkout("branch_b")
     assert git_repo.is_ancestor(git_repo.rev_parse("main"), "HEAD")
@@ -939,8 +939,8 @@ def test_sync_implicit_stack_from_current_branch_labels(
         stdout=stdout,
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id=None) == 0
-    assert "Stack label: 'only-stack'" in stdout.getvalue()
+    assert app.sync() == 0
+    assert "only-stack" not in stdout.getvalue()
 
 
 def test_sync_runs_in_linked_worktree_when_branch_is_checked_out_there(
@@ -976,7 +976,7 @@ def test_sync_runs_in_linked_worktree_when_branch_is_checked_out_there(
         stdout=stdout,
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id="sm_wt_stack") == 0
+    assert app.sync(branch="dead-code3") == 0
 
     out = stdout.getvalue()
     assert str(wt.resolve()) in out
@@ -1020,7 +1020,7 @@ def test_sync_succeeds_when_unrelated_worktree_is_dirty(
         stdout=io.StringIO(),
         stderr=io.StringIO(),
     )
-    assert app.sync(stack_id="stack-only") == 0
+    assert app.sync(branch="feature") == 0
 
 
 def test_sync_fails_with_details_when_involved_worktree_dirty(
@@ -1052,9 +1052,75 @@ def test_sync_fails_with_details_when_involved_worktree_dirty(
         stdout=io.StringIO(),
         stderr=stderr,
     )
-    assert app.sync(stack_id="stack-x2") != 0
+    assert app.sync(branch="feature") != 0
     err = stderr.getvalue()
     assert "untracked-dirty.txt" in err or "??" in err
+
+
+def test_sync_allow_dirty_skips_dirty_preflight(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    git_repo.checkout_new("feature", from_ref="main")
+    git_repo.commit("f", filename="f.txt", content="f\n")
+    fork = git_repo.merge_base("feature", "main")
+    db_path = stackman_db_path
+    initialize(db_path)
+    upsert_branch(
+        db_path,
+        repo_root=git_repo.canonical_repo_key(),
+        branch_name="feature",
+        parent_branch_name="main",
+        fork_point_sha=fork,
+    )
+    label_branch(db_path, git_repo.canonical_repo_key(), "feature", "stack-allow-dirty")
+
+    git_repo.checkout("main")
+    (git_repo.root / "untracked-dirty.txt").write_text("x\n")
+    git_repo.commit("move main", filename="m4.txt", content="m4\n")
+
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=stdout,
+        stderr=stderr,
+    )
+    assert app.sync(branch="feature", allow_dirty=True) == 0
+    assert stderr.getvalue() == ""
+    assert "--allow-dirty skips the dirty-worktree preflight" in stdout.getvalue()
+
+
+def test_sync_allow_dirty_cannot_combine_with_squash(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    git_repo.checkout_new("feature", from_ref="main")
+    git_repo.commit("f", filename="f.txt", content="f\n")
+    fork = git_repo.merge_base("feature", "main")
+    db_path = stackman_db_path
+    initialize(db_path)
+    upsert_branch(
+        db_path,
+        repo_root=git_repo.canonical_repo_key(),
+        branch_name="feature",
+        parent_branch_name="main",
+        fork_point_sha=fork,
+    )
+    label_branch(db_path, git_repo.canonical_repo_key(), "feature", "stack-dirty-squash")
+
+    stderr = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=io.StringIO(),
+        stderr=stderr,
+    )
+    assert app.sync(branch="feature", allow_dirty=True, squash=True) != 0
+    assert "cannot be combined" in stderr.getvalue()
 
 
 def test_sync_waits_for_rebase_continue_and_then_resumes(
@@ -1103,7 +1169,7 @@ def test_sync_waits_for_rebase_continue_and_then_resumes(
         stdout=stdout,
         stderr=stderr,
     )
-    assert app.sync(stack_id="stack-conflict") == 0
+    assert app.sync(branch="feature") == 0
     err = stderr.getvalue()
     assert "Rebase failed on 'feature'" in err
     assert "was aborted" not in err
@@ -1160,7 +1226,7 @@ def test_sync_exits_non_zero_when_conflicted_rebase_is_aborted(
         stdout=stdout,
         stderr=stderr,
     )
-    assert app.sync(stack_id="stack-abort") != 0
+    assert app.sync(branch="feature") != 0
 
     tracked = get_branch(stackman_db_path, git_repo.canonical_repo_key(), "feature")
     assert tracked is not None

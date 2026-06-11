@@ -1,4 +1,4 @@
-"""Opaque stack identifiers (auto-assigned when the user omits ``--stack``)."""
+"""Opaque stack identifiers assigned to branch stacks automatically."""
 
 from __future__ import annotations
 

@@ -22,7 +22,7 @@ def _build_app(db_path: Path, cwd: Path) -> StackmanApp:
     )
 
 
-@click.group()
+@click.group(invoke_without_command=True)
 @click.option(
     "--db-path",
     type=click.Path(path_type=Path),
@@ -31,75 +31,40 @@ def _build_app(db_path: Path, cwd: Path) -> StackmanApp:
     help="Path to the SQLite database.",
 )
 @click.option(
-    "--cwd",
+    "--repo",
+    "repo_path",
     type=click.Path(path_type=Path),
-    default=Path.cwd,
-    show_default=True,
-    help="Repository working directory.",
+    help="Repository working directory (any worktree). Defaults to the current directory.",
 )
 @click.pass_context
-def cli(ctx: click.Context, db_path: Path, cwd: Path) -> None:
+def cli(ctx: click.Context, db_path: Path, repo_path: Path | None) -> None:
     """Manage stacked Git branches."""
-    ctx.obj = _build_app(db_path, cwd)
+    app = _build_app(db_path, repo_path or Path.cwd())
+    ctx.obj = app
+    if ctx.invoked_subcommand is None:
+        raise SystemExit(app.status())
 
 
 @cli.command()
+@click.argument("branch", required=False)
+@click.option("--parent", required=True, help="Parent branch this branch is stacked on.")
 @click.pass_obj
-def status(app: StackmanApp) -> None:
-    """Show the current stack state."""
-    raise SystemExit(app.status())
+def track(app: StackmanApp, branch: str | None, parent: str) -> None:
+    """Track BRANCH (default: current branch) as stacked on --parent."""
+    raise SystemExit(app.track(branch=branch, parent=parent))
 
 
 @cli.command()
-@click.option(
-    "--parent",
-    help="Explicit parent branch. If omitted, stackman will prompt for confirmation.",
-)
-@click.option(
-    "--branches",
-    help=(
-        "Comma-separated branch chain from anchor to tip, e.g. main,stack1,stack2. "
-        "Registers stack1 with parent main and stack2 with parent stack1."
-    ),
-)
-@click.option(
-    "--stack",
-    "stacks",
-    multiple=True,
-    help=(
-        "Stack label to attach (repeat for multiple). If omitted, labels are copied from "
-        "the tracked parent when it has labels; otherwise a new sm_… id is minted."
-    ),
-)
+@click.argument("anchor")
+@click.argument("branches", nargs=-1, required=True)
 @click.pass_obj
-def init(
-    app: StackmanApp,
-    parent: str | None,
-    branches: str | None,
-    stacks: tuple[str, ...],
-) -> None:
-    """Register the current branch."""
-    raise SystemExit(app.init(parent=parent, stacks=stacks, branches=branches))
+def chain(app: StackmanApp, anchor: str, branches: tuple[str, ...]) -> None:
+    """Track an existing linear chain: ANCHOR BRANCH..."""
+    raise SystemExit(app.chain(anchor=anchor, branches=branches))
 
 
-@cli.command()
-@click.option(
-    "--branch",
-    help="Branch that merged into its recorded parent (default: current branch).",
-)
-@click.option(
-    "--dry-run",
-    is_flag=True,
-    help="Show reparenting plan without updating the database.",
-)
-@click.pass_obj
-def merged_cmd(app: StackmanApp, branch: str | None, dry_run: bool) -> None:
-    """Update metadata after a merge: collapse a tracked parent, or remove a branch merged into untracked trunk."""
-    raise SystemExit(app.merged(branch=branch, dry_run=dry_run))
-
-
-@cli.command()
-@click.argument("stack_id", required=False)
+@cli.command("sync")
+@click.argument("branch", required=False)
 @click.option(
     "--dry-run",
     is_flag=True,
@@ -116,62 +81,63 @@ def merged_cmd(app: StackmanApp, branch: str | None, dry_run: bool) -> None:
     is_flag=True,
     help="Squash 2+ commits after the stored fork-point into one commit before rebasing each branch.",
 )
-@click.pass_obj
-def sync(app: StackmanApp, stack_id: str | None, dry_run: bool, verbose: bool, squash: bool) -> None:
-    """Rebase tracked branches for STACK_ID (or infer it from the current branch's labels)."""
-    raise SystemExit(app.sync(stack_id=stack_id, dry_run=dry_run, verbose=verbose, squash=squash))
-
-
-@cli.command("stacks")
-@click.pass_obj
-def stacks_command(app: StackmanApp) -> None:
-    """List stack ids and all tracked branches in the global stackman database."""
-    raise SystemExit(app.list_stacks())
-
-
-@cli.group()
-def stack() -> None:
-    """Inspect or remove stack membership (does not delete Git branches)."""
-
-
-@stack.command("branches")
-@click.argument("stack_id")
-@click.pass_obj
-def stack_branches_cmd(app: StackmanApp, stack_id: str) -> None:
-    """List all branches annotated with STACK_ID (any repository)."""
-    raise SystemExit(app.stack_branches(stack_id))
-
-
-@stack.command("remove-branch")
-@click.argument("stack_id")
 @click.option(
-    "--branch",
-    help="Branch to remove from the stack (default: current branch in the --cwd repository).",
-)
-@click.pass_obj
-def stack_remove_branch_cmd(app: StackmanApp, stack_id: str, branch: str | None) -> None:
-    """Remove a branch from STACK_ID in the current repository."""
-    raise SystemExit(app.stack_remove_branch(stack_id, branch=branch))
-
-
-@stack.command("remove")
-@click.argument("stack_id")
-@click.option(
-    "--yes",
+    "--allow-dirty",
     is_flag=True,
-    help="Confirm removal of this stack and its tracked branches (required).",
+    help="Skip dirty-worktree preflight; Git may still abort checkout or rebase.",
 )
 @click.pass_obj
-def stack_remove_cmd(app: StackmanApp, stack_id: str, yes: bool) -> None:
-    """Remove STACK_ID and every tracked branch associated with it."""
-    if not yes:
-        raise SystemExit(
-            "Refusing to remove a stack without --yes. "
-            "This removes the stack id and every tracked branch currently associated with it "
-            "from stackman. Git branches are unchanged. "
-            "Re-run with: stackman stack remove STACK_ID --yes"
+def sync_command(
+    app: StackmanApp,
+    branch: str | None,
+    dry_run: bool,
+    verbose: bool,
+    squash: bool,
+    allow_dirty: bool,
+) -> None:
+    """Sync the full stack containing BRANCH (default: current branch)."""
+    raise SystemExit(
+        app.sync(
+            branch=branch,
+            dry_run=dry_run,
+            verbose=verbose,
+            squash=squash,
+            allow_dirty=allow_dirty,
         )
-    raise SystemExit(app.stack_remove(stack_id))
+    )
+
+
+@cli.command("done")
+@click.argument("branch", required=False)
+@click.option("--dry-run", is_flag=True, help="Show reparenting plan without updating the database.")
+@click.pass_obj
+def done_command(app: StackmanApp, branch: str | None, dry_run: bool) -> None:
+    """Mark BRANCH as done and reparent its children onto its parent."""
+    raise SystemExit(app.done(branch=branch, dry_run=dry_run))
+
+
+@cli.command()
+@click.argument("branch", required=False)
+@click.pass_obj
+def forget(app: StackmanApp, branch: str | None) -> None:
+    """Stop tracking BRANCH without reparenting children."""
+    raise SystemExit(app.forget(branch=branch))
+
+
+@cli.command("list")
+@click.pass_obj
+def list_command(app: StackmanApp) -> None:
+    """List tracked branches for the current repo."""
+    raise SystemExit(app.list())
+
+
+@cli.command()
+@click.argument("pr_number", type=int, required=True)
+@click.option("--apply", "apply_changes", is_flag=True, help="Write the discovered tracking metadata.")
+@click.pass_obj
+def discover(app: StackmanApp, pr_number: int, apply_changes: bool) -> None:
+    """Discover a stack by traversing open GitHub PR branches."""
+    raise SystemExit(app.discover(pr_number=pr_number, apply=apply_changes))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -184,4 +150,7 @@ def main(argv: list[str] | None = None) -> int:
         if code:
             click.echo(str(code), err=True)
         return 1
+    except click.ClickException as exc:
+        exc.show()
+        return exc.exit_code
     return 0

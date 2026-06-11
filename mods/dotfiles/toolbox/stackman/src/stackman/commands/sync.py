@@ -4,6 +4,7 @@ from pathlib import Path
 
 from ..context import AppContext
 from ..git_ops import (
+    branch_exists,
     checkout,
     commits_since,
     current_branch,
@@ -35,23 +36,29 @@ from ..store import (
 from ..sync_plan import SyncPlan, build_sync_plan
 
 
-def run(ctx: AppContext, *, stack_id: str | None, dry_run: bool, verbose: bool, squash: bool) -> int:
+def run(
+    ctx: AppContext,
+    *,
+    branch: str | None,
+    dry_run: bool,
+    verbose: bool,
+    squash: bool,
+    allow_dirty: bool,
+) -> int:
     initialize(ctx.db_path)
 
     worktree = repo_root(ctx.cwd)
     repo_key = repo_db_key(ctx.cwd)
 
     original_branch = current_branch(worktree)
+    selector_branch = branch or original_branch
+    if branch is not None and not branch_exists(worktree, branch):
+        raise SystemExit(f"Branch {branch!r} does not exist in this Git repository.")
     all_branches = list_branches(ctx.db_path, repo_key)
     if not all_branches:
         raise SystemExit("No branches are tracked for this repository.")
 
-    resolved_stack = _resolve_stack_id(
-        ctx,
-        repo_key,
-        original_branch,
-        stack_id,
-    )
+    resolved_stack = _resolve_stack_id(ctx, repo_key, selector_branch)
     labeled_names = list_branch_names_with_stack_label(ctx.db_path, repo_key, resolved_stack)
     stack = get_stack(ctx.db_path, resolved_stack)
     stored_anchor = stack.anchor_branch_name if stack is not None else None
@@ -75,20 +82,30 @@ def run(ctx: AppContext, *, stack_id: str | None, dry_run: bool, verbose: bool, 
             anchor_branch_name=anchor_branch_name,
         )
 
+    if allow_dirty and squash:
+        raise SystemExit("`--allow-dirty` cannot be combined with `--squash`.")
+
     if not dry_run:
-        involved = sync_relevant_worktrees(worktree, plan.order)
-        dirty_blocks: list[str] = []
-        for path in involved:
-            preview = worktree_dirty_preview(path)
-            if preview is not None:
-                dirty_blocks.append(f"  {path}\n{preview}")
-        if dirty_blocks:
-            raise SystemExit(
-                "These worktrees used by this sync are dirty; commit or stash, "
-                "or pass --dry-run to inspect the plan only.\n"
-                + "\n".join(dirty_blocks)
-                + "\n(Other linked worktrees do not need to be clean.)"
+        if allow_dirty:
+            _emit(
+                ctx,
+                "[stackman] Warning: --allow-dirty skips the dirty-worktree preflight; "
+                "Git may still abort checkout or rebase.",
             )
+        else:
+            involved = sync_relevant_worktrees(worktree, plan.order)
+            dirty_blocks: list[str] = []
+            for path in involved:
+                preview = worktree_dirty_preview(path)
+                if preview is not None:
+                    dirty_blocks.append(f"  {path}\n{preview}")
+            if dirty_blocks:
+                raise SystemExit(
+                    "These worktrees used by this sync are dirty; commit or stash, "
+                    "or pass --dry-run to inspect the plan only.\n"
+                    + "\n".join(dirty_blocks)
+                    + "\n(Other linked worktrees do not need to be clean.)"
+                )
 
     _print_plan(ctx, plan, worktree, dry_run=dry_run)
 
@@ -265,7 +282,7 @@ def _resolve_stack_anchor(
         if anchor:
             _emit(
                 ctx,
-                f"[stackman] Inferred anchor branch {anchor!r} for legacy stack {plan.stack_id!r}.",
+                f"[stackman] Inferred anchor branch {anchor!r} from tracked roots.",
             )
             return anchor
 
@@ -275,7 +292,7 @@ def _resolve_stack_anchor(
         rendered = ", ".join(sorted(p for p in parent_names if p is not None))
         detail = f"multiple root parents: {rendered}"
     raise SystemExit(
-        f"Stack {plan.stack_id!r} has no anchor branch and Stackman could not infer one "
+        "The selected branch group has no anchor branch and Stackman could not infer one "
         f"({detail})."
     )
 
@@ -312,37 +329,24 @@ def _wait_for_rebase_resolution(
         return False
 
 
-def _resolve_stack_id(
-    ctx: AppContext,
-    repo_key: str,
-    branch_name: str,
-    explicit: str | None,
-) -> str:
-    if explicit:
-        names = list_branch_names_with_stack_label(ctx.db_path, repo_key, explicit)
-        if not names:
-            raise SystemExit(
-                f"No tracked branches carry stack label {explicit!r} in this repository."
-            )
-        return explicit
-
+def _resolve_stack_id(ctx: AppContext, repo_key: str, branch_name: str) -> str:
     tracked = get_branch(ctx.db_path, repo_key, branch_name)
     if tracked is None:
         raise SystemExit(
-            "Current branch is not tracked by stackman. "
-            "Run `stackman init` from this branch or pass STACK_ID explicitly."
+            f"Branch {branch_name!r} is not tracked by stackman. "
+            "Run `stackman track <branch> --parent <parent>` first."
         )
     labels = list_branch_labels(ctx.db_path, repo_key, branch_name)
     if not labels:
         raise SystemExit(
-            "Current branch has no stack labels (likely recorded before stackman auto-assigned ids). "
-            "Re-run `stackman init --parent <parent>` on this branch, or pass STACK_ID explicitly."
+            f"Branch {branch_name!r} is missing internal stack metadata. "
+            "Run `stackman forget <branch>` and re-track it with `stackman track <branch> --parent <parent>`."
         )
     if len(labels) > 1:
         joined = ", ".join(labels)
         raise SystemExit(
-            f"Current branch has multiple stack labels ({joined}). "
-            "Re-run with an explicit STACK_ID argument."
+            f"Branch {branch_name!r} has ambiguous internal stack metadata ({joined}). "
+            "Run `stackman forget <branch>` and re-track it with `stackman track <branch> --parent <parent>`."
         )
     return labels[0]
 
@@ -350,11 +354,6 @@ def _resolve_stack_id(
 def _print_plan(ctx: AppContext, plan: SyncPlan, worktree: Path, *, dry_run: bool) -> None:
     mode = "Dry run — no git changes" if dry_run else "Applying sync"
     _emit(ctx, f"[stackman] {mode} in worktree {worktree}")
-    _emit(ctx, f"[stackman] Stack label: {plan.stack_id!r}")
-    _emit(
-        ctx,
-        f"[stackman] Labeled branches: {', '.join(sorted(plan.labeled_branches)) or '<none>'}",
-    )
     _emit(ctx, f"[stackman] Anchor branch: {plan.anchor_branch_name!r}")
     _emit(ctx, f"[stackman] Resolved roots: {', '.join(sorted(plan.roots)) or '<none>'}")
     _emit(
