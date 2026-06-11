@@ -75,6 +75,19 @@ function kill-all() {
   ps aux | grep "$WHAT" | grep -v grep | awk '{print $2}' | xargs kill -9
 }
 
+function workmux-pr-review() {
+  local pr="$1"
+  if [ -z "$pr" ]; then
+    echo "Usage: workmux-pr-review <pr-number>" >&2
+    return 1
+  fi
+
+  workmux add "review_$pr" \
+    --pr "$pr" \
+    --agent pi \
+    --prompt "/skill:multi-valued-review on the changes made in this pr: $pr"
+}
+
 rift-activate() {
   for cmd in rift rift-cli; do
     if ! command -v "$cmd" >/dev/null 2>&1; then

@@ -95,6 +95,7 @@ let
       skills = [
         "skill-creator"
         "doc-coauthoring"
+        "frontend-design"
       ];
       agents = allAgents;
     }
@@ -147,6 +148,7 @@ let
       skills = [
         "axion-jira"
         "axion-local-db-access"
+        "axion-mcp-trace-analysis"
         "axion-pr-workflow"
         "raygun-script-all-script-writer"
       ];

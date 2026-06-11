@@ -26,6 +26,7 @@ This skill replaces the older OpenCode-only `/multi-valued-review` command and `
 - Prefer findings about behavior, risk, maintainability, performance, security, framework idioms, and concrete simplification opportunities.
 - Critical and High severity findings are Blocking.
 - Medium and Low severity findings are Non-Blocking.
+- Never abbreviate severity labels. Write `Critical`, `High`, `Medium`, and `Low` in full everywhere, including category totals.
 - Deduplicate findings by root cause. Preserve the category from the lens that found the issue first, unless another category better explains the root cause.
 - When findings conflict, keep the higher severity only if the evidence supports it; otherwise keep the better-evidenced finding.
 
@@ -234,9 +235,9 @@ If none, write: `No non-blocking issues found.`
 - **Evidence:** <snippet/scenario or N/A>
 
 ## Category Totals
-- **correctness-invariants:** C:<n> H:<n> M:<n> L:<n>
-- **security-trust-boundaries:** C:<n> H:<n> M:<n> L:<n>
-- **reliability-operability:** C:<n> H:<n> M:<n> L:<n>
-- **complexity-simplification:** C:<n> H:<n> M:<n> L:<n>
-- **evolvability-maintainability:** C:<n> H:<n> M:<n> L:<n>
+- **correctness-invariants:** Critical:<n> High:<n> Medium:<n> Low:<n>
+- **security-trust-boundaries:** Critical:<n> High:<n> Medium:<n> Low:<n>
+- **reliability-operability:** Critical:<n> High:<n> Medium:<n> Low:<n>
+- **complexity-simplification:** Critical:<n> High:<n> Medium:<n> Low:<n>
+- **evolvability-maintainability:** Critical:<n> High:<n> Medium:<n> Low:<n>
 ```
