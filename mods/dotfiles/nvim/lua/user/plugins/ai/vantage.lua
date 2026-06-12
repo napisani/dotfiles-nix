@@ -88,7 +88,7 @@ function M.get_keymaps()
 			{ "<leader>ve", with_vantage("edit", command_opts()), desc = "edit line" },
 			{ "<leader>vE", with_vantage("explain", command_opts()), desc = "explain line" },
 			{ "<leader>v?", with_vantage("question", command_opts()), desc = "ask question" },
-			{ "<leader>vS", with_vantage("search", command_opts()), desc = "search project" },
+			{ "<leader>vf", with_vantage("search", command_opts()), desc = "search project" },
 			{ "<leader>vo", with_vantage("session_output"), desc = "session output" },
 			{ "<leader>vs", with_vantage("status"), desc = "status" },
 			{ "<leader>vbc", with_vantage("agent_cancel"), desc = "cancel agent request" },
@@ -99,7 +99,7 @@ function M.get_keymaps()
 			{ "<leader>ve", function() with_vantage("edit", visual_opts())() end, desc = "edit selection" },
 			{ "<leader>vE", function() with_vantage("explain", visual_opts())() end, desc = "explain selection" },
 			{ "<leader>v?", function() with_vantage("question", visual_opts())() end, desc = "ask about selection" },
-			{ "<leader>vS", function() with_vantage("search", visual_opts())() end, desc = "search from selection" },
+			{ "<leader>vf", function() with_vantage("search", visual_opts())() end, desc = "search from selection" },
 		},
 	}
 end

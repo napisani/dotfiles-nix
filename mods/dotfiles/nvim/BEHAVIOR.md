@@ -171,7 +171,7 @@
 `<leader>ve` → [n] leaf: request an AI edit for the current line
 `<leader>vE` → [n] leaf: explain the current line without changing buffer text
 `<leader>v?` → [n] leaf: ask an ad hoc question about the current line without changing buffer text
-`<leader>vS` → [n] leaf: run an agentic project search and open curated locations in quickfix
+`<leader>vf` → [n] leaf: run an agentic project search and open curated locations in quickfix
 `<leader>vo` → [n] leaf: show the recent inline AI session output transcript
 `<leader>vs` → [n] leaf: show combined inline AI status, including agent session and adjacent-agent context
 `<leader>vbc` → [n] leaf: cancel the active inline AI request
@@ -180,7 +180,7 @@
 `<leader>ve` → [v] leaf: request an AI edit for the selected line range
 `<leader>vE` → [v] leaf: explain the selected line range without changing buffer text
 `<leader>v?` → [v] leaf: ask an ad hoc question about the selected line range without changing buffer text
-`<leader>vS` → [v] leaf: run an agentic project search seeded by the selected line range and open curated locations in quickfix
+`<leader>vf` → [v] leaf: run an agentic project search seeded by the selected line range and open curated locations in quickfix
 
 ---
 
