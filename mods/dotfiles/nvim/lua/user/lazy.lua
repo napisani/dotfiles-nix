@@ -25,6 +25,8 @@ vim.g.maplocalleader = ";"
 vim.g.nvim_dadbod_bg_port = "4545"
 vim.g.nvim_dadbod_bg_log_file = "/tmp/nvim-dadbod-dbg.log"
 
+local vantage_dir = "/Users/nick/code/learn-lsp"
+
 -- Setup lazy.nvim
 require("lazy").setup({
 	spec = {
@@ -293,23 +295,9 @@ require("lazy").setup({
 
 		-- Inline AI annotations and review lenses
 		{
-			dir = "/Users/nick/code/learn-lsp",
+			dir = vantage_dir,
 			name = "vantage.nvim",
 			build = "npm run compile",
-			cmd = {
-				"VantageSetLens",
-				"VantageClearLens",
-				"VantageExplain",
-				"VantageQuestion",
-				"VantageEdit",
-				"VantageAnnotate",
-				"VantageAnnotationClear",
-				"VantageAnnotationStatus",
-				"VantageContextStatus",
-				"VantageAgentReset",
-				"VantageAgentStatus",
-				"VantageReviewHunk",
-			},
 			opts = require("user.plugins.ai.vantage").opts,
 			config = function(_, opts)
 				require("user.plugins.ai.vantage").configure(opts)

@@ -34,9 +34,20 @@ local M = {
 		-- Default list of enabled providers defined so that you can extend it
 		-- elsewhere in your config, without redefining it, due to `opts_extend`
 		sources = {
-			default = { "lsp", "path", "buffer", "skills", "prompt_files" },
+			default = { "lsp", "path", "buffer", "vantage_skills", "skills", "prompt_files" },
 			per_filetype = {},
 			providers = {
+				vantage_skills = {
+					name = "Vantage Skills",
+					module = "vantage.integrations.blink_skills",
+					async = true,
+					min_keyword_length = 0,
+					score_offset = 110,
+					enabled = function()
+						local ok, value = pcall(vim.api.nvim_buf_get_var, 0, "vantage_prompt_buffer")
+						return ok and value == true
+					end,
+				},
 				prompt_files = {
 					name = "Prompt files",
 					module = "user.completion.sources.prompt_files",
