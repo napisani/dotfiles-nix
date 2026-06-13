@@ -20,7 +20,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    proctmux.url = "github:napisani/proctmux/zig-spike";
+    # Use the released Zig build; zig-spike lacks checked-in libghostty
+    # Unicode tables and fails to compile its generators on Linux.
+    proctmux.url = "github:napisani/proctmux/v0.2.6";
     secret_inject.url = "github:napisani/secret_inject";
     animal_rescue.url = "github:napisani/animal-rescue";
     scrollbacktamer.url = "github:napisani/scrollbacktamer";
