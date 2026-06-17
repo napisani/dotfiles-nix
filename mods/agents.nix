@@ -21,12 +21,14 @@
 # ~/.agents/skills. Shared/community skills must live only in ~/.agents/skills
 # for Pi, otherwise Pi reports name collisions at startup.
 #
-# Pi extensions and themes are symlinked from:
+# Pi extensions, themes, and MCP config are symlinked from:
 #   mods/dotfiles/agents/pi/extensions/*.js and *.ts
 #   mods/dotfiles/agents/pi/themes/*.json
+#   mods/dotfiles/agents/pi/mcp.json
 # into:
 #   ~/.pi/agent/extensions/
 #   ~/.pi/agent/themes/
+#   ~/.pi/agent/mcp.json
 #
 # Per-agent dotfiles (commands) live in:
 #   mods/dotfiles/agents/<agent>/
@@ -153,6 +155,18 @@ let
         "raygun-script-all-script-writer"
       ];
       agents = allAgents;
+    }
+    {
+      repo = "https://github.com/napisani/proctmux";
+      skills = [ "proctmux-config" ];
+      agents = allAgents;
+      fullDepth = true;
+    }
+    {
+      repo = "https://github.com/napisani/vantage-nvim";
+      skills = [ "vantage-distill-session" ];
+      agents = allAgents;
+      fullDepth = true;
     }
     {
       repo = "https://github.com/microsoft/playwright-cli";
@@ -315,6 +329,21 @@ let
           echo "agents: linked Pi theme '$_theme_name' -> $_target_link"
         fi
       done
+    fi
+  '';
+
+  syncPiMcpConfig = ''
+    _src="${dotfiles}/agents/pi/mcp.json"
+    _dst="$HOME/.pi/agent/mcp.json"
+    mkdir -p "$(dirname "$_dst")"
+
+    if [ -f "$_src" ]; then
+      if [ -e "$_dst" ] && [ ! -L "$_dst" ]; then
+        echo "agents: refusing to replace non-symlink Pi MCP config at $_dst"
+      elif [ ! -L "$_dst" ] || [ "$(readlink "$_dst")" != "$_src" ]; then
+        ln -sfn "$_src" "$_dst"
+        echo "agents: linked Pi MCP config -> $_dst"
+      fi
     fi
   '';
 
@@ -553,6 +582,16 @@ let
         defaultThinkingLevel: "xhigh",
         theme: "kanagawa",
       };
+      const managedSkills = [
+        "~/code/*/apps/*/.agents/skills",
+      ];
+      const managedPackages = [
+        "npm:@ayulab/pi-rewind",
+        "npm:pi-mcp-adapter",
+      ];
+      const removedPackages = new Set([
+        "npm:pi-subagents",
+      ]);
 
       let changed = false;
       for (const [key, value] of Object.entries(managed)) {
@@ -570,9 +609,37 @@ let
         changed = true;
       }
 
+      const currentPackages = Array.isArray(settings.packages) ? settings.packages : [];
+      const nextPackages = currentPackages.filter((packageSource) => !removedPackages.has(packageSource));
+      let packagesChanged = !Array.isArray(settings.packages) || nextPackages.length !== currentPackages.length;
+      for (const packageSource of managedPackages) {
+        if (!nextPackages.includes(packageSource)) {
+          nextPackages.push(packageSource);
+          packagesChanged = true;
+        }
+      }
+      if (packagesChanged) {
+        settings.packages = nextPackages;
+        changed = true;
+      }
+
+      const currentSkills = Array.isArray(settings.skills) ? settings.skills : [];
+      const nextSkills = [...currentSkills];
+      let skillsChanged = !Array.isArray(settings.skills);
+      for (const skillPath of managedSkills) {
+        if (!nextSkills.includes(skillPath)) {
+          nextSkills.push(skillPath);
+          skillsChanged = true;
+        }
+      }
+      if (skillsChanged) {
+        settings.skills = nextSkills;
+        changed = true;
+      }
+
       if (changed) {
         fs.writeFileSync(path, JSON.stringify(settings, null, 2) + "\n");
-        console.log("agents: applied Pi defaults -> openai-codex/gpt-5.5/xhigh, fast:on, theme:kanagawa");
+        console.log("agents: applied Pi defaults -> openai-codex/gpt-5.5/xhigh, fast:on, theme:kanagawa, monorepo app skills, managed Pi packages");
       }
     '
   '';
@@ -827,9 +894,10 @@ in
         # ── Workmux status tracking hooks ───────────────────────────────────
         ${applyWorkmuxStatusHooks}
 
-        # ── Pi local extensions and themes ──────────────────────────────────
+        # ── Pi local extensions, themes, and MCP config ─────────────────────
         ${syncPiExtensions}
         ${syncPiThemes}
+        ${syncPiMcpConfig}
         ${applyPiSettings}
 
         # Pi also discovers ~/.agents/skills, so remove stale/accidental copies

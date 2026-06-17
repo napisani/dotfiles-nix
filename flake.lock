@@ -361,16 +361,15 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1781291839,
-        "narHash": "sha256-SrZ3O33v8HdH5IfT9yNwy0SxCjTyRQA5T3roLC99b1g=",
+        "lastModified": 1781292021,
+        "narHash": "sha256-rpzPnQ9U3w4AUsiDA1ytSMokUP4Tl9XqAdxGp9UZPXs=",
         "owner": "napisani",
         "repo": "proctmux",
-        "rev": "7a7ad2d66b54ef711807e17df2e687dd8501b714",
+        "rev": "7c2d34c558e8e9bd927fe59aa2edbc10a599c525",
         "type": "github"
       },
       "original": {
         "owner": "napisani",
-        "ref": "v0.2.6",
         "repo": "proctmux",
         "type": "github"
       }

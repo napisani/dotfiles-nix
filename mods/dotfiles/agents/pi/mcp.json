@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "figma": {
+      "url": "https://mcp.figma.com/mcp",
+      "auth": "oauth",
+      "oauth": {
+        "clientName": "Codex",
+        "clientUri": "https://github.com/openai/codex",
+        "scope": "mcp:connect"
+      },
+      "lifecycle": "lazy"
+    }
+  }
+}
