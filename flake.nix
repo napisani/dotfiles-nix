@@ -62,12 +62,12 @@
           homeModules = [ ./homes/home-nicks-mbp.nix ];
         };
 
-        "nicks-axion-ray-mbp" = builders.mkDarwinSystem {
+        "nicks-loancrate-mbp" = builders.mkDarwinSystem {
           system = "aarch64-darwin";
-          hostname = "nicks-axion-ray-mbp";
+          hostname = "nicks-loancrate-mbp";
           username = "nick";
-          modules = [ ./systems/profiles/darwin-work.nix ];
-          homeModules = [ ./homes/home-nicks-axion-ray-mbp.nix ];
+          modules = [ ./systems/profiles/darwin-loancrate.nix ];
+          homeModules = [ ./homes/home-nicks-loancrate-mbp.nix ];
         };
 
         "maclab" = builders.mkDarwinSystem {

@@ -20,7 +20,7 @@ Temporary bug workarounds (Neovim, nvim-treesitter, Nix overlays/package overrid
 | Hostname | Platform | Architecture | System Type | Build Command (dry-run) |
 |---|---|---|---|---|
 | nicks-mbp | macOS | aarch64-darwin | Personal MacBook Pro | `nix build .#darwinConfigurations.nicks-mbp.system --dry-run` |
-| nicks-axion-ray-mbp | macOS | aarch64-darwin | Work MacBook (Axion Ray) | `nix build .#darwinConfigurations.nicks-axion-ray-mbp.system --dry-run` |
+| nicks-loancrate-mbp | macOS | aarch64-darwin | Work MacBook (Loancrate) | `nix build .#darwinConfigurations.nicks-loancrate-mbp.system --dry-run` |
 | maclab | macOS | x86_64-darwin | Mac lab machine | `nix build .#darwinConfigurations.maclab.system --dry-run` |
 | supermicro | NixOS | x86_64-linux | Homelab server | `nix build .#nixosConfigurations.supermicro.config.system.build.toplevel --dry-run` |
 
