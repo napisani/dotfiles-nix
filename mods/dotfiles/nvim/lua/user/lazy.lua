@@ -295,7 +295,8 @@ require("lazy").setup({
 
 		-- Inline AI annotations and review lenses
 		{
-			dir = vantage_dir,
+			-- dir = vantage_dir,
+      "napisani/vantage-nvim",
 			name = "vantage.nvim",
 			build = "npm run compile",
 			opts = require("user.plugins.ai.vantage").opts,
