@@ -812,7 +812,12 @@ in
         done
 
         # ── Community skills (from git repos, copied into agent dirs) ────────
-        ${communitySkillCmds}
+        if command -v skills >/dev/null 2>&1; then
+          ${communitySkillCmds}
+        else
+          echo "agents: 'skills' command not found — skipping community skill installs" >&2
+          echo "agents: run 'npm install -g skills@latest' then 'darwin-rebuild switch' to fix" >&2
+        fi
 
         # ── Shared local skills → global store + non-Pi agent dirs ──────────
         ${mkLocalSkillSyncScript {
