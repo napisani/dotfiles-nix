@@ -55,18 +55,15 @@
     # Base brews that all Macs should have
     brews = [
       # "procmux"
-      "koekeishiya/formulae/yabai"
       "opencode"
       "rtk"
       "raine/workmux/workmux"
-      "kitlangton/tap/ghui"
     ];
 
     taps = [
       # "napisani/procmux"
       # "homebrew/cask-versions"
       "mongodb/brew"
-      "koekeishiya/formulae"
       "raine/workmux"
     ];
   };

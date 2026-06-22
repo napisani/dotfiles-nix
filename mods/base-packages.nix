@@ -52,7 +52,6 @@ in
       # tmuxp
       nodemon
       mise
-      nvm
 
       k9s
 
