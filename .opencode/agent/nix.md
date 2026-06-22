@@ -39,7 +39,7 @@ For this dotfiles repository:
 
 Machine build commands (dry-run only):
 - nicks-mbp: `nix build .#darwinConfigurations.nicks-mbp.system --dry-run`
-- nicks-axion-ray-mbp: `nix build .#darwinConfigurations.nicks-axion-ray-mbp.system --dry-run`
+- nicks-loancrate-mbp: `nix build .#darwinConfigurations.nicks-loancrate-mbp.system --dry-run`
 - maclab: `nix build .#darwinConfigurations.maclab.system --dry-run`
 - supermicro: `nix build .#nixosConfigurations.supermicro.config.system.build.toplevel --dry-run`
 
