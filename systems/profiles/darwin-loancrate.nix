@@ -5,6 +5,8 @@
   ...
 }:
 {
+  ids.gids.nixbld = 350;
+
   homebrew = {
     masApps = { };
 
