@@ -22,7 +22,6 @@ let
     "@earendil-works/pi-coding-agent"
     "@agentclientprotocol/claude-agent-acp"
     "@zed-industries/codex-acp"
-    "@google/gemini-cli"
     "@playwright/cli"
   ];
 

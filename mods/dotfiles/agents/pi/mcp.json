@@ -1,14 +1,18 @@
 {
   "mcpServers": {
+    "linear": {
+      "lifecycle": "lazy",
+      "url": "https://mcp.linear.app/mcp"
+    },
     "figma": {
-      "url": "https://mcp.figma.com/mcp",
       "auth": "oauth",
+      "lifecycle": "lazy",
       "oauth": {
         "clientName": "Codex",
         "clientUri": "https://github.com/openai/codex",
         "scope": "mcp:connect"
       },
-      "lifecycle": "lazy"
+      "url": "https://mcp.figma.com/mcp"
     }
   }
 }
