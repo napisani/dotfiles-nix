@@ -4,7 +4,7 @@
 # Both `claude plugin marketplace add` and `claude plugin install` are idempotent.
 #
 # Fields:
-#   marketplace     — GitHub owner/repo of the marketplace
+#   marketplace     — GitHub owner/repo (optionally with #branch, e.g. "owner/repo#workmux")
 #   marketplaceName — the `name` field in the repo's .claude-plugin/marketplace.json
 #   plugins         — plugin names to install (installed as <name>@<marketplaceName>)
 #   condition       — boolean; when false the entry is skipped (default: true)
@@ -21,7 +21,7 @@ let
   agentPluginSources = [
     # Loancrate org skills package — provides lc@ and code@ plugins
     {
-      marketplace = "loancrate/org-claude-skills";
+      marketplace = "loancrate/org-claude-skills#workmux";
       marketplaceName = "lc";
       plugins = [
         "lc"

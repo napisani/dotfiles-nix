@@ -1,4 +1,15 @@
+{ lib, ... }:
 {
+  # Seed every new repo (git init / git clone) with .gitignore_local in
+  # info/exclude so the file is silently excluded without touching each
+  # project's committed .gitignore. For existing repos, run `git-local-ignore`
+  # (defined in .bashrc.d/0070_git.bashrc) once from inside the repo.
+  home.file.".config/git/template/info/exclude".text = ''
+    # Per-repo local gitignore — not committed to the repository.
+    # Add personal patterns here (editor temp files, local build artifacts, etc.)
+    .gitignore_local
+  '';
+
   programs.git = {
     enable = true;
     signing.format = "openpgp";
@@ -9,6 +20,19 @@
       ".env.local"
       ".env"
       ".rgignore"
+      ".gitignore_local"
+    ];
+
+    # Any repo under ~/ automatically uses a local .gitignore_local file (if
+    # present) as its per-repo exclude file. The file is ignored globally above
+    # so it never shows up as untracked without per-project .gitignore changes.
+    includes = [
+      {
+        condition = "gitdir:~/";
+        contents = {
+          core.excludesFile = ".gitignore_local";
+        };
+      }
     ];
 
     settings = {
@@ -40,23 +64,21 @@
       };
       init = {
         defaultBranch = "main";
+        templateDir = "~/.config/git/template";
       };
       rebase = {
         updateRefs = true;
         autoSquash = true;
       };
-
       diff = {
         algorithm = "histogram";
         colorMoved = "plain";
         mnemonicPrefix = true;
         renames = true;
       };
-
       tag = {
         sort = "version:refname";
       };
-
       "filter \"lfs\"" = {
         clean = "git-lfs clean -- %f";
         smudge = "git-lfs smudge -- %f";
