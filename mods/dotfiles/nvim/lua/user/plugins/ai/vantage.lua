@@ -50,8 +50,8 @@ end
 
 M.opts = {
 	agent = {
-		provider = "openai-codex",
-		model = "gpt-5.4-mini",
+		provider = "anthropic",
+		model = "claude-haiku-4-5",
 		options = {
 			reasoning = "minimal",
 		},
@@ -89,6 +89,7 @@ function M.get_keymaps()
 			{ "<leader>vE", with_vantage("explain", command_opts()), desc = "explain line" },
 			{ "<leader>v?", with_vantage("question", command_opts()), desc = "ask question" },
 			{ "<leader>vf", with_vantage("search", command_opts()), desc = "search project" },
+			{ "<leader>vw", with_vantage("load_walkthrough"), desc = "load walkthrough" },
 			{ "<leader>vo", with_vantage("session_output"), desc = "session output" },
 			{ "<leader>vs", with_vantage("status"), desc = "status" },
 			{ "<leader>vbc", with_vantage("agent_cancel"), desc = "cancel agent request" },

@@ -14,7 +14,7 @@
 }:
 let
   shared = import ./lib.nix { inherit config pkgs-unstable; };
-  inherit (shared) dotfiles home allAgents isAxionMac nodeBin gitBin;
+  inherit (shared) dotfiles home allAgents isAxionMac isLoancrateMac nodeBin gitBin;
 
   agentSkillSources = [
     {
@@ -78,7 +78,10 @@ let
     }
     {
       repo = "https://github.com/napisani/vantage-nvim";
-      skills = [ "vantage-distill-session" ];
+      skills = [
+        "vantage-distill-session"
+        "vantage-author-walkthrough"
+      ];
       agents = allAgents;
       fullDepth = true;
     }
@@ -113,6 +116,21 @@ let
       ];
       agents = [ "pi" ];
       fullDepth = true;
+    }
+    {
+      repo = "https://github.com/raine/workmux";
+      skills = [ "worktree" ];
+      agents = allAgents;
+    }
+    # Loancrate-only: private skills
+    {
+      repo = "https://github.com/napisani/private-skills";
+      skills = [
+        "loancrate-pr-workflow"
+        "loancrate-with-workmux-stack-handoff"
+      ];
+      agents = allAgents;
+      condition = isLoancrateMac;
     }
     # Axion-only: Datadog log skill
     {

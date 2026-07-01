@@ -62,9 +62,9 @@
           homeModules = [ ./homes/home-nicks-mbp.nix ];
         };
 
-        "nicks-loancrate-mbp" = builders.mkDarwinSystem {
+        "Nicks-Loancrate-MacBook-Pro" = builders.mkDarwinSystem {
           system = "aarch64-darwin";
-          hostname = "nicks-loancrate-mbp";
+          hostname = "Nicks-Loancrate-MacBook-Pro";
           username = "nick";
           modules = [ ./systems/profiles/darwin-loancrate.nix ];
           homeModules = [ ./homes/home-nicks-loancrate-mbp.nix ];

@@ -36,15 +36,16 @@ let
   mkClaudePluginCmds =
     source:
     let
-      installCmds = builtins.concatStringsSep "\n" (
-        map (
-          p: "claude plugin install ${lib.escapeShellArg "${p}@${source.marketplaceName}"} --scope user"
-        ) source.plugins
+      reinstallCmds = builtins.concatStringsSep "\n" (
+        map (p: ''
+          claude plugin uninstall ${lib.escapeShellArg "${p}@${source.marketplaceName}"} --scope user 2>/dev/null || true
+          claude plugin install ${lib.escapeShellArg "${p}@${source.marketplaceName}"} --scope user
+        '') source.plugins
       );
     in
     ''
       claude plugin marketplace add ${lib.escapeShellArg source.marketplace} --scope user
-      ${installCmds}
+      ${reinstallCmds}
     '';
 
   claudePluginCmds = builtins.concatStringsSep "\n" (

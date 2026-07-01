@@ -2,8 +2,9 @@
 // Non-destructive: replaces only managed workmux entries, preserving user-added hooks.
 //
 // Input (env vars):
-//   DOTFILES — absolute path to the mods/dotfiles directory
-//   HOME     — home directory
+//   DOTFILES        — absolute path to the mods/dotfiles directory
+//   HOME            — home directory
+//   CLAUDE_SETTINGS — optional JSON object of settings to always merge into ~/.claude/settings.json
 
 const fs = require("node:fs");
 const path = require("node:path");
@@ -17,8 +18,12 @@ function readJson(file, fallback) {
     if (!fs.existsSync(file)) return fallback;
     return JSON.parse(fs.readFileSync(file, "utf8"));
   } catch (error) {
-    console.error("agents: refusing to update invalid JSON at " + file + ": " + error.message);
-    return null;
+    // Repair: rename the corrupted file and continue with the fallback so that
+    // the managed hooks and settings are still applied to a fresh, valid file.
+    const backup = file + ".corrupted";
+    try { fs.renameSync(file, backup); } catch {}
+    console.error("agents: invalid JSON at " + file + " — renamed to " + backup + " and starting fresh: " + error.message);
+    return fallback;
   }
 }
 
@@ -38,10 +43,11 @@ function containsWorkmuxStatusCommand(value) {
   return false;
 }
 
-function mergeHookMap(targetFile, sourceFile) {
+function mergeHookMap(targetFile, sourceFile, extraSettings) {
   const sourceHooks = readJson(sourceFile, null);
+  // readJson now always returns an object on error (fallback {}), so target is never null.
   const target = readJson(targetFile, {});
-  if (!sourceHooks || !target) return;
+  if (!sourceHooks) return;
 
   const hooks = target.hooks && typeof target.hooks === "object" && !Array.isArray(target.hooks)
     ? target.hooks
@@ -56,6 +62,11 @@ function mergeHookMap(targetFile, sourceFile) {
   }
 
   target.hooks = hooks;
+
+  if (extraSettings && typeof extraSettings === "object") {
+    Object.assign(target, extraSettings);
+  }
+
   writeJsonIfChanged(targetFile, target);
 }
 
@@ -167,6 +178,13 @@ function ensureCodexHooksEnabled(configFile, hooksFile) {
 
 const codexHooksFile = path.join(home, ".codex", "hooks.json");
 
-mergeHookMap(path.join(home, ".claude", "settings.json"), path.join(sourceDir, "claude-hooks.json"));
+let claudeSettings = {};
+try {
+  if (process.env.CLAUDE_SETTINGS) claudeSettings = JSON.parse(process.env.CLAUDE_SETTINGS);
+} catch (e) {
+  console.error("agents: invalid CLAUDE_SETTINGS JSON — ignoring: " + e.message);
+}
+
+mergeHookMap(path.join(home, ".claude", "settings.json"), path.join(sourceDir, "claude-hooks.json"), claudeSettings);
 mergeCodexHooks(codexHooksFile, path.join(sourceDir, "codex-hooks.json"));
 ensureCodexHooksEnabled(path.join(home, ".codex", "config.toml"), codexHooksFile);

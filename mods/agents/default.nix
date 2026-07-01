@@ -22,12 +22,13 @@
 #
 # SUBMODULES
 # ─────────────────────────────────────────────────────────────────────────────
-#   skills.nix       — agentSkillSources, community + local skill installation
-#   plugins.nix      — agentPluginSources, Claude Code plugin installation
-#   mcp.nix          — agentMcpSources, MCP server config (claude-code, cursor, pi)
-#   pi.nix           — Pi extensions, themes, settings, Understand-Anything plugin
-#   hooks.nix        — RTK init hooks + Workmux window-status hooks
-#   instructions.nix — shared AGENTS.md / CLAUDE.md propagation
+#   skills.nix           — agentSkillSources, community + local skill installation
+#   plugins.nix          — agentPluginSources, Claude Code plugin installation
+#   mcp.nix              — agentMcpSources, MCP server config (claude-code, cursor, pi)
+#   pi.nix               — Pi extensions, themes, settings, Understand-Anything plugin
+#   hooks.nix            — RTK init hooks + Workmux window-status hooks
+#   instructions.nix     — shared AGENTS.md / CLAUDE.md propagation
+#   loancrate-config.nix — ~/.claude/loancrate.json (loancrate system only)
 #
 # All source lists support an optional `condition` attribute (boolean).
 # When false the entry is skipped. Defaults to true (installed everywhere).
@@ -45,6 +46,7 @@
 #       → prepareAgentInstructionsForRtk (before installRtkHooks)
 #       → installRtkHooks        (after installAgentSkills)
 #         → applySharedAgentInstructions (after installRtkHooks)
+#       → applyLoancrateConfig   (after installClaudePlugins, loancrate only)
 {
   config,
   lib,
@@ -59,6 +61,7 @@
     ./pi.nix
     ./hooks.nix
     ./instructions.nix
+    ./loancrate-config.nix
   ];
 
   # Remove stale files that must be dirs (skills@latest requires dirs, not symlinks).

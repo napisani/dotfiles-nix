@@ -3,6 +3,7 @@
 local M = {}
 local ai_prompts = require("user.plugins.ai.ai_prompts")
 
+
 local default_config = {
 	default_route = "pi",
 	prompts = ai_prompts.defaults,
@@ -10,7 +11,7 @@ local default_config = {
 		definitions = {
 			claude = {
 				label = "Claude Code",
-				cmd = "claude",
+				cmd = "claude --allow-dangerously-skip-permissions",
 				kind = "pane",
 				split = "horizontal", -- horizontal split -> pane opens on the right
 				shell = false,
@@ -153,44 +154,111 @@ local function with_snacks_picker(opts, on_choice)
 	end
 end
 
--- Find an existing instance for the given route whose origin_cwd matches the
--- current working directory.  Returns the instance or nil.
-local function find_cwd_instance(instances, route, cwd)
+-- Find a same-session managed instance for the route whose origin_cwd matches cwd.
+local function find_cwd_instance(instances, route, cwd, session_id)
 	for _, inst in ipairs(instances) do
-		if inst.target == route and inst.origin_cwd == cwd then
+		if inst.target == route and inst.origin_cwd == cwd
+			and (not session_id or inst.session_id == session_id) then
 			return inst
 		end
 	end
 	return nil
 end
 
+-- Fallback: any managed instance for the route in the given session, regardless of CWD.
+-- Scoped to session so remote-session claude instances don't pollute routing.
+local function find_any_route_instance(instances, route, session_id)
+	for _, inst in ipairs(instances) do
+		if inst.target == route and (not session_id or inst.session_id == session_id) then
+			return inst
+		end
+	end
+	return nil
+end
+
+-- Find an unmanaged tmux pane (no @wiremux_target) in the current session that is
+-- running the route's executable. Uses TTY-based ps so node-wrapped binaries
+-- (e.g. claude → node) are detected even when #{pane_pid} only shows the shell.
+-- Returns a wiremux.Pane object, or nil.
+local function find_unmanaged_pane_running(route, st)
+	local def = get_route_definition(route)
+	if not def or not def.cmd then return nil end
+	local exe = def.cmd:match("^(%S+)")
+	if not exe then return nil end
+	exe = vim.fn.fnamemodify(exe, ":t")
+
+	local managed_ids = {}
+	for _, inst in ipairs(st.instances or {}) do
+		managed_ids[inst.id] = true
+	end
+	-- Never adopt the nvim pane itself. st.origin_pane_id can be wrong when tmux
+	-- focus has moved (display -p tracks focused pane, not nvim's pane), so prefer
+	-- TMUX_PANE which is set at nvim startup and is stable.
+	local nvim_pane_id = vim.env.TMUX_PANE or st.origin_pane_id
+	if nvim_pane_id then
+		managed_ids[nvim_pane_id] = true
+	end
+
+	local pane_map = {}
+	for _, pane in ipairs(st.panes or {}) do
+		pane_map[pane.id] = pane
+	end
+
+	local current_session = st.session_id
+	local out = vim.fn.system("tmux list-panes -a -F '#{pane_id} #{session_id} #{pane_tty}' 2>/dev/null")
+	for line in out:gmatch("[^\n]+") do
+		local pane_id, session_id, pane_tty = line:match("^(%%%d+)%s+(%S+)%s+(.+)$")
+		if pane_id and session_id == current_session and pane_tty and not managed_ids[pane_id] then
+			local procs = vim.fn.system(string.format("ps -t %s -o args= 2>/dev/null", pane_tty))
+			if procs:find(exe, 1, true) then
+				return pane_map[pane_id] or { id = pane_id, kind = "pane" }
+			end
+		end
+	end
+	return nil
+end
+
+local function reuse_instance(existing)
+	local tmux_state = require("wiremux.backend.tmux.state")
+	local batch = {}
+	tmux_state.update_last_used(batch, existing.id)
+	require("wiremux.backend.tmux.client").execute(batch)
+end
+
+-- Ensure a wiremux-tracked instance exists for the route before send/toggle/focus.
+-- Only considers instances in the current tmux session to avoid accidentally routing
+-- to or triggering a picker over claude panes in unrelated sessions.
+-- Managed same-session instances are reused; unmanaged same-session panes running
+-- the route's process are adopted. Returns false when nothing is found — wiremux.send()
+-- handles creation via its on_definition callback.
 local function ensure_route_instance(route)
-	if not route or route == "" then
-		return false
-	end
+	if not route or route == "" then return false end
 	local backend = get_backend()
-	if not backend or not backend.state then
-		return false
-	end
+	if not backend or not backend.state then return false end
 	local st = backend.state.get()
 	local cwd = vim.fn.getcwd()
-	if st and st.instances then
-		local existing = find_cwd_instance(st.instances, route, cwd)
+
+	-- 1. Managed instance in the same session: prefer CWD match, then any CWD.
+	if st.instances then
+		local existing = find_cwd_instance(st.instances, route, cwd, st.session_id)
+			or find_any_route_instance(st.instances, route, st.session_id)
 		if existing then
-			-- Reuse the existing instance — update last-used so sends go here
-			local tmux_state = require("wiremux.backend.tmux.state")
-			local batch = {}
-			tmux_state.update_last_used(batch, existing.id)
-			require("wiremux.backend.tmux.client").execute(batch)
+			reuse_instance(existing)
 			return true
 		end
 	end
-	local wiremux = ensure_wiremux()
-	if not wiremux then
-		return false
+
+	-- 2. Unmanaged same-session pane running the route's process: adopt it.
+	local unmanaged = find_unmanaged_pane_running(route, st)
+	if unmanaged then
+		local ok, tmux_state = pcall(require, "wiremux.backend.tmux.state")
+		if ok then
+			if tmux_state.adopt(unmanaged, st, route) then return true end
+		end
 	end
-	wiremux.create({ target = route, behavior = "last", focus = true })
-	return true
+
+	-- 3. Nothing found — let wiremux.send() create via its on_definition callback.
+	return false
 end
 
 function M.setup(user_opts)
@@ -237,6 +305,23 @@ local function send_via_wiremux(payload, opts)
 	-- Upstream default is often submit=false; we want Enter/Submit in the target pane.
 	if opts.submit == nil then
 		opts.submit = true
+	end
+	-- Restrict routing to the current tmux session so remote-session claude instances
+	-- don't intercept sends or trigger a multi-choice picker.
+	if not opts.filter then
+		opts.filter = {
+			instances = function(inst, st)
+				return inst.session_id == st.session_id
+			end,
+		}
+	end
+	-- Refocus nvim's pane before send so wiremux's internal `display -p` (no -t)
+	-- returns nvim's pane ID as origin_pane_id. If a previous send with focus=true
+	-- moved tmux focus to the target pane, wiremux would mistake the target pane for
+	-- the origin and exclude it from routing — creating a duplicate pane instead.
+	local nvim_pane = vim.env.TMUX_PANE
+	if nvim_pane and nvim_pane ~= "" then
+		vim.fn.system("tmux select-pane -t " .. nvim_pane)
 	end
 	local ok, err = pcall(wiremux.send, payload, opts)
 	if not ok then

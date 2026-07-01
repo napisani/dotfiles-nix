@@ -3,9 +3,14 @@
   lib,
   config,
   pkgs,
+  pkgs-unstable,
   user,
   ...
 }: {
+
+  home.packages = with pkgs-unstable; [
+    postgresql
+  ];
 
   home.sessionVariables = {
     MACHINE_NAME = "nicks-loancrate-mbp";

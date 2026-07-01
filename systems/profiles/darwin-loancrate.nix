@@ -41,10 +41,12 @@
       # pulls cairo, harfbuzz, fontconfig, and freetype transitively.
       "pango"
       "poppler"
+      "conductorone/cone/cone"
     ];
 
     taps = [
       "buildkite/buildkite"
+      "conductorone/cone"
     ];
   };
 }

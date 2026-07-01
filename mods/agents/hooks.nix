@@ -27,6 +27,7 @@ in
   # Runs after skills so agent config files exist before merging hooks into them.
   home.activation.applyWorkmuxHooks = lib.hm.dag.entryAfter [ "installAgentSkills" ] ''
     DOTFILES=${lib.escapeShellArg dotfiles} \
+    CLAUDE_SETTINGS=${lib.escapeShellArg (builtins.toJSON { editorMode = "vim"; })} \
       ${nodeBin}/node ${scriptsDir}/apply-workmux-hooks.js
   '';
 
