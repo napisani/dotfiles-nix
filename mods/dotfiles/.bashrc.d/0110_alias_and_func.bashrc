@@ -75,6 +75,38 @@ function kill-all() {
   ps aux | grep "$WHAT" | grep -v grep | awk '{print $2}' | xargs kill -9
 }
 
+# Export variables from a .env file into the current shell.
+# Usage: env-expand [path/to/.env]
+# Handles quoted values, strips 'export' prefix, skips comments and blank lines.
+env-expand() {
+  local env_file="${1:-.env}"
+  if [ ! -f "$env_file" ]; then
+    echo "env-expand: file not found: $env_file" >&2
+    return 1
+  fi
+
+  local line key value
+  while IFS= read -r line || [ -n "$line" ]; do
+    # Skip blank lines and comments
+    [[ "$line" =~ ^[[:space:]]*$  ]] && continue
+    [[ "$line" =~ ^[[:space:]]*# ]] && continue
+    # Strip leading 'export ' if present
+    line="${line#export }"
+    line="${line#"${line%%[![:space:]]*}"}"  # ltrim
+    # Must be KEY=value
+    [[ "$line" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]] || continue
+    key="${line%%=*}"
+    value="${line#*=}"
+    # Strip surrounding double or single quotes
+    if [[ "$value" =~ ^\"(.*)\"$ ]]; then
+      value="${BASH_REMATCH[1]}"
+    elif [[ "$value" =~ ^\'(.*)\'$ ]]; then
+      value="${BASH_REMATCH[1]}"
+    fi
+    export "$key=$value"
+  done < "$env_file"
+}
+
 function workmux-pr-review() {
   local pr="$1"
   if [ -z "$pr" ]; then
@@ -84,8 +116,7 @@ function workmux-pr-review() {
 
   workmux add "review_$pr" \
     --pr "$pr" \
-    --agent pi \
-    --prompt "/skill:multi-valued-review on the changes made in this pr: $pr"
+    --prompt "$(ai_skill multi-valued-review) on the changes made in this pr: $pr"
 }
 
 rift-activate() {

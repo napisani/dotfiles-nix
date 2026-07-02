@@ -128,6 +128,8 @@ let
       skills = [
         "loancrate-pr-workflow"
         "loancrate-with-workmux-stack-handoff"
+        "loancrate-standup-prep"
+        "loancrate-analyze-agent-self-improve-trend"
       ];
       agents = allAgents;
       condition = isLoancrateMac;

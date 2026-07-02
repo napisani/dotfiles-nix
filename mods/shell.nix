@@ -29,11 +29,11 @@ in
     };
     bash = {
       enable = true;
-      profileExtra = ''
+      bashrcExtra = ''
         for file in ~/.bashrc.d/*.bashrc
         do
             file_only=$(basename "$file")
-            if ! grep -q "$file_only" ~/.bashrc.d/excludes.txt; then
+            if ! grep -q "$file_only" ~/.bashrc.d/excludes.txt 2>/dev/null; then
                 source "$file"
             fi
         done
@@ -71,8 +71,6 @@ in
     "toolbox" = mkForcedSym "toolbox";
     "shell_scripts" = mkForcedSym "shell_scripts";
     ".config/tmux/tmux.conf" = mkForcedSym ".tmux.conf";
-    ".config/scute/config.yaml" = mkForcedSym "scute.yml";
-
     ".config/karabiner/karabiner.json" = mkForcedSym "karabiner.json";
 
     ".yabairc" = {
@@ -82,6 +80,7 @@ in
 
     ".config/rift/config.toml" = mkForcedSym "riftrc";
     ".config/alacritty/alacritty.toml" = mkForcedSym "alacritty.toml";
+    ".config/scute/config.yaml" = mkForcedSym "scute.yml";
 
     ".bashrc.d".source = ./dotfiles/.bashrc.d;
     ".inputrc".source = ./dotfiles/.inputrc;

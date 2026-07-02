@@ -50,8 +50,8 @@ end
 
 M.opts = {
 	agent = {
-		provider = "anthropic",
-		model = "claude-haiku-4-5",
+		provider = vim.env.AI_PROVIDER or "anthropic",
+		model = vim.env.AI_FAST_MODEL or "claude-haiku-4-5",
 		options = {
 			reasoning = "minimal",
 		},

@@ -1,14 +1,13 @@
 # opencode.nix — Declarative OpenCode (~/.config/opencode) layout:
 #
-# - Dotfiles: config, commands, agents, modes, themes → symlinks into mods/dotfiles (edit without rebuild).
+# - config.json: live symlink to mods/dotfiles/opencode-config.json (edit without rebuild).
+# - commands, agents, modes, themes → symlinks into mods/dotfiles (edit without rebuild).
 # - plugins/: symlinked repo files.
-# - skills:
-#   - local/       → symlink mods/dotfiles/opencode/local-skills (your custom opencode skills)
-#   - community skills (from git repos) → managed in mods/agents.nix (shared with all agents)
+# - skills/local → symlink mods/dotfiles/opencode/local-skills (your custom opencode skills)
+# - community skills (from git repos) → managed in mods/agents.nix (shared with all agents)
 {
   config,
   lib,
-  pkgs-unstable,
   ...
 }:
 let
@@ -19,9 +18,6 @@ let
     source = mkSym path;
     force = true;
   };
-
-  nodeBin = "${pkgs-unstable.nodejs}/bin";
-  gitBin = "${pkgs-unstable.git}/bin";
 in
 {
   home = {

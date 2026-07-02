@@ -95,12 +95,12 @@ end
 function M.current_provider()
 	local ok, wiremux = pcall(require, "user.plugins.ai.wiremux")
 	if not ok or type(wiremux.get_current_route) ~= "function" then
-		return "opencode"
+		return vim.env.PREFERRED_AGENT or "pi"
 	end
 
 	local route = wiremux.get_current_route()
 	if type(route) ~= "string" or route == "" then
-		return "opencode"
+		return vim.env.PREFERRED_AGENT or "pi"
 	end
 
 	return route:lower()
@@ -111,7 +111,10 @@ function M.skill_callout(provider)
 	if type(provider) == "string" then
 		provider = provider:lower()
 	end
-	return skill_callouts[provider] or skill_callouts.claude
+	local preferred = vim.env.PREFERRED_AGENT
+	return skill_callouts[provider]
+		or (preferred and skill_callouts[preferred])
+		or skill_callouts.claude
 end
 
 function M.completion_trigger()

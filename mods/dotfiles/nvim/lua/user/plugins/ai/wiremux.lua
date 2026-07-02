@@ -5,7 +5,7 @@ local ai_prompts = require("user.plugins.ai.ai_prompts")
 
 
 local default_config = {
-	default_route = "pi",
+	default_route = vim.env.PREFERRED_AGENT or "pi",
 	prompts = ai_prompts.defaults,
 	targets = {
 		definitions = {

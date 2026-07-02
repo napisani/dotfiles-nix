@@ -157,7 +157,7 @@ if command -v git &> /dev/null ; then
       prompt="Write a concise git commit message (12 words max) for these staged changes. Output exactly one plain text line without quotes, markdown, or explanation."
 
       local generated_message
-      if ! generated_message=$(_ollama_completion "$prompt" "$staged_diff"); then
+      if ! generated_message=$(_ollama_completion "$prompt" "$staged_diff" "${AI_GIT_COMMIT_MODEL:-}"); then
         echo "gitscp: unable to generate commit message" >&2
         return 1
       fi
