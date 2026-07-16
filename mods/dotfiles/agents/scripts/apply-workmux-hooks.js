@@ -36,6 +36,21 @@ function writeJsonIfChanged(file, value) {
   console.log("agents: applied Workmux status hooks -> " + file);
 }
 
+// One-level-deep merge: nested plain objects (e.g. `permissions`) are merged
+// key-by-key into any existing object at that key, instead of replacing it
+// wholesale — so pushing `{ permissions: { defaultMode: "auto" } }` doesn't
+// clobber a `permissions.allow`/`permissions.deny` list set up elsewhere.
+function mergeSettingsInto(target, extraSettings) {
+  for (const [key, value] of Object.entries(extraSettings)) {
+    const isPlainObject = (v) => v && typeof v === "object" && !Array.isArray(v);
+    if (isPlainObject(value) && isPlainObject(target[key])) {
+      Object.assign(target[key], value);
+    } else {
+      target[key] = value;
+    }
+  }
+}
+
 function containsWorkmuxStatusCommand(value) {
   if (typeof value === "string") return value.includes("workmux set-window-status");
   if (Array.isArray(value)) return value.some(containsWorkmuxStatusCommand);
@@ -64,7 +79,7 @@ function mergeHookMap(targetFile, sourceFile, extraSettings) {
   target.hooks = hooks;
 
   if (extraSettings && typeof extraSettings === "object") {
-    Object.assign(target, extraSettings);
+    mergeSettingsInto(target, extraSettings);
   }
 
   writeJsonIfChanged(targetFile, target);

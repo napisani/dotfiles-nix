@@ -14,7 +14,14 @@
 }:
 let
   shared = import ./lib.nix { inherit config pkgs-unstable; };
-  inherit (shared) dotfiles home allAgents isAxionMac isLoancrateMac nodeBin gitBin;
+  inherit (shared)
+    dotfiles
+    home
+    allAgents
+    isLoancrateMac
+    nodeBin
+    gitBin
+    ;
 
   agentSkillSources = [
     {
@@ -58,8 +65,12 @@ let
         "improve-codebase-architecture"
         "tdd"
         "write-a-skill"
-        "to-prd"
-        "to-issues"
+        "to-spec"
+        "domain-modeling"
+        "prototype"
+        "diagnose"
+        "caveman"
+        "zoom-out"
       ];
       agents = allAgents;
     }
@@ -130,21 +141,48 @@ let
         "loancrate-with-workmux-stack-handoff"
         "loancrate-standup-prep"
         "loancrate-analyze-agent-self-improve-trend"
+        "loancrate-weekly-update-draft"
+        "multi-valued-review"
       ];
       agents = allAgents;
       condition = isLoancrateMac;
     }
-    # Axion-only: Datadog log skill
+    # Loancrate-only: lc-script
     {
-      repo = "https://github.com/datadog-labs/agent-skills";
-      skills = [ "dd-logs" ];
+      repo = "https://github.com/napisani/lc-script";
+      skills = [ "loancrate-lc-script" ];
       agents = allAgents;
-      fullDepth = true;
-      condition = isAxionMac;
+      condition = isLoancrateMac;
     }
   ];
 
   enabledSkillSources = builtins.filter (s: s.condition or true) agentSkillSources;
+
+  # Map from agent ID (as used by the `skills` CLI) to the skills dir on disk.
+  # If an agent is added to allAgents without an entry here, Nix evaluation will
+  # error loudly rather than silently skipping the wipe.
+  agentSkillsDirOf = {
+    "claude-code" = "${home}/.claude/skills";
+    "cursor" = "${home}/.cursor/skills";
+    "opencode" = "${home}/.config/opencode/skills";
+    "codex" = "${home}/.codex/skills";
+    "pi" = "${home}/.pi/agent/skills";
+  };
+
+  # Every skill directory fully managed by this activation: global store + per-agent.
+  # Derived from allAgents so adding/removing an agent here automatically widens the wipe.
+  allManagedSkillDirs =
+    [ "${home}/.agents/skills" ] ++ map (a: agentSkillsDirOf.${a}) allAgents;
+
+  # Directories managed by local-skill sync that also need a wipe-first pass.
+  allManagedCommandsDirs = [ "${home}/.claude/commands" ];
+
+  allManagedSkillDirsStr = builtins.concatStringsSep " " (
+    map lib.escapeShellArg allManagedSkillDirs
+  );
+  allManagedCommandsDirsStr = builtins.concatStringsSep " " (
+    map lib.escapeShellArg allManagedCommandsDirs
+  );
 
   mkCommunitySkillCmd =
     source:
@@ -159,9 +197,7 @@ let
     in
     "skills add ${lib.escapeShellArg source.repo} --global ${agentArgs} --yes --copy ${skillArgs}${fullDepthArg}";
 
-  communitySkillCmds = builtins.concatStringsSep "\n" (
-    map mkCommunitySkillCmd enabledSkillSources
-  );
+  communitySkillCmds = builtins.concatStringsSep "\n" (map mkCommunitySkillCmd enabledSkillSources);
 
   # Activation script: symlink each subdir of a dotfiles source into a target dir.
   # Creates target/<name> → source/<name> without disturbing unrelated entries.
@@ -206,9 +242,11 @@ in
       "$HOME/.pi/agent/extensions" \
       "$HOME/.pi/agent/themes"
 
-    # Skills are declarative: reset managed dirs each activation, then rebuild.
-    # Preserves hidden/system entries such as Codex's .system.
-    _reset_managed_skill_dir() {
+    # Skills are declarative: wipe all managed dirs each activation, then rebuild.
+    # This makes the activation idempotent and ensures removed skills/commands are
+    # cleaned up on the next `darwin-rebuild switch`. Preserves hidden/system entries
+    # (e.g. Codex's .system) by only removing non-hidden entries.
+    _reset_managed_dir() {
       _dst="$1"
       [ -d "$_dst" ] || return 0
       for _entry in "$_dst"/*; do
@@ -217,14 +255,12 @@ in
       done
     }
 
-    for _managed_skill_dir in \
-      "$HOME/.agents/skills" \
-      "$HOME/.claude/skills" \
-      "$HOME/.cursor/skills" \
-      "$HOME/.codex/skills" \
-      "$HOME/.config/opencode/skills" \
-      "$HOME/.pi/agent/skills"; do
-      _reset_managed_skill_dir "$_managed_skill_dir"
+    for _dir in ${allManagedSkillDirsStr}; do
+      _reset_managed_dir "$_dir"
+    done
+
+    for _dir in ${allManagedCommandsDirsStr}; do
+      _reset_managed_dir "$_dir"
     done
 
     # ── Community skills (from git repos, copied into agent dirs) ────────────

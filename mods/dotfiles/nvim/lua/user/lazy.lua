@@ -186,28 +186,25 @@ require("lazy").setup({
 			lazy = true,
 			dependencies = {
 				{
-					"joryeugene/dadbod-grip.nvim",
-					version = "*",
-					opts = {
-						picker = "snacks",
-						keymaps = {
-							qpad_execute = "<leader>De",
-						},
-					},
-					config = function(_, opts)
-						require("user.plugins.database.dadbod").configure_grip(opts)
+					"kristijanhusak/vim-dadbod-ui",
+					config = function()
+						require("user.plugins.database.dadbod").configure()
 					end,
+				},
+				{
+					"kristijanhusak/vim-dadbod-completion",
+					ft = { "sql", "mysql", "plsql" },
 				},
 			},
 			cmd = {
-				"Grip",
-				"GripConnect",
-				"GripSchema",
-				"GripQuery",
-				"GripTables",
-				"GripStart",
-				"GripHistory",
-				"GripToggle",
+				"DB",
+				"DBUI",
+				"DBUIToggle",
+				"DBUIAddConnection",
+				"DBUIFindBuffer",
+				"DBUILastQueryInfo",
+				"DBUIRenameBuffer",
+				"DBUIClose",
 			},
 		},
 		{
@@ -300,7 +297,28 @@ require("lazy").setup({
 			name = "vantage.nvim",
 			build = "npm ci --omit=dev && npm run compile",
 			opts = require("user.plugins.ai.vantage").opts,
-			config = function(_, opts)
+			-- lazy.nvim only reruns `build` when the plugin's pinned commit
+			-- changes, so if node_modules ever gets wiped externally (as
+			-- happened once already -- see "Vantage backend exited before
+			-- responding") a no-op `:Lazy update` won't repair it. Detect
+			-- and self-heal on every load instead of relying on that.
+			config = function(plugin, opts)
+				if vim.fn.isdirectory(plugin.dir .. "/node_modules") == 0 then
+					vim.notify("vantage.nvim: node_modules missing, rebuilding backend...", vim.log.levels.WARN)
+					vim.fn.jobstart("npm ci --omit=dev && npm run compile", {
+						cwd = plugin.dir,
+						on_exit = function(_, code)
+							if code == 0 then
+								vim.notify("vantage.nvim: backend rebuild complete", vim.log.levels.INFO)
+							else
+								vim.notify(
+									"vantage.nvim: backend rebuild failed (exit " .. code .. "), run :Lazy build vantage.nvim",
+									vim.log.levels.ERROR
+								)
+							end
+						end,
+					})
+				end
 				require("user.plugins.ai.vantage").configure(opts)
 			end,
 		},

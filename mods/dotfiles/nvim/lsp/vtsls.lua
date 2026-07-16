@@ -3,6 +3,16 @@ if vim.fn.has("win32") == 1 then
 	cmd = { "cmd.exe", "/C", unpack(cmd) }
 end
 
+-- tsserver has been aborting with SIGABRT (V8 FatalProcessOutOfMemory).
+-- Diagnostic reports showed ~21k live fs_event/fs_poll watchers (one per
+-- project file) on the loancrate monorepo at crash time -- see the
+-- watchOptions fix below. Keep report-on-fatalerror on in case it recurs.
+local tsserver_report_dir = vim.fn.stdpath("state") .. "/tsserver-reports"
+vim.fn.mkdir(tsserver_report_dir, "p")
+local cmd_env = {
+	NODE_OPTIONS = "--report-on-fatalerror --report-directory=" .. tsserver_report_dir,
+}
+
 local source_action_kinds = {
 	organize_imports = "source.organizeImports",
 	sort_imports = "source.sortImports",
@@ -30,6 +40,7 @@ local action_table = setmetatable({}, {
 
 return {
 	cmd = cmd,
+	cmd_env = cmd_env,
 	init_options = {
 		hostInfo = "neovim",
 	},
@@ -57,6 +68,12 @@ return {
 			updateImportsOnFileMove = "always",
 			tsserver = {
 				maxTsServerMemory = 8192,
+				-- Default per-file watching hit ~21k live watchers on this
+				-- monorepo and crashed tsserver. Watch parent directories
+				-- instead (Microsoft's recommended setting for large repos).
+				watchOptions = {
+					watchFile = "useFsEventsOnParentDirectory",
+				},
 			},
 			inlayHints = {
 				parameterNames = { enabled = "all" },

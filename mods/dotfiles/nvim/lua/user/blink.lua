@@ -35,8 +35,17 @@ local M = {
 		-- elsewhere in your config, without redefining it, due to `opts_extend`
 		sources = {
 			default = { "lsp", "path", "buffer", "vantage_skills", "skills", "prompt_files" },
-			per_filetype = {},
+			per_filetype = {
+				sql = { "dadbod" },
+				mysql = { "dadbod" },
+				plsql = { "dadbod" },
+			},
 			providers = {
+				dadbod = {
+					name = "Dadbod",
+					module = "vim_dadbod_completion.blink",
+					async = true,
+				},
 				vantage_skills = {
 					name = "Vantage Skills",
 					module = "vantage.integrations.blink_skills",

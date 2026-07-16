@@ -2,17 +2,24 @@ local Snacks = require("snacks")
 local common = require("user.snacks.common")
 local refresh = require("user.refresh")
 local scope = require("user.snacks.scope")
+local utils = require("user.utils")
 
 local find_opts = {
 	cmd = "rg",
 	hidden = true,
 	ignored = false,
+	follow = true,
 }
 local M = {}
 
 function M.find_files_from_root(opts)
 	opts = opts or {}
 	local all_opts = vim.tbl_extend("force", opts, find_opts)
+	-- Anchor rg's process cwd to the git root. Without this, rg inherits
+	-- Neovim's process cwd which in a worktree may be the main repo root
+	-- rather than the worktree root, causing .ignore files at the worktree
+	-- root to be silently skipped.
+	all_opts.cwd = all_opts.cwd or utils.get_root_dir()
 	all_opts = scope.apply_scopes_to_rg_picker(all_opts)
 	return Snacks.picker.files(all_opts)
 end

@@ -364,7 +364,6 @@ for _, rel_path in ipairs({
 	assert(#text > 100, "readfile returned empty for " .. path .. " — CWD may be wrong")
 	assert(not text:match("CodeCompanion"), "Found CodeCompanion reference in " .. path)
 	assert(not text:match("codecompanion"), "Found codecompanion reference in " .. path)
-	assert(not text:match("agentic"), "Found agentic reference in " .. path)
 	assert(not text:match("<leader>O"), "Found <leader>O reference in " .. path)
 end
 

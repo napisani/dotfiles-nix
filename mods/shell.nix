@@ -99,8 +99,8 @@ in
       let
         machineName = config.home.sessionVariables.MACHINE_NAME or "";
         secretFile =
-          if machineName == "axion-mbp" then
-            ./dotfiles/axion_secret_inject.json
+          if machineName == "nicks-loancrate-mbp" then
+            ./dotfiles/loancrate_secret_inject.json
           else
             ./dotfiles/personal_secret_inject.json;
       in

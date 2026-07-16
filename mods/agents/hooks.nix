@@ -25,9 +25,18 @@ in
 {
   # Apply Workmux window-status hooks to Claude Code and Codex config.
   # Runs after skills so agent config files exist before merging hooks into them.
+  # CLAUDE_SETTINGS also carries always-on user-level settings.json defaults:
+  #   editorMode          — vim keybindings in the built-in editor
+  #   permissions.defaultMode = "auto" — start every session in Auto Mode
+  #     (requires Opus/Sonnet 4.6+; falls back to normal mode otherwise)
   home.activation.applyWorkmuxHooks = lib.hm.dag.entryAfter [ "installAgentSkills" ] ''
     DOTFILES=${lib.escapeShellArg dotfiles} \
-    CLAUDE_SETTINGS=${lib.escapeShellArg (builtins.toJSON { editorMode = "vim"; })} \
+    CLAUDE_SETTINGS=${lib.escapeShellArg (
+      builtins.toJSON {
+        editorMode = "vim";
+        permissions.defaultMode = "auto";
+      }
+    )} \
       ${nodeBin}/node ${scriptsDir}/apply-workmux-hooks.js
   '';
 

@@ -75,16 +75,30 @@ function kill-all() {
   ps aux | grep "$WHAT" | grep -v grep | awk '{print $2}' | xargs kill -9
 }
 
-# Export variables from a .env file into the current shell.
-# Usage: env-expand [path/to/.env]
+# Load variables from a .env file scoped to a single command by default, so
+# they don't leak into the interactive shell.
+# Usage:
+#   env-expand <path/to/.env> <command> [args...]   # scoped to that command only
+#   env-expand -e|--export <path/to/.env>           # export into this shell session
 # Handles quoted values, strips 'export' prefix, skips comments and blank lines.
 env-expand() {
+  local do_export=false
+  case "$1" in
+    -e|--export)
+      do_export=true
+      shift
+      ;;
+  esac
+
   local env_file="${1:-.env}"
+  [ $# -gt 0 ] && shift
+
   if [ ! -f "$env_file" ]; then
     echo "env-expand: file not found: $env_file" >&2
     return 1
   fi
 
+  local vars=()
   local line key value
   while IFS= read -r line || [ -n "$line" ]; do
     # Skip blank lines and comments
@@ -103,8 +117,23 @@ env-expand() {
     elif [[ "$value" =~ ^\'(.*)\'$ ]]; then
       value="${BASH_REMATCH[1]}"
     fi
-    export "$key=$value"
+    vars+=("$key=$value")
   done < "$env_file"
+
+  if $do_export; then
+    local v
+    for v in "${vars[@]}"; do
+      export "$v"
+    done
+    return 0
+  fi
+
+  if [ $# -eq 0 ]; then
+    echo "env-expand: no command given to scope vars to; pass one (e.g. env-expand .env pnpm run dev) or use -e/--export to load into this shell session" >&2
+    return 1
+  fi
+
+  env "${vars[@]}" "$@"
 }
 
 function workmux-pr-review() {

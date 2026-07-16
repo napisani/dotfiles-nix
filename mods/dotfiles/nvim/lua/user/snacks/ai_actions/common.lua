@@ -181,6 +181,17 @@ end
 --
 -- Must be called synchronously before any async operation (e.g. Snacks.input)
 -- because visual marks and cursor position are only reliable at call-time.
+--
+-- '< / '> are only committed when Visual mode is formally exited (Esc, an
+-- operator, or a ":"-range command). Our visual keymaps are bound as plain
+-- Lua-function callbacks, which Neovim invokes without going through any of
+-- those -- so at call-time we're often still "in" Visual mode from the
+-- marks' perspective, and '< / '> still hold whatever was left over from the
+-- *previous* selection that was properly closed. Reading them here would
+-- silently capture stale (sometimes off-by-one-selection) text. While still
+-- in Visual mode, use the live anchor ("v") / cursor (".") positions
+-- instead, which track the active selection in real time; fall back to
+-- '< / '> once Visual mode has actually been left.
 ---@param mode string "n" | "v"
 ---@return table|nil ctx  nil when the buffer has no file name
 function M.capture_context(mode)
@@ -196,10 +207,35 @@ function M.capture_context(mode)
 	local selection = nil
 	local start_line, end_line = line, line
 	if mode == "v" then
-		start_line = vim.fn.line("'<")
-		end_line = vim.fn.line("'>")
-		local start_col = vim.fn.col("'<") - 1
-		local end_col = vim.fn.col("'>") -- nvim_buf_get_text end_col is exclusive
+		local vim_mode = vim.fn.mode()
+		local still_in_visual = vim_mode == "v" or vim_mode == "V" or vim_mode == "\22"
+
+		local anchor_line, anchor_col, cursor_line, cursor_col
+		if still_in_visual then
+			anchor_line, anchor_col = vim.fn.line("v"), vim.fn.col("v")
+			cursor_line, cursor_col = vim.fn.line("."), vim.fn.col(".")
+		else
+			anchor_line, anchor_col = vim.fn.line("'<"), vim.fn.col("'<")
+			cursor_line, cursor_col = vim.fn.line("'>"), vim.fn.col("'>")
+		end
+
+		if anchor_line > cursor_line or (anchor_line == cursor_line and anchor_col > cursor_col) then
+			anchor_line, anchor_col, cursor_line, cursor_col = cursor_line, cursor_col, anchor_line, anchor_col
+		end
+
+		start_line, end_line = anchor_line, cursor_line
+
+		local start_col, end_col
+		if still_in_visual and vim_mode == "V" then
+			-- Linewise: "v"/"." are raw cursor columns, not adjusted to full
+			-- line bounds the way committed '< / '> marks are. Select the
+			-- whole line explicitly.
+			start_col = 0
+			end_col = #vim.fn.getline(end_line)
+		else
+			start_col = anchor_col - 1
+			end_col = cursor_col -- nvim_buf_get_text end_col is exclusive
+		end
 
 		local ok, lines = pcall(
 			vim.api.nvim_buf_get_text,

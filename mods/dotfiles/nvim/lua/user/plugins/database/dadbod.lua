@@ -1,37 +1,12 @@
 -- dadbod.lua
--- Database tooling configuration using vim-dadbod + dadbod-grip
+-- Database tooling configuration using vim-dadbod + vim-dadbod-ui
 
 local M = {}
 
-local function close_grip_windows()
-	local closed = 0
-	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-		if vim.api.nvim_win_is_valid(win) then
-			local buf = vim.api.nvim_win_get_buf(win)
-			local name = vim.api.nvim_buf_get_name(buf)
-			local ft = vim.bo[buf].filetype or ""
-			local is_grip = name:match("^grip://") or ft:match("^grip")
-			if is_grip then
-				pcall(vim.api.nvim_win_close, win, false)
-				closed = closed + 1
-			end
-		end
-	end
-
-	if closed == 0 then
-		vim.notify("No Grip windows are open", vim.log.levels.INFO)
-	end
-end
-
-function M.setup()
-	-- Database plugin setup is deferred to lazy.nvim's dadbod-grip config.
-	-- This keeps project-root discovery out of the startup keymap path.
-end
-
-function M.configure_grip(opts)
+function M.configure()
 	local utils = require("user.utils")
 
-	--[=====[ 
+	--[=====[
 	// dbs.json
 	{
 	  "connections": {
@@ -63,31 +38,22 @@ function M.configure_grip(opts)
 
 	vim.g.dbs = get_project_db_urls()
 	vim.g.db_ui_use_nerd_fonts = 1
-
-	require("dadbod-grip").setup(opts)
 end
 
---- Get keymaps for dadbod-grip
+--- Get keymaps for vim-dadbod-ui
 -- @return table with shared, normal, and visual mode keymaps
 function M.get_keymaps()
 	return {
 		shared = {},
 		normal = {
 			{ "<leader>D", group = "Database" },
-			{ "<leader>Do", "<Cmd>GripConnect<CR>", desc = "(o)pen" },
-			{
-				"<leader>Dq",
-				function()
-					close_grip_windows()
-				end,
-				desc = "(q)uit",
-			},
-			{ "<leader>Ds", "<Cmd>GripSchema<CR>", desc = "(s)chema" },
-			{ "<leader>Dt", "<Cmd>GripTables<CR>", desc = "(t)ables" },
-			{ "<leader>Dg", "<Cmd>Grip<CR>", desc = "(g)rid" },
-			{ "<leader>Dh", "<Cmd>GripHistory<CR>", desc = "(h)istory" },
-			{ "<leader>De", "<Cmd>GripQuery<CR>", desc = "query (e)ditor" },
-			{ "<leader>Dd", "<Cmd>GripStart<CR>", desc = "(d)emo" },
+			{ "<leader>Do", "<Cmd>DBUIToggle<CR>", desc = "(o)pen" },
+			{ "<leader>Dq", "<Cmd>DBUIClose<CR>", desc = "(q)uit" },
+			{ "<leader>Ds", "<Cmd>DBUIToggle<CR>", desc = "(s)idebar / schema" },
+			{ "<leader>Dt", "<Cmd>DBUIToggle<CR>", desc = "(t)ables" },
+			{ "<leader>Dh", "<Cmd>DBUILastQueryInfo<CR>", desc = "(h)istory / last query" },
+			{ "<leader>De", "<Cmd>DBUIFindBuffer<CR>", desc = "query (e)ditor / find buffer" },
+			{ "<leader>Da", "<Cmd>DBUIAddConnection<CR>", desc = "(a)dd connection" },
 		},
 		visual = {},
 	}
