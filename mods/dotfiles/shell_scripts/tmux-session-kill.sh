@@ -44,7 +44,12 @@ if [[ "$SESSION" == "${WORKMUX_PREFIX}"* ]]; then
 	if [ -n "$PANE_PATH" ]; then
 		# The pane path is inside the worktree. The main repo is the git
 		# common dir's parent (worktree -> __worktrees/branch, main repo is sibling).
-		MAIN_REPO=$(git -C "$PANE_PATH" rev-parse --path-format=absolute --git-common-dir 2>/dev/null | sed 's|/\.git$||')
+		# Guarded with `|| true`: under pipefail, a failed git (e.g. the pane's
+		# cwd has drifted outside any git repo) would otherwise propagate
+		# through this pipeline and, since it's an unguarded assignment,
+		# trigger `set -e` and abort the whole script here -- silently
+		# skipping the fallback cleanup below and leaving the session alive.
+		MAIN_REPO=$(git -C "$PANE_PATH" rev-parse --path-format=absolute --git-common-dir 2>/dev/null | sed 's|/\.git$||') || true
 
 		if [ -n "$MAIN_REPO" ] && [ -f "$MAIN_REPO/.workmux.yaml" ]; then
 			# Kill companion popup first

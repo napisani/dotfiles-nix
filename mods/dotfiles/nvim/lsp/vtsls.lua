@@ -67,7 +67,16 @@ return {
 		typescript = {
 			updateImportsOnFileMove = "always",
 			tsserver = {
-				maxTsServerMemory = 8192,
+				-- Was 8192. Diagnostic reports (--report-on-fatalerror, see
+				-- cmd_env below) showed tsserver consistently pinning ~8.5GB
+				-- (old_space essentially full) across multiple loancrate
+				-- worktrees over 2+ days -- genuine usage, not the earlier
+				-- watcher-exhaustion bug (that showed ~523MB resident at
+				-- crash time). useInferredProjectPerProjectRoot loads a
+				-- separate program per package root in this monorepo
+				-- (dozens of packages, 20k+ ts files in some worktrees), so
+				-- 8GB is a real ceiling here. Machine has 128GB RAM.
+				maxTsServerMemory = 24576,
 				-- Default per-file watching hit ~21k live watchers on this
 				-- monorepo and crashed tsserver. Watch parent directories
 				-- instead (Microsoft's recommended setting for large repos).
