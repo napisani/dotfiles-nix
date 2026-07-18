@@ -52,12 +52,21 @@ if [[ "$SESSION" == "${WORKMUX_PREFIX}"* ]]; then
 		MAIN_REPO=$(git -C "$PANE_PATH" rev-parse --path-format=absolute --git-common-dir 2>/dev/null | sed 's|/\.git$||') || true
 
 		if [ -n "$MAIN_REPO" ] && [ -f "$MAIN_REPO/.workmux.yaml" ]; then
-			# Kill companion popup first
+			# Kill companion popup first (fast, keeps the picker responsive)
 			kill_session_if_exists "_popup_${SESSION}_scratch"
-			# Use workmux remove from the main repo directory
-			(cd "$MAIN_REPO" && workmux remove --force "$BRANCH") 2>/dev/null || true
-			# Ensure session is gone even if workmux didn't fully clean up
-			kill_session_if_exists "$SESSION"
+
+			# `workmux remove --force` can be slow. Run it and the final
+			# session cleanup fully detached (nohup, disowned, IO
+			# redirected) so the picker isn't blocked waiting on it. It's
+			# fine for the session to linger in the list until this
+			# finishes in the background. (No setsid on macOS -- nohup +
+			# disown is the portable equivalent for surviving the parent
+			# script's exit.)
+			nohup bash -c '
+				cd "$1" && workmux remove --force "$2" >/dev/null 2>&1
+				tmux kill-session -t "=$3" >/dev/null 2>&1 || true
+			' _ "$MAIN_REPO" "$BRANCH" "$SESSION" </dev/null >/dev/null 2>&1 &
+			disown
 			exit 0
 		fi
 	fi

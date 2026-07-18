@@ -31,6 +31,9 @@
       # so they're intentionally omitted here.
       "awscli"
       "nvm"
+      # nixpkgs' pulumi only ships the bare CLI, no language plugins
+      # (pulumi-language-nodejs etc.) — brew's formula bundles them.
+      "pulumi"
       # bk@3 is the real formula name; the unversioned "bk" alias breaks
       # `brew bundle check`. Requires the buildkite tap below (and a
       # one-time `brew trust buildkite/buildkite` on Homebrew 6+).

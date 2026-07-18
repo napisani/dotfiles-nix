@@ -19,6 +19,7 @@ in
     fzf = {
       enable = true;
       enableBashIntegration = true;
+      historyWidget.bash.command = "";
     };
     atuin = {
       enable = true;

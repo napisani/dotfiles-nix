@@ -38,6 +38,17 @@ function M.configure()
 
 	vim.g.dbs = get_project_db_urls()
 	vim.g.db_ui_use_nerd_fonts = 1
+
+	-- dadbod-ui's own ftplugin runs `zo` once when the dbout buffer is
+	-- created, before query results are appended asynchronously, so it
+	-- opens nothing. foldlevel is re-evaluated on redraw, so setting it
+	-- keeps result folds open regardless of when the content lands.
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = "dbout",
+		callback = function()
+			vim.wo.foldlevel = 1
+		end,
+	})
 end
 
 --- Get keymaps for vim-dadbod-ui

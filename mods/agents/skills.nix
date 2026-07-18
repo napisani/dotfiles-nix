@@ -143,6 +143,7 @@ let
         "loancrate-analyze-agent-self-improve-trend"
         "loancrate-weekly-update-draft"
         "multi-valued-review"
+        "mvr-suggestions"
       ];
       agents = allAgents;
       condition = isLoancrateMac;
