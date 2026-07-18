@@ -53,10 +53,12 @@ let
   );
 in
 {
+  # NB: when no plugin sources are enabled, claudePluginCmds is empty and bash
+  # rejects an empty `then` block — emit a no-op (`:`) in that case.
   home.activation.installClaudePlugins = lib.hm.dag.entryAfter [ "installAgentSkills" ] ''
     export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
     if command -v claude >/dev/null 2>&1; then
-      ${claudePluginCmds}
+      ${if claudePluginCmds == "" then ":" else claudePluginCmds}
     else
       echo "agents: 'claude' CLI not found — skipping Claude Code plugin installs" >&2
     fi
