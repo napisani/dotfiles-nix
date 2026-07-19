@@ -81,7 +81,22 @@ in
 
     ".config/rift/config.toml" = mkForcedSym "riftrc";
     ".config/alacritty/alacritty.toml" = mkForcedSym "alacritty.toml";
-    ".config/scute/config.yaml" = mkForcedSym "scute.yml";
+    ".config/scute/config.yaml" =
+      let
+        machineName = config.home.sessionVariables.MACHINE_NAME or "";
+        scuteFile =
+          if machineName == "nicks-loancrate-mbp" then
+            "scute-nicks-loancrate-mbp.yml"
+          else if machineName == "nicks-mbp" then
+            "scute-nicks-mbp.yml"
+          else if machineName == "maclab" then
+            "scute-maclab.yml"
+          else if machineName == "supermicro" then
+            "scute-supermicro.yml"
+          else
+            "scute.yml";
+      in
+      mkForcedSym scuteFile;
 
     ".bashrc.d".source = ./dotfiles/.bashrc.d;
     ".inputrc".source = ./dotfiles/.inputrc;

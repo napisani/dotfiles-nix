@@ -1,5 +1,7 @@
 # ~/.config/scute/config.yaml
-# Providers used by prompts (env vars override these)
+# Fallback config used for machines without a dedicated scute-<machine>.yml
+# (see mods/shell.nix, which symlinks based on MACHINE_NAME). Providers used
+# by prompts (env vars override these).
 providers:
   - name: ollama
     baseUrl: http://localhost:11434
@@ -8,14 +10,12 @@ providers:
 clipboardCommand: "auto"
 # Shell keybindings in universal syntax (rendered by scute init)
 # shellKeybindings:
-#   explain: [] 
-#   build: "Ctrl+E" 
-#   suggest: [] 
+#   explain: []
+#   build: "Ctrl+E"
+#   suggest: []
 #   generate: [] # disable if you do not want a binding
 
 promptDefaults:
-  # provider/model overridden per-machine via SCUTE_DEFAULT_PROVIDER / SCUTE_DEFAULT_MODEL
-  # in mods/dotfiles/.bashrc.d/0067_ai.bashrc — these are just the fallback.
   provider: openai
   model: gpt-5.4
 

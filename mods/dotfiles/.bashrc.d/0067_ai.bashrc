@@ -7,8 +7,6 @@ if [ "${MACHINE_NAME:-}" = "nicks-loancrate-mbp" ]; then
   export AI_PROVIDER="${AI_PROVIDER:-anthropic}"
   export AI_MODEL="${AI_MODEL:-claude-sonnet-4-6}"
   export AI_FAST_MODEL="${AI_FAST_MODEL:-claude-haiku-4-5}"
-  export SCUTE_DEFAULT_PROVIDER="${SCUTE_DEFAULT_PROVIDER:-anthropic}"
-  export SCUTE_DEFAULT_MODEL="${SCUTE_DEFAULT_MODEL:-claude-sonnet-5}"
 else
   export PREFERRED_AGENT="${PREFERRED_AGENT:-pi}"
   export AI_PROVIDER="${AI_PROVIDER:-anthropic}"

@@ -44,6 +44,9 @@ in
   home = {
     username = user;
     # homedirectory = "/users/nick";
+    sessionVariables = {
+      MACHINE_NAME = "supermicro";
+    };
   };
 
   home.packages = with pkgs; [ gcc ];

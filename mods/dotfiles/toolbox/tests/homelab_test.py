@@ -67,6 +67,68 @@ def test_remote_candidates_try_hostname_before_lan_ip() -> None:
     ]
 
 
+def test_ssh_probe_retries_before_failing(monkeypatch: pytest.MonkeyPatch) -> None:
+    homelab = load_module()
+    calls: list[list[str]] = []
+    sleeps: list[float] = []
+
+    class FakeResult:
+        returncode = 1
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return FakeResult()
+
+    monkeypatch.setattr(homelab.subprocess, "run", fake_run)
+    monkeypatch.setattr(homelab.time, "sleep", lambda seconds: sleeps.append(seconds))
+
+    assert homelab.ssh_probe("nick@host", attempts=3, retry_delay=0.5) is False
+    assert len(calls) == 3
+    assert sleeps == [0.5, 0.5]
+
+
+def test_ssh_probe_succeeds_after_a_transient_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    homelab = load_module()
+    attempts_made = {"count": 0}
+
+    class FakeResult:
+        def __init__(self, returncode: int) -> None:
+            self.returncode = returncode
+
+    def fake_run(cmd, **kwargs):
+        attempts_made["count"] += 1
+        return FakeResult(0 if attempts_made["count"] == 2 else 1)
+
+    monkeypatch.setattr(homelab.subprocess, "run", fake_run)
+    monkeypatch.setattr(homelab.time, "sleep", lambda seconds: None)
+
+    assert homelab.ssh_probe("nick@host", attempts=3, retry_delay=0) is True
+    assert attempts_made["count"] == 2
+
+
+def test_resolve_remote_target_moves_on_after_a_target_exhausts_retries(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    homelab = load_module()
+    monkeypatch.setattr(homelab, "load_tailscale_status", lambda: None)
+
+    probed: list[str] = []
+
+    def fake_probe(target: str, **kwargs) -> bool:
+        probed.append(target)
+        return target == "nick@192.168.1.51"
+
+    monkeypatch.setattr(homelab, "ssh_probe", fake_probe)
+
+    target, attempted = homelab.resolve_remote_target("supermicro")
+
+    assert target == "nick@192.168.1.51"
+    assert attempted == ["nick@supermicro", "nick@192.168.1.51"]
+    assert probed == attempted
+
+
 def test_tailscale_discovery_adds_matching_host_ip() -> None:
     homelab = load_module()
     status = {
@@ -217,6 +279,10 @@ labkubectl() {{
   fi
 }}
 
+homelab.py() {{
+  printf 'homelab.py %s\\n' "$*" >> {calls}
+}}
+
 labopenclaw status --json
 """
 
@@ -225,5 +291,5 @@ labopenclaw status --json
     assert result.returncode == 0, result.stderr
     assert calls.read_text().splitlines() == [
         "get pods -n home -l app=openclaw --field-selector=status.phase=Running -o jsonpath={.items[0].metadata.name}",
-        "exec -n home openclaw-5758dcb88d-mf64s -c gateway -- openclaw status --json",
+        "homelab.py tui supermicro -- kubectl exec -it -n home openclaw-5758dcb88d-mf64s -c gateway -- env TERM=xterm-256color openclaw status --json",
     ]

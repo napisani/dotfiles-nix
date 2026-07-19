@@ -12,6 +12,7 @@ import shlex
 import socket
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from typing import Any
 
@@ -45,6 +46,12 @@ SSH_PROBE_OPTS = [
     "-o",
     "ServerAliveCountMax=1",
 ]
+
+# LAN reachability to these hosts is occasionally flaky (a single ssh attempt
+# times out even though the host is up and a retry succeeds instantly), so
+# each target gets a couple of tries before we give up on it.
+SSH_PROBE_ATTEMPTS = 2
+SSH_PROBE_RETRY_DELAY_SECONDS = 1.0
 
 
 @dataclass(frozen=True)
@@ -210,16 +217,24 @@ def send_wake_packet(server_name: str) -> int:
     return 0
 
 
-def ssh_probe(target: str) -> bool:
-    return (
-        subprocess.run(
+def ssh_probe(
+    target: str,
+    *,
+    attempts: int = SSH_PROBE_ATTEMPTS,
+    retry_delay: float = SSH_PROBE_RETRY_DELAY_SECONDS,
+) -> bool:
+    for attempt in range(attempts):
+        result = subprocess.run(
             ["ssh", *SSH_PROBE_OPTS, target, "true"],
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-        ).returncode
-        == 0
-    )
+        )
+        if result.returncode == 0:
+            return True
+        if attempt + 1 < attempts:
+            time.sleep(retry_delay)
+    return False
 
 
 def resolve_remote_target(server_name: str) -> tuple[str, list[str]]:
