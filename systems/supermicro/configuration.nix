@@ -30,6 +30,9 @@
   # boot.loader.grub.enable = true;
 
   boot.loader.systemd-boot.enable = true;
+  # /boot is a small 487M partition; unbounded generations filled it to 100%
+  # and blocked the bootloader install step entirely. Cap how many are kept.
+  boot.loader.systemd-boot.configurationLimit = 5;
 
   # disable sleep
   systemd.targets.sleep.enable = false;
@@ -127,9 +130,9 @@
     enable = true;
     nmbd.enable = true;
     openFirewall = true;
-    securityType = "user";
     settings = {
       global = {
+        "security" = "user";
         "workgroup" = "WORKGROUP";
         "map to guest" = "Bad User";
         "server min protocol" = "SMB2";
