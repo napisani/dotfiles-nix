@@ -27,18 +27,3 @@ def build_state_map() -> dict[str, str]:
                 seen.append(status)
         state_map[session] = " ".join(seen)
     return state_map
-
-
-def format_session_lines(sessions: list[str]) -> list[str]:
-    state_map = build_state_map()
-    states = [state_map.get(session, "") for session in sessions]
-    has_any_state = any(states)
-
-    lines = []
-    for session, state in zip(sessions, states):
-        if has_any_state:
-            prefix = f"{state} " if state else "   "
-            lines.append(f"{prefix}{session}\t{session}")
-        else:
-            lines.append(f"{session}\t{session}")
-    return lines

@@ -29,12 +29,34 @@ def test_sort_by_recency_mixed():
     assert set(result[2:]) == {"never1", "never2"}
 
 
+def test_format_lines_inserts_tag_between_status_and_name(monkeypatch):
+    monkeypatch.setattr(cli.workmux, "build_state_map", lambda: {"alpha": "🤖"})
+    monkeypatch.setattr(
+        cli.quickjump, "assign_tags", lambda sessions: [(s, "ff") for s in sessions]
+    )
+
+    lines = cli._format_lines(["alpha", "beta"])
+
+    assert lines == ["🤖 [ff] alpha\talpha", "   [ff] beta\tbeta"]
+
+
+def test_format_lines_no_padding_when_no_session_has_status(monkeypatch):
+    monkeypatch.setattr(cli.workmux, "build_state_map", lambda: {})
+    monkeypatch.setattr(
+        cli.quickjump, "assign_tags", lambda sessions: [(s, "ff") for s in sessions]
+    )
+
+    lines = cli._format_lines(["alpha"])
+
+    assert lines == ["[ff] alpha\talpha"]
+
+
 def test_list_command_prints_formatted_lines(monkeypatch, capsys):
     monkeypatch.setattr(
         cli.tmux, "list_sessions", lambda filter_expr: [("a", "100"), ("b", "200")]
     )
     monkeypatch.setattr(
-        cli.workmux, "format_session_lines", lambda sessions: [f"{s}\t{s}" for s in sessions]
+        cli, "_format_lines", lambda sessions: [f"{s}\t{s}" for s in sessions]
     )
 
     exit_code = cli.main(["list"])
@@ -56,7 +78,7 @@ def test_kill_command_invokes_kill(monkeypatch):
 
 def test_pick_command_builds_expected_fzf_invocation(monkeypatch):
     monkeypatch.setattr(cli.tmux, "list_sessions", lambda filter_expr: [("a", "100")])
-    monkeypatch.setattr(cli.workmux, "format_session_lines", lambda sessions: ["a\ta"])
+    monkeypatch.setattr(cli, "_format_lines", lambda sessions: ["a\ta"])
 
     captured = {}
 

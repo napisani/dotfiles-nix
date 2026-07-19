@@ -12,11 +12,26 @@ import argparse
 import subprocess
 
 from tmux_picker import kill
+from tmux_picker import quickjump
 from tmux_picker import tmux
 from tmux_picker import workmux
 
 # Exclude _popup_* and _proctmux* sessions from the picker.
 SESSION_FILTER = "#{?#{||:#{m:_popup_*,#S},#{m:_proctmux*,#S}},0,1}"
+
+
+def _format_lines(sessions: list[str]) -> list[str]:
+    """<status> [<tag>] <name>\t<raw_name> per session, in the given order."""
+    status_map = workmux.build_state_map()
+    tag_map = dict(quickjump.assign_tags(sessions))
+    has_any_status = any(status_map.values())
+
+    lines = []
+    for session in sessions:
+        status = status_map.get(session, "")
+        prefix = f"{status} " if status else ("   " if has_any_status else "")
+        lines.append(f"{prefix}[{tag_map[session]}] {session}\t{session}")
+    return lines
 
 
 def _sort_by_recency(sessions: list[tuple[str, str]]) -> list[str]:
@@ -35,7 +50,7 @@ def _sort_by_recency(sessions: list[tuple[str, str]]) -> list[str]:
 def _cmd_list(args: argparse.Namespace) -> int:
     """Print <display>\t<raw_name> lines for all filtered sessions."""
     sessions = _sort_by_recency(tmux.list_sessions(SESSION_FILTER))
-    for line in workmux.format_session_lines(sessions):
+    for line in _format_lines(sessions):
         print(line)
     return 0
 
@@ -49,7 +64,7 @@ def _cmd_kill(args: argparse.Namespace) -> int:
 def _cmd_pick(args: argparse.Namespace) -> int:
     """Launch the fzf session picker."""
     sessions = _sort_by_recency(tmux.list_sessions(SESSION_FILTER))
-    lines = workmux.format_session_lines(sessions)
+    lines = _format_lines(sessions)
     input_text = "".join(f"{line}\n" for line in lines)
 
     subprocess.run(
