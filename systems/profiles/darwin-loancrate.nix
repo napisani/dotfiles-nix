@@ -21,6 +21,7 @@
       "notion"
       "wispr-flow"
       "yubico-authenticator"
+      "ngrok"
     ];
 
     brews = [

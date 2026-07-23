@@ -1,7 +1,7 @@
 # agents/default.nix — Declarative multi-agent configuration
 #
 # Manages skills, plugins, MCPs, and RTK hooks across AI coding agents:
-#   claude-code, cursor, codex, opencode, pi
+#   claude-code, codex, opencode, pi
 #
 # ARCHITECTURE
 # ─────────────────────────────────────────────────────────────────────────────
@@ -12,7 +12,6 @@
 #
 # Per-agent skill dirs receive symlinks from ~/.agents/skills/:
 #   ~/.claude/skills/<name>
-#   ~/.cursor/skills/<name>
 #   ~/.codex/skills/<name>
 #   ~/.config/opencode/skills/<name>
 #
@@ -24,7 +23,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 #   skills.nix           — agentSkillSources, community + local skill installation
 #   plugins.nix          — agentPluginSources, Claude Code plugin installation
-#   mcp.nix              — agentMcpSources, MCP server config (claude-code, cursor, pi)
+#   mcp.nix              — agentMcpSources, MCP server config (claude-code, pi, codex)
 #   pi.nix               — Pi extensions, themes, settings, Understand-Anything plugin
 #   hooks.nix            — RTK init hooks + Workmux window-status hooks
 #   instructions.nix     — shared AGENTS.md / CLAUDE.md propagation
@@ -71,7 +70,6 @@
       "$HOME/.agents/skills" \
       "$HOME/.claude/skills" \
       "$HOME/.claude/commands" \
-      "$HOME/.cursor/skills" \
       "$HOME/.codex/skills" \
       "$HOME/.pi/agent/skills" \
       "$HOME/.pi/agent/extensions" \

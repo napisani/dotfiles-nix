@@ -5,8 +5,8 @@
 #
 # Supported agents and their config targets:
 #   claude-code → ~/.claude.json          (mcpServers key)
-#   cursor      → ~/.cursor/mcp.json      (mcpServers key)
 #   pi          → ~/.pi/agent/mcp.json    (mcpServers key)
+#   codex       → ~/.codex/config.toml    ([mcp_servers.<name>] table)
 #
 # Fields:
 #   name      — MCP server key in the config file
@@ -25,7 +25,11 @@
 }:
 let
   shared = import ./lib.nix { inherit config pkgs-unstable; };
-  inherit (shared) dotfiles nodeBin isLoancrateMac;
+  inherit (shared) dotfiles home nodeBin isLoancrateMac;
+
+  # Installed globally by mods/npmx.nix (`npm install -g @agentmemory/mcp`),
+  # not spawned via `npx` — avoids an npx fetch/resolve on every MCP connect.
+  agentmemoryMcpBin = "${home}/.local/bin/agentmemory-mcp";
 
   agentMcpSources = [
     # ── Loancrate: Linear MCP ─────────────────────────────────────────────────
@@ -36,7 +40,7 @@ let
         type = "http";
         url = "https://mcp.linear.app/mcp";
       };
-      agents = [ "claude-code" "cursor" ];
+      agents = [ "claude-code" ];
     }
     {
       name = "linear";
@@ -56,7 +60,7 @@ let
         type = "http";
         url = "https://mcp.figma.com/mcp";
       };
-      agents = [ "claude-code" "cursor" ];
+      agents = [ "claude-code" ];
     }
     {
       name = "figma";
@@ -73,6 +77,29 @@ let
       };
       agents = [ "pi" ];
     }
+
+    # ── agentmemory MCP ───────────────────────────────────────────────────────
+    {
+      name = "agentmemory";
+      config = {
+        command = agentmemoryMcpBin;
+        env = {
+          AGENTMEMORY_URL = "http://localhost:3111";
+        };
+      };
+      agents = [ "claude-code" "codex" ];
+    }
+    {
+      name = "agentmemory";
+      config = {
+        command = agentmemoryMcpBin;
+        env = {
+          AGENTMEMORY_URL = "http://localhost:3111";
+        };
+        lifecycle = "lazy";
+      };
+      agents = [ "pi" ];
+    }
   ];
 
   enabledMcpSources = builtins.filter (s: s.condition or true) agentMcpSources;
@@ -81,6 +108,13 @@ let
 in
 {
   home.activation.configureMcpServers = lib.hm.dag.entryAfter [ "installAgentSkills" ] ''
+    # apply-mcp-servers.js needs @iarna/toml for Codex's TOML config; install it
+    # into scripts/node_modules (declared in scripts/package.json) the first time,
+    # so Node's normal module resolution finds it with no global install/NODE_PATH.
+    if [ ! -d "${scriptsDir}/node_modules/@iarna/toml" ]; then
+      ${nodeBin}/npm install --prefix ${scriptsDir} --no-audit --no-fund --silent
+    fi
+
     MCP_SOURCES=${lib.escapeShellArg (builtins.toJSON enabledMcpSources)} \
       ${nodeBin}/node ${scriptsDir}/apply-mcp-servers.js
   '';

@@ -2,6 +2,6 @@
 {
   programs.gh = {
     enable = true;
-    extensions = [];
+    extensions = [ pkgs-unstable.gh-stack ];
   };
 }

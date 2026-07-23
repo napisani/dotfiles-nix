@@ -4,7 +4,15 @@
   "model": "openai/gpt-5.4",
   "autoshare": false,
   "autoupdate": true,
-  "mcp": {},
+  "mcp": {
+    "agentmemory": {
+      "type": "local",
+      "command": ["/Users/nick/.local/bin/agentmemory-mcp"],
+      "environment": {
+        "AGENTMEMORY_URL": "http://localhost:3111"
+      }
+    }
+  },
   "tools": {},
   "command": {
     "ticket-and-pr": {
@@ -22,9 +30,6 @@
     "openrtk"
   ],
   "provider": {
-    "cursor": {
-      "name": "Cursor"
-    },
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "ollama",

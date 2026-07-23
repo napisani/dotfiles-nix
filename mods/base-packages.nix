@@ -58,7 +58,6 @@ in
       lazysql
       lazydocker
       # bitwarden-cli
-      cursor-cli
       (lib.lowPrio sox) # lowPrio to avoid /bin/play conflict with gotools
 
     ];

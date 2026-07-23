@@ -13,6 +13,13 @@
         "scope": "mcp:connect"
       },
       "url": "https://mcp.figma.com/mcp"
+    },
+    "agentmemory": {
+      "command": "/Users/nick/.local/bin/agentmemory-mcp",
+      "env": {
+        "AGENTMEMORY_URL": "http://localhost:3111"
+      },
+      "lifecycle": "lazy"
     }
   }
 }

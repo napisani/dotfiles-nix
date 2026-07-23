@@ -7,7 +7,6 @@ let
   home = config.home.homeDirectory;
   allAgents = [
     "claude-code"
-    "cursor"
     "opencode"
     "codex"
     "pi"

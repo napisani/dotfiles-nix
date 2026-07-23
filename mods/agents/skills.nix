@@ -133,6 +133,30 @@ let
       skills = [ "worktree" ];
       agents = allAgents;
     }
+    {
+      repo = "rohitg00/agentmemory";
+      skills = [
+        "recall"
+        "remember"
+        "session-history"
+        "forget"
+        "handoff"
+        "recap"
+        "commit-context"
+        "commit-history"
+      ];
+      agents = allAgents;
+    }
+    {
+      repo = "https://github.com/github/gh-stack";
+      skills = [ "gh-stack" ];
+      agents = allAgents;
+    }
+    {
+      repo = "https://github.com/petergyang/no-ai-slop";
+      skills = [ "no-ai-slop" ];
+      agents = allAgents;
+    }
     # Loancrate-only: private skills
     {
       repo = "https://github.com/napisani/private-skills";
@@ -164,7 +188,6 @@ let
   # error loudly rather than silently skipping the wipe.
   agentSkillsDirOf = {
     "claude-code" = "${home}/.claude/skills";
-    "cursor" = "${home}/.cursor/skills";
     "opencode" = "${home}/.config/opencode/skills";
     "codex" = "${home}/.codex/skills";
     "pi" = "${home}/.pi/agent/skills";
@@ -237,7 +260,6 @@ in
       "$HOME/.agents/skills" \
       "$HOME/.claude/skills" \
       "$HOME/.claude/commands" \
-      "$HOME/.cursor/skills" \
       "$HOME/.codex/skills" \
       "$HOME/.pi/agent/skills" \
       "$HOME/.pi/agent/extensions" \
@@ -283,10 +305,6 @@ in
     }}
     ${mkLocalSkillSyncScript {
       sourceRelPath = "agents/shared-skills";
-      targetAbsPath = "${home}/.cursor/skills";
-    }}
-    ${mkLocalSkillSyncScript {
-      sourceRelPath = "agents/shared-skills";
       targetAbsPath = "${home}/.codex/skills";
     }}
     ${mkLocalSkillSyncScript {
@@ -298,10 +316,6 @@ in
     ${mkLocalSkillSyncScript {
       sourceRelPath = "agents/claude/skills";
       targetAbsPath = "${home}/.claude/skills";
-    }}
-    ${mkLocalSkillSyncScript {
-      sourceRelPath = "agents/cursor/skills";
-      targetAbsPath = "${home}/.cursor/skills";
     }}
     ${mkLocalSkillSyncScript {
       sourceRelPath = "agents/codex/skills";

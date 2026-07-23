@@ -23,6 +23,11 @@ let
     "@agentclientprotocol/claude-agent-acp"
     "@zed-industries/codex-acp"
     "@playwright/cli"
+    # agentmemory: MCP server binary (mods/agents/mcp.nix references
+    # ~/.local/bin/agentmemory-mcp directly, no npx spawn) + the `agentmemory`
+    # CLI for running the full persistent server/viewer.
+    "@agentmemory/mcp"
+    "@agentmemory/agentmemory"
   ];
 
   removedNpmPackages = [

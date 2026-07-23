@@ -3,7 +3,6 @@
 # RTK (Rust Token Killer) hooks are installed by `rtk init -g` per-agent.
 # Each agent uses its own init flag:
 #   Claude Code:  rtk init -g --auto-patch
-#   Cursor:       rtk init -g --agent cursor
 #   Codex:        rtk init -g --codex
 #   OpenCode:     rtk init -g --opencode
 #   Pi:           no rtk init target in the current rtk CLI
@@ -51,7 +50,6 @@ in
       echo "agents: installing RTK hooks ($(rtk --version 2>/dev/null || echo unknown))"
 
       rtk init -g --auto-patch   && echo "agents: RTK hook installed for claude-code" || echo "agents: WARNING: RTK hook failed for claude-code"
-      rtk init -g --agent cursor && echo "agents: RTK hook installed for cursor"      || echo "agents: WARNING: RTK hook failed for cursor"
       rtk init -g --codex        && echo "agents: RTK hook installed for codex"       || echo "agents: WARNING: RTK hook failed for codex"
       rtk init -g --opencode     && echo "agents: RTK hook installed for opencode"    || echo "agents: WARNING: RTK hook failed for opencode"
     else
