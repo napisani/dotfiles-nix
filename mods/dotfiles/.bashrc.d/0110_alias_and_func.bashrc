@@ -137,15 +137,23 @@ env-expand() {
 }
 
 function workmux-pr-review() {
-  local pr="$1"
-  if [ -z "$pr" ]; then
-    echo "Usage: workmux-pr-review <pr-number>" >&2
+  if [ $# -eq 0 ]; then
+    echo "Usage: workmux-pr-review <pr-number> [pr-number...]" >&2
     return 1
   fi
 
-  workmux add "review_$pr" \
-    --pr "$pr" \
-    --prompt "$(ai_skill multi-valued-review) on the changes made in this pr: $pr"
+  local pr
+  local failed=0
+  for pr in "$@"; do
+    workmux add "review_$pr" \
+      --pr "$pr" \
+      --prompt "$(ai_skill multi-valued-review) on the changes made in this pr: $pr" || failed=$((failed + 1))
+  done
+
+  if [ "$failed" -gt 0 ]; then
+    echo "workmux-pr-review: $failed of $# review window(s) failed to create" >&2
+    return 1
+  fi
 }
 
 rift-activate() {

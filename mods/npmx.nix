@@ -18,14 +18,13 @@ let
     "@ellery/terminal-mcp@latest"
     "@napisani/scute@latest"
     "skills@latest"
-    "openrtk"
     "@earendil-works/pi-coding-agent"
     "@agentclientprotocol/claude-agent-acp"
     "@zed-industries/codex-acp"
     "@playwright/cli"
-    # agentmemory: MCP server binary (mods/agents/mcp.nix references
-    # ~/.local/bin/agentmemory-mcp directly, no npx spawn) + the `agentmemory`
-    # CLI for running the full persistent server/viewer.
+    # agentmemory: MCP server binary (mods/agents/{claude,codex,pi}.nix each
+    # reference ~/.local/bin/agentmemory-mcp directly, no npx spawn) + the
+    # `agentmemory` CLI for running the full persistent server/viewer.
     "@agentmemory/mcp"
     "@agentmemory/agentmemory"
   ];
@@ -33,20 +32,16 @@ let
   removedNpmPackages = [
     "@mariozechner/pi-coding-agent"
     "pi-skillful"
+    # Duplicated `rtk init -g --opencode`'s own generated plugin
+    # (~/.config/opencode/plugins/rtk.ts) — keep just the one rtk source.
+    "openrtk"
   ];
 
-  # Pi packages are managed through the Pi CLI after npm tools are present.
-  # Package IDs use the same form as `pi install`, for example `npm:example-package`.
-  removedPiPackages = [
-    "npm:pi-skillful"
-  ];
-
-  piPackages = [
-    "npm:@datspike/pi-inline-slash-extension"
-    "npm:@juicesharp/rpiv-btw"
-    "npm:pi-vim"
-    "npm:pi-web-access"
-  ];
+  # Pi packages are declared and diff-pruned in mods/agents/pi.nix
+  # (installPiPackages, via managed-config-lib.nix's mkPiPackageInstall) —
+  # not here. That mechanism tracks Nix-managed state and removes anything
+  # undeclared automatically, replacing this file's old manually-maintained
+  # removedPiPackages list.
 
   npm = "${pkgs-unstable.nodejs}/bin/npm";
   nodeBin = "${pkgs-unstable.nodejs}/bin";
@@ -96,30 +91,8 @@ in
       fi
     done
 
-    pi="$NPM_CONFIG_PREFIX/bin/pi"
-    if [ -x "$pi" ]; then
-      for package in ${builtins.concatStringsSep " " removedPiPackages}; do
-        if "$pi" list | grep -F "$package" >/dev/null 2>&1; then
-          if ! "$pi" remove "$package"; then
-            echo "installNpmxTools: ERROR: pi remove failed for: $package" >&2
-            failed=$((failed + 1))
-          fi
-        fi
-      done
-
-      for package in ${builtins.concatStringsSep " " piPackages}; do
-        if ! "$pi" install "$package"; then
-          echo "installNpmxTools: ERROR: pi install failed for: $package" >&2
-          failed=$((failed + 1))
-        fi
-      done
-    else
-      echo "installNpmxTools: ERROR: pi executable not found at $pi; skipping Pi package installs." >&2
-      failed=$((failed + 1))
-    fi
-
     if [ "$failed" -gt 0 ]; then
-      echo "installNpmxTools: $failed install step(s) failed (Neovim agentic ACP CLIs and Pi packages need a successful install). Re-run with network and check the errors above." >&2
+      echo "installNpmxTools: $failed install step(s) failed (Neovim agentic ACP CLIs need a successful install). Re-run with network and check the errors above." >&2
     fi
 
     # Some npm packages ship their bin entrypoints without the executable bit.

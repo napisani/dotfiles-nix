@@ -1,27 +1,29 @@
-// Merges Workmux window-status hooks into Claude Code and Codex config files.
-// Non-destructive: replaces only managed workmux entries, preserving user-added hooks.
+// Merges Workmux window-status hooks into Codex's hooks.json, and ensures
+// the corresponding hook entries (and the top-level `[features] hooks`
+// flag) are enabled in ~/.codex/config.toml. Non-destructive: replaces only
+// managed workmux hook entries, preserving user-added hooks.
 //
-// Input (env vars):
-//   DOTFILES        — absolute path to the mods/dotfiles directory
-//   HOME            — home directory
-//   CLAUDE_SETTINGS — optional JSON object of settings to always merge into ~/.claude/settings.json
+// Env vars:
+//   HOOKS_TARGET_FILE — path to ~/.codex/hooks.json
+//   HOOKS_SOURCE_FILE — path to the workmux codex-hooks.json to merge in
+//   CONFIG_TOML_FILE  — path to ~/.codex/config.toml
 
 const fs = require("node:fs");
 const path = require("node:path");
 
-const home = process.env.HOME;
-const dotfiles = process.env.DOTFILES;
-const sourceDir = path.join(dotfiles, "agents", "workmux-status");
+const hooksTargetFile = process.env.HOOKS_TARGET_FILE;
+const hooksSourceFile = process.env.HOOKS_SOURCE_FILE;
+const configTomlFile = process.env.CONFIG_TOML_FILE;
 
 function readJson(file, fallback) {
   try {
     if (!fs.existsSync(file)) return fallback;
     return JSON.parse(fs.readFileSync(file, "utf8"));
   } catch (error) {
-    // Repair: rename the corrupted file and continue with the fallback so that
-    // the managed hooks and settings are still applied to a fresh, valid file.
     const backup = file + ".corrupted";
-    try { fs.renameSync(file, backup); } catch {}
+    try {
+      fs.renameSync(file, backup);
+    } catch {}
     console.error("agents: invalid JSON at " + file + " — renamed to " + backup + " and starting fresh: " + error.message);
     return fallback;
   }
@@ -33,22 +35,7 @@ function writeJsonIfChanged(file, value) {
   if (current === next) return;
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, next);
-  console.log("agents: applied Workmux status hooks -> " + file);
-}
-
-// One-level-deep merge: nested plain objects (e.g. `permissions`) are merged
-// key-by-key into any existing object at that key, instead of replacing it
-// wholesale — so pushing `{ permissions: { defaultMode: "auto" } }` doesn't
-// clobber a `permissions.allow`/`permissions.deny` list set up elsewhere.
-function mergeSettingsInto(target, extraSettings) {
-  for (const [key, value] of Object.entries(extraSettings)) {
-    const isPlainObject = (v) => v && typeof v === "object" && !Array.isArray(v);
-    if (isPlainObject(value) && isPlainObject(target[key])) {
-      Object.assign(target[key], value);
-    } else {
-      target[key] = value;
-    }
-  }
+  console.log("agents: applied Codex Workmux status hooks -> " + file);
 }
 
 function containsWorkmuxStatusCommand(value) {
@@ -58,37 +45,10 @@ function containsWorkmuxStatusCommand(value) {
   return false;
 }
 
-function mergeHookMap(targetFile, sourceFile, extraSettings) {
-  const sourceHooks = readJson(sourceFile, null);
-  // readJson now always returns an object on error (fallback {}), so target is never null.
-  const target = readJson(targetFile, {});
-  if (!sourceHooks) return;
-
-  const hooks = target.hooks && typeof target.hooks === "object" && !Array.isArray(target.hooks)
-    ? target.hooks
-    : {};
-
-  for (const [eventName, desiredEntries] of Object.entries(sourceHooks)) {
-    const existingEntries = Array.isArray(hooks[eventName]) ? hooks[eventName] : [];
-    hooks[eventName] = [
-      ...existingEntries.filter((entry) => !containsWorkmuxStatusCommand(entry)),
-      ...desiredEntries,
-    ];
-  }
-
-  target.hooks = hooks;
-
-  if (extraSettings && typeof extraSettings === "object") {
-    mergeSettingsInto(target, extraSettings);
-  }
-
-  writeJsonIfChanged(targetFile, target);
-}
-
 function mergeCodexHooks(targetFile, sourceFile) {
   const source = readJson(sourceFile, null);
   const target = readJson(targetFile, {});
-  if (!source || !target) return;
+  if (!source) return;
 
   const hooks = target.hooks && typeof target.hooks === "object" && !Array.isArray(target.hooks)
     ? target.hooks
@@ -191,15 +151,5 @@ function ensureCodexHooksEnabled(configFile, hooksFile) {
   }
 }
 
-const codexHooksFile = path.join(home, ".codex", "hooks.json");
-
-let claudeSettings = {};
-try {
-  if (process.env.CLAUDE_SETTINGS) claudeSettings = JSON.parse(process.env.CLAUDE_SETTINGS);
-} catch (e) {
-  console.error("agents: invalid CLAUDE_SETTINGS JSON — ignoring: " + e.message);
-}
-
-mergeHookMap(path.join(home, ".claude", "settings.json"), path.join(sourceDir, "claude-hooks.json"), claudeSettings);
-mergeCodexHooks(codexHooksFile, path.join(sourceDir, "codex-hooks.json"));
-ensureCodexHooksEnabled(path.join(home, ".codex", "config.toml"), codexHooksFile);
+mergeCodexHooks(hooksTargetFile, hooksSourceFile);
+ensureCodexHooksEnabled(configTomlFile, hooksTargetFile);

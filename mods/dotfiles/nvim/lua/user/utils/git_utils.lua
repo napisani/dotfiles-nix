@@ -49,6 +49,67 @@ local function trim_git_modification_indicator(cmd_output)
 	return cmd_output:match("[^%s]+$")
 end
 
+-- Find the fork point of the current branch: the most recent commit shared
+-- with any other local branch. Computed by merge-basing HEAD against every
+-- other local branch, then picking whichever result is closest to HEAD
+-- (i.e. the first of those SHAs encountered walking `git rev-list HEAD`).
+-- This naturally prefers a stacked branch's immediate parent over a more
+-- distant ancestor like `main`, with no branch-tracking metadata required.
+function M.get_fork_point()
+	local root = file_utils.get_root_dir()
+	local function sys(cmd)
+		return vim.system(cmd, { cwd = root, text = true }):wait()
+	end
+
+	local head = sys({ "git", "symbolic-ref", "--short", "-q", "HEAD" })
+	local current_branch = head.code == 0 and head.stdout:gsub("\n", "") or nil
+
+	local refs = sys({ "git", "for-each-ref", "--format=%(refname:short)", "refs/heads/" })
+	if refs.code ~= 0 then
+		return nil
+	end
+
+	local merge_bases = {}
+	local seen = {}
+	for branch in vim.gsplit(refs.stdout, "\n", { trimempty = true }) do
+		if branch ~= current_branch then
+			-- Skip branches stacked on top of HEAD (i.e. HEAD is their
+			-- ancestor): merge-basing against a descendant branch trivially
+			-- returns a commit at-or-behind HEAD, which would win the
+			-- "closest to HEAD" ranking below and mask the real parent.
+			local is_descendant = sys({ "git", "merge-base", "--is-ancestor", "HEAD", branch })
+			if is_descendant.code ~= 0 then
+				local mb = sys({ "git", "merge-base", "HEAD", branch })
+				if mb.code == 0 then
+					local sha = mb.stdout:gsub("\n", "")
+					if sha ~= "" and not seen[sha] then
+						seen[sha] = true
+						table.insert(merge_bases, sha)
+					end
+				end
+			end
+		end
+	end
+
+	if #merge_bases == 0 then
+		return nil
+	end
+	if #merge_bases == 1 then
+		return merge_bases[1]
+	end
+
+	local rev_list = sys({ "git", "rev-list", "HEAD" })
+	if rev_list.code ~= 0 then
+		return merge_bases[1]
+	end
+	for sha in vim.gsplit(rev_list.stdout, "\n", { trimempty = true }) do
+		if seen[sha] then
+			return sha
+		end
+	end
+	return merge_bases[1]
+end
+
 function M.git_conflicted_files()
 	local get_git_args = function()
 		return {

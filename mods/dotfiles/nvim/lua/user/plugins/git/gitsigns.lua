@@ -67,6 +67,14 @@ function M.get_keymaps()
 			},
 
 			{
+				"<leader>gp",
+				function()
+					compare.set_git_ref_to_parent()
+				end,
+				desc = "set ref to (p)arent",
+			},
+
+			{
 				"<leader>gl",
 				function()
 					gitsigns.blame_line()

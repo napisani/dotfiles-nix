@@ -1,61 +1,60 @@
-# agents/instructions.nix — Shared agent instructions propagation
+# agents/instructions.nix — Shared AGENTS.md source + write utility
 #
-# A single source file (mods/dotfiles/agents/AGENTS.md) is written as a
-# normal file (not a symlink) to each agent's instruction path after RTK runs.
-# RTK may write these paths during `rtk init`, so we remove stale symlinks
-# before RTK and restore the repo-managed content after.
+# A single source file (mods/dotfiles/agents/AGENTS.md) is the shared content
+# every agent gets. This file owns no home.activation of its own — each agent
+# module calls `writeAgentInstructions` itself for its own instruction path,
+# deciding its own ordering (e.g. Codex chains an RTK-reference reapply step
+# immediately after, in the same file — see docs/adr/0001-per-agent-modules.md).
 {
   config,
   lib,
   pkgs-unstable,
+  hostname ? "",
   ...
 }:
 let
-  shared = import ./lib.nix { inherit config pkgs-unstable; };
+  shared = import ./lib.nix { inherit config lib pkgs-unstable hostname; };
   inherit (shared) dotfiles;
 
-  sharedAgentInstructions = "${dotfiles}/agents/AGENTS.md";
-in
-{
-  # RTK writes global agent instruction files during init; remove any old
-  # symlinks before RTK runs so repo-managed instructions stay immutable.
-  home.activation.prepareAgentInstructionsForRtk = lib.hm.dag.entryBefore [ "installRtkHooks" ] ''
-    for p in \
-      "$HOME/.codex/AGENTS.md" \
-      "$HOME/.config/opencode/AGENTS.md" \
-      "$HOME/.claude/CLAUDE.md" \
-      "$HOME/.pi/agent/AGENTS.md"; do
-      if [ -L "$p" ]; then
-        echo "agents: removing old instruction symlink at $p"
-        rm -f "$p"
-      fi
-    done
-  '';
+  sharedAgentInstructionsSource = "${dotfiles}/agents/AGENTS.md";
 
-  # Write repo-managed instruction content to each agent after RTK init.
-  # Uses a temp-file rename for atomicity (avoids partial writes).
-  home.activation.applySharedAgentInstructions = lib.hm.dag.entryAfter [ "installRtkHooks" ] ''
-    _base="${sharedAgentInstructions}"
-
-    _write_agent_instructions() {
-      _target="$1"
+  # Write repo-managed instruction content to one agent's instruction path.
+  # Uses a temp-file rename for atomicity (avoids partial writes). Agent-
+  # blind: takes a target path, not agent identity.
+  writeAgentInstructions =
+    { target }:
+    ''
+      _base="${sharedAgentInstructionsSource}"
+      _target="${target}"
 
       mkdir -p "$(dirname "$_target")"
 
       if [ -d "$_target" ] && [ ! -L "$_target" ]; then
         echo "agents: refusing to replace directory at $_target"
-        return 0
+      else
+        _tmp="$(mktemp)"
+        cat "$_base" > "$_tmp"
+        mv "$_tmp" "$_target"
+        echo "agents: wrote shared instructions -> $_target"
       fi
+    '';
 
-      _tmp="$(mktemp)"
-      cat "$_base" > "$_tmp"
-      mv "$_tmp" "$_target"
-      echo "agents: wrote shared instructions -> $_target"
-    }
-
-    _write_agent_instructions "$HOME/.codex/AGENTS.md"
-    _write_agent_instructions "$HOME/.config/opencode/AGENTS.md"
-    _write_agent_instructions "$HOME/.claude/CLAUDE.md"
-    _write_agent_instructions "$HOME/.pi/agent/AGENTS.md"
-  '';
+  # RTK may write a symlink at an agent's instruction path during `rtk init`;
+  # remove any stale symlink before that agent's own RTK-init step runs, so
+  # writeAgentInstructions always replaces it with a normal repo-managed file.
+  # Agent-blind: takes a target path.
+  removeStaleInstructionSymlink =
+    { target }:
+    ''
+      if [ -L "${target}" ]; then
+        echo "agents: removing old instruction symlink at ${target}"
+        rm -f "${target}"
+      fi
+    '';
+in
+{
+  inherit
+    writeAgentInstructions
+    removeStaleInstructionSymlink
+    ;
 }

@@ -1,25 +1,85 @@
-# agents/pi.nix — Pi-specific configuration
+# agents/pi.nix — Pi: complete installation story
 #
-# Handles everything specific to the Pi agent:
-#   - Extension and theme symlinking from dotfiles
-#   - Pi settings (provider, model, packages, skill paths)
-#   - Understand-Anything plugin clone + symlink
-#   - Deduplication of skills that Pi would discover twice (global store + local)
+# Owns everything specific to Pi: skills (+ its own global-store dedup quirk
+# — Pi auto-discovers ~/.agents/skills in addition to ~/.pi/agent/skills, so
+# shared skills must be removed from the latter to avoid name collisions),
+# RTK hooks, shared instructions, MCP servers (JSON), package installs (diff-
+# pruned via `pi install`/`pi remove`, replacing the old manually-maintained
+# removedPiPackages list in npmx.nix — including a one-time legacySeed for
+# npm:pi-skillful, which that old list used to actively remove every run),
+# extension/theme symlinking, settings, and the Understand-Anything plugin.
 {
   config,
   lib,
   pkgs-unstable,
+  hostname ? "",
   ...
 }:
 let
-  shared = import ./lib.nix { inherit config pkgs-unstable; };
-  inherit (shared) dotfiles nodeBin gitBin;
+  shared = import ./lib.nix { inherit config lib pkgs-unstable hostname; };
+  inherit (shared) home dotfiles nodeBin gitBin callAgentLib;
+
+  skills = callAgentLib ./skills.nix;
+  instructions = callAgentLib ./instructions.nix;
+  managedConfig = callAgentLib ./managed-config-lib.nix;
 
   scriptsDir = "${dotfiles}/agents/scripts";
+  skillDir = "${home}/.pi/agent/skills";
+  extensionsDir = "${home}/.pi/agent/extensions";
+  themesDir = "${home}/.pi/agent/themes";
+  instructionsTarget = "${home}/.pi/agent/AGENTS.md";
+  mcpTarget = "${home}/.pi/agent/mcp.json";
+
+  # Installed globally by mods/npmx.nix (`npm install -g @agentmemory/mcp`),
+  # not spawned via `npx` — avoids an npx fetch/resolve on every MCP connect.
+  agentmemoryMcpBin = "${home}/.local/bin/agentmemory-mcp";
+
+  mcpSources = [
+    {
+      name = "linear";
+      condition = shared.isLoancrateMac;
+      config = {
+        url = "https://mcp.linear.app/mcp";
+        lifecycle = "lazy";
+      };
+    }
+    {
+      name = "figma";
+      condition = shared.isLoancrateMac;
+      config = {
+        url = "https://mcp.figma.com/mcp";
+        auth = "oauth";
+        oauth = {
+          clientName = "Codex";
+          clientUri = "https://github.com/openai/codex";
+          scope = "mcp:connect";
+        };
+        lifecycle = "lazy";
+      };
+    }
+    {
+      name = "agentmemory";
+      config = {
+        command = agentmemoryMcpBin;
+        env = {
+          AGENTMEMORY_URL = "http://localhost:3111";
+        };
+        lifecycle = "lazy";
+      };
+    }
+  ];
+  declaredMcpEntries = shared.mkDeclaredEntriesFromSources mcpSources;
+
+  declaredPiPackages = [
+    "npm:@datspike/pi-inline-slash-extension"
+    "npm:@juicesharp/rpiv-btw"
+    "npm:pi-vim"
+    "npm:pi-web-access"
+  ];
 
   syncPiExtensions = ''
     _src="${dotfiles}/agents/pi/extensions"
-    _dst="$HOME/.pi/agent/extensions"
+    _dst="${extensionsDir}"
     mkdir -p "$_dst"
 
     if [ -d "$_src" ]; then
@@ -47,7 +107,7 @@ let
 
   syncPiThemes = ''
     _src="${dotfiles}/agents/pi/themes"
-    _dst="$HOME/.pi/agent/themes"
+    _dst="${themesDir}"
     mkdir -p "$_dst"
 
     if [ -d "$_src" ]; then
@@ -69,15 +129,15 @@ let
     fi
   '';
 
-  # Pi discovers ~/.agents/skills in addition to ~/.pi/agent/skills. Keep Pi's
-  # agent-local directory for Pi-only skills, and delete duplicate entries that
-  # are already available through the global store.
+  # Pi discovers ~/.agents/skills in addition to ~/.pi/agent/skills. Keep
+  # Pi's agent-local directory for Pi-only skills, and delete duplicate
+  # entries that are already available through the global store.
   removePiGlobalSkillDuplicates = ''
-    if [ -d "$HOME/.agents/skills" ] && [ -d "$HOME/.pi/agent/skills" ]; then
+    if [ -d "$HOME/.agents/skills" ] && [ -d "${skillDir}" ]; then
       for _global_skill_dir in "$HOME/.agents/skills"/*/; do
         [ -d "$_global_skill_dir" ] || continue
         _skill_name=$(basename "$_global_skill_dir")
-        _pi_skill="$HOME/.pi/agent/skills/$_skill_name"
+        _pi_skill="${skillDir}/$_skill_name"
         if [ -e "$_pi_skill" ] || [ -L "$_pi_skill" ]; then
           rm -rf "$_pi_skill"
           echo "agents: removed duplicate Pi skill '$_skill_name' (already in ~/.agents/skills)"
@@ -127,7 +187,62 @@ let
   '';
 in
 {
-  home.activation.installPiConfig = lib.hm.dag.entryAfter [ "installAgentSkills" ] ''
+  home.activation.fixPiPathConflicts = lib.hm.dag.entryBefore [ "linkGeneration" ] (
+    shared.mkFixPathConflicts [
+      skillDir
+      extensionsDir
+      themesDir
+    ]
+  );
+
+  home.activation.installPiSkills = lib.hm.dag.entryAfter [ "linkGeneration" ] (
+    skills.mkAgentSkillInstall {
+      agentId = "pi";
+      inherit skillDir;
+      localSkillsRelPath = "agents/pi/skills";
+    }
+  );
+
+  home.activation.dedupePiGlobalSkills = lib.hm.dag.entryAfter [ "installPiSkills" ] removePiGlobalSkillDuplicates;
+
+  home.activation.preparePiInstructionsForRtk = lib.hm.dag.entryBefore [ "installPiRtkHooks" ] (
+    instructions.removeStaleInstructionSymlink { target = instructionsTarget; }
+  );
+
+  home.activation.installPiRtkHooks = lib.hm.dag.entryAfter [ "installPiSkills" ] (
+    shared.mkRtkHookInstall {
+      rtkArgs = "--agent pi";
+      label = "pi";
+    }
+  );
+
+  home.activation.writePiInstructions = lib.hm.dag.entryAfter [ "installPiRtkHooks" ] (
+    instructions.writeAgentInstructions { target = instructionsTarget; }
+  );
+
+  home.activation.configurePiMcpServers = lib.hm.dag.entryAfter [ "installPiSkills" ] (
+    managedConfig.mkJsonManagedMerge {
+      targetFile = mcpTarget;
+      managedKey = "mcpServers";
+      declaredEntries = declaredMcpEntries;
+      stateId = "pi-mcp-servers";
+    }
+  );
+
+  home.activation.installPiPackages = lib.hm.dag.entryAfter [ "installPiSkills" ] (
+    managedConfig.mkPiPackageInstall {
+      declaredPackages = declaredPiPackages;
+      stateId = "pi-packages";
+      # npmx.nix used to actively `pi remove npm:pi-skillful` every run via
+      # a manually-maintained removedPiPackages list. Seed it here once so
+      # the new diff-based mechanism still prunes it on its first run,
+      # instead of silently never pruning something that predates this
+      # tracking.
+      legacySeed = [ "npm:pi-skillful" ];
+    }
+  );
+
+  home.activation.installPiConfig = lib.hm.dag.entryAfter [ "installPiSkills" ] ''
     # ── Extensions and themes ─────────────────────────────────────────────────
     ${syncPiExtensions}
     ${syncPiThemes}
@@ -137,8 +252,5 @@ in
 
     # ── Understand-Anything plugin (Pi-only, requires full repo clone) ─────────
     ${installUnderstandAnythingPlugin}
-
-    # ── Deduplicate skills Pi would find in both ~/.agents/skills and ~/.pi/agent/skills
-    ${removePiGlobalSkillDuplicates}
   '';
 }

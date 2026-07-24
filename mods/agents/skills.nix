@@ -1,27 +1,29 @@
-# agents/skills.nix — Community and local skill installation
+# agents/skills.nix — Skill catalog + per-agent install/prune utility
 #
-# agentSkillSources declares all skill repos to install from. Each entry supports:
+# agentSkillSources is the single declared catalog: DRY data, targeting N
+# agents from one entry (still fine to share — the coupling problem was
+# scripts branching on agent identity, not data lists; see
+# docs/adr/0001-per-agent-modules.md). This file owns no home.activation of
+# its own. Each agent module calls `mkAgentSkillInstall` itself with its own
+# agentId + skillDir to get an activation script scoped to that one agent,
+# and decides its own activation ordering.
+#
+# Catalog entry fields:
 #   repo       — GitHub URL or owner/repo shorthand
 #   skills     — skill names to install from that repo
-#   agents     — list of agent IDs to install into (see `skills --help` for valid IDs)
+#   agents     — list of agent IDs (as used by the `skills` CLI) this entry targets
 #   fullDepth  — clone with full history instead of --depth=1 (default: false)
 #   condition  — boolean; when false the entry is skipped (default: true)
 {
   config,
   lib,
   pkgs-unstable,
+  hostname ? "",
   ...
 }:
 let
-  shared = import ./lib.nix { inherit config pkgs-unstable; };
-  inherit (shared)
-    dotfiles
-    home
-    allAgents
-    isLoancrateMac
-    nodeBin
-    gitBin
-    ;
+  shared = import ./lib.nix { inherit config lib pkgs-unstable hostname; };
+  inherit (shared) dotfiles allAgents isLoancrateMac nodeBin gitBin;
 
   agentSkillSources = [
     {
@@ -183,48 +185,19 @@ let
 
   enabledSkillSources = builtins.filter (s: s.condition or true) agentSkillSources;
 
-  # Map from agent ID (as used by the `skills` CLI) to the skills dir on disk.
-  # If an agent is added to allAgents without an entry here, Nix evaluation will
-  # error loudly rather than silently skipping the wipe.
-  agentSkillsDirOf = {
-    "claude-code" = "${home}/.claude/skills";
-    "opencode" = "${home}/.config/opencode/skills";
-    "codex" = "${home}/.codex/skills";
-    "pi" = "${home}/.pi/agent/skills";
-  };
-
-  # Every skill directory fully managed by this activation: global store + per-agent.
-  # Derived from allAgents so adding/removing an agent here automatically widens the wipe.
-  allManagedSkillDirs =
-    [ "${home}/.agents/skills" ] ++ map (a: agentSkillsDirOf.${a}) allAgents;
-
-  # Directories managed by local-skill sync that also need a wipe-first pass.
-  allManagedCommandsDirs = [ "${home}/.claude/commands" ];
-
-  allManagedSkillDirsStr = builtins.concatStringsSep " " (
-    map lib.escapeShellArg allManagedSkillDirs
-  );
-  allManagedCommandsDirsStr = builtins.concatStringsSep " " (
-    map lib.escapeShellArg allManagedCommandsDirs
-  );
-
   mkCommunitySkillCmd =
-    source:
+    agentId: source:
     let
-      agentArgs = builtins.concatStringsSep " " (
-        map (a: "--agent ${lib.escapeShellArg a}") source.agents
-      );
       skillArgs = builtins.concatStringsSep " " (
         map (s: "--skill ${lib.escapeShellArg s}") source.skills
       );
       fullDepthArg = lib.optionalString (source.fullDepth or false) " --full-depth";
     in
-    "skills add ${lib.escapeShellArg source.repo} --global ${agentArgs} --yes --copy ${skillArgs}${fullDepthArg}";
+    "skills add ${lib.escapeShellArg source.repo} --global --agent ${lib.escapeShellArg agentId} --yes --copy ${skillArgs}${fullDepthArg}";
 
-  communitySkillCmds = builtins.concatStringsSep "\n" (map mkCommunitySkillCmd enabledSkillSources);
-
-  # Activation script: symlink each subdir of a dotfiles source into a target dir.
-  # Creates target/<name> → source/<name> without disturbing unrelated entries.
+  # Symlink each subdir of a dotfiles source into a target dir. Agent-blind:
+  # takes paths, not agent identity. Creates target/<name> -> source/<name>
+  # without disturbing unrelated entries already in targetAbsPath.
   mkLocalSkillSyncScript =
     { sourceRelPath, targetAbsPath }:
     let
@@ -249,26 +222,11 @@ let
         done
       fi
     '';
-in
-{
-  home.activation.installAgentSkills = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-    export DISABLE_TELEMETRY=1
-    export NPM_CONFIG_PREFIX="$HOME/.local"
-    export PATH="${gitBin}:${nodeBin}:$NPM_CONFIG_PREFIX/bin:$PATH"
 
-    mkdir -p \
-      "$HOME/.agents/skills" \
-      "$HOME/.claude/skills" \
-      "$HOME/.claude/commands" \
-      "$HOME/.codex/skills" \
-      "$HOME/.pi/agent/skills" \
-      "$HOME/.pi/agent/extensions" \
-      "$HOME/.pi/agent/themes"
-
-    # Skills are declarative: wipe all managed dirs each activation, then rebuild.
-    # This makes the activation idempotent and ensures removed skills/commands are
-    # cleaned up on the next `darwin-rebuild switch`. Preserves hidden/system entries
-    # (e.g. Codex's .system) by only removing non-hidden entries.
+  # Wipe a managed directory (only non-hidden entries — preserves e.g.
+  # Codex's .system) then let the rest of the script rebuild it fresh.
+  # Agent-blind: takes a path, not agent identity.
+  resetManagedDirFn = ''
     _reset_managed_dir() {
       _dst="$1"
       [ -d "$_dst" ] || return 0
@@ -277,63 +235,74 @@ in
         rm -rf "$_entry"
       done
     }
-
-    for _dir in ${allManagedSkillDirsStr}; do
-      _reset_managed_dir "$_dir"
-    done
-
-    for _dir in ${allManagedCommandsDirsStr}; do
-      _reset_managed_dir "$_dir"
-    done
-
-    # ── Community skills (from git repos, copied into agent dirs) ────────────
-    if command -v skills >/dev/null 2>&1; then
-      ${communitySkillCmds}
-    else
-      echo "agents: 'skills' command not found — skipping community skill installs" >&2
-      echo "agents: run 'npm install -g skills@latest' then 'darwin-rebuild switch' to fix" >&2
-    fi
-
-    # ── Shared local skills → global store + all non-Pi agent skill dirs ─────
-    ${mkLocalSkillSyncScript {
-      sourceRelPath = "agents/shared-skills";
-      targetAbsPath = "${home}/.agents/skills";
-    }}
-    ${mkLocalSkillSyncScript {
-      sourceRelPath = "agents/shared-skills";
-      targetAbsPath = "${home}/.claude/skills";
-    }}
-    ${mkLocalSkillSyncScript {
-      sourceRelPath = "agents/shared-skills";
-      targetAbsPath = "${home}/.codex/skills";
-    }}
-    ${mkLocalSkillSyncScript {
-      sourceRelPath = "agents/shared-skills";
-      targetAbsPath = "${home}/.config/opencode/skills";
-    }}
-
-    # ── Per-agent local skills ────────────────────────────────────────────────
-    ${mkLocalSkillSyncScript {
-      sourceRelPath = "agents/claude/skills";
-      targetAbsPath = "${home}/.claude/skills";
-    }}
-    ${mkLocalSkillSyncScript {
-      sourceRelPath = "agents/codex/skills";
-      targetAbsPath = "${home}/.codex/skills";
-    }}
-    ${mkLocalSkillSyncScript {
-      sourceRelPath = "agents/opencode/skills";
-      targetAbsPath = "${home}/.config/opencode/skills";
-    }}
-    ${mkLocalSkillSyncScript {
-      sourceRelPath = "agents/pi/skills";
-      targetAbsPath = "${home}/.pi/agent/skills";
-    }}
-
-    # ── Per-agent local commands (Claude slash commands) ──────────────────────
-    ${mkLocalSkillSyncScript {
-      sourceRelPath = "agents/claude/commands";
-      targetAbsPath = "${home}/.claude/commands";
-    }}
   '';
+
+  # The one thing every agent module calls: installs and prunes this agent's
+  # community skills (filtered from the shared catalog by agentId) and its
+  # local skill symlinks, scoped entirely to skillDir. True revocation: wipes
+  # skillDir first, then rebuilds from current declared state, so removing a
+  # catalog entry (or a file under localSkillsRelPath) actually disappears on
+  # the next activation — matching the bar set in docs/adr/0001.
+  #
+  # Also wipes and rebuilds the shared global store ($HOME/.agents/skills)
+  # on every call. This is deliberately safe to repeat once per agent (all
+  # four modules call this): the global store only ever holds the same
+  # agent-blind agents/shared-skills content regardless of which agent
+  # triggered the rebuild, so re-wiping it from a second or third caller in
+  # the same activation just reproduces the same result, not a race.
+  mkAgentSkillInstall =
+    {
+      agentId,
+      skillDir,
+      localSkillsRelPath,
+    }:
+    let
+      agentSources = builtins.filter (s: builtins.elem agentId (s.agents or [ ])) enabledSkillSources;
+      communitySkillCmds = builtins.concatStringsSep "\n" (
+        map (mkCommunitySkillCmd agentId) agentSources
+      );
+    in
+    ''
+      export DISABLE_TELEMETRY=1
+      export NPM_CONFIG_PREFIX="$HOME/.local"
+      export PATH="${gitBin}:${nodeBin}:$NPM_CONFIG_PREFIX/bin:$PATH"
+
+      mkdir -p "$HOME/.agents/skills" ${lib.escapeShellArg skillDir}
+
+      ${resetManagedDirFn}
+      _reset_managed_dir "$HOME/.agents/skills"
+      _reset_managed_dir ${lib.escapeShellArg skillDir}
+
+      # ── Community skills (from git repos) ─────────────────────────────────
+      if command -v skills >/dev/null 2>&1; then
+        ${communitySkillCmds}
+      else
+        echo "agents: 'skills' command not found — skipping community skill installs for ${agentId}" >&2
+        echo "agents: run 'npm install -g skills@latest' then re-run activation to fix" >&2
+      fi
+
+      # ── Shared local skills → global store (Pi auto-discovers this) ───────
+      ${mkLocalSkillSyncScript {
+        sourceRelPath = "agents/shared-skills";
+        targetAbsPath = "$HOME/.agents/skills";
+      }}
+      # ── Shared local skills → this agent's own skill dir ──────────────────
+      ${mkLocalSkillSyncScript {
+        sourceRelPath = "agents/shared-skills";
+        targetAbsPath = skillDir;
+      }}
+      # ── This agent's own local skills ─────────────────────────────────────
+      ${mkLocalSkillSyncScript {
+        sourceRelPath = localSkillsRelPath;
+        targetAbsPath = skillDir;
+      }}
+    '';
+in
+{
+  inherit
+    agentSkillSources
+    enabledSkillSources
+    mkAgentSkillInstall
+    mkLocalSkillSyncScript
+    ;
 }

@@ -25,6 +25,17 @@ function M.find_file_from_root_and_callback(callback_fn)
 	})
 end
 
+function M.set_git_ref_to_parent()
+	local git_utils = require("user.utils.git_utils")
+	local fork_point = git_utils.get_fork_point()
+	if not fork_point then
+		vim.notify("could not determine fork point (no other local branches found?)", vim.log.levels.WARN)
+		return
+	end
+	utils.set_git_ref(fork_point)
+	vim.notify("git ref set to fork point: " .. fork_point)
+end
+
 function M.establish_git_ref(commit)
 	if commit then
 		Snacks.picker.git_log({

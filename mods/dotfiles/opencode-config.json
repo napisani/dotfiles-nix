@@ -26,8 +26,7 @@
     "input_newline": "return"
   },
   "plugin": [
-    "opencode-antigravity-auth@beta",
-    "openrtk"
+    "opencode-antigravity-auth@beta"
   ],
   "provider": {
     "ollama": {
