@@ -8,3 +8,6 @@ venv/
 __pycache__/
 .vantage
 /data/
+
+# skill-creator eval scratch (not a managed asset)
+mods/dotfiles/agents/shared-skills/*-workspace/
