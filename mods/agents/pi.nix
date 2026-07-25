@@ -26,9 +26,6 @@ let
   managedConfig = callAgentLib ./managed-config-lib.nix;
 
   scriptsDir = "${dotfiles}/agents/scripts";
-  skillDir = "${home}/.pi/agent/skills";
-  extensionsDir = "${home}/.pi/agent/extensions";
-  themesDir = "${home}/.pi/agent/themes";
   instructionsTarget = "${home}/.pi/agent/AGENTS.md";
   mcpTarget = "${home}/.pi/agent/mcp.json";
 
@@ -75,75 +72,6 @@ let
     "npm:pi-web-access"
   ];
 
-  syncPiExtensions = ''
-    _src="${dotfiles}/agents/pi/extensions"
-    _dst="${extensionsDir}"
-    mkdir -p "$_dst"
-
-    if [ -d "$_src" ]; then
-      for _extension_file in "$_src"/*.js "$_src"/*.ts; do
-        [ -f "$_extension_file" ] || continue
-
-        _extension_name=$(basename "$_extension_file")
-        case "$_extension_name" in
-          *.test.*) continue ;;
-        esac
-
-        _target_link="$_dst/$_extension_name"
-        if [ -e "$_target_link" ] && [ ! -L "$_target_link" ]; then
-          echo "agents: refusing to replace non-symlink Pi extension at $_target_link"
-          continue
-        fi
-
-        if [ ! -L "$_target_link" ] || [ "$(readlink "$_target_link")" != "$_extension_file" ]; then
-          ln -sfn "$_extension_file" "$_target_link"
-          echo "agents: linked Pi extension '$_extension_name' -> $_target_link"
-        fi
-      done
-    fi
-  '';
-
-  syncPiThemes = ''
-    _src="${dotfiles}/agents/pi/themes"
-    _dst="${themesDir}"
-    mkdir -p "$_dst"
-
-    if [ -d "$_src" ]; then
-      for _theme_file in "$_src"/*.json; do
-        [ -f "$_theme_file" ] || continue
-
-        _theme_name=$(basename "$_theme_file")
-        _target_link="$_dst/$_theme_name"
-        if [ -e "$_target_link" ] && [ ! -L "$_target_link" ]; then
-          echo "agents: refusing to replace non-symlink Pi theme at $_target_link"
-          continue
-        fi
-
-        if [ ! -L "$_target_link" ] || [ "$(readlink "$_target_link")" != "$_theme_file" ]; then
-          ln -sfn "$_theme_file" "$_target_link"
-          echo "agents: linked Pi theme '$_theme_name' -> $_target_link"
-        fi
-      done
-    fi
-  '';
-
-  # Pi discovers ~/.agents/skills in addition to ~/.pi/agent/skills. Keep
-  # Pi's agent-local directory for Pi-only skills, and delete duplicate
-  # entries that are already available through the global store.
-  removePiGlobalSkillDuplicates = ''
-    if [ -d "$HOME/.agents/skills" ] && [ -d "${skillDir}" ]; then
-      for _global_skill_dir in "$HOME/.agents/skills"/*/; do
-        [ -d "$_global_skill_dir" ] || continue
-        _skill_name=$(basename "$_global_skill_dir")
-        _pi_skill="${skillDir}/$_skill_name"
-        if [ -e "$_pi_skill" ] || [ -L "$_pi_skill" ]; then
-          rm -rf "$_pi_skill"
-          echo "agents: removed duplicate Pi skill '$_skill_name' (already in ~/.agents/skills)"
-        fi
-      done
-    fi
-  '';
-
   installUnderstandAnythingPlugin = ''
     _ua_repo_url="https://github.com/Lum1104/Understand-Anything.git"
     _ua_repo_dir="$HOME/.understand-anything/repo"
@@ -185,29 +113,40 @@ let
   '';
 in
 {
-  home.activation.fixPiPathConflicts = lib.hm.dag.entryBefore [ "linkGeneration" ] (
-    shared.mkFixPathConflicts [
-      skillDir
-      extensionsDir
-      themesDir
-    ]
-  );
-
-  home.activation.installPiSkills = lib.hm.dag.entryAfter [ "linkGeneration" ] (
-    skills.mkAgentSkillInstall {
+  # Layer 0 links. Pi skills: community + Pi-local only — shared skills are
+  # deliberately NOT linked here because Pi auto-discovers ~/.agents/skills
+  # (the global store, owned by shared-store.nix), so linking them here too
+  # would double them up. This replaces the old install-then-dedupe dance.
+  # Extensions (.js/.ts) and themes (.json) are live-editable out-of-store
+  # links. See docs/adr/0002-layered-asset-management.md.
+  home.file =
+    skills.mkCommunitySkillFiles {
       agentId = "pi";
-      inherit skillDir;
-      localSkillsRelPath = "agents/pi/skills";
+      skillDirRelPath = ".pi/agent/skills";
     }
-  );
-
-  home.activation.dedupePiGlobalSkills = lib.hm.dag.entryAfter [ "installPiSkills" ] removePiGlobalSkillDuplicates;
+    // skills.mkLocalSkillFiles {
+      sourceRelPath = "agents/pi/skills";
+      targetDirRelPath = ".pi/agent/skills";
+    }
+    // shared.mkLocalFileLinks {
+      sourceRelPath = "agents/pi/extensions";
+      targetDirRelPath = ".pi/agent/extensions";
+      extensions = [
+        ".js"
+        ".ts"
+      ];
+    }
+    // shared.mkLocalFileLinks {
+      sourceRelPath = "agents/pi/themes";
+      targetDirRelPath = ".pi/agent/themes";
+      extensions = [ ".json" ];
+    };
 
   home.activation.preparePiInstructionsForRtk = lib.hm.dag.entryBefore [ "installPiRtkHooks" ] (
     instructions.removeStaleInstructionSymlink { target = instructionsTarget; }
   );
 
-  home.activation.installPiRtkHooks = lib.hm.dag.entryAfter [ "installPiSkills" ] (
+  home.activation.installPiRtkHooks = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     shared.mkRtkHookInstall {
       rtkArgs = "--agent pi";
       label = "pi";
@@ -218,7 +157,7 @@ in
     instructions.writeAgentInstructions { target = instructionsTarget; }
   );
 
-  home.activation.configurePiMcpServers = lib.hm.dag.entryAfter [ "installPiSkills" ] (
+  home.activation.configurePiMcpServers = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     managedConfig.mkJsonManagedMerge {
       targetFile = mcpTarget;
       managedKey = "mcpServers";
@@ -227,7 +166,7 @@ in
     }
   );
 
-  home.activation.installPiPackages = lib.hm.dag.entryAfter [ "installPiSkills" ] (
+  home.activation.installPiPackages = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     managedConfig.mkPiPackageInstall {
       declaredPackages = declaredPiPackages;
       stateId = "pi-packages";
@@ -240,11 +179,7 @@ in
     }
   );
 
-  home.activation.installPiConfig = lib.hm.dag.entryAfter [ "installPiSkills" ] ''
-    # ── Extensions and themes ─────────────────────────────────────────────────
-    ${syncPiExtensions}
-    ${syncPiThemes}
-
+  home.activation.installPiConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     # ── Settings (provider, model, packages, skill paths) ─────────────────────
     ${nodeBin}/node ${scriptsDir}/apply-pi-settings.js
 
