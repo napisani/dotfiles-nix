@@ -1,115 +1,123 @@
 ---
 name: agent-management
-description: How to declaratively add, change, or remove AI coding agent assets — skills, MCP servers, plugin/capability installs, RTK hooks, shared instructions — in this home-manager repo's mods/agents/*.nix module. Use this whenever the user asks to add a skill, add an MCP server, install a plugin for Claude/Codex/OpenCode/Pi, gate something to a specific machine, or asks why removing something from mods/agents/*.nix didn't actually remove it after a rebuild. Also use this before writing any new code under mods/agents/ or mods/dotfiles/agents/scripts/, even if the user doesn't name this skill directly — this architecture has specific, non-obvious rules (see "The one rule that matters") that are easy to violate by copying an old pattern.
+description: How to declaratively add, change, or remove AI coding agent assets — skills, MCP servers, plugin/capability installs, RTK hooks, shared instructions — in this home-manager repo's mods/agents/*.nix module. Use this whenever the user asks to add a skill, add an MCP server, install a plugin for Claude/Codex/OpenCode/Pi, gate something to a specific machine, update a pinned skill, or asks why removing something from mods/agents/*.nix didn't actually remove it after a rebuild. Also use this before writing any new code under mods/agents/ or mods/dotfiles/agents/scripts/, even if the user doesn't name this skill directly — this architecture has specific, non-obvious rules (see "The one rule that matters" and "The three layers") that are easy to violate by copying an old pattern.
 ---
 
 # Managing agent assets declaratively
 
-This repo installs the same kinds of things — skills, MCP servers, plugins, RTK hooks, shared instructions — into four AI coding agents (Claude Code, Codex, OpenCode, Pi) via `mods/agents/*.nix`. The architecture is deliberate and is documented in full at `docs/adr/0001-per-agent-modules.md` and `CONTEXT.md` in this repo's root — read those if you want the "why," not just the "how." This skill is the "how."
+This repo installs the same kinds of things — skills, MCP servers, plugins, RTK hooks, shared instructions — into four AI coding agents (Claude Code, Codex, OpenCode, Pi) via `mods/agents/*.nix`. The architecture is deliberate and documented in full at `docs/adr/0001-per-agent-modules.md` (per-agent ownership) and `docs/adr/0002-layered-asset-management.md` (the layer model), with vocabulary in `CONTEXT.md`. Read those for the "why"; this skill is the "how".
 
 ## The one rule that matters
 
-**Each agent owns its complete installation story in its own file** (`mods/agents/claude.nix`, `codex.nix`, `opencode.nix`, `pi.nix`). There is no shared script that takes an `agents = [...]` list and branches on agent identity internally. That pattern used to exist here, caused real bugs (inconsistent revocation, awkward-to-add native mechanisms), and was deliberately torn out — see the ADR's "Considered options" section for exactly why it's rejected.
+**Each agent owns its complete installation story in its own file** (`mods/agents/claude.nix`, `codex.nix`, `opencode.nix`, `pi.nix`). There is no shared script that takes an `agents = [...]` list and branches on agent identity internally. That pattern used to exist here, caused real bugs, and was deliberately torn out — see ADR 0001.
 
-The dividing line: a **shared utility** that takes a file path, an agent ID string, or other caller-supplied identity — and does not know or care which agent is calling it — is fine to share (`lib.nix`, `skills.nix`, `instructions.nix`, `managed-config-lib.nix` are all built this way). A **shared script that owns a cross-agent declared list and switches behavior per agent** (`if agent == "codex" then ... else ...`) is the anti-pattern. If you catch yourself writing that second shape, stop and put the logic in the one agent file that needs it instead.
+The dividing line: a **shared utility** that takes a file path, an agent ID string, or other caller-supplied identity — and does not know or care which agent is calling it — is fine to share (`lib.nix`, `skills.nix`, `instructions.nix`, `managed-config-lib.nix` are all built this way). A **shared script that owns a cross-agent declared list and switches behavior per agent** (`if agent == "codex" then ... else ...`) is the anti-pattern. If you catch yourself writing that second shape, stop and put the logic in the one agent file that needs it.
+
+## The three layers
+
+Every managed asset is sorted by one question: **who else writes to this path?** The answer picks the mechanism, and each layer has exactly one. Getting the layer right is the difference between a clean revocable install and a subtle drift bug.
+
+- **Layer 0 — only Nix writes it.** Community skills, local skills/commands, Pi extensions/themes, the `~/.agents/skills` global store. Mechanism: **`home.file`**, backed by pinned flake inputs (`flake = false`) for fetched content and `config.lib.file.mkOutOfStoreSymlink` for repo-local content that stays live-editable. Revocation, rollback, and conflict detection all come from home-manager's own link bookkeeping — no activation script. Don't "upgrade" this to an activation script: you'd lose rollback and pinning.
+- **Layer 1 — Nix and the tool both write the file.** `~/.claude.json` (`mcpServers`), `~/.codex/config.toml` (`mcp_servers`), `~/.pi/agent/mcp.json`. Nix can't own a key inside a tool-mutated file at build time, so an activation-time merge is required — but it owns the managed key **wholesale**: the declared set replaces that key every run. **Hand-added entries under a managed key do not survive a rebuild** (that's the deliberate trade for having no state files here — promote experiments to Nix). Sibling keys the tool writes (Claude's OAuth/history, Codex's settings) are preserved.
+- **Layer 2 — the tool's own installer owns opaque state.** Claude plugins (`claude plugin`), Pi packages (`pi install`/`pi remove`), RTK hooks (`rtk init`). These keep a CLI-driver + tracked-state file in `~/.local/state/agents-nix/<stateId>.json`: each run diffs the declaration against what Nix previously installed and prunes only that, never touching things installed outside Nix. Don't "upgrade" this to pure Nix — you'd be reimplementing the tool's installer and lose its marketplace/lock/update behavior.
 
 ## The file map
 
 | File | Owns |
 |---|---|
-| `mods/agents/lib.nix` | Agent-blind facts and utilities: `dotfiles`, `home`, `allAgents`, `isLoancrateMac` (hostname-derived machine gating), `mkFixPathConflicts`, `mkRtkHookInstall`, `mkDeclaredEntriesFromSources`, `callAgentLib` |
-| `mods/agents/skills.nix` | The cross-agent skill **catalog** (still one declared list — see "Why the skill catalog is still one file" below) + the `mkAgentSkillInstall` utility |
-| `mods/agents/instructions.nix` | The shared `AGENTS.md` source content + the `writeAgentInstructions`/`removeStaleInstructionSymlink` utilities |
-| `mods/agents/managed-config-lib.nix` | JSON/TOML managed-key merge+prune (`mkJsonManagedMerge`, `mkTomlManagedMerge`) and CLI-driven diff+prune (`mkClaudePluginInstall`, `mkPiPackageInstall`) |
-| `mods/agents/{claude,codex,opencode,pi}.nix` | Each agent's **entire** story: its own MCP-server declarations, its own capability/plugin installs via whatever mechanism is native to it, its own RTK hook line, its own instruction-file write |
-| `mods/agents/default.nix` | Just imports the four per-agent files — nothing else lives here |
-| `mods/dotfiles/agents/scripts/*.js` | The Node scripts the Nix utilities above shell out to (JSON/TOML merging, Claude plugin diffing, Pi package diffing) |
-| `mods/dotfiles/agents/scripts/lib/managed-state.js` | The shared "read/write previously-managed name set" logic every diff-and-prune script uses |
+| `mods/agents/lib.nix` | Agent-blind facts and utilities: `dotfiles`, `home`, `allAgents`, machine roles (`isLoancrateMac`), shared agentmemory facts, `mkFixPathConflicts`, `mkRtkHookInstall`, `mkWarn`, `mkLocalFileLinks`, `mkDeclaredEntriesFromSources`, `callAgentLib` |
+| `mods/agents/skills.nix` | The cross-agent skill **catalog** (one declared list — see below) + the `home.file` generators `mkCommunitySkillFiles`/`mkLocalSkillFiles` |
+| `mods/agents/shared-store.nix` | The cross-agent global store `~/.agents/skills` (Pi auto-discovers it), via `home.file` |
+| `mods/agents/instructions.nix` | The shared `AGENTS.md` source + `writeAgentInstructions`/`removeStaleInstructionSymlink` |
+| `mods/agents/managed-config-lib.nix` | Layer 1 JSON/TOML full-key merge (`mkJsonManagedMerge`, `mkTomlManagedMerge`) and Layer 2 CLI diff+prune (`mkClaudePluginInstall`, `mkPiPackageInstall`) |
+| `mods/agents/report.nix` | The end-of-activation convergence report (aggregates `mkWarn` output) |
+| `mods/agents/{claude,codex,opencode,pi}.nix` | Each agent's **entire** story: its `home.file` skill links, its own MCP declarations, its own native plugin/package installs, RTK hook, instruction write |
+| `mods/agents/default.nix` | Imports the four per-agent files + `shared-store.nix` + `report.nix` |
+| `mods/dotfiles/agents/scripts/*.js` | The Node scripts the Layer 1/2 utilities shell out to (JSON/TOML full-key write, Claude plugin diff, Pi package diff) |
+| `mods/dotfiles/agents/scripts/lib/managed-state.js` | The shared atomic-write + "previously-managed name set" logic the Layer 2 diff scripts use |
 
 ### Why the skill catalog is still one file
 
-`agentSkillSources` in `skills.nix` is a single list where each entry declares a skill once and targets N agents via an `agents = [...]` field. This looks like the anti-pattern above but isn't: it's **data**, not a script that branches on agent identity. The actual installation logic (`mkAgentSkillInstall`) is a plain utility that filters this list by `agentId` and returns a script scoped to one agent's directory — each agent module calls it itself. Don't "fix" this by splitting the catalog into four copies; that would just reintroduce duplication for no benefit. Do keep new capability installs (MCP servers, plugins, packages) out of a similar shared list — those genuinely differ per agent's native mechanism in a way skills don't.
+`agentSkillSources` in `skills.nix` is a single list where each entry declares a skill once (a flake `input` + per-skill `{ name; path; }`) and targets N agents via an `agents = [...]` field. This looks like the anti-pattern above but isn't: it's **data**, not a script that branches on agent identity. The generators (`mkCommunitySkillFiles`) filter this list by `agentId` and return a `home.file` attrset scoped to one agent's dir — each agent module calls it itself. Don't split the catalog into four copies. Do keep capability installs (MCP servers, plugins, packages) out of a similar shared list — those genuinely differ per agent's native mechanism.
 
 ## Every mechanism must be revocable
 
-Deleting a declaration must make the corresponding thing disappear on the next `darwin-rebuild switch`, with no manual cleanup. This repo has two ways of achieving that, and picking the right one matters:
+Deleting a declaration must make the thing disappear on the next `darwin-rebuild switch`, no manual cleanup. Each layer achieves this differently:
 
-1. **Wipe-and-rebuild** — for things where the whole target directory is exclusively Nix-managed (skills). `mkAgentSkillInstall` wipes the skill directory, then rebuilds it from the current declared list.
-2. **Tracked-state diffing** — for things where the target also holds content Nix doesn't own (a config file with user-added entries, a plugin/package manager with its own installs). `managed-config-lib.nix`'s functions track "what did I, Nix, previously manage" in `~/.local/state/agents-nix/<stateId>.json`, diff that against the current declaration each run, and only prune what's in the tracked state and no longer declared — so hand-added MCP servers or `pi install`ed packages never get touched.
+- **Layer 0**: home-manager's own link bookkeeping. Drop a catalog entry or a `shared-skills/<name>/` dir → the symlink is gone next switch. This is the strongest form (rollback works too).
+- **Layer 1**: full key ownership. The managed key is rewritten from the declaration each run, so a removed entry is simply absent next time. No state file involved.
+- **Layer 2**: tracked-state diffing. Removing a declaration prunes it because the state file recorded that Nix installed it.
 
-**If a user says "I removed X from the Nix config but it's still there after rebuilding"**: this is almost always a state-tracking mechanism (MCP servers, Claude plugins, Pi packages), not skills. Check `~/.local/state/agents-nix/` for the relevant `<stateId>.json` file. If it's missing or was never populated (e.g. this is the very first activation after adding the mechanism), the thing predates tracking and won't be pruned automatically — see "Migrating something that predates tracking" below. If the state file exists and lists the entry, but it's still present, something about the merge/prune script itself is broken — check the corresponding script in `mods/dotfiles/agents/scripts/`.
+**If a user says "I removed X but it's still there after rebuilding"**, work the layers:
+1. Is it a skill (Layer 0)? Then either the removal isn't `git add`ed (flakes only see tracked files — an unstaged edit is invisible to the build), or the entry is still declared. Check the actual catalog/dir.
+2. Is it an MCP server (Layer 1)? Under full ownership it can only persist if it's still declared in that agent's `mcpSources`, or was hand-added under the key (which now gets wiped on rebuild anyway). Confirm it's actually removed from the `.nix` file and `git add`ed.
+3. Is it a plugin/package (Layer 2)? Check `~/.local/state/agents-nix/<stateId>.json`. If it's missing or never recorded the entry (the thing predates tracking), it won't prune — see "Migrating something that predates tracking".
 
 ## Common tasks
 
-### Add a skill
+### Add a community skill
 
-Add one entry to `agentSkillSources` in `mods/agents/skills.nix`:
+Two steps, because skills are Layer 0 pinned content:
 
-```nix
-{
-  repo = "https://github.com/someone/some-skills-repo";
-  skills = [ "the-skill-name" ];
-  agents = allAgents;  # or e.g. [ "claude-code" "pi" ] for a subset
-}
-```
+1. Add a flake input in `flake.nix` (content repo, not a flake):
+   ```nix
+   some-skills = { url = "github:owner/repo"; flake = false; };
+   ```
+   For a private repo use `url = "git+ssh://git@github.com/owner/repo";`. Run `nix flake lock` (SSH creds needed for private).
+2. Add a catalog entry in `skills.nix`:
+   ```nix
+   {
+     input = inputs.some-skills;
+     skills = [ { name = "the-skill"; path = "skills/the-skill"; } ];
+     agents = allAgents;  # or a subset like [ "claude-code" "pi" ]
+   }
+   ```
+   **Verify `path` against the input's actual store tree, not the README** — directory names drift (this repo already hit `diagnose` → `diagnosing-bugs`). Find it with:
+   ```sh
+   p=$(nix eval --impure --raw --expr "(builtins.getFlake (toString ./.)).inputs.some-skills.outPath")
+   find "$p" -name SKILL.md | sed "s|$p/||"
+   ```
+   A skill whose `SKILL.md` is at the repo root uses `path = "."`.
 
-Before adding it, verify the skill actually exists at that path in the target repo (fetch the repo's tree, e.g. via `gh api repos/<owner>/<repo>/git/trees/<default-branch>?recursive=1`) — skill directory names don't always match a project's README wording, and a wrong name fails silently at `skills add` time during activation, not at Nix-eval time.
+For a skill that lives in **this repo** (not fetched), drop a `SKILL.md` under `mods/dotfiles/agents/shared-skills/<name>/` — no catalog entry needed; `shared-store.nix` and each agent's `mkLocalSkillFiles` call link it everywhere automatically, and edits to it are live (out-of-store symlink).
 
-For a skill that lives in this repo already (not fetched from elsewhere), drop a `SKILL.md` under `mods/dotfiles/agents/shared-skills/<name>/` instead — no catalog entry needed, it's synced automatically to every agent's skill directory by `mkAgentSkillInstall`.
+### Update a pinned skill
+
+`nix flake update <input-name>` then rebuild. Skills no longer auto-update on every rebuild — that's deliberate (pinned = reproducible/auditable). A periodic `nix flake update` is how you pull upstream changes.
 
 ### Add an MCP server
 
-Each agent that needs the server gets its own entry, in its own file — there's no shared cross-agent MCP list. The three JSON-based agents (Claude, Pi, and any future JSON-config agent) and Codex's TOML both follow the same declare-then-merge shape:
-
+Each agent that needs it gets its own entry in its own file — there's no shared MCP list. Add to that agent's `mcpSources`:
 ```nix
-# in claude.nix, codex.nix, or pi.nix's `let` block
-mcpSources = [
-  # ... existing entries ...
-  {
-    name = "my-new-server";
-    condition = someBooleanOrOmit;  # optional, defaults to true
-    config = {
-      command = "/path/to/binary";
-      env = { SOME_VAR = "value"; };
-    };
-  }
-];
-declaredMcpEntries = shared.mkDeclaredEntriesFromSources mcpSources;
+{
+  name = "my-server";
+  condition = someBoolOrOmit;   # optional, defaults to true
+  config = { command = "/path/to/bin"; env = { X = "y"; }; };
+}
 ```
+It flows through `shared.mkDeclaredEntriesFromSources` into the agent's existing `mkJsonManagedMerge` (Claude/Pi) or `mkTomlManagedMerge` (Codex) call — no new wiring. If the server needs a different shape per agent, declare it separately in each; don't unify the shapes. **Note the Layer 1 trade**: this key is fully owned, so a server someone adds by hand with `claude mcp add` will be wiped on the next rebuild unless it's declared here.
 
-then wire it into that agent's activation with the format-appropriate merge function — `managedConfig.mkJsonManagedMerge` for Claude/Pi (targeting `~/.claude.json` / `~/.pi/agent/mcp.json`, key `mcpServers`), `managedConfig.mkTomlManagedMerge` for Codex (targeting `~/.codex/config.toml`, key `mcp_servers`). Give it a unique `stateId` (e.g. `"claude-mcp-servers"`) — this is what names its tracked-state file, so make it descriptive and don't reuse another mechanism's id.
+OpenCode is the exception: its MCP config lives in `mods/dotfiles/opencode-config.json` (hand-edited, live-symlinked). Add an OpenCode MCP server by editing that JSON directly.
 
-If the server needs a different config shape per agent (e.g. one agent needs an `oauth` block another doesn't), that's expected and fine — declare it separately in each agent's own `mcpSources`, shaped however that agent needs. Don't try to unify the shapes into one cross-agent record.
+### Add a Claude plugin (Layer 2)
 
-OpenCode is the exception: its MCP config lives directly in `mods/dotfiles/opencode-config.json` (symlinked live into `~/.config/opencode/config.json`, hand-edited, not activation-script-managed — see that file's own `"mcp"` key and `mods/opencode.nix`'s header comment). Add an OpenCode MCP server by editing that JSON file directly, not through `mods/agents/opencode.nix`.
-
-### Add a Claude plugin
-
-In `claude.nix`, add the plugin spec (`"<plugin-name>@<marketplace-name>"`) to `declaredPlugins`, and make sure `pluginMarketplace` points at the marketplace it comes from (only one marketplace is supported per activation today — see `mkClaudePluginInstall`'s `marketplace` parameter). Gate with a `lib.optionals someCondition [...]` the same way the existing Loancrate-only plugins are gated, if it shouldn't install everywhere.
+Add the spec (`"<plugin>@<marketplace>"`) to `declaredPlugins` in `claude.nix` and make sure `pluginMarketplace` points at its marketplace (one marketplace per activation). Gate with `lib.optionals someCondition [...]` like the existing Loancrate plugins.
 
 ### Add a native capability for one agent only
 
-Not every agent needs to support every capability — partial coverage is expected, not a gap (see the ADR's rejected "shared capability abstraction" option). Use whatever's idiomatic to that one agent:
-
-- **Pi packages** (npm-registry-backed, tracked via `pi install`/`pi remove`): add the package spec to `declaredPiPackages` in `pi.nix`.
-- **Pi extensions** (local `.js`/`.ts` files symlinked in, not tracked via CLI): drop the file under `mods/dotfiles/agents/pi/extensions/`.
-- **Claude plugins**: see above.
-- **OpenCode plugins**: declared directly in `mods/dotfiles/opencode-config.json`'s `"plugin"` array (npm package names) — same hand-edited-file caveat as OpenCode's MCP config.
-
-Do not invent a new shared "capability" list to express "this thing is available on agents A and C but not B, D." Just add it to the specific agent file(s) that support it.
+Partial coverage is expected, not a gap. Use what's idiomatic to that agent: Pi packages → `declaredPiPackages` in `pi.nix`; Pi extensions → a file under `mods/dotfiles/agents/pi/extensions/`; OpenCode plugins → `opencode-config.json`'s `"plugin"` array. Don't invent a shared "capability" list.
 
 ### Gate something to a specific machine
 
-Use `shared.isLoancrateMac` if the gate is specifically "the Loancrate machine," or add a new boolean to `lib.nix` following the exact same pattern for a different machine — compare against the flake-declared `hostname` argument (threaded through as a specialArg from `flake.nix`'s own `darwinConfigurations`/`nixosConfigurations` entries), never `MACHINE_NAME` (a separate, hand-typed `home.sessionVariables` string consumed only by bashrc functions at shell runtime — see `CONTEXT.md`'s glossary entry on "Flake-declared hostname" for why these two must not be conflated). Check `flake.nix` for the exact hostname string a machine is registered under — it's whatever string is passed as `hostname = "..."` to that machine's `mkDarwinSystem`/`mkNixOSSystem` call, which is not always identical to a casual name for the machine.
+Use `shared.isLoancrateMac`, or add a new boolean to `lib.nix` derived from **`machineRoles`** (the roles list declared per machine in `flake.nix` and threaded as a specialArg) — e.g. `isPersonalMac = builtins.elem "personal" machineRoles;`. Never gate on `MACHINE_NAME` (a hand-typed `home.sessionVariables` string used only by bashrc at shell runtime — see `CONTEXT.md`). Roles beat hostname strings because renaming a machine can't silently disable a gate.
 
-### Migrating something that predates tracking
+### Migrating something that predates tracking (Layer 2 only)
 
-If you're moving an existing imperative removal (like an old manually-maintained "packages to uninstall" list) onto one of the tracked-state mechanisms, seed the state file once so the migration doesn't silently stop enforcing it. `mkPiPackageInstall`'s `legacySeed` parameter is the reference example: it seeds the state file with previously-known-stale package specs only if the state file doesn't exist yet, so the very first activation under the new mechanism still prunes them, and every activation after that just uses real tracked state.
+Moving an old imperative removal onto a tracked-state mechanism? Seed the state file once so enforcement doesn't silently stop. `mkPiPackageInstall`'s `legacySeed` is the reference: it seeds previously-known-stale specs only if the state file doesn't exist yet, so the first run under the new mechanism still prunes them.
 
 ## Verifying a change actually works
 
-Nix syntax checking (`nix-instantiate --parse <file>`) only catches parse errors — it does not catch option-merge conflicts (two files defining `home.activation.<sameName>` differently), which only surface when the value is actually forced. `nix eval ...home.activation --apply 'a: builtins.attrNames a'` only lists which activation keys exist; it does **not** force their merged values, so it will not catch a name collision either. To actually verify a change:
-
-- Force the real merged value, not just its key: eval something like `config.system.activationScripts.script.text` (Darwin) with `--apply builtins.stringLength` (or any function that forces the whole string), for every affected machine in `flake.nix`'s `darwinConfigurations`/`nixosConfigurations`. This is the same attribute `darwin-rebuild switch` itself evaluates, so it catches exactly the conflicts a real switch would hit — including a scenario that has actually happened here: two files independently defining an activation entry with the same name (e.g. a new per-agent file's activation name accidentally colliding with an unrelated sibling file's existing one, like `mods/opencode.nix` vs `mods/agents/opencode.nix`).
-- For anything that shells out to a script under `mods/dotfiles/agents/scripts/`, test the script directly against a scratch `$HOME`-like directory before trusting the Nix wiring — these scripts are plain Node and can be run standalone with the right env vars set (check the script's own header comment for its env var contract).
-- Remember `git add` matters here: flakes only see git-tracked files, so a brand new file won't be visible to `nix eval`/`nix build` until it's at least `git add`ed (staging is enough — it doesn't need to be committed).
+- **`rtk nix flake check` is the first-class check.** It builds `checks.aarch64-darwin.activation-merge-forced`, which forces `system.activationScripts.script.text` and every `home.activation.<name>.data` for all machines — the exact evaluation `darwin-rebuild switch` does. This catches option-merge conflicts (two files defining `home.activation.<sameName>`), which are invisible to `nix-instantiate --parse` and to `nix eval ...--apply builtins.attrNames` (listing keys does **not** force their merged values). A real collision here — `mods/opencode.nix` vs `mods/agents/opencode.nix` both defining `fixOpencodePathConflicts` — is exactly what this guards.
+- **`git add` matters.** Flakes only see tracked (or staged) files, so a brand-new file or an edit is invisible to `nix eval`/`nix build`/`flake check` until at least `git add`ed. Staging is enough.
+- **Test scripts standalone.** Anything under `mods/dotfiles/agents/scripts/` is plain Node with a documented env-var contract (see each script's header) and a `.test.cjs` suite — run `node --test <file>` against scratch dirs before trusting the Nix wiring.
+- **After a switch, read the convergence line.** `report.nix` prints either `agents: all managed agent assets converged cleanly` or an aggregated `⚠ N warning(s)` block (also saved to `~/.local/state/agents-nix/last-activation-warnings.txt`). "Switch succeeded" and "everything converged" are not the same thing — the soft-fail guards keep one broken mechanism from aborting activation, so check this line.

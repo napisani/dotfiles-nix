@@ -4,22 +4,40 @@
 
 - **Revocable install** — an install mechanism where deleting a Nix declaration
   causes the previously-installed artifact to be removed on the next
-  activation, with no manual bookkeeping. The reference implementation is
-  `skills.nix`'s pattern: wipe every managed directory, then rebuild from the
-  current declared list. Anything that only *adds/updates* declared entries
-  without pruning stale ones (MCP JSON-merge, Claude plugin install) is
-  **not** revocable, even though it's declarative and idempotent-in-the-add
-  direction.
-  For mechanisms that can't cheaply wipe-and-rebuild (MCP config merges,
-  Claude plugin installs, Pi package installs), revocation instead works by
-  tracking "what did I, Nix, previously manage" in a small state file under
-  `~/.local/state/agents-nix/<stateId>.json` (see `managed-config-lib.nix`).
-  Each run diffs the current declaration against that state, prunes anything
-  previously-managed-but-now-undeclared, and never touches anything that
-  never appears in that tracked state (so hand-added config or Pi packages
-  installed outside of Nix are never pruned). If revocation for one of these
-  mechanisms ever appears to not be working, check that directory first —
-  deleting a state file resets that mechanism's prune-tracking to empty.
+  activation, with no manual bookkeeping. Which mechanism provides revocation
+  depends on the asset's **layer** (see below); all three layers meet the bar.
+  If revocation appears not to work, identify the layer first — a Layer 0 miss
+  is almost always an un-`git add`ed edit (flakes don't see untracked files);
+  a Layer 2 miss is a missing/stale `~/.local/state/agents-nix/<stateId>.json`.
+- **Layer 0 / Layer 1 / Layer 2** — assets are sorted by *who else writes the
+  target path*, and each layer has one mechanism (see
+  `docs/adr/0002-layered-asset-management.md`):
+  - **Layer 0 (only Nix writes it)** — skills, commands, Pi extensions/themes,
+    the `~/.agents/skills` store. Mechanism: `home.file` (pinned flake inputs
+    for fetched content; `mkOutOfStoreSymlink` for live-editable repo content).
+    Revocation is home-manager's own link bookkeeping; rollback works.
+  - **Layer 1 (Nix + the tool both write the file)** — `~/.claude.json`
+    `mcpServers`, `~/.codex/config.toml` `mcp_servers`, `~/.pi/agent/mcp.json`.
+    Mechanism: activation-time **full key ownership** — the declared set
+    replaces the managed key each run; sibling keys are preserved; hand-added
+    entries under the key do not survive. No state file.
+  - **Layer 2 (the tool's installer owns opaque state)** — Claude plugins, Pi
+    packages, RTK hooks. Mechanism: CLI driver + tracked-state diff in
+    `~/.local/state/agents-nix/<stateId>.json`; prunes only what Nix previously
+    installed, never touching out-of-Nix installs.
+- **Native install mechanism** — the mechanism idiomatic to a specific agent
+  for installing a capability (e.g. Claude Code's plugin marketplace, Pi's
+  extensions, a raw MCP server entry, an npm/pip/brew package). A single
+  capability (e.g. agentmemory) may be installed into different agents via
+  different native mechanisms, and may have no supported mechanism for some
+  agents at all — partial coverage across agents is expected and fine, not a
+  gap to paper over with a shared abstraction.
+- **Machine roles** — a `roles` list (e.g. `[ "work" "loancrate" ]`) declared
+  per machine in `flake.nix` and threaded as the `machineRoles` specialArg
+  (via `lib/builders.nix`). The source of truth for machine-gating agent
+  assets: booleans like `isLoancrateMac` derive from it (`builtins.elem
+  "loancrate" machineRoles`). Preferred over gating on the flake-declared
+  hostname string because renaming a machine can't silently disable a gate.
 - **Native install mechanism** — the mechanism idiomatic to a specific agent
   for installing a capability (e.g. Claude Code's plugin marketplace, Pi's
   extensions, a raw MCP server entry, an npm/pip/brew package). A single
@@ -29,12 +47,12 @@
   gap to paper over with a shared abstraction.
 - **Flake-declared hostname** — the `hostname` value passed to
   `mkDarwinSystem`/`mkNixOSSystem` in `flake.nix` for a given
-  `darwinConfigurations`/`nixosConfigurations` entry. This is the single
-  source of truth for "which machine is this" at Nix-eval time. Distinct from
-  `MACHINE_NAME` (a `home.sessionVariables` string, independently hand-typed
-  per `homes/home-*.nix`, consumed at *shell runtime* by bashrc functions) —
-  the two must not be conflated; machine-gating booleans for agent modules
-  should derive from the former, not the latter.
+  `darwinConfigurations`/`nixosConfigurations` entry, the eval-time identity of
+  a machine. Distinct from `MACHINE_NAME` (a `home.sessionVariables` string,
+  independently hand-typed per `homes/home-*.nix`, consumed at *shell runtime*
+  by bashrc functions) — the two must not be conflated. Machine-gating booleans
+  for agent modules derive from **machine roles** (above), not from the
+  hostname string directly and never from `MACHINE_NAME`.
 
 ## Decisions
 
