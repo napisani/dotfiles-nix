@@ -58,6 +58,7 @@
           system = "aarch64-darwin";
           hostname = "nicks-mbp";
           username = "nick";
+          roles = [ "personal" ];
           modules = [ ./systems/profiles/darwin-personal.nix ];
           homeModules = [ ./homes/home-nicks-mbp.nix ];
         };
@@ -66,6 +67,10 @@
           system = "aarch64-darwin";
           hostname = "Nicks-Loancrate-MacBook-Pro";
           username = "nick";
+          roles = [
+            "work"
+            "loancrate"
+          ];
           modules = [ ./systems/profiles/darwin-loancrate.nix ];
           homeModules = [ ./homes/home-nicks-loancrate-mbp.nix ];
         };
@@ -74,6 +79,7 @@
           system = "x86_64-darwin";
           hostname = "maclab";
           username = "nick";
+          roles = [ "lab" ];
           modules = [ ./systems/profiles/darwin-maclab.nix ];
           homeModules = [ ./homes/home-maclab.nix ];
         };
@@ -84,6 +90,7 @@
           system = "x86_64-linux";
           hostname = "supermicro";
           username = "nick";
+          roles = [ "server" ];
           modules = [ ./systems/supermicro/configuration.nix ];
           homeModules = [ ./homes/home-supermicro.nix ];
         };

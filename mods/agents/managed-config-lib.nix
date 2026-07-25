@@ -11,10 +11,11 @@
   lib,
   pkgs-unstable,
   hostname ? "",
+  machineRoles ? [ ],
   ...
 }:
 let
-  shared = import ./lib.nix { inherit config lib pkgs-unstable hostname; };
+  shared = import ./lib.nix { inherit config lib pkgs-unstable hostname machineRoles; };
   inherit (shared) dotfiles nodeBin home;
 
   scriptsDir = "${dotfiles}/agents/scripts";

@@ -4,19 +4,21 @@
 # enumeration, machine identity, and a handful of format/shape-generic
 # helper functions (never branching on "which agent is this").
 #
-# Usage: let shared = import ./lib.nix { inherit config lib pkgs-unstable hostname; };
+# Usage: let shared = import ./lib.nix { inherit config lib pkgs-unstable hostname machineRoles; };
 #        inherit (shared) dotfiles home allAgents nodeBin gitBin isLoancrateMac
 #          mkFixPathConflicts mkRtkHookInstall mkDeclaredEntriesFromSources callAgentLib;
 #
-# `hostname` must be forwarded by the caller from its own module arguments
-# (it's a specialArg set in lib/builders.nix from flake.nix's own
-# darwinConfigurations/nixosConfigurations hostname — the single source of
-# truth for "which machine is this", not a hand-duplicated string).
+# `hostname` and `machineRoles` must be forwarded by the caller from its own
+# module arguments (both are specialArgs set in lib/builders.nix from
+# flake.nix's own darwinConfigurations/nixosConfigurations entries — the
+# single source of truth for "which machine is this", not a hand-duplicated
+# string). Machine gating derives from `machineRoles`, not `hostname`.
 {
   config,
   lib,
   pkgs-unstable,
   hostname ? "",
+  machineRoles ? [ ],
 }:
 let
   dotfiles = "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles";
@@ -34,13 +36,12 @@ let
   nodeBin = "${pkgs-unstable.nodejs}/bin";
   gitBin = "${pkgs-unstable.git}/bin";
 
-  # Machine gating: compare against the flake-declared hostname (the same
-  # string used as the darwinConfigurations/nixosConfigurations key in
-  # flake.nix), not a hand-duplicated MACHINE_NAME sessionVariable. Inlined
-  # directly rather than through a generic `isMachine` predicate — the only
-  # consumer today is this one boolean, and a second machine-gated boolean
-  # can reintroduce a general predicate if/when it's actually needed.
-  isLoancrateMac = hostname == "Nicks-Loancrate-MacBook-Pro";
+  # Machine gating: derived from the flake-declared roles list (passed as a
+  # specialArg from flake.nix's own machine definitions), not a hostname
+  # string equality and not the hand-duplicated MACHINE_NAME sessionVariable.
+  # Role-based so renaming a machine in flake.nix can't silently turn every
+  # gated asset off — the roles travel with the machine.
+  isLoancrateMac = builtins.elem "loancrate" machineRoles;
 
   # Remove a stale non-directory (symlink, or a plain file left behind by a
   # tool that expects a real dir) at each of `paths`, before linkGeneration
@@ -90,7 +91,7 @@ let
   # Import one of this directory's own modules with the standard four
   # shared arguments already threaded through, so call sites don't have to
   # re-spell `{ inherit config lib pkgs-unstable hostname; }` every time.
-  callAgentLib = path: import path { inherit config lib pkgs-unstable hostname; };
+  callAgentLib = path: import path { inherit config lib pkgs-unstable hostname machineRoles; };
 in
 {
   inherit
