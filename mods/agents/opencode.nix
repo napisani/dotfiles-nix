@@ -9,13 +9,10 @@
 # header comment, so an MCP entry there is a direct edit, not a Nix
 # declaration — see the agentmemory MCP entry already present in it.
 #
-# NB: the path-conflict-fix activation entry below is named
-# fixOpencodeSkillPathConflicts, not fixOpencodePathConflicts like the other
-# three agents' — mods/opencode.nix (the sibling file above) already owns
-# `home.activation.fixOpencodePathConflicts` for its own plugin/skills dirs.
-# Reusing that exact name here collides (`home-manager switch` fails with
-# "conflicting definition values"), so this one is deliberately named for
-# the specific directory it fixes instead of matching the sibling pattern.
+# Path conflicts for ~/.config/opencode/skills are handled by the sibling
+# mods/opencode.nix's `fixOpencodePathConflicts` (which also links the `local`
+# skills symlink there); this file only adds the community/shared skill links
+# beside it. Task 11 of the nix-native refactor merges that sibling in here.
 {
   config,
   lib,
@@ -32,27 +29,32 @@ let
   skills = callAgentLib ./skills.nix;
   instructions = callAgentLib ./instructions.nix;
 
-  skillDir = "${home}/.config/opencode/skills";
   instructionsTarget = "${home}/.config/opencode/AGENTS.md";
 in
 {
-  home.activation.fixOpencodeSkillPathConflicts = lib.hm.dag.entryBefore [ "linkGeneration" ] (
-    shared.mkFixPathConflicts [ skillDir ]
-  );
-
-  home.activation.installOpencodeSkills = lib.hm.dag.entryAfter [ "linkGeneration" ] (
-    skills.mkAgentSkillInstall {
+  # Skills are Layer 0: home.file links (community = store symlinks, shared =
+  # out-of-store). The sibling mods/opencode.nix separately links
+  # `.config/opencode/skills/local`; names don't collide. See
+  # docs/adr/0002-layered-asset-management.md.
+  home.file =
+    skills.mkCommunitySkillFiles {
       agentId = "opencode";
-      inherit skillDir;
-      localSkillsRelPath = "agents/opencode/skills";
+      skillDirRelPath = ".config/opencode/skills";
     }
-  );
+    // skills.mkLocalSkillFiles {
+      sourceRelPath = "agents/shared-skills";
+      targetDirRelPath = ".config/opencode/skills";
+    }
+    // skills.mkLocalSkillFiles {
+      sourceRelPath = "agents/opencode/skills";
+      targetDirRelPath = ".config/opencode/skills";
+    };
 
   home.activation.prepareOpencodeInstructionsForRtk =
     lib.hm.dag.entryBefore [ "installOpencodeRtkHooks" ]
       (instructions.removeStaleInstructionSymlink { target = instructionsTarget; });
 
-  home.activation.installOpencodeRtkHooks = lib.hm.dag.entryAfter [ "installOpencodeSkills" ] (
+  home.activation.installOpencodeRtkHooks = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     shared.mkRtkHookInstall {
       rtkArgs = "--opencode";
       label = "opencode";
