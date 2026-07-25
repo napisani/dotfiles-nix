@@ -31,10 +31,6 @@ let
   instructionsTarget = "${home}/.pi/agent/AGENTS.md";
   mcpTarget = "${home}/.pi/agent/mcp.json";
 
-  # Installed globally by mods/npmx.nix (`npm install -g @agentmemory/mcp`),
-  # not spawned via `npx` — avoids an npx fetch/resolve on every MCP connect.
-  agentmemoryMcpBin = "${home}/.local/bin/agentmemory-mcp";
-
   mcpSources = [
     {
       name = "linear";
@@ -61,9 +57,9 @@ let
     {
       name = "agentmemory";
       config = {
-        command = agentmemoryMcpBin;
+        command = shared.agentmemoryMcpBin;
         env = {
-          AGENTMEMORY_URL = "http://localhost:3111";
+          AGENTMEMORY_URL = shared.agentmemoryUrl;
         };
         lifecycle = "lazy";
       };
