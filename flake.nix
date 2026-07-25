@@ -88,5 +88,43 @@
           homeModules = [ ./homes/home-supermicro.nix ];
         };
       };
+
+      # Force every merged activation value that `darwin-rebuild switch` itself
+      # evaluates, so `nix flake check` catches option-merge conflicts (two
+      # files defining home.activation.<sameName> differently) at eval time
+      # instead of at switch time. builtins.attrNames alone does NOT force the
+      # merged values — only forcing the actual string does. See
+      # mods/dotfiles/agents/shared-skills/agent-management/SKILL.md
+      # ("Verifying a change actually works") for the reasoning.
+      checks.aarch64-darwin.activation-merge-forced =
+        let
+          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+          # maclab is x86_64-darwin, which nixpkgs 26.11 has dropped support
+          # for — forcing anything about it throws unconditionally, for a
+          # reason unrelated to the activation-name-collision class this check
+          # exists to catch. Exclude it so the check stays green on the
+          # machines that actually build.
+          darwinNames = builtins.filter (n: n != "maclab") (
+            builtins.attrNames self.darwinConfigurations
+          );
+          forceDarwinScript =
+            name:
+            builtins.stringLength
+              self.darwinConfigurations.${name}.config.system.activationScripts.script.text;
+          forceHomeActivation =
+            cfg:
+            let
+              acts = cfg.config.home-manager.users.nick.home.activation;
+            in
+            lib.foldl' (sum: n: sum + builtins.stringLength acts.${n}.data) 0 (builtins.attrNames acts);
+          total = lib.foldl' (a: b: a + b) 0 (
+            map forceDarwinScript darwinNames
+            ++ map (n: forceHomeActivation self.darwinConfigurations.${n}) darwinNames
+            ++ map (n: forceHomeActivation self.nixosConfigurations.${n}) (
+              builtins.attrNames self.nixosConfigurations
+            )
+          );
+        in
+        pkgs.runCommand "activation-merge-forced-${toString total}" { } "echo ${toString total} > $out";
     };
 }
