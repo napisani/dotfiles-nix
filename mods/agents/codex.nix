@@ -22,7 +22,6 @@ let
   instructions = callAgentLib ./instructions.nix;
   managedConfig = callAgentLib ./managed-config-lib.nix;
 
-  skillDir = "${home}/.codex/skills";
   instructionsTarget = "${home}/.codex/AGENTS.md";
   configTomlFile = "${home}/.codex/config.toml";
   hooksTargetFile = "${home}/.codex/hooks.json";
@@ -39,23 +38,29 @@ let
   };
 in
 {
-  home.activation.fixCodexPathConflicts = lib.hm.dag.entryBefore [ "linkGeneration" ] (
-    shared.mkFixPathConflicts [ skillDir ]
-  );
-
-  home.activation.installCodexSkills = lib.hm.dag.entryAfter [ "linkGeneration" ] (
-    skills.mkAgentSkillInstall {
+  # Skills are Layer 0 (only Nix writes ~/.codex/skills): home.file links, not
+  # an activation script. Codex's own hidden .system dir under ~/.codex/skills
+  # is left untouched — home.file manages only the named skill entries beside
+  # it. See docs/adr/0002-layered-asset-management.md.
+  home.file =
+    skills.mkCommunitySkillFiles {
       agentId = "codex";
-      inherit skillDir;
-      localSkillsRelPath = "agents/codex/skills";
+      skillDirRelPath = ".codex/skills";
     }
-  );
+    // skills.mkLocalSkillFiles {
+      sourceRelPath = "agents/shared-skills";
+      targetDirRelPath = ".codex/skills";
+    }
+    // skills.mkLocalSkillFiles {
+      sourceRelPath = "agents/codex/skills";
+      targetDirRelPath = ".codex/skills";
+    };
 
   home.activation.prepareCodexInstructionsForRtk = lib.hm.dag.entryBefore [ "installCodexRtkHooks" ] (
     instructions.removeStaleInstructionSymlink { target = instructionsTarget; }
   );
 
-  home.activation.installCodexRtkHooks = lib.hm.dag.entryAfter [ "installCodexSkills" ] (
+  home.activation.installCodexRtkHooks = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     shared.mkRtkHookInstall {
       rtkArgs = "--codex";
       label = "codex";
@@ -75,7 +80,7 @@ in
     }}
   '';
 
-  home.activation.configureCodexMcpServers = lib.hm.dag.entryAfter [ "installCodexSkills" ] (
+  home.activation.configureCodexMcpServers = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     managedConfig.mkTomlManagedMerge {
       targetFile = configTomlFile;
       managedKey = "mcp_servers";
