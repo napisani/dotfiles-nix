@@ -22,8 +22,6 @@ let
   instructions = callAgentLib ./instructions.nix;
   managedConfig = callAgentLib ./managed-config-lib.nix;
 
-  skillDir = "${home}/.claude/skills";
-  commandsDir = "${home}/.claude/commands";
   instructionsTarget = "${home}/.claude/CLAUDE.md";
   mcpTarget = "${home}/.claude.json";
   scriptsDir = "${dotfiles}/agents/scripts";
@@ -75,44 +73,43 @@ let
   };
 in
 {
+  # Skills and commands are Layer 0 (only Nix writes these dirs): installed as
+  # home.file links instead of an activation script. Community skills are store
+  # symlinks (pinned via flake.lock); shared/local skills and commands are
+  # out-of-store symlinks into the working tree (live-editable). Revocation is
+  # home-manager's own link bookkeeping. See docs/adr/0002-layered-asset-management.md.
+  home.file =
+    skills.mkCommunitySkillFiles {
+      agentId = "claude-code";
+      skillDirRelPath = ".claude/skills";
+    }
+    // skills.mkLocalSkillFiles {
+      sourceRelPath = "agents/shared-skills";
+      targetDirRelPath = ".claude/skills";
+    }
+    // skills.mkLocalSkillFiles {
+      sourceRelPath = "agents/claude/skills";
+      targetDirRelPath = ".claude/skills";
+    }
+    // skills.mkLocalSkillFiles {
+      sourceRelPath = "agents/claude/commands";
+      targetDirRelPath = ".claude/commands";
+    };
+
   home.activation.fixClaudePathConflicts = lib.hm.dag.entryBefore [ "linkGeneration" ] (
     shared.mkFixPathConflicts [
-      # $HOME/.agents/skills is the shared global skill store all four
-      # agents' installXSkills steps wipe/rebuild — it only needs fixing
-      # once, before any of them run; claude.nix is as good a place as any.
+      # $HOME/.agents/skills is the shared global skill store; until
+      # shared-store.nix owns it via home.file it's still wiped/rebuilt by the
+      # other agents' bridge installs, so keep clearing a stale symlink here.
       "${home}/.agents/skills"
-      skillDir
-      commandsDir
     ]
   );
-
-  home.activation.installClaudeSkills = lib.hm.dag.entryAfter [ "linkGeneration" ] (
-    skills.mkAgentSkillInstall {
-      agentId = "claude-code";
-      inherit skillDir;
-      localSkillsRelPath = "agents/claude/skills";
-    }
-  );
-
-  # Claude slash commands: wiped and rebuilt from mods/dotfiles/agents/claude/commands
-  # every activation, so a removed command actually disappears (matching the
-  # revocation bar the skill-install mechanism already meets).
-  home.activation.installClaudeCommands = lib.hm.dag.entryAfter [ "installClaudeSkills" ] ''
-    for _entry in ${lib.escapeShellArg commandsDir}/*; do
-      [ -e "$_entry" ] || [ -L "$_entry" ] || continue
-      rm -rf "$_entry"
-    done
-    ${skills.mkLocalSkillSyncScript {
-      sourceRelPath = "agents/claude/commands";
-      targetAbsPath = commandsDir;
-    }}
-  '';
 
   home.activation.prepareClaudeInstructionsForRtk = lib.hm.dag.entryBefore [ "installClaudeRtkHooks" ] (
     instructions.removeStaleInstructionSymlink { target = instructionsTarget; }
   );
 
-  home.activation.installClaudeRtkHooks = lib.hm.dag.entryAfter [ "installClaudeSkills" ] (
+  home.activation.installClaudeRtkHooks = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     shared.mkRtkHookInstall {
       rtkArgs = "--auto-patch";
       label = "claude-code";
@@ -123,7 +120,7 @@ in
     instructions.writeAgentInstructions { target = instructionsTarget; }
   );
 
-  home.activation.configureClaudeMcpServers = lib.hm.dag.entryAfter [ "installClaudeSkills" ] (
+  home.activation.configureClaudeMcpServers = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     managedConfig.mkJsonManagedMerge {
       targetFile = mcpTarget;
       managedKey = "mcpServers";
@@ -132,7 +129,7 @@ in
     }
   );
 
-  home.activation.installClaudePlugins = lib.hm.dag.entryAfter [ "installClaudeSkills" ] (
+  home.activation.installClaudePlugins = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     managedConfig.mkClaudePluginInstall {
       marketplace = pluginMarketplace;
       inherit declaredPlugins;
@@ -140,7 +137,7 @@ in
     }
   );
 
-  home.activation.applyClaudeWorkmuxHooks = lib.hm.dag.entryAfter [ "installClaudeSkills" ] ''
+  home.activation.applyClaudeWorkmuxHooks = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     TARGET_FILE=${lib.escapeShellArg "${home}/.claude/settings.json"} \
     SOURCE_FILE=${lib.escapeShellArg "${workmuxStatusDir}/claude-hooks.json"} \
     EXTRA_SETTINGS=${
