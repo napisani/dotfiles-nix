@@ -67,6 +67,14 @@ let
       done
     '';
 
+  # Emit a warning: to stderr (visible in switch output) AND appended to the
+  # activation warning file so report.nix can summarize it at the end. Uses
+  # ${AGENTS_WARN_FILE:-/dev/null} so a call before report.nix's init entry
+  # degrades to stderr-only rather than aborting under `set -u`. Agent-blind.
+  mkWarn =
+    msg:
+    ''{ printf '%s\n' ${lib.escapeShellArg "agents: WARNING: ${msg}"} >&2; printf '%s\n' ${lib.escapeShellArg msg} >> "''${AGENTS_WARN_FILE:-/dev/null}"; }'';
+
   # Run `rtk init -g <rtkArgs>`, logging success/failure with `label`.
   # Agent-blind: takes the exact flag(s) and a label string, no internal
   # branching on which agent is calling it. Trusted-path-first PATH (matches
@@ -78,9 +86,9 @@ let
       export PATH="/opt/homebrew/bin:/run/current-system/sw/bin:$HOME/.local/bin:$PATH"
       if command -v rtk >/dev/null 2>&1; then
         rtk init -g ${rtkArgs} && echo "agents: RTK hook installed for ${label}" \
-          || echo "agents: WARNING: RTK hook failed for ${label}"
+          || ${mkWarn "RTK hook failed for ${label}"}
       else
-        echo "agents: rtk not found on PATH — skipping RTK hook installation (install via: brew install rtk)" >&2
+        ${mkWarn "rtk not found on PATH — skipping RTK hook for ${label} (install via: brew install rtk)"}
       fi
     '';
 
@@ -151,6 +159,7 @@ in
     isLoancrateMac
     mkFixPathConflicts
     mkRtkHookInstall
+    mkWarn
     mkLocalFileLinks
     mkDeclaredEntriesFromSources
     callAgentLib

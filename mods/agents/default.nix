@@ -32,5 +32,6 @@
     ./opencode.nix
     ./pi.nix
     ./shared-store.nix
+    ./report.nix
   ];
 }

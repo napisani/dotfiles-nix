@@ -57,7 +57,7 @@ in
     NPM_CONFIG_PREFIX = npmPrefix;
   };
 
-  home.activation.installNpmxTools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.installNpmxTools = lib.hm.dag.entryAfter [ "writeBoundary" "agentsWarnReportInit" ] ''
     export NPM_CONFIG_PREFIX="${npmPrefix}"
     mkdir -p "$NPM_CONFIG_PREFIX/bin" "$NPM_CONFIG_PREFIX/lib"
     export DISABLE_TELEMETRY=1
@@ -92,6 +92,7 @@ in
 
     if [ "$failed" -gt 0 ]; then
       echo "installNpmxTools: $failed install step(s) failed (Neovim agentic ACP CLIs need a successful install). Re-run with network and check the errors above." >&2
+      printf '%s\n' "npmx: $failed npm install step(s) failed" >> "''${AGENTS_WARN_FILE:-/dev/null}"
     fi
 
     # Some npm packages ship their bin entrypoints without the executable bit.

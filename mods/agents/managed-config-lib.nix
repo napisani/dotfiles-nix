@@ -49,7 +49,7 @@ let
       MANAGED_KEY=${lib.escapeShellArg managedKey} \
       DECLARED_ENTRIES=${lib.escapeShellArg (builtins.toJSON declaredEntries)} \
         ${nodeBin}/node ${scriptsDir}/apply-managed-json-keys.js \
-        || echo "agents: WARNING: failed to apply managed '${managedKey}' entries to ${targetFile} — continuing activation" >&2
+        || ${shared.mkWarn "failed to apply managed '${managedKey}' entries to ${targetFile}"}
     '';
 
   mkTomlManagedMerge =
@@ -71,7 +71,7 @@ let
       MANAGED_KEY=${lib.escapeShellArg managedKey} \
       DECLARED_ENTRIES=${lib.escapeShellArg (builtins.toJSON declaredEntries)} \
         ${nodeBin}/node ${scriptsDir}/apply-managed-toml-keys.js \
-        || echo "agents: WARNING: failed to apply managed '${managedKey}' entries to ${targetFile} — continuing activation" >&2
+        || ${shared.mkWarn "failed to apply managed '${managedKey}' entries to ${targetFile}"}
     '';
 
   # Same diff-and-prune shape, driving `claude plugin` CLI commands instead
@@ -99,7 +99,7 @@ let
         STATE_FILE=${lib.escapeShellArg (mkStateFile stateId)} \
           ${nodeBin}/node ${scriptsDir}/apply-claude-plugins.js
       else
-        echo "agents: 'claude' CLI not found — skipping Claude plugin installs" >&2
+        ${shared.mkWarn "'claude' CLI not found — skipping Claude plugin installs"}
       fi
     '';
 
@@ -132,7 +132,7 @@ let
         STATE_FILE=${lib.escapeShellArg (mkStateFile stateId)} \
           ${nodeBin}/node ${scriptsDir}/apply-pi-packages.js
       else
-        echo "agents: 'pi' CLI not found — skipping Pi package installs" >&2
+        ${shared.mkWarn "'pi' CLI not found — skipping Pi package installs"}
       fi
     '';
 in
