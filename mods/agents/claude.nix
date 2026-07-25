@@ -116,7 +116,6 @@ in
       targetFile = mcpTarget;
       managedKey = "mcpServers";
       declaredEntries = declaredMcpEntries;
-      stateId = "claude-mcp-servers";
     }
   );
 

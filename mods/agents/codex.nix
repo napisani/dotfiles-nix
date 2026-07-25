@@ -85,7 +85,6 @@ in
       targetFile = configTomlFile;
       managedKey = "mcp_servers";
       declaredEntries = declaredMcpEntries;
-      stateId = "codex-mcp-servers";
     }
   );
 

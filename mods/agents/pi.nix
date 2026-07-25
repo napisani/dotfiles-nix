@@ -1,13 +1,13 @@
 # agents/pi.nix — Pi: complete installation story
 #
-# Owns everything specific to Pi: skills (+ its own global-store dedup quirk
-# — Pi auto-discovers ~/.agents/skills in addition to ~/.pi/agent/skills, so
-# shared skills must be removed from the latter to avoid name collisions),
+# Owns everything specific to Pi: skills (community + Pi-local via home.file;
+# shared skills come from the global store ~/.agents/skills that Pi
+# auto-discovers, so they're deliberately not linked into ~/.pi/agent/skills),
 # RTK hooks, shared instructions, MCP servers (JSON), package installs (diff-
 # pruned via `pi install`/`pi remove`, replacing the old manually-maintained
 # removedPiPackages list in npmx.nix — including a one-time legacySeed for
 # npm:pi-skillful, which that old list used to actively remove every run),
-# extension/theme symlinking, settings, and the Understand-Anything plugin.
+# extension/theme links, settings, and the Understand-Anything plugin.
 {
   config,
   lib,
@@ -162,7 +162,6 @@ in
       targetFile = mcpTarget;
       managedKey = "mcpServers";
       declaredEntries = declaredMcpEntries;
-      stateId = "pi-mcp-servers";
     }
   );
 

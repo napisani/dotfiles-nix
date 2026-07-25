@@ -33,18 +33,21 @@ let
   # invocations are deliberately `|| true`-guarded with a loud warning,
   # trading "this one merge didn't apply" for "the rest of activation still
   # runs" rather than silently downgrading the script's own exit code.
+  # Full ownership of one key: the declared set replaces the key wholesale each
+  # run, so a removed declaration disappears with no state tracking. Hand-added
+  # entries under the managed key do NOT survive (promote them to Nix). Only
+  # the plugin/package installers below still track state (their CLIs own
+  # opaque state). See docs/adr/0002-layered-asset-management.md.
   mkJsonManagedMerge =
     {
       targetFile,
       managedKey,
       declaredEntries,
-      stateId,
     }:
     ''
       TARGET_FILE=${lib.escapeShellArg targetFile} \
       MANAGED_KEY=${lib.escapeShellArg managedKey} \
       DECLARED_ENTRIES=${lib.escapeShellArg (builtins.toJSON declaredEntries)} \
-      STATE_FILE=${lib.escapeShellArg (mkStateFile stateId)} \
         ${nodeBin}/node ${scriptsDir}/apply-managed-json-keys.js \
         || echo "agents: WARNING: failed to apply managed '${managedKey}' entries to ${targetFile} — continuing activation" >&2
     '';
@@ -54,7 +57,6 @@ let
       targetFile,
       managedKey,
       declaredEntries,
-      stateId,
     }:
     ''
       # apply-managed-toml-keys.js needs @iarna/toml (parse + stringify); it's
@@ -68,7 +70,6 @@ let
       TARGET_FILE=${lib.escapeShellArg targetFile} \
       MANAGED_KEY=${lib.escapeShellArg managedKey} \
       DECLARED_ENTRIES=${lib.escapeShellArg (builtins.toJSON declaredEntries)} \
-      STATE_FILE=${lib.escapeShellArg (mkStateFile stateId)} \
         ${nodeBin}/node ${scriptsDir}/apply-managed-toml-keys.js \
         || echo "agents: WARNING: failed to apply managed '${managedKey}' entries to ${targetFile} — continuing activation" >&2
     '';

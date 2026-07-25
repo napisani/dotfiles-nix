@@ -14,90 +14,120 @@ function run(env) {
   });
 }
 
+function runExpectFail(env) {
+  try {
+    execFileSync(process.execPath, [SCRIPT], {
+      env: { ...process.env, ...env },
+      encoding: "utf8",
+      stdio: "pipe",
+    });
+    return null;
+  } catch (e) {
+    return e;
+  }
+}
+
 function mkTmpDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "apply-managed-toml-keys-test-"));
 }
 
-test("declared entries are added into a TOML target", () => {
+test("declared entries land under the managed key, unrelated sections survive", () => {
   const dir = mkTmpDir();
   const target = path.join(dir, "target.toml");
-  const state = path.join(dir, "state.json");
   fs.writeFileSync(target, "[features]\nhooks = true\n");
 
   run({
     TARGET_FILE: target,
     MANAGED_KEY: "mcp_servers",
     DECLARED_ENTRIES: JSON.stringify({ agentmemory: { command: "/x/agentmemory-mcp" } }),
-    STATE_FILE: state,
   });
 
   const content = fs.readFileSync(target, "utf8");
-  assert.match(content, /\[features\]/);
+  assert.match(content, /\[features\]/, "unrelated section survives");
   assert.match(content, /\[mcp_servers\.agentmemory\]/);
   assert.match(content, /command = "\/x\/agentmemory-mcp"/);
 });
 
-test("an entry removed from declared is pruned, unrelated sections survive", () => {
+test("an entry under the managed key but not declared is removed, with no state file", () => {
   const dir = mkTmpDir();
   const target = path.join(dir, "target.toml");
-  const state = path.join(dir, "state.json");
-  fs.writeFileSync(target, "[features]\nhooks = true\n\n[mcp_servers.userAdded]\ncommand = \"manual\"\n");
+  fs.writeFileSync(
+    target,
+    "[features]\nhooks = true\n\n[mcp_servers.agentmemory]\ncommand = \"/x/bin\"\n\n[mcp_servers.userAdded]\ncommand = \"manual\"\n",
+  );
 
   run({
     TARGET_FILE: target,
     MANAGED_KEY: "mcp_servers",
     DECLARED_ENTRIES: JSON.stringify({ agentmemory: { command: "/x/bin" } }),
-    STATE_FILE: state,
-  });
-  run({
-    TARGET_FILE: target,
-    MANAGED_KEY: "mcp_servers",
-    DECLARED_ENTRIES: JSON.stringify({}),
-    STATE_FILE: state,
   });
 
   const content = fs.readFileSync(target, "utf8");
-  assert.match(content, /\[features\]/, "unrelated section must survive");
-  assert.match(content, /\[mcp_servers\.userAdded\]/, "user-added entry must survive");
-  assert.doesNotMatch(content, /\[mcp_servers\.agentmemory\]/, "undeclared entry must be pruned");
+  assert.match(content, /\[features\]/, "unrelated section survives");
+  assert.match(content, /\[mcp_servers\.agentmemory\]/, "declared entry present");
+  assert.doesNotMatch(content, /userAdded/, "hand-added entry does not survive full ownership");
+  assert.deepEqual(
+    fs.readdirSync(dir).filter((f) => f !== "target.toml"),
+    [],
+    "no state file written",
+  );
 });
 
-test("a corrupted state file skips pruning and is left untouched", () => {
+test("invalid target TOML exits 1 and leaves the file untouched", () => {
   const dir = mkTmpDir();
   const target = path.join(dir, "target.toml");
-  const state = path.join(dir, "state.json");
-  fs.writeFileSync(target, "[mcp_servers.agentmemory]\ncommand = \"/x/bin\"\n");
-  fs.writeFileSync(state, "garbage");
-  const before = fs.readFileSync(state, "utf8");
+  const garbage = "this is = = not valid toml [[[";
+  fs.writeFileSync(target, garbage);
+
+  const err = runExpectFail({
+    TARGET_FILE: target,
+    MANAGED_KEY: "mcp_servers",
+    DECLARED_ENTRIES: JSON.stringify({ agentmemory: {} }),
+  });
+
+  assert.ok(err, "script should have exited non-zero");
+  assert.equal(err.status, 1, "exit code 1 on unparsable target");
+  assert.equal(fs.readFileSync(target, "utf8"), garbage, "target left untouched");
+});
+
+test("a missing target file is created with just the managed key", () => {
+  const dir = mkTmpDir();
+  const target = path.join(dir, "nested", "config.toml");
 
   run({
     TARGET_FILE: target,
     MANAGED_KEY: "mcp_servers",
-    DECLARED_ENTRIES: JSON.stringify({}),
-    STATE_FILE: state,
+    DECLARED_ENTRIES: JSON.stringify({ agentmemory: { command: "/x/bin" } }),
   });
 
   const content = fs.readFileSync(target, "utf8");
-  assert.match(content, /\[mcp_servers\.agentmemory\]/, "prune must be skipped when state is unreadable");
-  assert.equal(fs.readFileSync(state, "utf8"), before, "corrupted state file must not be overwritten");
+  assert.match(content, /\[mcp_servers\.agentmemory\]/);
+  assert.doesNotMatch(content, /\[features\]/);
 });
 
 test("exits non-zero when @iarna/toml cannot be resolved", () => {
   const dir = mkTmpDir();
   const isolated = path.join(dir, "isolated.js");
   fs.mkdirSync(path.join(dir, "lib"));
+  // Copy the script + its lib into a fresh dir with no node_modules ancestor,
+  // so @iarna/toml genuinely cannot be resolved.
   fs.copyFileSync(SCRIPT, isolated);
   fs.copyFileSync(path.join(__dirname, "lib", "managed-state.js"), path.join(dir, "lib", "managed-state.js"));
 
-  assert.throws(() => {
+  let err = null;
+  try {
     execFileSync(process.execPath, [isolated], {
       env: {
         ...process.env,
         TARGET_FILE: path.join(dir, "x.toml"),
         MANAGED_KEY: "mcp_servers",
         DECLARED_ENTRIES: "{}",
-        STATE_FILE: path.join(dir, "state.json"),
       },
+      stdio: "pipe",
     });
-  }, /Command failed/);
+  } catch (e) {
+    err = e;
+  }
+  assert.ok(err, "isolated script (no @iarna/toml) should exit non-zero");
+  assert.equal(err.status, 1, "exit code 1 when @iarna/toml missing");
 });
