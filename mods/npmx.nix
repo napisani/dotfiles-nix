@@ -17,7 +17,6 @@ let
   npmxTools = [
     "@ellery/terminal-mcp@latest"
     "@napisani/scute@latest"
-    "skills@latest"
     "@earendil-works/pi-coding-agent"
     "@agentclientprotocol/claude-agent-acp"
     "@zed-industries/codex-acp"

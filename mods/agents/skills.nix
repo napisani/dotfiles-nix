@@ -1,18 +1,18 @@
-# agents/skills.nix — Skill catalog + per-agent install/prune utility
+# agents/skills.nix — Skill catalog + home.file skill-link generators
 #
 # agentSkillSources is the single declared catalog: DRY data, targeting N
 # agents from one entry (still fine to share — the coupling problem was
 # scripts branching on agent identity, not data lists; see
 # docs/adr/0001-per-agent-modules.md). This file owns no home.activation of
-# its own. Each agent module calls `mkAgentSkillInstall` itself with its own
-# agentId + skillDir to get an activation script scoped to that one agent,
-# and decides its own activation ordering.
+# its own. Each agent module calls `mkCommunitySkillFiles`/`mkLocalSkillFiles`
+# itself to get a home.file attrset scoped to that one agent's skill dir (see
+# docs/adr/0002-layered-asset-management.md for the Layer 0 model).
 #
 # Catalog entry fields:
-#   repo       — GitHub URL or owner/repo shorthand
-#   skills     — skill names to install from that repo
-#   agents     — list of agent IDs (as used by the `skills` CLI) this entry targets
-#   fullDepth  — clone with full history instead of --depth=1 (default: false)
+#   input      — a flake input (from flake.nix), pinned via flake.lock
+#   skills     — list of { name; path; }: the installed skill name and its
+#                in-repo directory path within `input`
+#   agents     — list of agent IDs this entry targets
 #   condition  — boolean; when false the entry is skipped (default: true)
 {
   config,
@@ -358,120 +358,6 @@ let
   # (a root-level SKILL.md means the skill dir is the input itself).
   skillSourcePath = source: s: if s.path == "." then "${source.input}" else "${source.input}/${s.path}";
 
-  mkCommunitySkillCmd =
-    agentId: source:
-    let
-      skillArgs = builtins.concatStringsSep " " (
-        map (s: "--skill ${lib.escapeShellArg s.name}") source.skills
-      );
-    in
-    "skills add ${lib.escapeShellArg "${source.input}"} --global --agent ${lib.escapeShellArg agentId} --yes --copy ${skillArgs}";
-
-  # Symlink each subdir of a dotfiles source into a target dir. Agent-blind:
-  # takes paths, not agent identity. Creates target/<name> -> source/<name>
-  # without disturbing unrelated entries already in targetAbsPath.
-  mkLocalSkillSyncScript =
-    { sourceRelPath, targetAbsPath }:
-    let
-      sourcePath = "${dotfiles}/${sourceRelPath}";
-    in
-    ''
-      _src="${sourcePath}"
-      _dst="${targetAbsPath}"
-      mkdir -p "$_dst"
-      if [ -d "$_src" ]; then
-        for _skill_dir in "$_src"/*/; do
-          [ -d "$_skill_dir" ] || continue
-          _skill_name=$(basename "$_skill_dir")
-          _target_link="$_dst/$_skill_name"
-          if [ -d "$_target_link" ] && [ ! -L "$_target_link" ]; then
-            rm -rf "$_target_link"
-          fi
-          if [ ! -L "$_target_link" ] || [ "$(readlink "$_target_link")" != "$_skill_dir" ]; then
-            ln -sfn "$_skill_dir" "$_target_link"
-            echo "agents: linked skill '$_skill_name' -> $_target_link"
-          fi
-        done
-      fi
-    '';
-
-  # Wipe a managed directory (only non-hidden entries — preserves e.g.
-  # Codex's .system) then let the rest of the script rebuild it fresh.
-  # Agent-blind: takes a path, not agent identity.
-  resetManagedDirFn = ''
-    _reset_managed_dir() {
-      _dst="$1"
-      [ -d "$_dst" ] || return 0
-      for _entry in "$_dst"/*; do
-        [ -e "$_entry" ] || [ -L "$_entry" ] || continue
-        rm -rf "$_entry"
-      done
-    }
-  '';
-
-  # The one thing every agent module calls: installs and prunes this agent's
-  # community skills (filtered from the shared catalog by agentId) and its
-  # local skill symlinks, scoped entirely to skillDir. True revocation: wipes
-  # skillDir first, then rebuilds from current declared state, so removing a
-  # catalog entry (or a file under localSkillsRelPath) actually disappears on
-  # the next activation — matching the bar set in docs/adr/0001.
-  #
-  # Also wipes and rebuilds the shared global store ($HOME/.agents/skills)
-  # on every call. This is deliberately safe to repeat once per agent (all
-  # four modules call this): the global store only ever holds the same
-  # agent-blind agents/shared-skills content regardless of which agent
-  # triggered the rebuild, so re-wiping it from a second or third caller in
-  # the same activation just reproduces the same result, not a race.
-  mkAgentSkillInstall =
-    {
-      agentId,
-      skillDir,
-      localSkillsRelPath,
-    }:
-    let
-      agentSources = builtins.filter (s: builtins.elem agentId (s.agents or [ ])) enabledSkillSources;
-      communitySkillCmds = builtins.concatStringsSep "\n" (
-        map (mkCommunitySkillCmd agentId) agentSources
-      );
-    in
-    ''
-      export DISABLE_TELEMETRY=1
-      export NPM_CONFIG_PREFIX="$HOME/.local"
-      export PATH="${gitBin}:${nodeBin}:$NPM_CONFIG_PREFIX/bin:$PATH"
-
-      mkdir -p "$HOME/.agents/skills" ${lib.escapeShellArg skillDir}
-
-      ${resetManagedDirFn}
-      _reset_managed_dir "$HOME/.agents/skills"
-      _reset_managed_dir ${lib.escapeShellArg skillDir}
-
-      # ── Community skills (from git repos) ─────────────────────────────────
-      if command -v skills >/dev/null 2>&1; then
-        ${communitySkillCmds}
-      else
-        echo "agents: 'skills' command not found — skipping community skill installs for ${agentId}" >&2
-        echo "agents: run 'npm install -g skills@latest' then re-run activation to fix" >&2
-      fi
-
-      # ── Shared local skills → global store (Pi auto-discovers this) ───────
-      ${mkLocalSkillSyncScript {
-        sourceRelPath = "agents/shared-skills";
-        targetAbsPath = "$HOME/.agents/skills";
-      }}
-      # ── Shared local skills → this agent's own skill dir ──────────────────
-      ${mkLocalSkillSyncScript {
-        sourceRelPath = "agents/shared-skills";
-        targetAbsPath = skillDir;
-      }}
-      # ── This agent's own local skills ─────────────────────────────────────
-      ${mkLocalSkillSyncScript {
-        sourceRelPath = localSkillsRelPath;
-        targetAbsPath = skillDir;
-      }}
-    '';
-
-  # ── Layer 0 home.file generators (replace mkAgentSkillInstall) ────────────
-
   # home.file attrset installing this agent's community skills as store
   # symlinks. Revocation is home-manager's own link bookkeeping (drop the
   # catalog entry → the link disappears on the next switch), content is pinned
@@ -528,8 +414,6 @@ in
   inherit
     agentSkillSources
     enabledSkillSources
-    mkAgentSkillInstall
-    mkLocalSkillSyncScript
     mkCommunitySkillFiles
     mkLocalSkillFiles
     ;

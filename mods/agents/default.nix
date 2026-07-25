@@ -7,14 +7,14 @@
 # split across cross-agent shared files.
 #
 # What's still shared, deliberately agent-blind (no per-agent branching):
-#   lib.nix                 — paths, allAgents enumeration, machine identity
-#                              (hostname-derived), mkFixPathConflicts
+#   lib.nix                 — paths, allAgents enumeration, machine roles,
+#                              mkFixPathConflicts, mkLocalFileLinks
 #   skills.nix               — the skill catalog (DRY data, not behavior) +
-#                              mkAgentSkillInstall utility
+#                              the home.file skill-link generators
+#   shared-store.nix         — the cross-agent global store (~/.agents/skills)
 #   instructions.nix         — the shared AGENTS.md source + writeAgentInstructions
-#   managed-config-lib.nix   — JSON/TOML managed-key merge+prune, and the
-#                              CLI-driven diff+prune shape (Claude plugins,
-#                              Pi packages)
+#   managed-config-lib.nix   — JSON/TOML managed-key merge, and the CLI-driven
+#                              diff+prune shape (Claude plugins, Pi packages)
 #
 # All source lists (skill catalog, MCP entries, plugin/package lists) support
 # an optional `condition` attribute (boolean). When false the entry is
@@ -31,5 +31,6 @@
     ./codex.nix
     ./opencode.nix
     ./pi.nix
+    ./shared-store.nix
   ];
 }

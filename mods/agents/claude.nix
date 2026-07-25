@@ -96,15 +96,6 @@ in
       targetDirRelPath = ".claude/commands";
     };
 
-  home.activation.fixClaudePathConflicts = lib.hm.dag.entryBefore [ "linkGeneration" ] (
-    shared.mkFixPathConflicts [
-      # $HOME/.agents/skills is the shared global skill store; until
-      # shared-store.nix owns it via home.file it's still wiped/rebuilt by the
-      # other agents' bridge installs, so keep clearing a stale symlink here.
-      "${home}/.agents/skills"
-    ]
-  );
-
   home.activation.prepareClaudeInstructionsForRtk = lib.hm.dag.entryBefore [ "installClaudeRtkHooks" ] (
     instructions.removeStaleInstructionSymlink { target = instructionsTarget; }
   );
