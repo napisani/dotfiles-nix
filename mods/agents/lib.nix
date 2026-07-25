@@ -19,6 +19,7 @@
   pkgs-unstable,
   hostname ? "",
   machineRoles ? [ ],
+  inputs ? { },
 }:
 let
   dotfiles = "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles";
@@ -97,10 +98,46 @@ let
       }) (builtins.filter (s: s.condition or true) sources)
     );
 
-  # Import one of this directory's own modules with the standard four
-  # shared arguments already threaded through, so call sites don't have to
-  # re-spell `{ inherit config lib pkgs-unstable hostname; }` every time.
-  callAgentLib = path: import path { inherit config lib pkgs-unstable hostname machineRoles; };
+  # Link every regular file with one of `extensions` under a dotfiles subdir
+  # into targetDirRelPath as an out-of-store symlink (live-editable), skipping
+  # *.test.* files. Enumerated at eval time from the flake's own tracked tree,
+  # so adding/removing a file needs a switch but edits to a linked file are
+  # live. Agent-blind: takes paths, not agent identity. Used for Pi
+  # extensions/themes.
+  mkLocalFileLinks =
+    {
+      sourceRelPath,
+      targetDirRelPath,
+      extensions,
+    }:
+    let
+      absSrc = ../dotfiles + "/${sourceRelPath}";
+      ok =
+        name: type:
+        type == "regular"
+        && lib.any (ext: lib.hasSuffix ext name) extensions
+        && !(lib.hasInfix ".test." name);
+      names =
+        if builtins.pathExists absSrc then
+          lib.attrNames (lib.filterAttrs ok (builtins.readDir absSrc))
+        else
+          [ ];
+    in
+    builtins.listToAttrs (
+      map (name: {
+        name = "${targetDirRelPath}/${name}";
+        value = {
+          source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${sourceRelPath}/${name}";
+          force = true;
+        };
+      }) names
+    );
+
+  # Import one of this directory's own modules with the standard shared
+  # arguments already threaded through, so call sites don't have to re-spell
+  # `{ inherit config lib pkgs-unstable hostname machineRoles inputs; }`.
+  callAgentLib =
+    path: import path { inherit config lib pkgs-unstable hostname machineRoles inputs; };
 in
 {
   inherit
@@ -114,6 +151,7 @@ in
     isLoancrateMac
     mkFixPathConflicts
     mkRtkHookInstall
+    mkLocalFileLinks
     mkDeclaredEntriesFromSources
     callAgentLib
     ;

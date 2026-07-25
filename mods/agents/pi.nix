@@ -14,10 +14,11 @@
   pkgs-unstable,
   hostname ? "",
   machineRoles ? [ ],
+  inputs ? { },
   ...
 }:
 let
-  shared = import ./lib.nix { inherit config lib pkgs-unstable hostname machineRoles; };
+  shared = import ./lib.nix { inherit config lib pkgs-unstable hostname machineRoles inputs; };
   inherit (shared) home dotfiles nodeBin gitBin callAgentLib;
 
   skills = callAgentLib ./skills.nix;
