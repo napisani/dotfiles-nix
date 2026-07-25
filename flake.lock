@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "addyosmani-agent-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784883863,
+        "narHash": "sha256-hJj6AOX/apXTHSlLu0mAnHtqHNApegnR421VK2VOVfw=",
+        "owner": "addyosmani",
+        "repo": "agent-skills",
+        "rev": "ff2df4c07e7836a092ed28e1e9b42f4d6009280c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "addyosmani",
+        "repo": "agent-skills",
+        "type": "github"
+      }
+    },
     "agent-tui-src": {
       "flake": false,
       "locked": {
@@ -13,6 +29,22 @@
       "original": {
         "owner": "pproenca",
         "repo": "agent-tui",
+        "type": "github"
+      }
+    },
+    "agentmemory-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784458693,
+        "narHash": "sha256-7jOSfQsUjM5aCl190MdlTKESziqhsnkeRcFgsLSMBFQ=",
+        "owner": "rohitg00",
+        "repo": "agentmemory",
+        "rev": "a8e7d19a814a24a21818afc715f3301b3eaeee80",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rohitg00",
+        "repo": "agentmemory",
         "type": "github"
       }
     },
@@ -33,6 +65,38 @@
       "original": {
         "owner": "napisani",
         "repo": "animal-rescue",
+        "type": "github"
+      }
+    },
+    "anthropic-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784923954,
+        "narHash": "sha256-RH2B03gj4kzw1j5LORezgUZPPu8mW+mWb+Kl2U7WUbY=",
+        "owner": "anthropics",
+        "repo": "skills",
+        "rev": "b29e7cf65e5cb78a5ac33d582270551bc74a14eb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anthropics",
+        "repo": "skills",
+        "type": "github"
+      }
+    },
+    "arjunmahishi-dotfiles": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784620114,
+        "narHash": "sha256-ur2lG1wCXeFVLF3ENVY1hUhild5RQWomxu78qjy/QHg=",
+        "owner": "arjunmahishi",
+        "repo": "dotfiles",
+        "rev": "09e5f1f32561985db0b583d5a43e13686180ca7a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "arjunmahishi",
+        "repo": "dotfiles",
         "type": "github"
       }
     },
@@ -69,6 +133,22 @@
         "owner": "lnl7",
         "ref": "master",
         "repo": "nix-darwin",
+        "type": "github"
+      }
+    },
+    "deepagents": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784964760,
+        "narHash": "sha256-b3TP0kLax0yy8EH3auwvjrzTGpc5EZlpipMF0FvnwSc=",
+        "owner": "langchain-ai",
+        "repo": "deepagents",
+        "rev": "8da0ccb139b8ccc4438a7522499a257a44f1cf19",
+        "type": "github"
+      },
+      "original": {
+        "owner": "langchain-ai",
+        "repo": "deepagents",
         "type": "github"
       }
     },
@@ -166,6 +246,22 @@
         "type": "github"
       }
     },
+    "gh-stack-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784890463,
+        "narHash": "sha256-4Jtd2oVv3mg9IBFIV5ihBl/QRnaBQOoI1iRQscrm+jg=",
+        "owner": "github",
+        "repo": "gh-stack",
+        "rev": "6dcf9f050ae922aa0beea2027e5d456118d972b3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "github",
+        "repo": "gh-stack",
+        "type": "github"
+      }
+    },
     "goflake": {
       "inputs": {
         "nixpkgs": [
@@ -250,6 +346,54 @@
         "type": "github"
       }
     },
+    "intellectronica-agent-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777131109,
+        "narHash": "sha256-5CPfJPdI1MWQFmTMpLNeXpcAZ3EejsDlpkH7i5Ycncs=",
+        "owner": "intellectronica",
+        "repo": "agent-skills",
+        "rev": "9b0e00ad1b941165e2506545bbfddafa34cf2cb8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "intellectronica",
+        "repo": "agent-skills",
+        "type": "github"
+      }
+    },
+    "lc-script-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784219787,
+        "narHash": "sha256-0UTvC5OmKNm6J1rhiHI2G9nQmhdGT0fjCfQsUriQ7IE=",
+        "ref": "refs/heads/main",
+        "rev": "e0da1165b3231155ff6d44ca9f0626e5cf79bef0",
+        "revCount": 2,
+        "type": "git",
+        "url": "ssh://git@github.com/napisani/lc-script"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/napisani/lc-script"
+      }
+    },
+    "mattpocock-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784629731,
+        "narHash": "sha256-o/H9s3t6ahBqFwpkOMBOTwpsvb33pgvpI9n0PA+uLYM=",
+        "owner": "mattpocock",
+        "repo": "skills",
+        "rev": "ed37663cc5fbef691ddfecd080dff42f7e7e350d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mattpocock",
+        "repo": "skills",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1707588924,
@@ -328,6 +472,54 @@
         "repo": "nixpkgs",
         "rev": "10b813040df67c4039086db0f6eaf65c536886c6",
         "type": "github"
+      }
+    },
+    "no-ai-slop": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784731309,
+        "narHash": "sha256-sxP1fxXZ265w8WZw/UtWklLbQnQ7hi49TBjGM0gW2oo=",
+        "owner": "petergyang",
+        "repo": "no-ai-slop",
+        "rev": "61c21c351da4dcb40946a11fead978f2078a2c65",
+        "type": "github"
+      },
+      "original": {
+        "owner": "petergyang",
+        "repo": "no-ai-slop",
+        "type": "github"
+      }
+    },
+    "playwright-cli-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784132557,
+        "narHash": "sha256-i+fIqmn312XjejU/Db7VYmtJeIofBgYejr+tGrrJiu0=",
+        "owner": "microsoft",
+        "repo": "playwright-cli",
+        "rev": "eee5a185c98e6b04d88f580d45a854e9692ab50b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "microsoft",
+        "repo": "playwright-cli",
+        "type": "github"
+      }
+    },
+    "private-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784919485,
+        "narHash": "sha256-5stHNjmMW8jsHEGFtSME9bRcDCWTR9KbCDLq3FVDT8Y=",
+        "ref": "refs/heads/main",
+        "rev": "0ab1735237b3f65bd2b8ec031699bc6b7e029306",
+        "revCount": 14,
+        "type": "git",
+        "url": "ssh://git@github.com/napisani/private-skills"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/napisani/private-skills"
       }
     },
     "procmux": {
@@ -449,15 +641,32 @@
     },
     "root": {
       "inputs": {
+        "addyosmani-agent-skills": "addyosmani-agent-skills",
+        "agentmemory-skills": "agentmemory-skills",
         "animal_rescue": "animal_rescue",
+        "anthropic-skills": "anthropic-skills",
+        "arjunmahishi-dotfiles": "arjunmahishi-dotfiles",
         "darwin": "darwin",
+        "deepagents": "deepagents",
+        "gh-stack-skills": "gh-stack-skills",
         "home-manager": "home-manager",
+        "intellectronica-agent-skills": "intellectronica-agent-skills",
+        "lc-script-skills": "lc-script-skills",
+        "mattpocock-skills": "mattpocock-skills",
         "nixpkgs": "nixpkgs_2",
+        "no-ai-slop": "no-ai-slop",
+        "playwright-cli-skills": "playwright-cli-skills",
+        "private-skills": "private-skills",
         "procmux": "procmux",
         "proctmux": "proctmux",
         "rift": "rift",
         "scrollbacktamer": "scrollbacktamer",
-        "secret_inject": "secret_inject"
+        "secret_inject": "secret_inject",
+        "softaworks-agent-toolkit": "softaworks-agent-toolkit",
+        "superpowers": "superpowers",
+        "understand-anything": "understand-anything",
+        "vantage-nvim-skills": "vantage-nvim-skills",
+        "workmux-skills": "workmux-skills"
       }
     },
     "rust-analyzer-src": {
@@ -514,6 +723,38 @@
       "original": {
         "owner": "napisani",
         "repo": "secret_inject",
+        "type": "github"
+      }
+    },
+    "softaworks-agent-toolkit": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1772729184,
+        "narHash": "sha256-1q4IP55kvZhJibTLJct0SSifw46lBmAQhp9nSmDzYxs=",
+        "owner": "softaworks",
+        "repo": "agent-toolkit",
+        "rev": "3027f20f3181758385a1bb8c022d4041dfb4de84",
+        "type": "github"
+      },
+      "original": {
+        "owner": "softaworks",
+        "repo": "agent-toolkit",
+        "type": "github"
+      }
+    },
+    "superpowers": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784852836,
+        "narHash": "sha256-F5LEk0yNWbMpan1vZSFZM76XSpsFGvA7h8q6Idrvenk=",
+        "owner": "obra",
+        "repo": "superpowers",
+        "rev": "3dcbd5c4b48e02263fbf4a3c01e3fe4f81d584d9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "obra",
+        "repo": "superpowers",
         "type": "github"
       }
     },
@@ -591,6 +832,22 @@
         "type": "github"
       }
     },
+    "understand-anything": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784984262,
+        "narHash": "sha256-u8eA5j1zeTLe2gxTorkPOG2gcjtYvtHigVGtalS6txI=",
+        "owner": "Lum1104",
+        "repo": "Understand-Anything",
+        "rev": "2cda14e89535049e49120198886bc0b82e9e630f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Lum1104",
+        "repo": "Understand-Anything",
+        "type": "github"
+      }
+    },
     "uv2nix": {
       "inputs": {
         "nixpkgs": [
@@ -613,6 +870,38 @@
       "original": {
         "owner": "adisbladis",
         "repo": "uv2nix",
+        "type": "github"
+      }
+    },
+    "vantage-nvim-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784297050,
+        "narHash": "sha256-RKipbdLVJUPQQvqHN7r6UMC3mzrzYsZUUKTwb90FOqw=",
+        "owner": "napisani",
+        "repo": "vantage-nvim",
+        "rev": "f9d45792a97b37864c7172de0321daf4b5187615",
+        "type": "github"
+      },
+      "original": {
+        "owner": "napisani",
+        "repo": "vantage-nvim",
+        "type": "github"
+      }
+    },
+    "workmux-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784982028,
+        "narHash": "sha256-cr4/+wOtIDD9mUuA7lfY8tzaNc+iJxBTvojflqMD6to=",
+        "owner": "raine",
+        "repo": "workmux",
+        "rev": "c72fa82574d0136dc612698f758f6afe9112ceb6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "raine",
+        "repo": "workmux",
         "type": "github"
       }
     }

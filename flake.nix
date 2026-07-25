@@ -30,6 +30,83 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # ── Community skill sources (content-only, pinned via flake.lock) ──────
+    # Consumed by mods/agents/skills.nix's catalog; each is a plain content
+    # repo (flake = false), not a Nix flake. Update one with:
+    #   nix flake update <input-name>
+    # proctmux skills reuse the existing `proctmux` input above (a flake
+    # input's source tree works the same whether or not it's a flake).
+    anthropic-skills = {
+      url = "github:anthropics/skills";
+      flake = false;
+    };
+    intellectronica-agent-skills = {
+      url = "github:intellectronica/agent-skills";
+      flake = false;
+    };
+    addyosmani-agent-skills = {
+      url = "github:addyosmani/agent-skills";
+      flake = false;
+    };
+    superpowers = {
+      url = "github:obra/superpowers";
+      flake = false;
+    };
+    mattpocock-skills = {
+      url = "github:mattpocock/skills";
+      flake = false;
+    };
+    arjunmahishi-dotfiles = {
+      url = "github:arjunmahishi/dotfiles";
+      flake = false;
+    };
+    vantage-nvim-skills = {
+      url = "github:napisani/vantage-nvim";
+      flake = false;
+    };
+    playwright-cli-skills = {
+      url = "github:microsoft/playwright-cli";
+      flake = false;
+    };
+    deepagents = {
+      url = "github:langchain-ai/deepagents";
+      flake = false;
+    };
+    softaworks-agent-toolkit = {
+      url = "github:softaworks/agent-toolkit";
+      flake = false;
+    };
+    understand-anything = {
+      url = "github:Lum1104/Understand-Anything";
+      flake = false;
+    };
+    workmux-skills = {
+      url = "github:raine/workmux";
+      flake = false;
+    };
+    agentmemory-skills = {
+      url = "github:rohitg00/agentmemory";
+      flake = false;
+    };
+    gh-stack-skills = {
+      url = "github:github/gh-stack";
+      flake = false;
+    };
+    no-ai-slop = {
+      url = "github:petergyang/no-ai-slop";
+      flake = false;
+    };
+    # Private napisani repos — fetched over SSH (gh/ssh creds required to
+    # update the lock; rebuilds use the pinned lock and need no network).
+    private-skills = {
+      url = "git+ssh://git@github.com/napisani/private-skills";
+      flake = false;
+    };
+    lc-script-skills = {
+      url = "git+ssh://git@github.com/napisani/lc-script";
+      flake = false;
+    };
+
   };
 
   outputs =
