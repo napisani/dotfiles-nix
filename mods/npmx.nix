@@ -13,7 +13,7 @@ let
   # Neovim from Dock/Finder often lacks ~/.local/bin on PATH; mods/dotfiles/nvim/lua/user/plugins/ai/agentic.lua
   # sets explicit command paths so :checkhealth agentic and spawning still work.
   #
-  # OpenCode community skills are declared in mods/opencode.nix (`opencodeCommunitySkillSources`).
+  # OpenCode community skills are declared in mods/agents/skills.nix's catalog.
   npmxTools = [
     "@ellery/terminal-mcp@latest"
     "@napisani/scute@latest"

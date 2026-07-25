@@ -13,8 +13,6 @@ let
   };
 in
 {
-  imports = [ ./opencode.nix ];
-
   programs = {
     fzf = {
       enable = true;
