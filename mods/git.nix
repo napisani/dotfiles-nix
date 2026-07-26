@@ -4,10 +4,26 @@
   # info/exclude so the file is silently excluded without touching each
   # project's committed .gitignore. For existing repos, run `git-local-ignore`
   # (defined in .bashrc.d/0070_git.bashrc) once from inside the repo.
-  home.file.".config/git/template/info/exclude".text = ''
-    # Per-repo local gitignore — not committed to the repository.
-    # Add personal patterns here (editor temp files, local build artifacts, etc.)
-    .gitignore_local
+  #
+  # This MUST be a real file, not a `home.file` store symlink: git copies the
+  # templateDir into every new repo's .git/, and a symlinked template
+  # info/exclude is copied verbatim, so each repo's .git/info/exclude ends up
+  # pointing at the read-only /nix/store. That's fine for tools that only read
+  # it, but breaks any tool that WRITES exclude patterns into a fresh repo —
+  # e.g. Pi's pi-rewind, which git-inits a checkpoint repo per session and hit
+  # `EACCES: ... .git/info/exclude` because the store target isn't writable.
+  # Writing a plain file here makes git copy real, per-repo-writable content.
+  home.activation.seedGitTemplateExclude = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    _tmpl_info="$HOME/.config/git/template/info"
+    mkdir -p "$_tmpl_info"
+    # Replace any prior symlink from the old home.file mechanism with a real file.
+    rm -f "$_tmpl_info/exclude"
+    cat > "$_tmpl_info/exclude" <<'EOF'
+# Per-repo local gitignore — not committed to the repository.
+# Add personal patterns here (editor temp files, local build artifacts, etc.)
+.gitignore_local
+EOF
+    chmod 644 "$_tmpl_info/exclude"
   '';
 
   programs.git = {
