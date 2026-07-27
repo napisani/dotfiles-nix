@@ -18,6 +18,7 @@
     ../../mods/uvx.nix
     ../../mods/npmx.nix
     ../../mods/agents
+    ../../mods/model-runtimes.nix
   ];
 
   nixpkgs = {
