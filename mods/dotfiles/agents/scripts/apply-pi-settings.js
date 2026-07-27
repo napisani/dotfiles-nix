@@ -1,5 +1,10 @@
 // Applies managed Pi agent settings to ~/.pi/agent/settings.json.
 // Non-destructive: merges only the managed keys/entries, preserving user config.
+//
+// Optional env: OLLAMA_BASE_URL + OLLAMA_MODELS (JSON array of model ids) —
+// when set, manages the `providers.ollama` block (Pi's custom OpenAI-compatible
+// provider format) from the shared mods/agents/ollama-provider.nix source,
+// leaving any other providers untouched.
 
 const fs = require("node:fs");
 const path = require("node:path");
@@ -75,6 +80,33 @@ for (const skillPath of managedSkills) {
 if (skillsChanged) {
   settings.skills = nextSkills;
   changed = true;
+}
+
+// Managed ollama provider (Pi's OpenAI-compatible custom-provider format). Only
+// the ollama entry is managed; any other providers the user configured are
+// preserved. apiKey is a required placeholder even though the server is keyless.
+const ollamaBaseUrl = process.env.OLLAMA_BASE_URL;
+if (ollamaBaseUrl) {
+  let ollamaModels = [];
+  try {
+    ollamaModels = JSON.parse(process.env.OLLAMA_MODELS || "[]");
+  } catch {
+    ollamaModels = [];
+  }
+  const managedOllama = {
+    baseUrl: ollamaBaseUrl,
+    api: "openai-completions",
+    apiKey: "ollama",
+    models: ollamaModels.map((id) => ({ id })),
+  };
+  const providers =
+    settings.providers && typeof settings.providers === "object" && !Array.isArray(settings.providers)
+      ? settings.providers
+      : {};
+  if (JSON.stringify(providers.ollama) !== JSON.stringify(managedOllama)) {
+    settings.providers = { ...providers, ollama: managedOllama };
+    changed = true;
+  }
 }
 
 if (changed) {

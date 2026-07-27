@@ -25,6 +25,9 @@ let
   instructions = callAgentLib ./instructions.nix;
   managedConfig = callAgentLib ./managed-config-lib.nix;
 
+  # Shared source of truth for the agents' ollama provider models.
+  ollamaProvider = import ./ollama-provider.nix;
+
   scriptsDir = "${dotfiles}/agents/scripts";
   instructionsTarget = "${home}/.pi/agent/AGENTS.md";
   mcpTarget = "${home}/.pi/agent/mcp.json";
@@ -187,8 +190,10 @@ in
   );
 
   home.activation.installPiConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-    # ── Settings (provider, model, packages, skill paths) ─────────────────────
-    ${nodeBin}/node ${scriptsDir}/apply-pi-settings.js
+    # ── Settings (provider, model, packages, skill paths, ollama provider) ────
+    OLLAMA_BASE_URL=${lib.escapeShellArg ollamaProvider.baseUrl} \
+    OLLAMA_MODELS=${lib.escapeShellArg (builtins.toJSON ollamaProvider.models)} \
+      ${nodeBin}/node ${scriptsDir}/apply-pi-settings.js
 
     # ── Understand-Anything plugin (Pi-only, requires full repo clone) ─────────
     ${installUnderstandAnythingPlugin}

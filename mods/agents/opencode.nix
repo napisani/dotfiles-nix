@@ -34,13 +34,38 @@ let
     source = mkSym path;
     force = true;
   };
+
+  # config.json is Nix-generated (not the live symlink) so its ollama provider
+  # models come from the shared mods/agents/ollama-provider.nix source. The
+  # everything-else base still lives in mods/dotfiles/opencode-config.json,
+  # read at eval time; the `provider` key is owned here. Editing that base now
+  # needs a rebuild (it's baked into the generated file).
+  ollamaProvider = import ./ollama-provider.nix;
+  opencodeConfig = (builtins.fromJSON (builtins.readFile ../dotfiles/opencode-config.json)) // {
+    provider = {
+      ollama = {
+        npm = "@ai-sdk/openai-compatible";
+        name = "ollama";
+        options.baseURL = ollamaProvider.baseUrl;
+        models = builtins.listToAttrs (
+          map (id: {
+            name = id;
+            value = {
+              name = id;
+            };
+          }) ollamaProvider.models
+        );
+      };
+    };
+  };
 in
 {
   # Skills are Layer 0: home.file links (community = store symlinks, shared =
-  # out-of-store). The hand-edited OpenCode dotfiles (config.json, commands,
-  # agents, modes, themes, plugins, local skills) are live out-of-store
-  # symlinks. `.config/opencode/skills/local` sits beside the community/shared
-  # skill links; names don't collide.
+  # out-of-store). config.json is Nix-generated (its ollama provider comes from
+  # the shared source); the other OpenCode dotfiles (commands, agents, modes,
+  # themes, plugins, local skills) stay live out-of-store symlinks.
+  # `.config/opencode/skills/local` sits beside the community/shared skill
+  # links; names don't collide.
   home.file =
     skills.mkCommunitySkillFiles {
       agentId = "opencode";
@@ -55,7 +80,10 @@ in
       targetDirRelPath = ".config/opencode/skills";
     }
     // {
-      ".config/opencode/config.json" = mkForcedSym "opencode-config.json";
+      ".config/opencode/config.json" = {
+        text = builtins.toJSON opencodeConfig;
+        force = true;
+      };
       ".config/opencode/commands" = mkForcedSym "opencode/commands";
       ".config/opencode/agents" = mkForcedSym "opencode/agents";
       ".config/opencode/modes" = mkForcedSym "opencode/modes";
