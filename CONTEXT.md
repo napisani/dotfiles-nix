@@ -53,6 +53,18 @@
   by bashrc functions) — the two must not be conflated. Machine-gating booleans
   for agent modules derive from **machine roles** (above), not from the
   hostname string directly and never from `MACHINE_NAME`.
+- **Model-runtime backend** — the one local LLM runtime a machine uses
+  (`ollama` on Intel Macs, `mlx-lm` on Apple Silicon). Selected by the
+  `modelRuntimes.backend` option in `mods/model-runtimes.nix`, defaulting by
+  platform (`aarch64-darwin → mlx-lm`, else `ollama`) and overridable per host.
+  That module manages the runtime's **model set** declaratively — a Layer 2
+  tracked-state mechanism (the same shape as the agents' Pi-package installer:
+  pull declared, prune only previously-managed models, leave hand-pulled ones)
+  driven by a backend-agnostic engine (`apply-models.js`) plus per-backend
+  command adapters. It manages models only, not the runtime install (that's the
+  brew/cask in `darwin-base.nix`). It lives outside `mods/agents/` — a sibling
+  domain reusing the pattern, not part of it. See
+  `docs/superpowers/specs/2026-07-27-declarative-model-runtimes-design.md`.
 
 ## Decisions
 
