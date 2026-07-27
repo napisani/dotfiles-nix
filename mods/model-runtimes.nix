@@ -13,10 +13,12 @@
   lib,
   pkgs,
   pkgs-unstable,
+  machineRoles ? [ ],
   ...
 }:
 let
   cfg = config.modelRuntimes;
+  isLoancrateMac = builtins.elem "loancrate" machineRoles;
   dotfiles = "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles";
   nodeBin = "${pkgs-unstable.nodejs}/bin";
   script = "${dotfiles}/model-runtimes/scripts/apply-models.js";
@@ -88,7 +90,9 @@ in
         "mlx-lm" = [
           "mlx-community/Qwen3-1.7B-4bit"
           # "mlx-community/Qwen2.5-Coder-14B-Instruct-4bit"
-        ];
+        ]
+        # Loancrate Mac only: the ~26GB Qwen3.6-35B-A3B MLX model.
+        ++ lib.optionals isLoancrateMac [ "baa-ai/Qwen3.6-35B-A3B-RAM-25GB-MLX" ];
       };
       description = "Per-backend list of model ids to keep installed. Only the active backend's list is managed.";
     };
