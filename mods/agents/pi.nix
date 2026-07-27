@@ -53,6 +53,14 @@ let
       };
     }
     {
+      name = "bde";
+      condition = shared.isLoancrateMac;
+      config = {
+        url = "https://bde.dsci.loancrate.dev/mcp";
+        lifecycle = "lazy";
+      };
+    }
+    {
       name = "agentmemory";
       config = {
         command = shared.agentmemoryMcpBin;
