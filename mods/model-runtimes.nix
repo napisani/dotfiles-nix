@@ -69,10 +69,19 @@ in
     };
     declaredModels = lib.mkOption {
       type = lib.types.attrsOf (lib.types.listOf lib.types.str);
-      default = { };
-      example = {
-        ollama = [ "qwen3:1.7b" ];
-        "mlx-lm" = [ "mlx-community/Qwen3-1.7B-4bit" ];
+      # Light default (just the ~1GB 1.7B model per backend) so a first rebuild
+      # doesn't pull gigabytes unasked. Add more (e.g. the coder models below)
+      # or override per host in that machine's homes/home-*.nix. A machine-level
+      # definition replaces this default rather than merging with it.
+      default = {
+        ollama = [
+          "qwen3:1.7b"
+          # "qwen2.5-coder:14b"
+        ];
+        "mlx-lm" = [
+          "mlx-community/Qwen3-1.7B-4bit"
+          # "mlx-community/Qwen2.5-Coder-14B-Instruct-4bit"
+        ];
       };
       description = "Per-backend list of model ids to keep installed. Only the active backend's list is managed.";
     };
