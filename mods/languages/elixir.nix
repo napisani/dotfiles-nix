@@ -1,8 +1,9 @@
 { pkgs, pkgs-unstable, ... }:
 
 with pkgs-unstable; [
-  # Elixir runtime and build tool
-  elixir
+  # Elixir runtime and build tool (top-level `elixir` is deprecated in favor
+  # of the beamPackages set).
+  beamPackages.elixir
 
   # Language server for Elixir
   elixir-ls
