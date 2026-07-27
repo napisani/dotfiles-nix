@@ -17,7 +17,7 @@
 
 const fs = require("node:fs");
 const { execFileSync } = require("node:child_process");
-const { readManagedState, writeManagedState } = require("./lib/managed-state.js");
+const { readManagedState, writeManagedState } = require("../../scripts/lib/managed-state.js");
 
 const declaredPackages = JSON.parse(process.env.DECLARED_PACKAGES || "[]");
 const stateFile = process.env.STATE_FILE;

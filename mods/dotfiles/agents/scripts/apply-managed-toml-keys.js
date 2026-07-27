@@ -10,7 +10,7 @@
 // Env vars: TARGET_FILE, MANAGED_KEY, DECLARED_ENTRIES.
 
 const fs = require("node:fs");
-const { atomicWriteFileSync } = require("./lib/managed-state.js");
+const { atomicWriteFileSync } = require("../../scripts/lib/managed-state.js");
 
 const targetFile = process.env.TARGET_FILE;
 const managedKey = process.env.MANAGED_KEY;

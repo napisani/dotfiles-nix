@@ -20,7 +20,7 @@
 //                      managed plugin spec set
 
 const { execFileSync } = require("node:child_process");
-const { readManagedState, writeManagedState } = require("./lib/managed-state.js");
+const { readManagedState, writeManagedState } = require("../../scripts/lib/managed-state.js");
 
 const marketplace = process.env.MARKETPLACE || "";
 const declaredPlugins = JSON.parse(process.env.DECLARED_PLUGINS || "[]");

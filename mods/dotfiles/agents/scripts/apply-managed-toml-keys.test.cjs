@@ -107,12 +107,19 @@ test("a missing target file is created with just the managed key", () => {
 
 test("exits non-zero when @iarna/toml cannot be resolved", () => {
   const dir = mkTmpDir();
-  const isolated = path.join(dir, "isolated.js");
-  fs.mkdirSync(path.join(dir, "lib"));
-  // Copy the script + its lib into a fresh dir with no node_modules ancestor,
-  // so @iarna/toml genuinely cannot be resolved.
+  // Mirror the real layout so the script's `require("../../scripts/lib/...")`
+  // resolves, while placing everything in a fresh dir with no node_modules
+  // ancestor so @iarna/toml genuinely cannot be resolved.
+  const scriptDir = path.join(dir, "agents", "scripts");
+  const libDir = path.join(dir, "scripts", "lib");
+  fs.mkdirSync(scriptDir, { recursive: true });
+  fs.mkdirSync(libDir, { recursive: true });
+  const isolated = path.join(scriptDir, "isolated.js");
   fs.copyFileSync(SCRIPT, isolated);
-  fs.copyFileSync(path.join(__dirname, "lib", "managed-state.js"), path.join(dir, "lib", "managed-state.js"));
+  fs.copyFileSync(
+    path.join(__dirname, "..", "..", "scripts", "lib", "managed-state.js"),
+    path.join(libDir, "managed-state.js"),
+  );
 
   let err = null;
   try {
