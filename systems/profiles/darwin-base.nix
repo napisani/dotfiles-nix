@@ -49,7 +49,9 @@
       "karabiner-elements"
       "claude-code"
       "codex"
-    ];
+    ]
+    # Intel Macs can't run MLX, so keep the ollama app there instead of mlx-lm.
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 [ "ollama-app" ];
 
     # Base brews that all Macs should have
     brews = [
