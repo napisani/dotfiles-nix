@@ -22,14 +22,21 @@ let
   script = "${dotfiles}/model-runtimes/scripts/apply-models.js";
   stateFile = "${config.home.homeDirectory}/.local/state/nix-models/${cfg.backend}.json";
 
+  # Text utilities referenced by absolute nixpkgs store path: home-manager
+  # activation runs with a minimal PATH that lacks /usr/bin, so `awk`/`yes`
+  # aren't found there (only the Homebrew CLIs on the PATH export below are).
+  awk = "${pkgs.gawk}/bin/awk";
+  yes = "${pkgs.coreutils}/bin/yes";
+
   # Per-backend adapters: three command strings, the only backend-specific bit.
   # Commands verified against ollama's CLI docs and mlx-lm's manage.py source.
   adapters = {
     ollama = {
       probe = "ollama";
-      # `ollama list` is a `NAME ID SIZE MODIFIED` table; take col-1 NAME.
-      # NAMEs carry the tag (qwen3:1.7b) — declare ids with explicit tags.
-      list = "ollama list | tail -n +2 | awk '{print $1}'";
+      # `ollama list` is a `NAME ID SIZE MODIFIED` table; skip the header row
+      # (NR>1) and take col-1 NAME. NAMEs carry the tag (qwen3:1.7b) — declare
+      # ids with explicit tags.
+      list = "ollama list | ${awk} 'NR>1{print $1}'";
       install = "ollama pull";
       remove = "ollama rm";
     };
@@ -40,13 +47,13 @@ let
       # "/", so that filter extracts them past the header noise. `--pattern /`
       # matches every cached repo (all HF ids contain "/"), so a declared id
       # that isn't an mlx-community/* repo is still seen as installed.
-      list = "mlx_lm.manage --scan --pattern / 2>/dev/null | awk '$1 ~ \"/\" {print $1}'";
+      list = "mlx_lm.manage --scan --pattern / 2>/dev/null | ${awk} '$1 ~ \"/\" {print $1}'";
       # mlx-lm has no download subcommand; hf (huggingface_hub) pre-fetches to
       # the same cache scan_cache_dir reads.
       install = "hf download";
       # `--delete --pattern` is a SUBSTRING match and prompts Y/N (empty = no);
       # pass the full repo id and auto-confirm with `yes`. Verified in manage.py.
-      remove = "yes | mlx_lm.manage --delete --pattern";
+      remove = "${yes} | mlx_lm.manage --delete --pattern";
     };
   };
   a = adapters.${cfg.backend};
