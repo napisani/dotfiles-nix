@@ -9,9 +9,9 @@ const SCRIPT = path.join(__dirname, "apply-pi-models.js");
 
 // Run with HOME pointed at a scratch dir so it reads/writes a throwaway
 // ~/.pi/agent/models.json.
-function run(home, env = {}) {
+function run(home, managedProviders) {
   execFileSync(process.execPath, [SCRIPT], {
-    env: { ...process.env, HOME: home, ...env },
+    env: { ...process.env, HOME: home, MANAGED_PROVIDERS: JSON.stringify(managedProviders) },
     encoding: "utf8",
   });
 }
@@ -24,51 +24,47 @@ function mkHome() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "pi-models-test-"));
 }
 
-test("writes providers.ollama into models.json from env", () => {
-  const home = mkHome();
-  run(home, {
-    OLLAMA_BASE_URL: "https://ollama.example.com/v1",
-    OLLAMA_MODELS: JSON.stringify(["qwen3:1.7b", "qwen3:0.6b"]),
-  });
-  assert.deepEqual(modelsOf(home).providers.ollama, {
-    baseUrl: "https://ollama.example.com/v1",
-    api: "openai-completions",
-    apiKey: "ollama",
-    models: [{ id: "qwen3:1.7b" }, { id: "qwen3:0.6b" }],
-  });
-});
+const ollama = { baseUrl: "https://o/v1", api: "openai-completions", apiKey: "ollama", models: ["qwen3:1.7b"] };
+const mlx = {
+  baseUrl: "http://localhost:8080/v1",
+  api: "openai-completions",
+  apiKey: "mlx",
+  models: ["mlx-community/Qwen3-1.7B-4bit", "baa-ai/Qwen3.6-35B-A3B-RAM-25GB-MLX"],
+};
 
-test("preserves other providers and top-level keys in models.json", () => {
+test("renders each managed provider into models.json (id-string -> {id})", () => {
   const home = mkHome();
-  const modelsPath = path.join(home, ".pi", "agent", "models.json");
-  fs.mkdirSync(path.dirname(modelsPath), { recursive: true });
-  fs.writeFileSync(
-    modelsPath,
-    JSON.stringify({
-      providers: { anthropic: { baseUrl: "https://my-proxy/v1", api: "anthropic-messages" } },
-      someUserKey: 7,
-    }),
-  );
-  run(home, { OLLAMA_BASE_URL: "https://o/v1", OLLAMA_MODELS: JSON.stringify(["qwen3:1.7b"]) });
+  run(home, { ollama, mlx });
   const d = modelsOf(home);
-  assert.deepEqual(
-    d.providers.anthropic,
-    { baseUrl: "https://my-proxy/v1", api: "anthropic-messages" },
-    "other provider preserved",
-  );
-  assert.equal(d.someUserKey, 7, "unmanaged key preserved");
-  assert.deepEqual(d.providers.ollama.models, [{ id: "qwen3:1.7b" }]);
+  assert.deepEqual(d.providers.ollama, { ...ollama, models: [{ id: "qwen3:1.7b" }] });
+  assert.deepEqual(d.providers.mlx.baseUrl, "http://localhost:8080/v1");
+  assert.deepEqual(d.providers.mlx.models, [
+    { id: "mlx-community/Qwen3-1.7B-4bit" },
+    { id: "baa-ai/Qwen3.6-35B-A3B-RAM-25GB-MLX" },
+  ]);
 });
 
-test("updating the declared model set rewrites the ollama models", () => {
+test("preserves other providers and top-level keys", () => {
   const home = mkHome();
-  run(home, { OLLAMA_BASE_URL: "https://o/v1", OLLAMA_MODELS: JSON.stringify(["a", "b"]) });
-  run(home, { OLLAMA_BASE_URL: "https://o/v1", OLLAMA_MODELS: JSON.stringify(["a"]) });
-  assert.deepEqual(modelsOf(home).providers.ollama.models, [{ id: "a" }], "removed model 'b' is gone");
+  const p = path.join(home, ".pi", "agent", "models.json");
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  fs.writeFileSync(p, JSON.stringify({ providers: { anthropic: { api: "anthropic-messages" } }, k: 1 }));
+  run(home, { mlx });
+  const d = modelsOf(home);
+  assert.deepEqual(d.providers.anthropic, { api: "anthropic-messages" }, "other provider preserved");
+  assert.equal(d.k, 1, "unmanaged key preserved");
+  assert.ok(d.providers.mlx, "mlx provider added");
 });
 
-test("without OLLAMA_BASE_URL, models.json is not created", () => {
+test("updating a provider's model set rewrites its models", () => {
+  const home = mkHome();
+  run(home, { mlx });
+  run(home, { mlx: { ...mlx, models: ["mlx-community/Qwen3-1.7B-4bit"] } });
+  assert.deepEqual(modelsOf(home).providers.mlx.models, [{ id: "mlx-community/Qwen3-1.7B-4bit" }]);
+});
+
+test("empty MANAGED_PROVIDERS leaves models.json uncreated", () => {
   const home = mkHome();
   run(home, {});
-  assert.ok(!fs.existsSync(path.join(home, ".pi", "agent", "models.json")), "no models.json when env unset");
+  assert.ok(!fs.existsSync(path.join(home, ".pi", "agent", "models.json")));
 });

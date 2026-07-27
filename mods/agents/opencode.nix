@@ -35,26 +35,36 @@ let
     force = true;
   };
 
-  # config.json is Nix-generated (not the live symlink) so its ollama provider
-  # models come from the shared mods/agents/ollama-provider.nix source. The
-  # everything-else base still lives in mods/dotfiles/opencode-config.json,
-  # read at eval time; the `provider` key is owned here. Editing that base now
-  # needs a rebuild (it's baked into the generated file).
+  # config.json is Nix-generated (not the live symlink) so its provider models
+  # come from Nix. ollama models are the shared ollama-provider.nix source; the
+  # local mlx provider (only on mlx-lm machines) points at a locally-run
+  # mlx_lm.server with this machine's declared mlx models. The everything-else
+  # base still lives in mods/dotfiles/opencode-config.json, read at eval time;
+  # the `provider` key is owned here, so editing that base needs a rebuild.
   ollamaProvider = import ./ollama-provider.nix;
+  mlxEnabled = config.modelRuntimes.backend == "mlx-lm";
+  mlxModels = config.modelRuntimes.declaredModels."mlx-lm" or [ ];
+  mkOpencodeModels = ids: builtins.listToAttrs (map (id: {
+    name = id;
+    value = {
+      name = id;
+    };
+  }) ids);
   opencodeConfig = (builtins.fromJSON (builtins.readFile ../dotfiles/opencode-config.json)) // {
     provider = {
       ollama = {
         npm = "@ai-sdk/openai-compatible";
         name = "ollama";
         options.baseURL = ollamaProvider.baseUrl;
-        models = builtins.listToAttrs (
-          map (id: {
-            name = id;
-            value = {
-              name = id;
-            };
-          }) ollamaProvider.models
-        );
+        models = mkOpencodeModels ollamaProvider.models;
+      };
+    }
+    // lib.optionalAttrs mlxEnabled {
+      mlx = {
+        npm = "@ai-sdk/openai-compatible";
+        name = "mlx";
+        options.baseURL = "http://localhost:8080/v1";
+        models = mkOpencodeModels mlxModels;
       };
     };
   };

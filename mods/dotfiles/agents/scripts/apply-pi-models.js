@@ -1,30 +1,28 @@
-// Manages Pi's custom provider config in ~/.pi/agent/models.json — the file Pi
+// Manages Pi's custom providers in ~/.pi/agent/models.json — the file Pi
 // actually reads custom providers/models from (NOT settings.json; see Pi's
 // docs/models.md and dist/config.js `join(getAgentDir(), "models.json")`).
 //
-// Non-destructive: only the managed `providers.ollama` entry is written; any
-// other providers and top-level keys in models.json are preserved. Renders the
-// shared mods/agents/ollama-provider.nix source (OpenAI-compatible custom
-// provider). apiKey is a required placeholder even though the server is keyless.
+// Non-destructive: writes each provider in MANAGED_PROVIDERS, preserving any
+// other providers and top-level keys already in models.json. Each managed
+// provider is rendered into Pi's OpenAI-compatible custom-provider shape; a
+// bare list of model-id strings becomes the `[{ id }]` form Pi expects. apiKey
+// is a required placeholder even when the server is keyless.
 //
 // Env:
-//   OLLAMA_BASE_URL  — base URL of the ollama-compatible endpoint (required to act)
-//   OLLAMA_MODELS    — JSON array of model ids to register
+//   MANAGED_PROVIDERS — JSON object keyed by provider id, each:
+//     { baseUrl, api, apiKey, models: ["<id>", ...] }
 
 const fs = require("node:fs");
 const path = require("node:path");
 
-const ollamaBaseUrl = process.env.OLLAMA_BASE_URL;
-if (!ollamaBaseUrl) {
-  // Nothing declared — leave models.json untouched.
-  process.exit(0);
-}
-
-let ollamaModels = [];
+let managed = {};
 try {
-  ollamaModels = JSON.parse(process.env.OLLAMA_MODELS || "[]");
+  managed = JSON.parse(process.env.MANAGED_PROVIDERS || "{}");
 } catch {
-  ollamaModels = [];
+  managed = {};
+}
+if (!managed || typeof managed !== "object" || Object.keys(managed).length === 0) {
+  process.exit(0); // nothing declared — leave models.json untouched
 }
 
 const modelsPath = path.join(process.env.HOME, ".pi", "agent", "models.json");
@@ -39,19 +37,28 @@ if (fs.existsSync(modelsPath)) {
   }
 }
 
-const managedOllama = {
-  baseUrl: ollamaBaseUrl,
-  api: "openai-completions",
-  apiKey: "ollama",
-  models: ollamaModels.map((id) => ({ id })),
-};
-
 const providers =
   doc.providers && typeof doc.providers === "object" && !Array.isArray(doc.providers) ? doc.providers : {};
 
-if (JSON.stringify(providers.ollama) !== JSON.stringify(managedOllama)) {
-  doc.providers = { ...providers, ollama: managedOllama };
+let changed = false;
+const applied = [];
+for (const [id, cfg] of Object.entries(managed)) {
+  const rendered = {
+    baseUrl: cfg.baseUrl,
+    api: cfg.api,
+    apiKey: cfg.apiKey,
+    models: (cfg.models || []).map((m) => ({ id: m })),
+  };
+  if (JSON.stringify(providers[id]) !== JSON.stringify(rendered)) {
+    providers[id] = rendered;
+    changed = true;
+  }
+  applied.push(id + "(" + (cfg.models || []).length + ")");
+}
+
+if (changed) {
+  doc.providers = providers;
   fs.mkdirSync(path.dirname(modelsPath), { recursive: true });
   fs.writeFileSync(modelsPath, JSON.stringify(doc, null, 2) + "\n");
-  console.log("agents: applied Pi ollama provider (" + ollamaModels.length + " models) -> " + modelsPath);
+  console.log("agents: applied Pi providers -> " + applied.join(", ") + " -> " + modelsPath);
 }
