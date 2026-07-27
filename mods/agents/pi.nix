@@ -190,10 +190,13 @@ in
   );
 
   home.activation.installPiConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-    # ── Settings (provider, model, packages, skill paths, ollama provider) ────
+    # ── Settings (provider defaults, model, packages, skill paths) ────────────
+    ${nodeBin}/node ${scriptsDir}/apply-pi-settings.js
+
+    # ── Custom providers/models → ~/.pi/agent/models.json (the file Pi reads) ─
     OLLAMA_BASE_URL=${lib.escapeShellArg ollamaProvider.baseUrl} \
     OLLAMA_MODELS=${lib.escapeShellArg (builtins.toJSON ollamaProvider.models)} \
-      ${nodeBin}/node ${scriptsDir}/apply-pi-settings.js
+      ${nodeBin}/node ${scriptsDir}/apply-pi-models.js
 
     # ── Understand-Anything plugin (Pi-only, requires full repo clone) ─────────
     ${installUnderstandAnythingPlugin}

@@ -7,25 +7,14 @@
   "mcp": {
     "agentmemory": {
       "type": "local",
-      "command": ["/Users/nick/.local/bin/agentmemory-mcp"],
+      "command": [
+        "/Users/nick/.local/bin/agentmemory-mcp"
+      ],
       "environment": {
         "AGENTMEMORY_URL": "http://localhost:3111"
       }
     }
   },
   "tools": {},
-  "command": {
-    "ticket-and-pr": {
-      "template": "You are compiling a concise status that links a Jira/GitHub ticket with its pull request details.\nInput context: $ARGUMENTS\nRespond with:\n- Ticket: include key, title, owner, current status, and blockers.\n- PR: summarize scope, testing status, and review/merge requirements.\n- Next Actions: bullet list of concrete steps for the assignee and reviewers.\nKeep it actionable and mention any missing info to request from the user.",
-      "description": "Summarize ticket + PR status and next steps",
-      "agent": "build"
-    }
-  },
-  "keybinds": {
-    "input_submit": "ctrl+g",
-    "input_newline": "return"
-  },
-  "plugin": [
-    "opencode-antigravity-auth@beta"
-  ]
+  "command": {}
 }
