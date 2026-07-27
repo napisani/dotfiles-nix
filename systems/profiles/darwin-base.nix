@@ -37,7 +37,6 @@
 
     # Base casks that all Macs should have
     casks = [
-      "ollama-app"
       "alacritty"
       # "ungoogled-chromium"
       "bitwarden"
@@ -58,7 +57,10 @@
       "opencode"
       "rtk"
       "raine/workmux/workmux"
-    ];
+    ]
+    # mlx-lm (headless MLX LLM server, replaces the ollama-app cask) is
+    # Apple-Silicon-only, so keep it off the Intel maclab.
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isAarch64 [ "mlx-lm" ];
 
     taps = [
       # "napisani/procmux"
