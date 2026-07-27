@@ -61,17 +61,30 @@ policy."
   extra command strings. mlx-lm is what the active Apple Silicon Macs run;
   ollama covers the Intel `maclab` and any future host.
 
-## Runtime notes / risks to verify during implementation
+## Runtime notes (CLI behavior confirmed from source)
 
-- **mlx-lm has no download subcommand** — models fetch on first `load()`.
-  Declarative pre-pull uses `hf download <repo>` (the `huggingface_hub` CLI).
-  *Verify `hf`/`huggingface-cli` is on PATH* from the mlx-lm brew's deps; if
-  not, add a brew for it.
-- **`mlx_lm.manage --delete` may prompt** — the CLI's confirmation behavior is
-  undocumented; the adapter must run it non-interactively (a `--yes`-style flag
-  if one exists, else pipe `yes`). Verify against the installed version.
-- **`mlx_lm.manage --scan` output format** must be parsed to bare repo ids for
-  the diff; confirm the exact format and adjust the LIST_CMD parse.
+Both CLIs were verified via context7 + upstream source (`ml-explore/mlx-lm`'s
+`manage.py`, ollama's CLI docs), so the adapter commands are pinned, not
+guessed:
+
+- **mlx-lm has no download subcommand** — models fetch on first `load()`;
+  declarative pre-pull uses `hf download <repo>` (huggingface_hub CLI), which
+  populates the same cache `scan_cache_dir()` reads.
+- **`mlx_lm.manage --scan`** prints a table: a `Scanning ... "mlx"` line, a
+  `REPO ID` header, a dashes row, then rows. Repo ids are the only column-1
+  tokens containing `/`, so `awk '$1 ~ "/"'` extracts them cleanly. Using
+  `--pattern /` lists every cached repo (all HF ids contain `/`), so a declared
+  id that isn't `mlx-community/*` is still seen as installed.
+- **`mlx_lm.manage --delete --pattern <p>`** is a **substring** match over repo
+  ids and prompts Y/N (empty = no). Pass the full repo id and auto-confirm with
+  `yes | …`.
+- **ollama**: `ollama pull`/`ollama rm`; `ollama list` is a
+  `NAME ID SIZE MODIFIED` table → `tail -n +2 | awk '{print $1}'`. NAMEs carry
+  the tag (`qwen3:1.7b`), so declare ids with explicit tags.
+
+The one remaining on-device unknown is whether `hf`/`huggingface-cli` is on
+PATH from the mlx-lm brew (a Task 3 check; add a brew if not).
+
 - **Soft-fail under `set -eu`**: like the agents installers, guard the activation
   invocation so a failed pull/scan warns instead of aborting the whole switch,
   and (optionally) append to the agents convergence report's

@@ -241,19 +241,29 @@ let
   stateFile = "${config.home.homeDirectory}/.local/state/nix-models/${cfg.backend}.json";
 
   # Per-backend adapters: three command strings, the only backend-specific bit.
+  # Commands verified against ollama's CLI docs and mlx-lm's manage.py source.
   adapters = {
     ollama = {
       probe = "ollama";
+      # `ollama list` is a `NAME ID SIZE MODIFIED` table; take col-1 NAME.
+      # NAMES include the tag (qwen3:1.7b) — declare ids with explicit tags.
       list = "ollama list | tail -n +2 | awk '{print $1}'";
       install = "ollama pull";
       remove = "ollama rm";
     };
     "mlx-lm" = {
       probe = "mlx_lm.manage";
-      # scan output → bare repo ids; refine the parse against the real format.
-      list = "mlx_lm.manage --scan 2>/dev/null | awk '/mlx/{print $1}'";
+      # `--scan` prints a table (a "Scanning..." line, a REPO ID header, a
+      # dashes row, then rows). Repo ids are the only col-1 tokens containing
+      # "/", so that filter extracts them past the header noise. `--pattern /`
+      # matches every cached repo (all HF repo ids contain "/"), so a declared
+      # id that isn't an mlx-community/* repo is still seen as installed.
+      list = "mlx_lm.manage --scan --pattern / 2>/dev/null | awk '$1 ~ \"/\" {print $1}'";
+      # mlx-lm has no download subcommand; hf (huggingface_hub) pre-fetches to
+      # the same cache scan_cache_dir reads.
       install = "hf download";
-      # confirm non-interactive delete flag against the installed version.
+      # `--delete --pattern` is a SUBSTRING match and prompts Y/N (empty = no);
+      # pass the full repo id and auto-confirm with `yes`. Verified in manage.py.
       remove = "yes | mlx_lm.manage --delete --pattern";
     };
   };
@@ -300,11 +310,17 @@ Add `../mods/model-runtimes.nix` (correct relative path) to the imports list in 
 
 - [ ] **Step 3: Verify PATH availability of the mlx-lm tools**
 
-On an Apple Silicon Mac after the mlx-lm brew is installed, confirm `mlx_lm.manage` and `hf` are on PATH:
+The CLI *behavior* is already pinned from source (scan table format, substring
+`--delete` with a Y/N prompt) — the only on-device unknown is whether the tools
+are on PATH after the mlx-lm brew installs. Confirm:
 ```sh
-command -v mlx_lm.manage hf
+command -v mlx_lm.manage; command -v hf || command -v huggingface-cli
 ```
-If `hf`/`huggingface-cli` is missing, add it to `brews` in `darwin-base.nix` (guarded to aarch64) and note it. Also confirm `mlx_lm.manage --scan` output format and `--delete` confirmation behavior, and adjust the adapter's `list`/`remove` strings to match.
+`mlx_lm.manage` ships with the mlx-lm brew. `hf` comes from `huggingface_hub`
+(an mlx-lm dependency) but may not be exposed on PATH by the brew — if neither
+`hf` nor `huggingface-cli` is found, add the HF CLI to `brews` in
+`darwin-base.nix` (guarded to aarch64) and, if it's `huggingface-cli` rather
+than `hf`, change the adapter's `install` to `huggingface-cli download`.
 
 - [ ] **Step 4: Flake check**
 
