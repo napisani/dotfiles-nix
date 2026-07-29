@@ -24,8 +24,23 @@
   ...
 }:
 let
-  shared = import ./lib.nix { inherit config lib pkgs-unstable hostname machineRoles inputs; };
-  inherit (shared) dotfiles allAgents isLoancrateMac nodeBin gitBin;
+  shared = import ./lib.nix {
+    inherit
+      config
+      lib
+      pkgs-unstable
+      hostname
+      machineRoles
+      inputs
+      ;
+  };
+  inherit (shared)
+    dotfiles
+    allAgents
+    isLoancrateMac
+    nodeBin
+    gitBin
+    ;
 
   # Catalog: each entry pins a flake input (from flake.nix) and names the
   # skills to install from it by their in-repo directory `path`. `path`
@@ -101,6 +116,10 @@ let
           path = "skills/engineering/diagnosing-bugs";
         }
         {
+          name = "resolving-merge-conflicts";
+          path = "skills/engineering/resolving-merge-conflicts";
+        }
+        {
           name = "grill-me";
           path = "skills/productivity/grill-me";
         }
@@ -113,8 +132,16 @@ let
           path = "skills/engineering/improve-codebase-architecture";
         }
         {
+          name = "codebase-design";
+          path = "skills/engineering/codebase-design";
+        }
+        {
           name = "tdd";
           path = "skills/engineering/tdd";
+        }
+        {
+          name = "implement";
+          path = "skills/engineering/implement";
         }
         {
           name = "to-spec";
@@ -127,16 +154,6 @@ let
         {
           name = "prototype";
           path = "skills/engineering/prototype";
-        }
-      ];
-      agents = allAgents;
-    }
-    {
-      input = inputs.arjunmahishi-dotfiles;
-      skills = [
-        {
-          name = "acli-jira";
-          path = "common/agent-skills/acli-jira";
         }
       ];
       agents = allAgents;
@@ -196,44 +213,6 @@ let
       agents = allAgents;
     }
     {
-      input = inputs.understand-anything;
-      skills = [
-        {
-          name = "understand";
-          path = "understand-anything-plugin/skills/understand";
-        }
-        {
-          name = "understand-chat";
-          path = "understand-anything-plugin/skills/understand-chat";
-        }
-        {
-          name = "understand-dashboard";
-          path = "understand-anything-plugin/skills/understand-dashboard";
-        }
-        {
-          name = "understand-diff";
-          path = "understand-anything-plugin/skills/understand-diff";
-        }
-        {
-          name = "understand-domain";
-          path = "understand-anything-plugin/skills/understand-domain";
-        }
-        {
-          name = "understand-explain";
-          path = "understand-anything-plugin/skills/understand-explain";
-        }
-        {
-          name = "understand-knowledge";
-          path = "understand-anything-plugin/skills/understand-knowledge";
-        }
-        {
-          name = "understand-onboard";
-          path = "understand-anything-plugin/skills/understand-onboard";
-        }
-      ];
-      agents = [ "pi" ];
-    }
-    {
       input = inputs.workmux-skills;
       skills = [
         {
@@ -281,16 +260,16 @@ let
       ];
       agents = allAgents;
     }
-    {
-      input = inputs.gh-stack-skills;
-      skills = [
-        {
-          name = "gh-stack";
-          path = "skills/gh-stack";
-        }
-      ];
-      agents = allAgents;
-    }
+    # {
+    #   input = inputs.gh-stack-skills;
+    #   skills = [
+    #     {
+    #       name = "gh-stack";
+    #       path = "skills/gh-stack";
+    #     }
+    #   ];
+    #   agents = allAgents;
+    # }
     {
       input = inputs.no-ai-slop;
       # SKILL.md lives at the repo root, so the skill dir is the input itself.
@@ -356,7 +335,8 @@ let
 
   # Store-path for one catalog skill: the input tree, plus the in-repo path
   # (a root-level SKILL.md means the skill dir is the input itself).
-  skillSourcePath = source: s: if s.path == "." then "${source.input}" else "${source.input}/${s.path}";
+  skillSourcePath =
+    source: s: if s.path == "." then "${source.input}" else "${source.input}/${s.path}";
 
   # home.file attrset installing this agent's community skills as store
   # symlinks. Revocation is home-manager's own link bookkeeping (drop the

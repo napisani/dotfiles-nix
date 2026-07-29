@@ -97,7 +97,7 @@ Each agent that needs it gets its own entry in its own file — there's no share
 ```
 It flows through `shared.mkDeclaredEntriesFromSources` into the agent's existing `mkJsonManagedMerge` (Claude/Pi) or `mkTomlManagedMerge` (Codex) call — no new wiring. If the server needs a different shape per agent, declare it separately in each; don't unify the shapes. **Note the Layer 1 trade**: this key is fully owned, so a server someone adds by hand with `claude mcp add` will be wiped on the next rebuild unless it's declared here.
 
-OpenCode is the exception: its MCP config lives in `mods/dotfiles/opencode-config.json` (hand-edited, live-symlinked). Add an OpenCode MCP server by editing that JSON directly.
+OpenCode is the exception: its generated config starts from `mods/dotfiles/opencode-config.json` instead of using an activation-time managed-key merge. Add MCP servers needed on every machine to that JSON base. Add machine-role-specific servers as a conditional overlay in `mods/agents/opencode.nix`, merging them into `baseOpencodeConfig.mcp` while preserving the base entries.
 
 ### Add a Claude plugin (Layer 2)
 

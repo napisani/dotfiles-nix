@@ -4,11 +4,10 @@
 # the dotfile symlink layout (config.json, commands, agents, modes, themes,
 # plugins, local skills) that used to live in the separate mods/opencode.nix.
 #
-# Deliberately does NOT manage MCP servers via activation script: OpenCode's
-# MCP config lives inside mods/dotfiles/opencode-config.json (symlinked live
-# into ~/.config/opencode/config.json below), kept hand-edited/"edit without
-# rebuild" per its own header comment — an MCP entry there is a direct edit,
-# not a Nix declaration. See docs/adr/0002-layered-asset-management.md.
+# OpenCode MCP servers do not need an activation-time merge: common entries
+# live in mods/dotfiles/opencode-config.json, while machine-role-specific
+# entries are merged into the generated config below during Nix evaluation.
+# See docs/adr/0002-layered-asset-management.md.
 {
   config,
   lib,
@@ -20,7 +19,7 @@
 }:
 let
   shared = import ./lib.nix { inherit config lib pkgs-unstable hostname machineRoles inputs; };
-  inherit (shared) home callAgentLib;
+  inherit (shared) home isLoancrateMac callAgentLib;
 
   skills = callAgentLib ./skills.nix;
   instructions = callAgentLib ./instructions.nix;
@@ -35,12 +34,13 @@ let
     force = true;
   };
 
-  # config.json is Nix-generated (not the live symlink) so its provider models
-  # come from Nix. ollama models are the shared ollama-provider.nix source; the
-  # local mlx provider (only on mlx-lm machines) points at a locally-run
-  # mlx_lm.server with this machine's declared mlx models. The everything-else
-  # base still lives in mods/dotfiles/opencode-config.json, read at eval time;
-  # the `provider` key is owned here, so editing that base needs a rebuild.
+  # config.json is Nix-generated (not a live symlink) so provider models and
+  # machine-role-specific MCP servers can come from Nix. ollama models are the
+  # shared ollama-provider.nix source; the local mlx provider (only on mlx-lm
+  # machines) points at a locally-run mlx_lm.server with this machine's
+  # declared mlx models. The everything-else base still lives in
+  # mods/dotfiles/opencode-config.json, read at eval time, so editing that base
+  # also needs a rebuild.
   ollamaProvider = import ./ollama-provider.nix;
   mlxEnabled = config.modelRuntimes.backend == "mlx-lm";
   mlxModels = config.modelRuntimes.declaredModels."mlx-lm" or [ ];
@@ -50,7 +50,23 @@ let
       name = id;
     };
   }) ids);
-  opencodeConfig = (builtins.fromJSON (builtins.readFile ../dotfiles/opencode-config.json)) // {
+  baseOpencodeConfig = builtins.fromJSON (builtins.readFile ../dotfiles/opencode-config.json);
+  loancrateMcpServers = {
+    linear = {
+      type = "remote";
+      url = "https://mcp.linear.app/mcp";
+    };
+    figma = {
+      type = "remote";
+      url = "https://mcp.figma.com/mcp";
+    };
+    bde = {
+      type = "remote";
+      url = "https://bde.dsci.loancrate.dev/mcp";
+    };
+  };
+  opencodeConfig = baseOpencodeConfig // {
+    mcp = (baseOpencodeConfig.mcp or { }) // lib.optionalAttrs isLoancrateMac loancrateMcpServers;
     provider = {
       ollama = {
         npm = "@ai-sdk/openai-compatible";

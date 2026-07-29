@@ -242,16 +242,16 @@ require("lazy").setup({
 				vim.g.slime_bracketed_paste = 1
 			end,
 		},
-		{
-			"napisani/nvim-github-codesearch",
+		-- {
+		-- 	"napisani/nvim-github-codesearch",
 
-			config = function()
-				local gh_search = require("nvim-github-codesearch")
-				gh_search.setup({
-					use_snacks_picker = true,
-				})
-			end,
-		},
+		-- 	config = function()
+		-- 		local gh_search = require("nvim-github-codesearch")
+		-- 		gh_search.setup({
+		-- 			use_snacks_picker = true,
+		-- 		})
+		-- 	end,
+		-- },
 
 		-- {
 		--   '/Users/nick/code/nvim-dadbod-ext',

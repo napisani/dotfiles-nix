@@ -28,14 +28,33 @@ let
   scriptsDir = "${dotfiles}/agents/scripts";
   workmuxStatusDir = "${dotfiles}/agents/workmux-status";
 
-  declaredMcpEntries = {
-    agentmemory = {
-      command = shared.agentmemoryMcpBin;
-      env = {
-        AGENTMEMORY_URL = shared.agentmemoryUrl;
+  mcpSources = [
+    {
+      name = "linear";
+      condition = shared.isLoancrateMac;
+      config.url = "https://mcp.linear.app/mcp";
+    }
+    {
+      name = "figma";
+      condition = shared.isLoancrateMac;
+      config.url = "https://mcp.figma.com/mcp";
+    }
+    {
+      name = "bde";
+      condition = shared.isLoancrateMac;
+      config.url = "https://bde.dsci.loancrate.dev/mcp";
+    }
+    {
+      name = "agentmemory";
+      config = {
+        command = shared.agentmemoryMcpBin;
+        env = {
+          AGENTMEMORY_URL = shared.agentmemoryUrl;
+        };
       };
-    };
-  };
+    }
+  ];
+  declaredMcpEntries = shared.mkDeclaredEntriesFromSources mcpSources;
 in
 {
   # Skills are Layer 0 (only Nix writes ~/.codex/skills): home.file links, not
