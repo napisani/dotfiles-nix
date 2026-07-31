@@ -25,33 +25,27 @@ let
   instructions = callAgentLib ./instructions.nix;
   managedConfig = callAgentLib ./managed-config-lib.nix;
 
-  # Shared source of truth for the agents' ollama provider models.
-  ollamaProvider = import ./ollama-provider.nix;
+  remoteOllamaProvider = import ./ollama-provider.nix;
+  ollamaProvider =
+    if shared.isLoancrateMac then
+      {
+        baseUrl = "http://localhost:11434/v1";
+        models = [
+          "qwen3:1.7b"
+          "qwen3.6-coding"
+        ];
+      }
+    else
+      remoteOllamaProvider;
 
-  # Local mlx provider: registered only on machines whose runtime is mlx-lm,
-  # pointing at a locally-run `mlx_lm.server` (start it with the `mlxserve`
-  # alias). Its models are this machine's declared mlx models — single source
-  # of truth in mods/model-runtimes.nix. The server loads each on demand.
-  mlxEnabled = config.modelRuntimes.backend == "mlx-lm";
-  mlxModels = config.modelRuntimes.declaredModels."mlx-lm" or [ ];
-
-  managedPiProviders =
-    {
-      ollama = {
-        baseUrl = ollamaProvider.baseUrl;
-        api = "openai-completions";
-        apiKey = "ollama";
-        models = ollamaProvider.models;
-      };
-    }
-    // lib.optionalAttrs mlxEnabled {
-      mlx = {
-        baseUrl = "http://localhost:8080/v1";
-        api = "openai-completions";
-        apiKey = "mlx";
-        models = mlxModels;
-      };
+  managedPiProviders = {
+    ollama = {
+      baseUrl = ollamaProvider.baseUrl;
+      api = "openai-completions";
+      apiKey = "ollama";
+      models = ollamaProvider.models;
     };
+  };
 
   scriptsDir = "${dotfiles}/agents/scripts";
   instructionsTarget = "${home}/.pi/agent/AGENTS.md";
@@ -220,6 +214,7 @@ in
 
     # ── Custom providers/models → ~/.pi/agent/models.json (the file Pi reads) ─
     MANAGED_PROVIDERS=${lib.escapeShellArg (builtins.toJSON managedPiProviders)} \
+    REMOVED_PROVIDERS=${lib.escapeShellArg (builtins.toJSON [ "mlx" ])} \
       ${nodeBin}/node ${scriptsDir}/apply-pi-models.js
 
     # ── Understand-Anything plugin (Pi-only, requires full repo clone) ─────────

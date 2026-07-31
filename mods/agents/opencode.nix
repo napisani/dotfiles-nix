@@ -34,21 +34,24 @@ let
     force = true;
   };
 
-  # config.json is Nix-generated (not a live symlink) so provider models and
-  # machine-role-specific MCP servers can come from Nix. ollama models are the
-  # shared ollama-provider.nix source; the local mlx provider (only on mlx-lm
-  # machines) points at a locally-run mlx_lm.server with this machine's
-  # declared mlx models. The everything-else base still lives in
-  # mods/dotfiles/opencode-config.json, read at eval time, so editing that base
-  # also needs a rebuild.
-  ollamaProvider = import ./ollama-provider.nix;
-  mlxEnabled = config.modelRuntimes.backend == "mlx-lm";
-  mlxModels = config.modelRuntimes.declaredModels."mlx-lm" or [ ];
+  # The Loancrate Mac uses its local Ollama instance; other machines retain
+  # the shared remote provider. config.json is generated so this route is
+  # evaluated per machine.
+  remoteOllamaProvider = import ./ollama-provider.nix;
+  ollamaProvider =
+    if isLoancrateMac then
+      {
+        baseUrl = "http://localhost:11434/v1";
+        models = [
+          "qwen3:1.7b"
+          "qwen3.6-coding"
+        ];
+      }
+    else
+      remoteOllamaProvider;
   mkOpencodeModels = ids: builtins.listToAttrs (map (id: {
     name = id;
-    value = {
-      name = id;
-    };
+    value.name = id;
   }) ids);
   baseOpencodeConfig = builtins.fromJSON (builtins.readFile ../dotfiles/opencode-config.json);
   loancrateMcpServers = {
@@ -73,14 +76,6 @@ let
         name = "ollama";
         options.baseURL = ollamaProvider.baseUrl;
         models = mkOpencodeModels ollamaProvider.models;
-      };
-    }
-    // lib.optionalAttrs mlxEnabled {
-      mlx = {
-        npm = "@ai-sdk/openai-compatible";
-        name = "mlx";
-        options.baseURL = "http://localhost:8080/v1";
-        models = mkOpencodeModels mlxModels;
       };
     };
   };

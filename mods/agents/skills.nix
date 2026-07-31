@@ -325,6 +325,18 @@ let
           name = "loancrate-lc-script";
           path = "skills/loancrate-lc-script";
         }
+        {
+          name = "loancrate-eval-model-candidates-ci";
+          path = "skills/loancrate-eval-model-candidates-ci";
+        }
+        {
+          name = "loancrate-ob-pricing-regression-test";
+          path = "skills/loancrate-ob-pricing-regression-test";
+        }
+        {
+          name = "loancrate-run-local-agent-eval";
+          path = "skills/loancrate-run-local-agent-eval";
+        }
       ];
       agents = allAgents;
       condition = isLoancrateMac;

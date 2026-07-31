@@ -365,11 +365,11 @@
     "lc-script-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1784219787,
-        "narHash": "sha256-0UTvC5OmKNm6J1rhiHI2G9nQmhdGT0fjCfQsUriQ7IE=",
+        "lastModified": 1785417501,
+        "narHash": "sha256-CAKRmBHrU55YSF9JPRCddPZiRZ0QhmWKiXyYMmmxnJ0=",
         "ref": "refs/heads/main",
-        "rev": "e0da1165b3231155ff6d44ca9f0626e5cf79bef0",
-        "revCount": 2,
+        "rev": "d8c76fbd60d5f4d37f7971c41c35582764a3f8a7",
+        "revCount": 3,
         "type": "git",
         "url": "ssh://git@github.com/napisani/lc-script"
       },

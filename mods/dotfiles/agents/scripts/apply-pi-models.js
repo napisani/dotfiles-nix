@@ -5,12 +5,14 @@
 // Non-destructive: writes each provider in MANAGED_PROVIDERS, preserving any
 // other providers and top-level keys already in models.json. Each managed
 // provider is rendered into Pi's OpenAI-compatible custom-provider shape; a
-// bare list of model-id strings becomes the `[{ id }]` form Pi expects. apiKey
+// bare model-id strings become the `{ id }` form Pi expects, while complete
+// model objects retain agent-specific metadata such as `contextWindow`. apiKey
 // is a required placeholder even when the server is keyless.
 //
 // Env:
 //   MANAGED_PROVIDERS — JSON object keyed by provider id, each:
-//     { baseUrl, api, apiKey, models: ["<id>", ...] }
+//     { baseUrl, api, apiKey, models: ["<id>" | { id, ... }, ...] }
+//   REMOVED_PROVIDERS — JSON array of explicitly retired provider ids
 
 const fs = require("node:fs");
 const path = require("node:path");
@@ -21,7 +23,15 @@ try {
 } catch {
   managed = {};
 }
-if (!managed || typeof managed !== "object" || Object.keys(managed).length === 0) {
+let removed = [];
+try {
+  removed = JSON.parse(process.env.REMOVED_PROVIDERS || "[]");
+} catch {
+  removed = [];
+}
+if (!managed || typeof managed !== "object") managed = {};
+if (!Array.isArray(removed)) removed = [];
+if (Object.keys(managed).length === 0 && removed.length === 0) {
   process.exit(0); // nothing declared — leave models.json untouched
 }
 
@@ -47,13 +57,21 @@ for (const [id, cfg] of Object.entries(managed)) {
     baseUrl: cfg.baseUrl,
     api: cfg.api,
     apiKey: cfg.apiKey,
-    models: (cfg.models || []).map((m) => ({ id: m })),
+    models: (cfg.models || []).map((model) =>
+      typeof model === "string" ? { id: model } : model
+    ),
   };
   if (JSON.stringify(providers[id]) !== JSON.stringify(rendered)) {
     providers[id] = rendered;
     changed = true;
   }
   applied.push(id + "(" + (cfg.models || []).length + ")");
+}
+for (const id of removed) {
+  if (providers[id] !== undefined) {
+    delete providers[id];
+    changed = true;
+  }
 }
 
 if (changed) {

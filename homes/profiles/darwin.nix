@@ -12,8 +12,6 @@ in
 
   programs.bash = {
     shellAliases = {
-      # Start a local mlx_lm.server (OpenAI-compatible, :8080, loads models on
-      # demand from the HF cache) that Pi/OpenCode's `mlx` provider points at.
       nixswitchup = "pushd ${homeManagerDir}; git pull && ${switchCommand}; popd";
       nixswitch = "pushd ${homeManagerDir}; ${switchCommand}; popd";
       nixflakeup = flakeUpdateCommand;

@@ -49,9 +49,7 @@
       "karabiner-elements"
       "claude-code"
       "codex"
-    ]
-    # Intel Macs can't run MLX, so keep the ollama app there instead of mlx-lm.
-    ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 [ "ollama-app" ];
+    ];
 
     # Base brews that all Macs should have
     brews = [
@@ -59,14 +57,7 @@
       "opencode"
       "rtk"
       "raine/workmux/workmux"
-    ]
-    # mlx-lm (headless MLX LLM server, replaces the ollama-app cask) is
-    # Apple-Silicon-only, so keep it off the Intel maclab. `hf` is the
-    # huggingface CLI the mlx-lm model manager uses to pre-pull models
-    # (mlx-lm bundles huggingface_hub but doesn't expose its CLI on PATH).
-    ++ lib.optionals pkgs.stdenv.hostPlatform.isAarch64 [
-      "mlx-lm"
-      "hf"
+      "ollama"
     ];
 
     taps = [

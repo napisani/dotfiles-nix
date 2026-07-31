@@ -29,10 +29,23 @@ const mlx = {
   baseUrl: "http://localhost:8080/v1",
   api: "openai-completions",
   apiKey: "mlx",
-  models: ["mlx-community/Qwen3-1.7B-4bit", "baa-ai/Qwen3.6-35B-A3B-RAM-25GB-MLX"],
+  models: [
+    "mlx-community/Qwen3-1.7B-4bit",
+    {
+      id: "unsloth/Qwen3.6-35B-A3B-UD-MLX-4bit",
+      contextWindow: 262144,
+      maxTokens: 32768,
+      reasoning: true,
+      compat: {
+        maxTokensField: "max_tokens",
+        supportsReasoningEffort: false,
+        thinkingFormat: "qwen-chat-template",
+      },
+    },
+  ],
 };
 
-test("renders each managed provider into models.json (id-string -> {id})", () => {
+test("normalizes model IDs and preserves per-model settings", () => {
   const home = mkHome();
   run(home, { ollama, mlx });
   const d = modelsOf(home);
@@ -40,7 +53,17 @@ test("renders each managed provider into models.json (id-string -> {id})", () =>
   assert.deepEqual(d.providers.mlx.baseUrl, "http://localhost:8080/v1");
   assert.deepEqual(d.providers.mlx.models, [
     { id: "mlx-community/Qwen3-1.7B-4bit" },
-    { id: "baa-ai/Qwen3.6-35B-A3B-RAM-25GB-MLX" },
+    {
+      id: "unsloth/Qwen3.6-35B-A3B-UD-MLX-4bit",
+      contextWindow: 262144,
+      maxTokens: 32768,
+      reasoning: true,
+      compat: {
+        maxTokensField: "max_tokens",
+        supportsReasoningEffort: false,
+        thinkingFormat: "qwen-chat-template",
+      },
+    },
   ]);
 });
 
