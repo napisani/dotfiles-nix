@@ -306,6 +306,10 @@ let
           path = "loancrate-weekly-update-draft";
         }
         {
+          name = "loancrate-weekly-project-update-draft";
+          path = "loancrate-weekly-project-update-draft";
+        }
+        {
           name = "multi-valued-review";
           path = "multi-valued-review";
         }
