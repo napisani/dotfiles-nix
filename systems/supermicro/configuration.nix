@@ -180,6 +180,7 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
+
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
   # accidentally delete configuration.nix.
@@ -235,6 +236,7 @@
     32400 # plex
     7359 # jellyfin local discovery
   ];
+  networking.firewall.trustedInterfaces = [ "tailscale0" ];
   services.k3s.enable = true;
   services.k3s.role = "server";
   services.k3s.extraFlags = toString [
