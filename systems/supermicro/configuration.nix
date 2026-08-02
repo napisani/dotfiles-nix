@@ -155,6 +155,25 @@
     };
   };
 
+  # ─── Tailscale Subnet Router ──────────────────────────────────────────
+  # Replaces the k8s StatefulSet approach. Tailscale runs directly on the
+  # host, advertising the LAN subnet so remote peers can reach
+  # *.napisani.xyz → 192.168.1.51 without DNS hacks.
+  services.tailscale = {
+    enable = true;
+    openFirewall = true;
+
+    # Handles net.ipv4.ip_forward and net.ipv6.conf.all.forwarding automatically.
+    useRoutingFeatures = "server";
+
+    # For fully automated provisioning, uncomment when you have your key:
+    # authKeyFile = "/etc/nixsecrets/tailscale-authkey";
+    # extraUpFlags = [
+    #   "--advertise-routes=192.168.1.0/24"
+    #   "--accept-routes"
+    # ];
+  };
+
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
