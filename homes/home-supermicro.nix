@@ -68,6 +68,7 @@ in
       nixflakeup = flakeUpdateCommand;
       nixupgrade = flakeUpdateCommand;
       nixclean = "echo 'Collecting garbage...'; nix-collect-garbage -d && echo 'Optimizing store...'; nix store optimise && echo 'Cleaning up old profiles...'; sudo nix-collect-garbage -d && echo 'Done! Space freed.'";
+      tailscaleup = "sudo tailscale up --advertise-routes=192.168.1.0/24 --accept-routes";
     };
   };
 
