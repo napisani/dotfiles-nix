@@ -9,6 +9,25 @@
   ...
 }:
 
+let
+  # Declarative on/off for the reconcile timer. Set to false to build the unit
+  # but NOT schedule it (e.g. during migration, to run it once by hand first),
+  # then flip to true and rebuild to activate — no `systemctl` needed.
+  gitopsSyncTimerEnabled = true;
+
+  # Nix-managed entrypoint so a script always exists to run even before the
+  # kube-home-lab repo is cloned. It clones on first run, then hands off to the
+  # versioned reconcile script that lives inside the repo (deploy/host-sync.sh).
+  gitopsSyncBootstrap = pkgs.writeShellScript "gitops-sync-bootstrap" ''
+    set -euo pipefail
+    REPO_DIR="''${REPO_DIR:-$WORKSPACE/repo}"
+    if [ ! -d "$REPO_DIR/.git" ]; then
+      mkdir -p "$(dirname "$REPO_DIR")"
+      ${pkgs.git}/bin/git clone "$REPO_URL" "$REPO_DIR"
+    fi
+    exec ${pkgs.bash}/bin/bash "$REPO_DIR/deploy/host-sync.sh"
+  '';
+in
 {
   imports = [
     # Include the results of the hardware scan.
@@ -244,6 +263,74 @@
     # "--no-deploy traefik"
     "--disable traefik"
   ];
+
+  # ─── GitOps sync (host-side reconcile) ────────────────────────────────────
+  # Replaces the in-cluster gitops-sync CronJob. Runs deploy/host-sync.sh from
+  # the kube-home-lab repo on a timer: pull -> build custom images (host Docker)
+  # -> cdk8s synth -> helm infra -> kubectl apply -> prune (home only).
+  #
+  # Runs as `nick` through a login shell (bash -l) so DOPPLER_API_TOKEN and
+  # GITOPS_SYNC_GITHUB_API_KEY are picked up from nick's ~/.bash_profile — a
+  # systemd service does NOT source shell rc files on its own, hence the -l.
+  # As nick it uses ~/.kube/config (the k3s admin config) and the docker group,
+  # so no root/kubeconfig-file wiring is needed.
+  systemd.services.gitops-sync = {
+    description = "kube-home-lab GitOps reconcile (git -> build -> apply)";
+    after = [
+      "k3s.service"
+      "docker.service"
+      "network-online.target"
+    ];
+    wants = [ "network-online.target" ];
+
+    # Toolchain, provided declaratively by Nix instead of a purpose-built image.
+    path = with pkgs; [
+      git
+      deno
+      docker
+      kubectl
+      kubernetes-helm
+      curl
+      coreutils
+      gnutar
+      gzip
+      config.services.k3s.package # `k3s ctr images import` (IMAGE_DELIVERY=import; needs root)
+    ];
+
+    serviceConfig = {
+      Type = "oneshot";
+      User = "nick"; # so ~/.bash_profile + ~/.kube/config + docker group apply
+      # Persistent workspace: repo checkout, deno cache, helm cache.
+      StateDirectory = "gitops-sync";
+      Environment = [
+        "WORKSPACE=/var/lib/gitops-sync" # deno cache, image-tags.env (persistent state)
+        "REPO_DIR=/home/nick/code/kube-home-lab-gitops-sync" # repo checkout location
+        "HOME=/home/nick" # needed for bash -l to source /home/nick/.bash_profile
+        "DENO_DIR=/var/lib/gitops-sync/deno"
+        "REPO_URL=https://github.com/napisani/kube-home-lab"
+        "REPO_BRANCH=master"
+        "GITOPS_SYNC_PRUNE_MODE=delete"
+        "IMAGE_DELIVERY=push" # push to registry (import mode would require running as root)
+      ];
+      # Login shell sources nick's ~/.bash_profile (injecting the two tokens),
+      # then hands off to the reconcile entrypoint.
+      ExecStart = "${pkgs.bash}/bin/bash -lc 'exec ${gitopsSyncBootstrap}'";
+    };
+  };
+
+  # A oneshot won't start a second activation while one is still running, so
+  # this is the systemd equivalent of the CronJob's concurrencyPolicy: Forbid.
+  systemd.timers.gitops-sync = {
+    # wantedBy drives scheduling declaratively: [] = built but dormant,
+    # [ "timers.target" ] = active. Flip gitopsSyncTimerEnabled + rebuild.
+    wantedBy = lib.optionals gitopsSyncTimerEnabled [ "timers.target" ];
+    timerConfig = {
+      OnBootSec = "3min";
+      OnUnitActiveSec = "5min"; # cadence (cron-equivalent: OnCalendar = "*:0/5")
+      RandomizedDelaySec = "30s";
+      Persistent = true; # run once on next boot if a tick was missed while off
+    };
+  };
 
   # Enable cron service
   services.cron = {
