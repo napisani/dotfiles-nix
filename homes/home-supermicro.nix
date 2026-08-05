@@ -66,6 +66,7 @@ in
     };
     shellAliases = {
       backup-homelab = "sudo --preserve-env=HOMELAB_BACKUP_RESTIC_PASSWORD /home/nick/toolbox/homelab_backup.py backup";
+      tail-gitops-sync = "journalctl -fu gitops-sync.service";
       nixswitchup = "pushd ${homeManagerDir}; git pull && ${switchCommand}; popd";
       nixswitch = "pushd ${homeManagerDir}; ${switchCommand}; popd";
       nixflakeup = flakeUpdateCommand;
