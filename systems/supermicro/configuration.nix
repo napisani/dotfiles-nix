@@ -22,17 +22,27 @@ let
     set -euo pipefail
     REPO_DIR="''${REPO_DIR:-$WORKSPACE/repo}"
     branch="''${REPO_BRANCH:-master}"
+    sentinel="$WORKSPACE/last-processed-commit"
+
     if [ ! -d "$REPO_DIR/.git" ]; then
       mkdir -p "$(dirname "$REPO_DIR")"
       ${pkgs.git}/bin/git clone "$REPO_URL" "$REPO_DIR"
     fi
-    # Update before entering the dev shell so `nix develop` evaluates the latest
-    # flake (host-sync.sh re-checks HEAD and no-ops if already current).
-    ${pkgs.git}/bin/git -C "$REPO_DIR" fetch origin "$branch"
-    ${pkgs.git}/bin/git -C "$REPO_DIR" reset --hard "origin/$branch"
-    # The kube-home-lab flake devShell owns the reconcile toolchain (deno,
-    # kubectl, helm, git, docker, curl); run the script inside it so those deps
-    # are defined once in the project, not duplicated on this host.
+
+    # Cheap pre-gate: only pay for `nix develop` + a reconcile when the tracked
+    # branch points at a commit we have not already processed successfully.
+    # host-sync.sh writes "$sentinel" on success, so unchanged ticks stop here.
+    ${pkgs.git}/bin/git -C "$REPO_DIR" fetch --quiet origin "$branch"
+    target=$(${pkgs.git}/bin/git -C "$REPO_DIR" rev-parse "origin/$branch")
+    if [ "$target" = "$(cat "$sentinel" 2>/dev/null || true)" ]; then
+      exit 0
+    fi
+
+    # Reset before entering the dev shell so `nix develop` evaluates the latest
+    # flake. The kube-home-lab flake devShell owns the reconcile toolchain
+    # (deno, kubectl, helm, git, docker, curl); run the script inside it so
+    # those deps are defined once in the project, not duplicated on this host.
+    ${pkgs.git}/bin/git -C "$REPO_DIR" reset --hard --quiet "$target"
     exec ${config.nix.package}/bin/nix develop "$REPO_DIR" \
       --command ${pkgs.bash}/bin/bash "$REPO_DIR/deploy/host-sync.sh"
   '';
