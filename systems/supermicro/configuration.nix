@@ -21,11 +21,20 @@ let
   gitopsSyncBootstrap = pkgs.writeShellScript "gitops-sync-bootstrap" ''
     set -euo pipefail
     REPO_DIR="''${REPO_DIR:-$WORKSPACE/repo}"
+    branch="''${REPO_BRANCH:-master}"
     if [ ! -d "$REPO_DIR/.git" ]; then
       mkdir -p "$(dirname "$REPO_DIR")"
       ${pkgs.git}/bin/git clone "$REPO_URL" "$REPO_DIR"
     fi
-    exec ${pkgs.bash}/bin/bash "$REPO_DIR/deploy/host-sync.sh"
+    # Update before entering the dev shell so `nix develop` evaluates the latest
+    # flake (host-sync.sh re-checks HEAD and no-ops if already current).
+    ${pkgs.git}/bin/git -C "$REPO_DIR" fetch origin "$branch"
+    ${pkgs.git}/bin/git -C "$REPO_DIR" reset --hard "origin/$branch"
+    # The kube-home-lab flake devShell owns the reconcile toolchain (deno,
+    # kubectl, helm, git, docker, curl); run the script inside it so those deps
+    # are defined once in the project, not duplicated on this host.
+    exec ${config.nix.package}/bin/nix develop "$REPO_DIR" \
+      --command ${pkgs.bash}/bin/bash "$REPO_DIR/deploy/host-sync.sh"
   '';
 in
 {
@@ -273,7 +282,9 @@ in
   # GITOPS_SYNC_GITHUB_API_KEY are picked up from nick's ~/.bash_profile — a
   # systemd service does NOT source shell rc files on its own, hence the -l.
   # As nick it uses ~/.kube/config (the k3s admin config) and the docker group,
-  # so no root/kubeconfig-file wiring is needed.
+  # so no root/kubeconfig-file wiring is needed. The reconcile toolchain is owned
+  # by the kube-home-lab flake devShell (entered via `nix develop`), so this host
+  # only needs git + nix to bootstrap.
   systemd.services.gitops-sync = {
     description = "kube-home-lab GitOps reconcile (git -> build -> apply)";
     after = [
@@ -283,18 +294,12 @@ in
     ];
     wants = [ "network-online.target" ];
 
-    # Toolchain, provided declaratively by Nix instead of a purpose-built image.
-    path = with pkgs; [
-      git
-      deno
-      docker
-      kubectl
-      kubernetes-helm
-      curl
-      coreutils
-      gnutar
-      gzip
-      config.services.k3s.package # `k3s ctr images import` (IMAGE_DELIVERY=import; needs root)
+    # Only the bootstrap essentials live here; the reconcile toolchain (deno,
+    # kubectl, helm, docker, curl, …) is owned by the kube-home-lab flake's
+    # devShell, which the bootstrap enters via `nix develop`.
+    path = [
+      pkgs.git # clone/fetch the repo before entering the dev shell
+      config.nix.package # `nix develop` to run inside the project's devShell
     ];
 
     serviceConfig = {
