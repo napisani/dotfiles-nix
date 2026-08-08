@@ -351,9 +351,9 @@ in
   services.cron = {
     enable = true;
     systemCronJobs = [
-      "0 1 * * *      root    bash ~/.config/home-manager/mods/dotfiles/supermicro_scripts/backup_pgvector.sh"
-      "1 1 * * *      root    bash ~/.config/home-manager/mods/dotfiles/supermicro_scripts/backup_postgres.sh"
-      "2 1 * * *      root    bash ~/.config/home-manager/mods/dotfiles/supermicro_scripts/backup_mongo.sh"
+      # Note: database backups (postgres, mongodb) are now defined as
+      # Kubernetes CronJobs in the kube-home-lab repo (see
+      # src/namespaces/home/apps/{postgres,mongodb}.ts)
       "10 1 * * *      root    rsync -rlv --delete /home/nick/ /media/storage/computer_backups/supermicro/home"
 
     ];
