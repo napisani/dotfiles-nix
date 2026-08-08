@@ -50,15 +50,15 @@ let
     # those deps are defined once in the project, not duplicated on this host.
     ${pkgs.git}/bin/git -C "$REPO_DIR" reset --hard --quiet "$target"
 
-    notify "START GitOps sync (${branch} ${target:0:8})"
+    notify "START GitOps sync (''${branch} ''${target:0:8})"
 
     if ${config.nix.package}/bin/nix develop "$REPO_DIR" \
       --command ${pkgs.bash}/bin/bash "$REPO_DIR/deploy/host-sync.sh"; then
-      notify "SUCCESS GitOps sync completed (${branch} ${target:0:8})"
+      notify "SUCCESS GitOps sync completed (''${branch} ''${target:0:8})"
     else
       status=$?
-      notify "ERROR GitOps sync failed (exit ${status}) (${branch} ${target:0:8})"
-      exit "${status}"
+      notify "ERROR GitOps sync failed (exit ''${status}) (''${branch} ''${target:0:8})"
+      exit "''${status}"
     fi
   '';
 in
