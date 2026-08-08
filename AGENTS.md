@@ -9,6 +9,22 @@ This repository is a **Nix flake** for configuring and managing multiple systems
 
 Each sub-project has its own AGENTS.md, conventions, and build processes. Read the relevant sub-project AGENTS.md before making changes.
 
+### Related homelab repositories
+
+This repository is the host side of the workspace coordinated by
+[`napisani/metarepo`](https://github.com/napisani/metarepo). In a metarepo
+checkout, `../kube-home-lab` is the sibling that owns Kubernetes desired state,
+diagnostics, and the GitOps reconcile implementation. This repository owns the
+Supermicro NixOS host, systemd scheduling, and host prerequisites.
+
+Before changing Supermicro GitOps behavior, read the metarepo
+[system map](https://github.com/napisani/metarepo/blob/main/docs/system-map.md)
+and
+[GitOps contract](https://github.com/napisani/metarepo/blob/main/docs/contracts/gitops-sync.md),
+then inspect the sibling repo. Cross-repo work uses matching non-default
+branches, separate commits, and linked pull requests with explicit rollout
+order. Never make task changes directly on `main`.
+
 ### Workarounds and upstream tracking
 
 Temporary bug workarounds (Neovim, nvim-treesitter, Nix overlays/package overrides, etc.) and notes on what to revisit when upstream fixes land are documented in [`WORKAROUNDS.md`](./WORKAROUNDS.md) at the repository root. Update that file when adding or removing hacks.
