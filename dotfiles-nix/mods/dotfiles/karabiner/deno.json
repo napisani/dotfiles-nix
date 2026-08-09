@@ -1,0 +1,10 @@
+{
+  "nodeModulesDir": "auto",
+  "tasks": {
+    "build": "deno run --allow-read --allow-write --allow-env src/index.ts"
+  },
+  "imports": {
+    "karabiner.ts": "npm:karabiner.ts@^1.35.1",
+    "@std/path": "jsr:@std/path@^1.0.0"
+  }
+}

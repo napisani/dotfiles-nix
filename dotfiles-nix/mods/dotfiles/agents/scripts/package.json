@@ -1,0 +1,8 @@
+{
+  "name": "agents-scripts",
+  "private": true,
+  "description": "Node dependencies for home-manager agent activation scripts",
+  "dependencies": {
+    "@iarna/toml": "^2.2.5"
+  }
+}

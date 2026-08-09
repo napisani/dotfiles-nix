@@ -1,0 +1,32 @@
+[[snippets]]
+  description = "get kube pipeline-cluster credentials"
+  command = "gcloud container clusters get-credentials pipeline-cluster --zone us-west1-a --project axion-in-theory"
+  tag = ["kube", "cluster", "gcloud", "credentials"]
+  output = ""
+
+[[snippets]]
+  description = "port forward dagster service"
+  command = "kubectl port-forward service/dagster-service-dagster-webserver 8080:80"
+  tag = ["kube", "port-forward", "dagster", "service"]
+  output = ""
+
+[[snippets]]
+  description = "run insights service"
+  command = "poetry run uvicorn app.main:app --reload --port 8001 --host 0.0.0.0"
+  tag = ["poetry", "insights", "service", "uvicorn"]
+  output = ""
+
+
+[[snippets]]
+  description = "export home server kubectl"
+  command = "export KUBECONFIG=~/remote-k3s.yaml"
+  tag = ["kube", "export", "home", "server"]
+  output = ""
+
+
+[[snippets]]
+  description = "forward tmp-mongo pod port to local"
+  command = "kubectl port-forward pod/$(kubectl get pods -n home -l app=tmp-mongo -o jsonpath='{.items[0].metadata.name}') 27017:27017 -n home"
+  tag = ["kube", "export", "home", "server"]
+  output = ""
+
