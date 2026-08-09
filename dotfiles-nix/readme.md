@@ -107,9 +107,3 @@ sudo zfs get acltype,aclinherit,aclmode storagepool/storage
 sudo zfs set aclmode=discard storagepool/storage
 mount -t zfs storagepool/storage /media/storage
 ```
-
-Managed via napisani/monorepo
-
-CI verified: subtree publish works with --ignore-joins
-
-Synced via git archive
