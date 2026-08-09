@@ -5,6 +5,7 @@
   pkgs-unstable,
   procmux,
   secret_inject,
+  scute,
   animal_rescue,
   scrollbacktamer,
   proctmux,
@@ -49,6 +50,7 @@ in
       animal_rescue.packages.${system}.default
       scrollbacktamer.packages.${system}.default
       proctmux.packages.${system}.default
+      scute.packages.${system}.default
       # tmuxp
       nodemon
       mise
