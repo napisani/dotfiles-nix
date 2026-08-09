@@ -1,0 +1,45 @@
+# ~/.config/scute/config.yaml
+# Machine-specific config for nicks-mbp — symlinked in via mods/shell.nix
+# based on MACHINE_NAME. Edit this file directly; changes apply on next shell start.
+providers:
+  - name: ollama
+    baseUrl: http://localhost:11434
+  - name: openai
+  - name: anthropic
+
+clipboardCommand: "auto"
+# Shell keybindings in universal syntax (rendered by scute init)
+# shellKeybindings:
+#   explain: []
+#   build: "Ctrl+E"
+#   suggest: []
+#   generate: [] # disable if you do not want a binding
+
+promptDefaults:
+  provider: anthropic
+  model: claude-haiku-4-5
+  # Haiku 4.5 caps output at 64000 tokens; DEFAULT_MAX_TOKENS (128000) exceeds
+  # that and causes Anthropic to reject the request, so scute silently
+  # returns no suggestion. Keep this well under the cap.
+  maxTokens: 4096
+
+  # provider: ollama
+  # model: qwen3:1.7b
+  # model: qwen2.5-coder:14b
+  # # output values: clipboard | stdout | prompt | readline
+  # output: readline
+
+
+# Prompt behavior per command
+# prompts:
+#   explain:
+#     provider: ollama
+#     model: qwen3:1.7b
+#   suggest:
+#     provider: openai
+#   generate:
+#     provider: ollama
+#     model: qwen3:1.7b
+#   describeTokens:
+#     provider: ollama
+#     model: qwen3:1.7b

@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tmux-picker"
+version = "0.1.0"
+description = "fzf-based tmux session picker with Workmux status and smart kill"
+requires-python = "==3.12.*"
+dependencies = []
+
+[project.scripts]
+tmux-picker = "tmux_picker.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tmux_picker"]

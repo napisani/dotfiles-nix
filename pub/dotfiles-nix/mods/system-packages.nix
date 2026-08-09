@@ -1,0 +1,24 @@
+{ pkgs, ... }:
+let
+  kubekill = pkgs.writeScriptBin "killkube.sh" ''
+    #!/usr/bin/env bash
+    kubectl delete deployment postgres -n home 
+    kubectl delete deployment pgvector -n home
+    kubectl delete deployment mongo -n home
+  '';
+in
+{
+  environment.systemPackages = with pkgs; [
+    tmux
+    unzip
+    wget
+    kubectl
+    kubekill
+    opencode
+    # for fixing the backup disk occasionally
+    hfsprogs
+    restic
+    nfs-utils  # mount/umount NFS shares for restic backup
+  ];
+
+}
