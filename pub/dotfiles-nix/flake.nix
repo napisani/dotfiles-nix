@@ -98,8 +98,9 @@
     };
     # Private napisani repos — fetched over SSH (gh/ssh creds required to
     # update the lock; rebuilds use the pinned lock and need no network).
+    # private-skills now lives in napisani/monorepo at priv/skills/.
     private-skills = {
-      url = "git+ssh://git@github.com/napisani/private-skills";
+      url = "git+ssh://git@github.com/napisani/monorepo.git";
       flake = false;
     };
     lc-script-skills = {

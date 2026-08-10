@@ -281,16 +281,16 @@ workmux-skills = { url = "github:raine/workmux"; flake = false; };
 agentmemory-skills = { url = "github:rohitg00/agentmemory"; flake = false; };
 gh-stack-skills = { url = "github:github/gh-stack"; flake = false; };
 no-ai-slop = { url = "github:petergyang/no-ai-slop"; flake = false; };
-private-skills = { url = "git+ssh://git@github.com/napisani/private-skills"; flake = false; };
+private-skills = { url = "git+ssh://git@github.com/napisani/monorepo.git"; flake = false; };
 lc-script-skills = { url = "github:napisani/lc-script"; flake = false; };
 ```
 
-Notes: `proctmux` skills come from the existing `proctmux` input (a flake input's `outPath` is its source tree — works the same). If `lc-script` turns out to be private, switch it to the `git+ssh://` form like `private-skills`. The old catalog's `fullDepth` flag existed for the `skills` CLI's shallow-clone behavior and has no meaning for flake inputs — it disappears.
+Notes: `proctmux` skills come from the existing `proctmux` input (a flake input's `outPath` is its source tree — works the same). `private-skills` now lives in the monorepo at `priv/skills/` — the catalog entry paths include the `priv/skills/` prefix. The old catalog's `fullDepth` flag existed for the `skills` CLI's shallow-clone behavior and has no meaning for flake inputs — it disappears.
 
 - [ ] **Step 2: Lock and verify**
 
 Run: `rtk nix flake lock && rtk nix flake metadata | head -40`
-Expected: lock succeeds (SSH agent must be available for `private-skills`); all new inputs listed. Then `rtk nix flake check` still passes.
+Expected: lock succeeds (SSH agent must be available for `private-skills` — now fetches the monorepo); all new inputs listed. Then `rtk nix flake check` still passes.
 
 - [ ] **Step 3: Commit**
 
@@ -969,7 +969,7 @@ rtk git commit -m "docs(agents): three-layer asset model in skill, glossary, and
 ## Risks and contingencies
 
 - **Read-only store symlinks:** if any agent writes into its skill directories (metadata, caches), its `home.file` entries switch to `recursive = true` copies (still declarative/revocable) — decide per agent at its cutover task's smoke test, not globally.
-- **Private inputs need SSH at lock time only:** `nix flake update private-skills` requires an SSH agent; rebuilds use the lock and need no network for skills at all.
+- **Private inputs need SSH at lock time only:** `nix flake update private-skills` requires an SSH agent (fetches the monorepo); rebuilds use the lock and need no network for skills at all.
 - **Update cadence change:** skills no longer self-update on rebuild. If that's missed in practice, a monthly `nix flake update && darwin-rebuild switch` habit (or a cron) restores it deliberately.
 - **DAG summary references:** `agentsWarnReportSummary` names entries that may not all exist forever; home-manager ignores unknown DAG references, but when deleting an activation entry, grep `report.nix` for its name.
 - **Mid-migration state (Tasks 6–9):** converted agents rely on `home.file`; unconverted ones still wipe/rebuild via the store-path bridge. The global store stays on the old mechanism until Task 10, so Pi's shared skills never disappear mid-sequence.

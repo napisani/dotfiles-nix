@@ -509,17 +509,17 @@
     "private-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1784919485,
-        "narHash": "sha256-5stHNjmMW8jsHEGFtSME9bRcDCWTR9KbCDLq3FVDT8Y=",
+        "lastModified": 1786361611,
+        "narHash": "sha256-96+O8Xu3ZMV5aCdLU05wWVNwusaj2TeKB/KTYnZuvUM=",
         "ref": "refs/heads/main",
-        "rev": "0ab1735237b3f65bd2b8ec031699bc6b7e029306",
-        "revCount": 14,
+        "rev": "61e749365aa383ab37146260356b150b0efabd05",
+        "revCount": 1209,
         "type": "git",
-        "url": "ssh://git@github.com/napisani/private-skills"
+        "url": "ssh://git@github.com/napisani/monorepo.git"
       },
       "original": {
         "type": "git",
-        "url": "ssh://git@github.com/napisani/private-skills"
+        "url": "ssh://git@github.com/napisani/monorepo.git"
       }
     },
     "procmux": {

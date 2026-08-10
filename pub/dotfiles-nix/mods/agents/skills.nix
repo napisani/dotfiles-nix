@@ -281,41 +281,41 @@ let
       ];
       agents = allAgents;
     }
-    # Loancrate-only: private skills
+    # Loancrate-only: private skills (from napisani/monorepo priv/skills/)
     {
       input = inputs.private-skills;
       skills = [
         {
           name = "loancrate-pr-workflow";
-          path = "loancrate-pr-workflow";
+          path = "priv/skills/loancrate-pr-workflow";
         }
         {
           name = "loancrate-with-workmux-stack-handoff";
-          path = "loancrate-with-workmux-stack-handoff";
+          path = "priv/skills/loancrate-with-workmux-stack-handoff";
         }
         {
           name = "loancrate-standup-prep";
-          path = "loancrate-standup-prep";
+          path = "priv/skills/loancrate-standup-prep";
         }
         {
           name = "loancrate-analyze-agent-self-improve-trend";
-          path = "loancrate-analyze-agent-self-improve-trend";
+          path = "priv/skills/loancrate-analyze-agent-self-improve-trend";
         }
         {
           name = "loancrate-weekly-update-draft";
-          path = "loancrate-weekly-update-draft";
+          path = "priv/skills/loancrate-weekly-update-draft";
         }
         {
           name = "loancrate-weekly-project-update-draft";
-          path = "loancrate-weekly-project-update-draft";
+          path = "priv/skills/loancrate-weekly-project-update-draft";
         }
         {
           name = "multi-valued-review";
-          path = "multi-valued-review";
+          path = "priv/skills/multi-valued-review";
         }
         {
           name = "mvr-suggestions";
-          path = "mvr-suggestions";
+          path = "priv/skills/mvr-suggestions";
         }
       ];
       agents = allAgents;
