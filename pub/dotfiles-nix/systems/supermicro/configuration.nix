@@ -23,6 +23,12 @@ let
     REPO_DIR="''${REPO_DIR:-$WORKSPACE/repo}"
     branch="''${REPO_BRANCH:-master}"
     sentinel="$WORKSPACE/last-processed-commit"
+    NTFY_TOPIC="''${NTFY_TOPIC:-https://ntfy.napisani.xyz/backups}"
+    TAG="[gitops-sync]"
+
+    notify() {
+      curl -fsS -d "message=$(date -Is) $TAG $*" "$NTFY_TOPIC" >/dev/null 2>&1 || true
+    }
 
     if [ ! -d "$REPO_DIR/.git" ]; then
       mkdir -p "$(dirname "$REPO_DIR")"
@@ -43,8 +49,17 @@ let
     # (deno, kubectl, helm, git, docker, curl); run the script inside it so
     # those deps are defined once in the project, not duplicated on this host.
     ${pkgs.git}/bin/git -C "$REPO_DIR" reset --hard --quiet "$target"
-    exec ${config.nix.package}/bin/nix develop "$REPO_DIR" \
-      --command ${pkgs.bash}/bin/bash "$REPO_DIR/deploy/host-sync.sh"
+
+    notify "START GitOps sync (''${branch} ''${target:0:8})"
+
+    if ${config.nix.package}/bin/nix develop "$REPO_DIR" \
+      --command ${pkgs.bash}/bin/bash "$REPO_DIR/deploy/host-sync.sh"; then
+      notify "SUCCESS GitOps sync completed (''${branch} ''${target:0:8})"
+    else
+      status=$?
+      notify "ERROR GitOps sync failed (exit ''${status}) (''${branch} ''${target:0:8})"
+      exit "''${status}"
+    fi
   '';
 in
 {
@@ -309,6 +324,7 @@ in
     # devShell, which the bootstrap enters via `nix develop`.
     path = [
       pkgs.git # clone/fetch the repo before entering the dev shell
+      pkgs.curl # ntfy notifications
       config.nix.package # `nix develop` to run inside the project's devShell
     ];
 
@@ -351,9 +367,9 @@ in
   services.cron = {
     enable = true;
     systemCronJobs = [
-      "0 1 * * *      root    bash ~/.config/home-manager/mods/dotfiles/supermicro_scripts/backup_pgvector.sh"
-      "1 1 * * *      root    bash ~/.config/home-manager/mods/dotfiles/supermicro_scripts/backup_postgres.sh"
-      "2 1 * * *      root    bash ~/.config/home-manager/mods/dotfiles/supermicro_scripts/backup_mongo.sh"
+      # Note: database backups (postgres, mongodb) are now defined as
+      # Kubernetes CronJobs in the kube-home-lab repo (see
+      # src/namespaces/home/apps/{postgres,mongodb}.ts)
       "10 1 * * *      root    rsync -rlv --delete /home/nick/ /media/storage/computer_backups/supermicro/home"
 
     ];

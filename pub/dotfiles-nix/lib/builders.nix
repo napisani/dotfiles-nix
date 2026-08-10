@@ -29,7 +29,6 @@ rec {
       procmux
       proctmux
       secret_inject
-      scute
       animal_rescue
       scrollbacktamer
       rift

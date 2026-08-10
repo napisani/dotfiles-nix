@@ -22,7 +22,6 @@
 
     proctmux.url = "github:napisani/proctmux";
     secret_inject.url = "github:napisani/secret_inject";
-    scute.url = "github:napisani/scute";
     animal_rescue.url = "github:napisani/animal-rescue";
     scrollbacktamer.url = "github:napisani/scrollbacktamer";
 

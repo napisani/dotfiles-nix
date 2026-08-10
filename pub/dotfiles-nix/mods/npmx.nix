@@ -16,6 +16,7 @@ let
   # OpenCode community skills are declared in mods/agents/skills.nix's catalog.
   npmxTools = [
     "@ellery/terminal-mcp@latest"
+    "@napisani/scute@latest"
     "@earendil-works/pi-coding-agent"
     "@agentclientprotocol/claude-agent-acp"
     "@zed-industries/codex-acp"
