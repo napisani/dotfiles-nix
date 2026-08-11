@@ -1,8 +1,13 @@
-{ pkgs, rift, ... }:
+{
+  pkgs,
+  rift,
+  homeManagerRelPath,
+  ...
+}:
 let
   system = pkgs.stdenv.hostPlatform.system;
-  homeManagerDir = "~/.config/home-manager";
-  switchCommand = "sudo darwin-rebuild switch --show-trace --no-update-lock-file --flake ~/.config/home-manager/.#";
+  homeManagerDir = "~/${homeManagerRelPath}";
+  switchCommand = "sudo darwin-rebuild switch --show-trace --no-update-lock-file --flake ${homeManagerDir}/.#";
   flakeUpdateCommand = "pushd ${homeManagerDir}; nix flake update --refresh && ${switchCommand}; popd";
 in
 {

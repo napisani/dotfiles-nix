@@ -12,10 +12,13 @@
   hostname ? "",
   machineRoles ? [ ],
   inputs ? { },
+  homeManagerRelPath,
   ...
 }:
 let
-  shared = import ./lib.nix { inherit config lib pkgs-unstable hostname machineRoles inputs; };
+  shared = import ./lib.nix {
+    inherit config lib pkgs-unstable hostname machineRoles inputs homeManagerRelPath;
+  };
   skills = shared.callAgentLib ./skills.nix;
   storeDir = "${shared.home}/.agents/skills";
 in

@@ -96,7 +96,7 @@ Captured with NVIM v0.12.0 using `mods/dotfiles/nvim` (`init.vim` → `user/init
 Or from a **real terminal** (recommended; see below):
 
 ```bash
-cd ~/.config/home-manager/mods/dotfiles/nvim && nvim -u init.vim "+checkhealth" "+write! /tmp/nvim-checkhealth.txt" "+qa"
+cd "$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/nvim" && nvim -u init.vim "+checkhealth" "+write! /tmp/nvim-checkhealth.txt" "+qa"
 ```
 
 ### Headless vs interactive (important)

@@ -17,10 +17,13 @@
   hostname ? "",
   machineRoles ? [ ],
   inputs ? { },
+  homeManagerRelPath,
   ...
 }:
 let
-  shared = import ./lib.nix { inherit config lib pkgs-unstable hostname machineRoles inputs; };
+  shared = import ./lib.nix {
+    inherit config lib pkgs-unstable hostname machineRoles inputs homeManagerRelPath;
+  };
   warnFile = "${shared.home}/.local/state/agents-nix/last-activation-warnings.txt";
 in
 {

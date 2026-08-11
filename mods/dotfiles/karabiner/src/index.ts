@@ -7,8 +7,9 @@ import { join } from "@std/path";
 import { tabWindowManagerRules } from "./window-layer.ts";
 
 const karabinerJsonPath = join(
-  Deno.env.get("HOME") || "",
-  ".config/home-manager/mods/dotfiles/karabiner.json",
+  Deno.env.get("DOTFILES_HOME_MANAGER_DIR") ||
+    join(Deno.env.get("HOME") || "", ".config/home-manager"),
+  "mods/dotfiles/karabiner.json",
 );
 console.log("Writing to Karabiner profile at:", karabinerJsonPath);
 

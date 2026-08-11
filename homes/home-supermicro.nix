@@ -5,10 +5,11 @@
   pkgs,
   user,
   overlays,
+  homeManagerRelPath,
   ...
 }:
 let
-  homeManagerDir = "~/.config/home-manager";
+  homeManagerDir = "~/${homeManagerRelPath}";
   switchCommand = "sudo nixos-rebuild --show-trace --no-update-lock-file --flake .#supermicro switch --impure";
   flakeUpdateCommand = "pushd ${homeManagerDir}; nix flake update --refresh && ${switchCommand}; popd";
 in

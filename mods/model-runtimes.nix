@@ -13,12 +13,13 @@
   pkgs,
   pkgs-unstable,
   machineRoles ? [ ],
+  homeManagerRelPath,
   ...
 }:
 let
   cfg = config.modelRuntimes;
   isLoancrateMac = builtins.elem "loancrate" machineRoles;
-  dotfiles = "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles";
+  dotfiles = "${config.home.homeDirectory}/${homeManagerRelPath}/mods/dotfiles";
   nodeBin = "${pkgs-unstable.nodejs}/bin";
   script = "${dotfiles}/model-runtimes/scripts/apply-models.js";
   stateFile = "${config.home.homeDirectory}/.local/state/nix-models/${cfg.backend}.json";
@@ -82,7 +83,7 @@ in
     lib.hm.dag.entryAfter [ "installModelRuntimeModels" ] ''
       export PATH="/opt/homebrew/bin:/run/current-system/sw/bin:$HOME/.local/bin:$PATH"
       if ollama show qwen3.6:35b-a3b-mxfp8 >/dev/null 2>&1; then
-        _ollama_modelfile="${mktemp}"
+        _ollama_modelfile="$(${mktemp})"
         trap '${rm} -f "$_ollama_modelfile"' EXIT
         cat > "$_ollama_modelfile" <<'EOF'
 FROM qwen3.6:35b-a3b-mxfp8

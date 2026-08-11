@@ -22,7 +22,7 @@ description: Karabiner-Elements keyboard configuration using karabiner.ts TypeSc
 - Deno TypeScript project using `karabiner.ts` v1.35.1 via npm specifier
 - `polyfill.ts` provides a CJS `require()` shim at the global scope (needed because karabiner.ts uses CommonJS internally)
 - `src/index.ts` imports all rule modules, composes them, and calls `writeToProfile()` to generate the JSON config
-- Output path: `~/.config/home-manager/mods/dotfiles/karabiner.json` (NOT inside the `karabiner/` directory)
+- Output path: `$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/karabiner.json` (NOT inside the `karabiner/` directory) — `$DOTFILES_HOME_MANAGER_DIR` is `~/.config/home-manager` for a standalone clone, or the monorepo's `pub/dotfiles-nix` when applied from there
 - The build script also creates a symlink from `~/.config/karabiner/karabiner.json` -> the generated file
 - Nix home-manager separately manages this symlink via `mkOutOfStoreSymlink`
 

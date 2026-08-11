@@ -5,9 +5,12 @@
   pkgs,
   user,
   overlays,
+  homeManagerRelPath,
   ...
 }:
 {
+  home.sessionVariables.DOTFILES_HOME_MANAGER_DIR = "${config.home.homeDirectory}/${homeManagerRelPath}";
+
   imports = [
     ../../mods/base-packages.nix
     ../../mods/shell.nix

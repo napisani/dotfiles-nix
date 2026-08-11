@@ -21,6 +21,7 @@
   hostname ? "",
   machineRoles ? [ ],
   inputs ? { },
+  homeManagerRelPath,
   ...
 }:
 let
@@ -32,6 +33,7 @@ let
       hostname
       machineRoles
       inputs
+      homeManagerRelPath
       ;
   };
   inherit (shared)

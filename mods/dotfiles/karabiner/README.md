@@ -9,7 +9,7 @@ Modify keyboard mappings in `src/` directory
 
 ### 2. Generate karabiner.json
 ```bash
-cd ~/.config/home-manager/mods/dotfiles/karabiner
+cd "$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/karabiner"
 deno run -A polyfill.ts > ../karabiner.json
 ```
 
@@ -37,7 +37,7 @@ osascript -e 'quit app "Karabiner-Elements"' && sleep 1 && open -a 'Karabiner-El
 ~/.config/karabiner/karabiner.json 
   → /nix/store/...-home-manager-files/.config/karabiner/karabiner.json
     → /nix/store/...-hm_karabiner.json
-      → ~/.config/home-manager/mods/dotfiles/karabiner.json
+      → $DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/karabiner.json
 ```
 
 ## Troubleshooting
@@ -81,5 +81,5 @@ If you see `~/.config/karabiner/karabiner.json` as a regular file instead of a s
 
 - **Do NOT** run `touch ~/.config/karabiner/karabiner.json` - this will break the symlink
 - No need to run `nixswitch` after regenerating karabiner.json (only after fixing broken symlinks)
-- The symlink configuration is in `~/.config/home-manager/mods/shell.nix`
+- The symlink configuration is in `mods/shell.nix`, checked out wherever `$DOTFILES_HOME_MANAGER_DIR` points
 - Karabiner watches the config file but may need manual reload via `karabiner-reload.sh`

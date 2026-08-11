@@ -30,7 +30,7 @@ alias password-lookup='pushd $(pwd) ; cd ~/scripts/password-lookup3; python pass
 alias restart-karabiner='karabiner-reload.sh'
 
 alias dns-clear='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
-alias cdhomeman='cd ~/.config/home-manager'
+alias cdhomeman='cd "${DOTFILES_HOME_MANAGER_DIR:-$HOME/.config/home-manager}"'
 alias nixupgrade='nix flake lock --update-input nixpkgs-unstable; nix flake lock --update-input nixpkgs'
 
 # capture the output of a command so it can be retrieved with ret

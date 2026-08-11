@@ -27,11 +27,24 @@ nix-shell '<home-manager>' -A install
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-2. Go inside your `~/.config` directory and clone this repo:
-```bash
-mkdir ~/.config && cd ~/.config && \
-git clone https://github.com/napisani/dotfiles-nix.git home-manager && cd home-manager 
-```
+2. Get this flake onto the machine. Two ways to do it, depending on where you're applying from:
+
+   **Standalone clone** (anyone cloning just this repo):
+   ```bash
+   mkdir ~/.config && cd ~/.config && \
+   git clone https://github.com/napisani/dotfiles-nix.git home-manager && cd home-manager
+   ```
+
+   **From the napisani/monorepo checkout** (this flake lives at `pub/dotfiles-nix/` there and gets
+   mirrored to this repo on every push to `main`):
+   ```bash
+   mkdir -p ~/code && cd ~/code && \
+   git clone git@github.com:napisani/monorepo.git && cd monorepo/pub/dotfiles-nix
+   ```
+   Each host's flake config sets its own `homeManagerRelPath` (see `flake.nix`/`lib/builders.nix`)
+   so out-of-store symlinks and the `nixswitch*` aliases resolve to wherever you actually checked
+   this out — no extra config needed beyond cloning to the expected path for that host.
+
 3. one-time build of the  `darwin-rebuild` binary
 ```bash
 export MY_HOST=nick-mb

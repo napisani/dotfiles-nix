@@ -15,11 +15,14 @@
   hostname ? "",
   machineRoles ? [ ],
   inputs ? { },
+  homeManagerRelPath,
   ...
 }:
 let
-  shared = import ./lib.nix { inherit config lib pkgs-unstable hostname machineRoles inputs; };
-  inherit (shared) home isLoancrateMac callAgentLib;
+  shared = import ./lib.nix {
+    inherit config lib pkgs-unstable hostname machineRoles inputs homeManagerRelPath;
+  };
+  inherit (shared) home dotfiles isLoancrateMac callAgentLib;
 
   skills = callAgentLib ./skills.nix;
   instructions = callAgentLib ./instructions.nix;
@@ -28,7 +31,7 @@ let
 
   # Out-of-store symlink into the working tree (edit without rebuild), for the
   # hand-edited OpenCode dotfiles.
-  mkSym = path: config.lib.file.mkOutOfStoreSymlink "${home}/.config/home-manager/mods/dotfiles/${path}";
+  mkSym = path: config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${path}";
   mkForcedSym = path: {
     source = mkSym path;
     force = true;

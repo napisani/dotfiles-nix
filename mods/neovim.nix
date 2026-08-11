@@ -2,6 +2,7 @@
   pkgs,
   pkgs-unstable,
   config,
+  homeManagerRelPath,
   ...
 }:
 let
@@ -29,7 +30,7 @@ in
   # };
   xdg.configFile = {
     "nvim" = {
-      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/nvim";
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/${homeManagerRelPath}/mods/dotfiles/nvim";
       recursive = true;
     };
   };

@@ -152,7 +152,7 @@ osascript -e 'quit app "Karabiner-Elements"' && sleep 1 && open -a 'Karabiner-El
 5. Run `deno task build && karabiner-reload.sh`
 
 ### Important Notes
-- **Output**: `~/.config/home-manager/mods/dotfiles/karabiner.json` (NOT inside karabiner/ dir)
+- **Output**: `$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/karabiner.json` (NOT inside karabiner/ dir)
 - DO NOT manually edit `~/.config/karabiner/karabiner.json` -- breaks symlink
 - Commit both TypeScript sources AND generated JSON
 - Broken symlink: run `darwin-rebuild switch --flake .#<hostname>` to restore

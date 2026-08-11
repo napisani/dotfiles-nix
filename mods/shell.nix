@@ -1,12 +1,13 @@
 {
   pkgs,
   config,
+  homeManagerRelPath,
   ...
 }:
 let
   mkSym =
     path:
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles/${path}";
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/${homeManagerRelPath}/mods/dotfiles/${path}";
   mkForcedSym = path: {
     source = mkSym path;
     force = true;

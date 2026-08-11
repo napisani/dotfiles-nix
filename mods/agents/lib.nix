@@ -20,9 +20,14 @@
   hostname ? "",
   machineRoles ? [ ],
   inputs ? { },
+  # Where this flake checkout lives relative to $HOME. The one default lives
+  # in lib/builders.nix (defaultHomeManagerRelPath) — every dotfiles-path-
+  # deriving module just declares this as required and threads it through
+  # (see callAgentLib below), rather than re-declaring its own default.
+  homeManagerRelPath,
 }:
 let
-  dotfiles = "${config.home.homeDirectory}/.config/home-manager/mods/dotfiles";
+  dotfiles = "${config.home.homeDirectory}/${homeManagerRelPath}/mods/dotfiles";
   home = config.home.homeDirectory;
 
   # Skill catalog (skills.nix) still targets all four agents by default;
@@ -145,7 +150,18 @@ let
   # arguments already threaded through, so call sites don't have to re-spell
   # `{ inherit config lib pkgs-unstable hostname machineRoles inputs; }`.
   callAgentLib =
-    path: import path { inherit config lib pkgs-unstable hostname machineRoles inputs; };
+    path:
+    import path {
+      inherit
+        config
+        lib
+        pkgs-unstable
+        hostname
+        machineRoles
+        inputs
+        homeManagerRelPath
+        ;
+    };
 in
 {
   inherit
