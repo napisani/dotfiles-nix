@@ -1,8 +1,6 @@
 {
   pkgs,
   config,
-  inputs,
-  lib,
   ...
 }:
 let
@@ -15,10 +13,6 @@ let
   };
 in
 {
-  home.packages = [
-    inputs.iris.packages.${pkgs.stdenv.hostPlatform.system}.default
-  ];
-
   programs = {
     fzf = {
       enable = true;
@@ -34,9 +28,6 @@ in
     };
     bash = {
       enable = true;
-      initExtra = lib.mkAfter ''
-        eval "$(iris init bash)"
-      '';
       bashrcExtra = ''
         for file in ~/.bashrc.d/*.bashrc
         do
@@ -73,8 +64,6 @@ in
   };
   home.file = {
     ".config/pet".source = ./dotfiles/pet;
-    ".config/iris/config.toml" = mkForcedSym "iris/config.toml";
-    ".config/iris/theme.toml" = mkForcedSym "iris/theme.toml";
     ".config/mcphub/servers.json" = mkForcedSym "mcphub-servers.json";
     ".aerospace.toml" = mkForcedSym ".aerospace.toml";
     "Library/Application Support/com.mitchellh.ghostty/config" = mkForcedSym "ghostty-config";
