@@ -1,9 +1,0 @@
-__pycache__/
-*.py[cod]
-
-# Multi-module package artifacts
-*.egg-info/
-.venv/
-dist/
-build/
-.pytest_cache/
