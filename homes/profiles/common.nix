@@ -10,7 +10,6 @@
 {
   imports = [
     ../../mods/base-packages.nix
-    ../../mods/iris.nix
     ../../mods/shell.nix
     ../../mods/git.nix
     ../../mods/gh.nix
