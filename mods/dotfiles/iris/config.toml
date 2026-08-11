@@ -1,0 +1,29 @@
+[core]
+version = 1
+shell = "bash"
+mode = "spec"
+expand-alias = true
+atuin-history = 0
+
+[ui]
+style = "modern"
+ghost-text = true
+hidden-files = false
+max-suggestions = 100
+max-height = 15
+max-width = 0
+nerd-fonts = true
+
+[keybindings]
+toggle-mode = "ctrl+g"
+toggle-menu = "shift+tab"
+select = "tab"
+navigate-up = "up"
+navigate-down = "down"
+navigate-right = "right"
+
+[updater]
+check-on-startup = false
+channel = "stable"
+check-interval = "24h"
+auto-update = 0
