@@ -9,21 +9,25 @@ This repository is a **Nix flake** for configuring and managing multiple systems
 
 Each sub-project has its own AGENTS.md, conventions, and build processes. Read the relevant sub-project AGENTS.md before making changes.
 
-### Related homelab repositories
+### Related homelab subdirectory
 
-This repository is the host side of the workspace coordinated by
-[`napisani/metarepo`](https://github.com/napisani/metarepo). In a metarepo
-checkout, `../kube-home-lab` is the sibling that owns Kubernetes desired state,
-diagnostics, and the GitOps reconcile implementation. This repository owns the
-Supermicro NixOS host, systemd scheduling, and host prerequisites.
+This repository is auto-published from `pub/dotfiles-nix/` in
+[`napisani/monorepo`](https://github.com/napisani/monorepo), which also owns
+`priv/kube-home-lab/` — the private subdirectory that owns Kubernetes desired
+state, diagnostics, and the GitOps reconcile implementation (there is no
+longer a standalone `napisani/kube-home-lab` repo). This repository/
+subdirectory owns the Supermicro NixOS host, systemd scheduling, and host
+prerequisites; the Supermicro host's `gitops-sync` timer clones the monorepo
+directly and runs the reconciler from `priv/kube-home-lab/`.
 
-Before changing Supermicro GitOps behavior, read the metarepo
-[system map](https://github.com/napisani/metarepo/blob/main/docs/system-map.md)
+Before changing Supermicro GitOps behavior, read the monorepo's
+[system map](https://github.com/napisani/monorepo/blob/main/docs/system-map.md)
 and
-[GitOps contract](https://github.com/napisani/metarepo/blob/main/docs/contracts/gitops-sync.md),
-then inspect the sibling repo. Cross-repo work uses matching non-default
-branches, separate commits, and linked pull requests with explicit rollout
-order. Never make task changes directly on `main`.
+[GitOps contract](https://github.com/napisani/monorepo/blob/main/docs/contracts/gitops-sync.md),
+then inspect `priv/kube-home-lab/` there (only visible from inside the
+monorepo, since it's private and no longer mirrored standalone). If you're
+working from the monorepo, coordinate both sides as a single commit or a
+small set of commits rather than cross-repo branches/PRs.
 
 ### Workarounds and upstream tracking
 

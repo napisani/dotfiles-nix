@@ -16,12 +16,17 @@ let
   gitopsSyncTimerEnabled = true;
 
   # Nix-managed entrypoint so a script always exists to run even before the
-  # kube-home-lab repo is cloned. It clones on first run, then hands off to the
-  # versioned reconcile script that lives inside the repo (deploy/host-sync.sh).
+  # monorepo is cloned. It clones on first run, then hands off to the
+  # versioned reconcile script that lives inside the repo's
+  # priv/kube-home-lab/ subdirectory (deploy/host-sync.sh). This is a
+  # dedicated automated checkout — separate from any interactive ~/code/monorepo
+  # checkout on this host — since it gets an unattended `git reset --hard`
+  # every tick and must never contain hand edits.
   gitopsSyncBootstrap = pkgs.writeShellScript "gitops-sync-bootstrap" ''
     set -euo pipefail
     REPO_DIR="''${REPO_DIR:-$WORKSPACE/repo}"
-    branch="''${REPO_BRANCH:-master}"
+    REPO_SUBDIR="''${REPO_SUBDIR:-priv/kube-home-lab}"
+    branch="''${REPO_BRANCH:-main}"
     sentinel="$WORKSPACE/last-processed-commit"
     NTFY_TOPIC="''${NTFY_TOPIC:-https://ntfy.napisani.xyz/backups}"
     TAG="[gitops-sync]"
@@ -37,7 +42,10 @@ let
 
     # Cheap pre-gate: only pay for `nix develop` + a reconcile when the tracked
     # branch points at a commit we have not already processed successfully.
-    # host-sync.sh writes "$sentinel" on success, so unchanged ticks stop here.
+    # host-sync.ts writes "$sentinel" on success, so unchanged ticks stop here.
+    # Note this compares the whole-monorepo branch tip, not just
+    # priv/kube-home-lab/ — host-sync.ts does the path-scoped check that
+    # actually decides whether to run the reconcile stages.
     ${pkgs.git}/bin/git -C "$REPO_DIR" fetch --quiet origin "$branch"
     target=$(${pkgs.git}/bin/git -C "$REPO_DIR" rev-parse "origin/$branch")
     if [ "$target" = "$(cat "$sentinel" 2>/dev/null || true)" ]; then
@@ -52,8 +60,8 @@ let
 
     notify "START GitOps sync (''${branch} ''${target:0:8})"
 
-    if ${config.nix.package}/bin/nix develop "$REPO_DIR" \
-      --command ${pkgs.bash}/bin/bash "$REPO_DIR/deploy/host-sync.sh"; then
+    if ${config.nix.package}/bin/nix develop "$REPO_DIR/$REPO_SUBDIR" \
+      --command ${pkgs.bash}/bin/bash "$REPO_DIR/$REPO_SUBDIR/deploy/host-sync.sh"; then
       notify "SUCCESS GitOps sync completed (''${branch} ''${target:0:8})"
     else
       status=$?
@@ -300,16 +308,19 @@ in
 
   # ─── GitOps sync (host-side reconcile) ────────────────────────────────────
   # Replaces the in-cluster gitops-sync CronJob. Runs deploy/host-sync.sh from
-  # the kube-home-lab repo on a timer: pull -> build custom images (host Docker)
-  # -> cdk8s synth -> helm infra -> kubectl apply -> prune (home only).
+  # the monorepo's priv/kube-home-lab/ subdirectory on a timer: pull -> build
+  # custom images (host Docker) -> cdk8s synth -> helm infra -> kubectl apply
+  # -> prune (home only). The standalone napisani/kube-home-lab repo is retired;
+  # this clones napisani/monorepo directly (see docs/contracts/gitops-sync.md).
   #
   # Runs as `nick` through a login shell (bash -l) so DOPPLER_API_TOKEN and
   # GITOPS_SYNC_GITHUB_API_KEY are picked up from nick's ~/.bash_profile — a
   # systemd service does NOT source shell rc files on its own, hence the -l.
   # As nick it uses ~/.kube/config (the k3s admin config) and the docker group,
   # so no root/kubeconfig-file wiring is needed. The reconcile toolchain is owned
-  # by the kube-home-lab flake devShell (entered via `nix develop`), so this host
-  # only needs git + nix to bootstrap.
+  # by the kube-home-lab flake devShell (entered via `nix develop` on the
+  # checkout's priv/kube-home-lab subdirectory), so this host only needs git +
+  # nix to bootstrap.
   systemd.services.gitops-sync = {
     description = "kube-home-lab GitOps reconcile (git -> build -> apply)";
     after = [
@@ -335,11 +346,12 @@ in
       StateDirectory = "gitops-sync";
       Environment = [
         "WORKSPACE=/var/lib/gitops-sync" # deno cache, image-tags.env (persistent state)
-        "REPO_DIR=/home/nick/code/kube-home-lab-gitops-sync" # repo checkout location
+        "REPO_DIR=/home/nick/code/monorepo-gitops-sync" # dedicated automated monorepo checkout (not ~/code/monorepo)
+        "REPO_SUBDIR=priv/kube-home-lab" # project root within the checkout
         "HOME=/home/nick" # needed for bash -l to source /home/nick/.bash_profile
         "DENO_DIR=/var/lib/gitops-sync/deno"
-        "REPO_URL=https://github.com/napisani/kube-home-lab"
-        "REPO_BRANCH=master"
+        "REPO_URL=https://github.com/napisani/monorepo"
+        "REPO_BRANCH=main"
         "GITOPS_SYNC_PRUNE_MODE=delete"
         "IMAGE_DELIVERY=push" # push to registry (import mode would require running as root)
       ];
