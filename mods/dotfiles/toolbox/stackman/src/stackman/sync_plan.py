@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import heapq
 from collections import defaultdict, deque
 from dataclasses import dataclass
 
@@ -142,16 +143,18 @@ def topological_sync_order(sync_branches: frozenset[str], all_branches: list[Bra
     for names in sync_children.values():
         names.sort()
 
-    heap_ready = sorted(name for name, d in indeg.items() if d == 0)
+    # Min-heap keyed by branch name gives parent-before-child order with a stable
+    # lexicographic tie-break, without re-sorting a list on every pop.
+    ready = [name for name, degree in indeg.items() if degree == 0]
+    heapq.heapify(ready)
     order: list[str] = []
-    while heap_ready:
-        name = heap_ready.pop(0)
+    while ready:
+        name = heapq.heappop(ready)
         order.append(name)
         for child in sync_children.get(name, ()):
             indeg[child] -= 1
             if indeg[child] == 0:
-                heap_ready.append(child)
-                heap_ready.sort()
+                heapq.heappush(ready, child)
     if len(order) != len(sync_branches):
         raise ValueError("cycle detected in stored parent graph; database is inconsistent")
     return tuple(order)

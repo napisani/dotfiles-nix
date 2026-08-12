@@ -23,6 +23,20 @@ def git_output(cwd: Path, *args: str) -> str:
     return _run_git(cwd, *args, check=True).stdout.strip()
 
 
+def ensure_ref_name_safe(name: str) -> None:
+    """Reject ref names that could be misparsed as git options.
+
+    Ref names are passed to git as bare positional args; a name beginning with '-'
+    (reachable via plumbing, or from untrusted `gh` PR head/base refs) could be
+    read as a flag. Git/GitHub forbid such names via porcelain, so this is a
+    defense-in-depth guard at the trust boundary rather than a common case.
+    """
+    if name.startswith("-"):
+        raise ValueError(
+            f"Refusing to pass ref name {name!r} to git: names starting with '-' are not allowed."
+        )
+
+
 def rebase_in_progress(cwd: Path) -> bool:
     """Detect rebase state in this checkout (main or linked worktree)."""
     try:
@@ -101,10 +115,21 @@ def worktree_dirty_preview(cwd: Path, *, max_lines: int = 20) -> str | None:
 
 
 def rev_parse(cwd: Path, ref: str) -> str:
+    ensure_ref_name_safe(ref)
     return git_output(cwd, "rev-parse", ref)
 
 
+def rev_parse_or_none(cwd: Path, ref: str) -> str | None:
+    """Resolve a ref to a SHA, or None if it doesn't resolve (e.g. an unfetched upstream)."""
+    ensure_ref_name_safe(ref)
+    result = _run_git(cwd, "rev-parse", ref, check=False)
+    if result.returncode != 0:
+        return None
+    return result.stdout.strip()
+
+
 def checkout(cwd: Path, branch: str) -> None:
+    ensure_ref_name_safe(branch)
     _run_git(cwd, "checkout", branch, check=True)
 
 
@@ -140,6 +165,7 @@ def squash_commits_since(cwd: Path, upstream: str) -> tuple[int, subprocess.Comp
         return len(commits), None
 
     first_message = commit_message(cwd, commits[0])
+    original_head = git_output(cwd, "rev-parse", "HEAD")
     reset_result = _run_git(cwd, "reset", "--soft", upstream, check=False)
     if reset_result.returncode != 0:
         return len(commits), reset_result
@@ -152,6 +178,10 @@ def squash_commits_since(cwd: Path, upstream: str) -> tuple[int, subprocess.Comp
         text=True,
         input=first_message,
     )
+    if commit_result.returncode != 0:
+        # Commit failed (e.g. a commit-msg hook) after the soft reset already moved
+        # HEAD; restore the original commits so the branch is left as we found it.
+        _run_git(cwd, "reset", "--soft", original_head, check=False)
     return len(commits), commit_result
 
 
@@ -205,6 +235,8 @@ def local_branches(cwd: Path) -> list[str]:
 
 
 def branch_exists(cwd: Path, branch: str) -> bool:
+    if branch.startswith("-"):
+        return False
     result = subprocess.run(
         ["git", "show-ref", "--verify", "--quiet", f"refs/heads/{branch}"],
         cwd=cwd,
@@ -215,6 +247,8 @@ def branch_exists(cwd: Path, branch: str) -> bool:
 
 
 def merge_base(cwd: Path, left: str, right: str) -> str:
+    ensure_ref_name_safe(left)
+    ensure_ref_name_safe(right)
     return git_output(cwd, "merge-base", left, right)
 
 

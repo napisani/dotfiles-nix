@@ -9,6 +9,7 @@ from typing import Iterable
 
 from ..context import AppContext
 from ..git_ops import branch_exists, repo_root
+from .shared import descendant_lines
 from .track import run_track
 
 _GH_PR_FIELDS = "headRefName,baseRefName,number,title,url,state"
@@ -207,18 +208,13 @@ def _tree_lines(anchor: str, edges: tuple[DiscoverEdge, ...]) -> list[str]:
     for rows in children.values():
         rows.sort(key=lambda edge: (edge.branch, edge.pr.number))
 
-    lines: list[str] = []
+    def children_of(parent: str) -> list[tuple[str, DiscoverEdge]]:
+        return [(edge.branch, edge) for edge in children.get(parent, [])]
 
-    def visit(parent: str, prefix: str = "") -> None:
-        rows = children.get(parent, [])
-        for index, edge in enumerate(rows):
-            is_last = index == len(rows) - 1
-            connector = "└── " if is_last else "├── "
-            lines.append(f"{prefix}{connector}{edge.branch} (#{edge.pr.number})")
-            next_prefix = prefix + ("    " if is_last else "│   ")
-            visit(edge.branch, next_prefix)
+    def label_of(edge: DiscoverEdge) -> str:
+        return f"{edge.branch} (#{edge.pr.number})"
 
-    visit(anchor)
+    lines, _ = descendant_lines(anchor, children_of, label_of)
     return lines
 
 

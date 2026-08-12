@@ -16,7 +16,6 @@ CREATE TABLE IF NOT EXISTS repos (
 
 CREATE TABLE IF NOT EXISTS stacks (
     id TEXT PRIMARY KEY,
-    name TEXT,
     anchor_branch_name TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -48,13 +47,24 @@ CREATE INDEX IF NOT EXISTS idx_branches_repo_name
 """
 
 
+# Bump when adding a one-time data migration below; each new migration runs once
+# per database and is then skipped on every subsequent command.
+_SCHEMA_VERSION = 1
+
+
 def initialize(db_path: Path | str) -> None:
     path = Path(db_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with connect(path) as conn:
         conn.executescript(SCHEMA_SQL)
         _ensure_stack_anchor_column(conn)
-        migrate_repo_roots_to_git_common_dir(conn)
+        version = conn.execute("PRAGMA user_version").fetchone()[0]
+        if version < 1:
+            # Collapses worktree-specific repo paths to the git-common-dir key.
+            # Spawns a git subprocess per repo, so it must not run on every command.
+            migrate_repo_roots_to_git_common_dir(conn)
+        if version < _SCHEMA_VERSION:
+            conn.execute(f"PRAGMA user_version = {_SCHEMA_VERSION}")
 
 
 def _ensure_stack_anchor_column(conn) -> None:

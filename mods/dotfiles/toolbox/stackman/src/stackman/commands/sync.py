@@ -16,6 +16,7 @@ from ..git_ops import (
     repo_db_key,
     repo_root,
     rev_parse,
+    rev_parse_or_none,
     squash_commits_since,
     sync_relevant_worktrees,
     upstream_branch,
@@ -34,6 +35,7 @@ from ..store import (
     update_branch_fork_point,
 )
 from ..sync_plan import SyncPlan, build_sync_plan
+from .shared import emit as _emit
 
 
 def run(
@@ -110,136 +112,88 @@ def run(
     _print_plan(ctx, plan, worktree, dry_run=dry_run)
 
     if dry_run:
+        return _run_dry_run(ctx, plan, all_branches, worktree, squash=squash)
+
+    return _apply_sync(
+        ctx,
+        plan,
+        all_branches,
+        worktree,
+        repo_key,
+        original_branch,
+        squash=squash,
+        verbose=verbose,
+    )
+
+
+def _run_dry_run(
+    ctx: AppContext,
+    plan: SyncPlan,
+    all_branches: list[BranchRecord],
+    worktree: Path,
+    *,
+    squash: bool,
+) -> int:
+    _emit(
+        ctx,
+        "[stackman] Planned steps (each branch: checkout"
+        + (" → optional squash" if squash else "")
+        + " → rebase --onto parent tip → push)",
+    )
+    for branch_name in plan.order:
+        record = next(b for b in all_branches if b.branch_name == branch_name)
+        parent = _sync_parent_name(plan, record) or "<none>"
+        wt_hint = ""
+        holder = worktree_path_for_branch(worktree, branch_name)
+        if holder is not None and holder != worktree:
+            wt_hint = f" (checkout in {holder})"
         _emit(
             ctx,
-            "[stackman] Planned steps (each branch: checkout"
-            + (" → optional squash" if squash else "")
-            + " → rebase --onto parent tip → push)",
+            f"  - {branch_name}: rebase onto tip of {parent!r} "
+            f"(stored fork-point {record.fork_point_sha[:7]}){wt_hint}",
         )
-        for branch_name in plan.order:
-            record = next(b for b in all_branches if b.branch_name == branch_name)
-            parent = _sync_parent_name(plan, record) or "<none>"
-            wt_hint = ""
-            holder = worktree_path_for_branch(worktree, branch_name)
-            if holder is not None and holder != worktree:
-                wt_hint = f" (checkout in {holder})"
-            _emit(
-                ctx,
-                f"  - {branch_name}: rebase onto tip of {parent!r} "
-                f"(stored fork-point {record.fork_point_sha[:7]}){wt_hint}",
-            )
-            if squash:
-                commit_count = len(commits_since(worktree, record.fork_point_sha, ref=branch_name))
-                if commit_count >= 2:
-                    _emit(
-                        ctx,
-                        f"    squash: would collapse {commit_count} post-fork commits into one before rebasing",
-                    )
-                else:
-                    _emit(
-                        ctx,
-                        f"    squash: skipped ({commit_count} post-fork commit"
-                        f"{'' if commit_count == 1 else 's'})",
-                    )
-        _emit(ctx, "[stackman] Dry run complete.")
-        return 0
+        if squash:
+            commit_count = len(commits_since(worktree, record.fork_point_sha, ref=branch_name))
+            if commit_count >= 2:
+                _emit(
+                    ctx,
+                    f"    squash: would collapse {commit_count} post-fork commits into one before rebasing",
+                )
+            else:
+                _emit(
+                    ctx,
+                    f"    squash: skipped ({commit_count} post-fork commit"
+                    f"{'' if commit_count == 1 else 's'})",
+                )
+    _emit(ctx, "[stackman] Dry run complete.")
+    return 0
 
+
+def _apply_sync(
+    ctx: AppContext,
+    plan: SyncPlan,
+    all_branches: list[BranchRecord],
+    worktree: Path,
+    repo_key: str,
+    original_branch: str,
+    *,
+    squash: bool,
+    verbose: bool,
+) -> int:
     by_name = {b.branch_name: b for b in all_branches}
     try:
         for branch_name in plan.order:
             record = by_name[branch_name]
-            parent_name = _sync_parent_name(plan, record)
-            if parent_name is None:
-                _emit(ctx, f"[stackman] Skipping {branch_name!r} (no parent recorded).")
-                continue
-            branch_wt = worktree_path_for_branch(worktree, branch_name) or worktree
-            if branch_wt != worktree:
-                _emit(
-                    ctx,
-                    f"[stackman] → Using worktree {branch_wt} (branch {branch_name!r} is checked out there)",
-                )
-            else:
-                _emit(ctx, f"[stackman] → Checking out {branch_name!r}")
-            checkout(branch_wt, branch_name)
-            parent_tip = rev_parse(branch_wt, parent_name)
-            onto = parent_tip
-            upstream = record.fork_point_sha
-            if squash:
-                commit_count, squash_result = squash_commits_since(branch_wt, upstream)
-                if commit_count >= 2:
-                    _emit(
-                        ctx,
-                        f"[stackman]   Squashing {branch_name!r}: collapsing {commit_count} "
-                        "post-fork commits into one",
-                    )
-                    if squash_result is None or squash_result.returncode != 0:
-                        msg = ""
-                        if squash_result is not None:
-                            msg = (squash_result.stderr or "").strip() or (squash_result.stdout or "").strip()
-                        ctx.stderr.write(f"[stackman] Squash failed on {branch_name!r}.\n")
-                        if msg:
-                            ctx.stderr.write(f"{msg}\n")
-                        return 1
-                else:
-                    _emit(
-                        ctx,
-                        f"[stackman]   Squash skipped for {branch_name!r} "
-                        f"({commit_count} post-fork commit{'' if commit_count == 1 else 's'})",
-                    )
-            if upstream == onto:
-                _emit(
-                    ctx,
-                    f"[stackman]   Skipping {branch_name!r}; stored fork-point already matches "
-                    f"current {parent_name!r} tip {onto[:7]}",
-                )
-                continue
-            if verbose:
-                _emit(
-                    ctx,
-                    f"[stackman]   git rebase --onto {onto} {upstream} "
-                    f"(replay commits after stored fork-point onto current {parent_name!r})",
-                )
-            _emit(
+            if not _sync_one_branch(
                 ctx,
-                f"[stackman]   Rebasing {branch_name!r} onto {parent_name!r} "
-                f"at {onto[:7]} (fork-point {upstream[:7]})",
-            )
-            result = rebase_onto(branch_wt, onto=onto, upstream=upstream)
-            if result.returncode != 0:
-                if not _wait_for_rebase_resolution(
-                    ctx,
-                    branch_name=branch_name,
-                    branch_wt=branch_wt,
-                    parent_tip=parent_tip,
-                    result=result,
-                ):
-                    return 1
-
-            update_branch_fork_point(
-                ctx.db_path,
-                repo_root=repo_key,
-                branch_name=branch_name,
-                fork_point_sha=parent_tip,
-            )
-
-            remote_ref = upstream_branch(branch_wt, branch_name)
-            if remote_ref is None:
-                _emit(ctx, f"[stackman]   No upstream tracking branch for {branch_name!r}; skipping push.")
-            else:
-                _emit(
-                    ctx,
-                    f"[stackman]   Pushing {branch_name!r} with --force-with-lease "
-                    f"(upstream {remote_ref})",
-                )
-                push_result = push_force_with_lease_current_branch(branch_wt)
-                if push_result.returncode != 0:
-                    msg = (push_result.stderr or "").strip() or (push_result.stdout or "").strip()
-                    ctx.stderr.write(
-                        f"[stackman] Push failed for {branch_name!r} (exit {push_result.returncode}).\n"
-                    )
-                    if msg:
-                        ctx.stderr.write(f"{msg}\n")
-                    return 1
+                record=record,
+                plan=plan,
+                worktree=worktree,
+                repo_key=repo_key,
+                squash=squash,
+                verbose=verbose,
+            ):
+                return 1
     finally:
         if not rebase_in_progress_any_linked(worktree):
             if current_branch(worktree) != original_branch:
@@ -250,11 +204,134 @@ def run(
     return 0
 
 
-def _emit(ctx: AppContext, message: str) -> None:
-    ctx.stdout.write(message)
-    if not message.endswith("\n"):
-        ctx.stdout.write("\n")
-    ctx.stdout.flush()
+def _sync_one_branch(
+    ctx: AppContext,
+    *,
+    record: BranchRecord,
+    plan: SyncPlan,
+    worktree: Path,
+    repo_key: str,
+    squash: bool,
+    verbose: bool,
+) -> bool:
+    """Rebase + push one branch. Returns True to continue, False to abort the sync."""
+    branch_name = record.branch_name
+    parent_name = _sync_parent_name(plan, record)
+    if parent_name is None:
+        _emit(ctx, f"[stackman] Skipping {branch_name!r} (no parent recorded).")
+        return True
+
+    branch_wt = worktree_path_for_branch(worktree, branch_name) or worktree
+    if branch_wt != worktree:
+        _emit(
+            ctx,
+            f"[stackman] → Using worktree {branch_wt} (branch {branch_name!r} is checked out there)",
+        )
+    else:
+        _emit(ctx, f"[stackman] → Checking out {branch_name!r}")
+    checkout(branch_wt, branch_name)
+
+    parent_tip = rev_parse(branch_wt, parent_name)
+    upstream = record.fork_point_sha
+
+    if squash and not _squash_branch(ctx, branch_wt, branch_name, upstream):
+        return False
+
+    if upstream != parent_tip:
+        if verbose:
+            _emit(
+                ctx,
+                f"[stackman]   git rebase --onto {parent_tip} {upstream} "
+                f"(replay commits after stored fork-point onto current {parent_name!r})",
+            )
+        _emit(
+            ctx,
+            f"[stackman]   Rebasing {branch_name!r} onto {parent_name!r} "
+            f"at {parent_tip[:7]} (fork-point {upstream[:7]})",
+        )
+        result = rebase_onto(branch_wt, onto=parent_tip, upstream=upstream)
+        if result.returncode != 0:
+            if not _wait_for_rebase_resolution(
+                ctx,
+                branch_name=branch_name,
+                branch_wt=branch_wt,
+                parent_tip=parent_tip,
+                result=result,
+            ):
+                return False
+    else:
+        _emit(
+            ctx,
+            f"[stackman]   Skipping {branch_name!r}; stored fork-point already matches "
+            f"current {parent_name!r} tip {parent_tip[:7]}",
+        )
+
+    # The branch is now based on parent_tip; record that (safe to persist before the
+    # push because the push decision below is driven by the actual local↔remote diff,
+    # not by this fork-point — so a failed push is retried on the next run).
+    update_branch_fork_point(
+        ctx.db_path,
+        repo_root=repo_key,
+        branch_name=branch_name,
+        fork_point_sha=parent_tip,
+    )
+
+    return _push_if_needed(ctx, branch_wt, branch_name)
+
+
+def _squash_branch(ctx: AppContext, branch_wt: Path, branch_name: str, upstream: str) -> bool:
+    commit_count, squash_result = squash_commits_since(branch_wt, upstream)
+    if commit_count < 2:
+        _emit(
+            ctx,
+            f"[stackman]   Squash skipped for {branch_name!r} "
+            f"({commit_count} post-fork commit{'' if commit_count == 1 else 's'})",
+        )
+        return True
+    _emit(
+        ctx,
+        f"[stackman]   Squashing {branch_name!r}: collapsing {commit_count} "
+        "post-fork commits into one",
+    )
+    if squash_result is None or squash_result.returncode != 0:
+        msg = ""
+        if squash_result is not None:
+            msg = (squash_result.stderr or "").strip() or (squash_result.stdout or "").strip()
+        ctx.stderr.write(f"[stackman] Squash failed on {branch_name!r}.\n")
+        if msg:
+            ctx.stderr.write(f"{msg}\n")
+        return False
+    return True
+
+
+def _push_if_needed(ctx: AppContext, branch_wt: Path, branch_name: str) -> bool:
+    """Push only when the local branch actually differs from its upstream."""
+    remote_ref = upstream_branch(branch_wt, branch_name)
+    if remote_ref is None:
+        _emit(ctx, f"[stackman]   No upstream tracking branch for {branch_name!r}; skipping push.")
+        return True
+    local_sha = rev_parse(branch_wt, branch_name)
+    remote_sha = rev_parse_or_none(branch_wt, remote_ref)
+    if remote_sha is not None and local_sha == remote_sha:
+        _emit(
+            ctx,
+            f"[stackman]   Remote {remote_ref} already up to date for {branch_name!r}; skipping push.",
+        )
+        return True
+    _emit(
+        ctx,
+        f"[stackman]   Pushing {branch_name!r} with --force-with-lease (upstream {remote_ref})",
+    )
+    push_result = push_force_with_lease_current_branch(branch_wt)
+    if push_result.returncode != 0:
+        msg = (push_result.stderr or "").strip() or (push_result.stdout or "").strip()
+        ctx.stderr.write(
+            f"[stackman] Push failed for {branch_name!r} (exit {push_result.returncode}).\n"
+        )
+        if msg:
+            ctx.stderr.write(f"{msg}\n")
+        return False
+    return True
 
 
 def _sync_parent_name(plan: SyncPlan, record: BranchRecord) -> str | None:

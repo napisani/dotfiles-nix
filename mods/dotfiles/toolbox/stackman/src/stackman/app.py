@@ -29,17 +29,18 @@ class StackmanApp:
             stack_id_factory=self.stack_id_factory,
         )
 
-    def status(self, *, branch: str | None = None) -> int:
-        ctx = self._ctx()
-        return runner.run_safely(ctx, lambda c: status.run(c, branch=branch))
+    def _run(self, fn: Callable[[AppContext], int]) -> int:
+        """Run a command under the shared error boundary against a fresh context."""
+        return runner.run_safely(self._ctx(), fn)
+
+    def status(self, *, branch: str | None = None, as_json: bool = False) -> int:
+        return self._run(lambda c: status.run(c, branch=branch, as_json=as_json))
 
     def track(self, *, branch: str | None = None, parent: str) -> int:
-        ctx = self._ctx()
-        return runner.run_safely(ctx, lambda c: track.run_track(c, branch=branch, parent=parent))
+        return self._run(lambda c: track.run_track(c, branch=branch, parent=parent))
 
     def chain(self, *, anchor: str, branches: Sequence[str]) -> int:
-        ctx = self._ctx()
-        return runner.run_safely(ctx, lambda c: track.run_chain(c, anchor=anchor, branches=branches))
+        return self._run(lambda c: track.run_chain(c, anchor=anchor, branches=branches))
 
     def sync(
         self,
@@ -50,9 +51,7 @@ class StackmanApp:
         squash: bool = False,
         allow_dirty: bool = False,
     ) -> int:
-        ctx = self._ctx()
-        return runner.run_safely(
-            ctx,
+        return self._run(
             lambda c: sync.run(
                 c,
                 branch=branch,
@@ -60,20 +59,26 @@ class StackmanApp:
                 verbose=verbose,
                 squash=squash,
                 allow_dirty=allow_dirty,
-            ),
+            )
         )
 
-    def list(self) -> int:
-        return runner.run_safely(self._ctx(), listing.run_repo_list)
+    def list(self, *, as_json: bool = False) -> int:
+        return self._run(lambda c: listing.run_repo_list(c, as_json=as_json))
 
     def discover(self, *, pr_number: int, apply: bool = False) -> int:
-        ctx = self._ctx()
-        return runner.run_safely(ctx, lambda c: discover.run(c, pr_number=pr_number, apply=apply))
+        return self._run(lambda c: discover.run(c, pr_number=pr_number, apply=apply))
 
     def done(self, *, branch: str | None = None, dry_run: bool = False) -> int:
-        ctx = self._ctx()
-        return runner.run_safely(ctx, lambda c: done.run(c, branch=branch, dry_run=dry_run))
+        return self._run(lambda c: done.run(c, branch=branch, dry_run=dry_run))
 
     def forget(self, *, branch: str | None = None) -> int:
-        ctx = self._ctx()
-        return runner.run_safely(ctx, lambda c: forget.run(c, branch=branch))
+        return self._run(lambda c: forget.run(c, branch=branch))
+
+    def forget_all(
+        self, *, is_global: bool = False, assume_yes: bool = False, dry_run: bool = False
+    ) -> int:
+        return self._run(
+            lambda c: forget.run_all(
+                c, is_global=is_global, assume_yes=assume_yes, dry_run=dry_run
+            )
+        )

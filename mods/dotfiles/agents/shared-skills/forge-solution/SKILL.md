@@ -1,24 +1,23 @@
 ---
 name: forge-solution
-description: A guided design session that ends in an implementation-ready typed tech spec. Opens with brainstorm-style framing (a few high-leverage questions, one at a time), escalates to exhaustive grilling frontier rounds, maintains the domain glossary and ADRs as permanent side effects, and produces an ephemeral tech spec in .scratch/ as the handoff artifact.
+description: A guided design session that ends in an implementation-ready typed tech spec. Opens with brainstorm-style framing (a few high-leverage questions, one at a time), escalates to exhaustive grilling frontier rounds, and produces an ephemeral tech spec in .scratch/ as the handoff artifact. Project-agnostic — writes nothing to the repo but the throwaway spec, and leaves long-lived documentation to each project's own conventions.
 disable-model-invocation: true
 ---
 
 # Forge Solution
 
-Turn an idea into an implementation-ready **tech spec** through a design session with three concurrent strands:
+Turn an idea into an implementation-ready **tech spec** through a design session with two strands:
 
 1. **Interview** — brainstorm-style framing first, then exhaustive grilling. Gentle on-ramp, rigorous close.
-2. **Permanent docs** — domain-modeling discipline runs the whole session. The glossary (`CONTEXT.md`) and ADRs are the *only* artifacts that touch the repo.
-3. **Ephemeral spec** — the deliverable is a typed call-stack tech spec written to `.scratch/`, never committed. It exists to hand the design to an implementing agent, then die.
+2. **Ephemeral spec** — the deliverable is a typed call-stack tech spec written to `.scratch/`, never committed. It exists to hand the design to an implementing agent, then die.
 
-This skill is **design-only**. Do not implement, scaffold, or write production code at any point. The session ends when the spec is approved.
+This skill is **design-only** and **project-agnostic**. Do not implement, scaffold, or write production code at any point. The throwaway spec is the *only* thing this skill writes to the repo — long-lived documentation is deliberately out of scope, since doc conventions differ across projects and belong to each project, not to this skill. The session ends when the spec is approved.
 
 ## Phase 1 — Frame (brainstorm cadence)
 
 Understand the problem before interrogating the design.
 
-- **Explore first, ask second.** Read the relevant code, docs, `CONTEXT.md`, and recent commits before asking anything. Never ask the user for a fact you can look up — their time is for *decisions*, not facts.
+- **Explore first, ask second.** Read the relevant code, docs, and recent commits before asking anything. Never ask the user for a fact you can look up — their time is for *decisions*, not facts.
 - **Scope check before detail.** If the request spans multiple independent subsystems, say so immediately and help decompose into sub-projects (what are the pieces, how do they relate, what order). Then forge the first sub-project; each gets its own session. Don't spend questions refining details of something that needs decomposition first.
 - **One question at a time**, and only the questions that most change the design: purpose, constraints, success criteria. Prefer multiple choice with a recommendation. Zoom out when an answer implies a broader concern than the question asked — surfacing that is the point of this phase.
 - **Propose 2–3 materially different approaches** once the problem is understood. Materially different means they differ in interface shape, seam placement, ownership, call stack, or module boundaries — not just names. Lead with your recommendation and why. YAGNI ruthlessly.
@@ -42,17 +41,6 @@ The **frontier** is every decision whose prerequisites are settled — askable *
 - Aim the tree at what the spec will need (the outline in [references/spec-format.md](references/spec-format.md)). The frontier is empty only when you could fill every section without inventing: domain types and state model, interfaces and APIs, expected failure types, seams and adapters, call stacks from entrypoint to side effect, failure/retry/cancellation/idempotency behavior where reachable, files to touch, and what "done" means (the test plan).
 
 Done means empty frontier: every branch visited, nothing silently assumed.
-
-## Throughout — permanent docs
-
-Domain-modeling discipline runs across both phases. This is where the session leaves lasting value in the repo:
-
-- Challenge terms that conflict with the existing glossary; sharpen vague or overloaded language into canonical terms ("you're saying 'account' — do you mean the Customer or the User?").
-- Stress-test domain relationships with concrete edge-case scenarios, and check claims against the code — surface contradictions when found.
-- Update `CONTEXT.md` inline the moment a term resolves — don't batch. Format in [references/glossary-format.md](references/glossary-format.md). Glossary only, no implementation details.
-- Offer an ADR only when all three hold: hard to reverse, surprising without context, the result of a real trade-off. Format and qualifying examples in [references/adr-format.md](references/adr-format.md). When one is warranted, write it during the session, not after.
-
-These glossary and ADR updates are the only repo writes this skill makes.
 
 ## Phase 3 — Write the spec
 

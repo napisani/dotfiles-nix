@@ -36,7 +36,9 @@ def test_list_shows_repo_local_tracked_branches(git_repo, stackman_db_path) -> N
     out = stdout.getvalue()
     assert "Tracked branches in" in out
     assert "feature" in out
-    assert "parent main" in out
+    # The tree roots at the (untracked) parent anchor with the branch nested under it.
+    assert "main" in out
+    assert "└── feature" in out
     assert "sm_feature" not in out
 
 
@@ -69,7 +71,8 @@ def test_list_shows_tracked_branches_without_stack_labels(git_repo, stackman_db_
     out = stdout.getvalue()
     assert "Tracked branches in" in out
     assert "dead-code2" in out
-    assert "parent main" in out
+    assert "main" in out
+    assert "└── dead-code2" in out
     assert "stacks" not in out
 
 

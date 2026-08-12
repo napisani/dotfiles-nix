@@ -28,7 +28,10 @@ let
     REPO_SUBDIR="''${REPO_SUBDIR:-priv/kube-home-lab}"
     branch="''${REPO_BRANCH:-main}"
     sentinel="$WORKSPACE/last-processed-commit"
-    NTFY_TOPIC="''${NTFY_TOPIC:-https://ntfy.napisani.xyz/backups}"
+    # Dedicated gitops topic, matching host-sync.ts's getNotifyTopic("gitops-sync")
+    # default — this is a GitOps reconcile, not a backup job, so it must not land
+    # on the shared /backups channel.
+    NTFY_TOPIC="''${NTFY_TOPIC:-https://ntfy.napisani.xyz/gitops-sync}"
     TAG="[gitops-sync]"
 
     notify() {
@@ -58,12 +61,16 @@ let
     # those deps are defined once in the project, not duplicated on this host.
     ${pkgs.git}/bin/git -C "$REPO_DIR" reset --hard --quiet "$target"
 
-    notify "START GitOps sync (''${branch} ''${target:0:8})"
-
-    if ${config.nix.package}/bin/nix develop "$REPO_DIR/$REPO_SUBDIR" \
+    # Don't notify on START/SUCCESS here: the whole-monorepo pre-gate above
+    # passes for any monorepo commit (docs, dotfiles-nix, …), but host-sync.ts
+    # then does the path-scoped check and no-ops when priv/kube-home-lab is
+    # unchanged — so a bootstrap-level SUCCESS would fire on every unrelated
+    # commit. host-sync.ts already emits an ntfy "Applied commit …" only when
+    # it actually reconciles, plus per-stage "FAILED …" notifications. Keep
+    # just the ERROR backstop here for the case where `nix develop` fails to
+    # even enter the shell (host-sync.ts never runs, so it can't self-report).
+    if ! ${config.nix.package}/bin/nix develop "$REPO_DIR/$REPO_SUBDIR" \
       --command ${pkgs.bash}/bin/bash "$REPO_DIR/$REPO_SUBDIR/deploy/host-sync.sh"; then
-      notify "SUCCESS GitOps sync completed (''${branch} ''${target:0:8})"
-    else
       status=$?
       notify "ERROR GitOps sync failed (exit ''${status}) (''${branch} ''${target:0:8})"
       exit "''${status}"

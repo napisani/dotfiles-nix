@@ -1,6 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import NewType
+
+# Distinct string-shaped domain concepts. NewType is a zero-cost identity at runtime
+# but lets a type checker catch a branch name passed where a stack id / repo key /
+# SHA is expected (they were all bare `str` before).
+BranchName = NewType("BranchName", str)
+StackId = NewType("StackId", str)
+RepoKey = NewType("RepoKey", str)
+Sha = NewType("Sha", str)
 
 
 @dataclass(frozen=True)
@@ -15,16 +24,15 @@ class BranchRecord:
     id: int
     repo_id: int
     repo_root: str
-    branch_name: str
-    parent_branch_name: str | None
-    fork_point_sha: str
+    branch_name: BranchName
+    parent_branch_name: BranchName | None
+    fork_point_sha: Sha
     created_at: str | None = None
     updated_at: str | None = None
 
 
 @dataclass(frozen=True)
 class StackRecord:
-    id: str
-    name: str | None = None
-    anchor_branch_name: str | None = None
+    id: StackId
+    anchor_branch_name: BranchName | None = None
     created_at: str | None = None

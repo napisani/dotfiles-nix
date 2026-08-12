@@ -10,9 +10,9 @@ def test_click_cli_help_shows_only_branch_first_commands() -> None:
 
     assert result.exit_code == 0
     assert "Manage stacked Git branches." in result.output
-    for command in ("track", "chain", "sync", "done", "list", "forget", "discover"):
+    for command in ("track", "chain", "sync", "done", "list", "forget", "discover", "status"):
         assert command in result.output
-    for legacy in ("init", "merged", "stacks", "status"):
+    for legacy in ("init", "merged", "stacks"):
         assert legacy not in result.output
     assert "\n  stack " not in result.output
 
@@ -60,7 +60,7 @@ def test_done_forget_and_list_commands_are_wired() -> None:
 def test_legacy_commands_are_removed() -> None:
     runner = CliRunner()
 
-    for command in ("init", "merged", "stacks", "stack", "status"):
+    for command in ("init", "merged", "stacks", "stack"):
         result = runner.invoke(cli, [command, "--help"])
         assert result.exit_code != 0
         assert "No such command" in result.output

@@ -15,26 +15,70 @@ The CLI is branch-first. Commands can be run from any worktree in the repository
 
 ```bash
 stackman                         # show current branch tracking status
+stackman --version               # print version and exit
+stackman status [BRANCH] [--json]
 stackman track [BRANCH] --parent PARENT
 stackman chain ANCHOR BRANCH...
 stackman sync [BRANCH] [--allow-dirty]
 stackman done [BRANCH]
-stackman list
+stackman list [--json]
 stackman forget [BRANCH]
+stackman forget --all [--global] [--dry-run] [-y]
 stackman discover PR_NUMBER [--apply]
 ```
+
+The global `--db-path` and `--repo` options may be given either before the
+subcommand (`stackman --repo X list`) or after it (`stackman list --repo X`);
+a subcommand-level value overrides the top-level one.
+
+### Non-interactive use (scripts / agents)
+
+A TTY is never required. `status` and `list` accept `--json`, which emits a
+single JSON object to stdout and nothing else; `status --json` exits `0` whether
+or not the branch is tracked (read the `tracked` field). Destructive bulk
+operations (`forget --all`) require `-y`/`--yes` when stdin is not a TTY rather
+than blocking on a prompt.
+
+### Shell completion
+
+`BRANCH` arguments complete from tracked branch names (`sync`/`done`/`forget`/
+`status`) or all local branches (`track`/`chain`). Completion is Click-native;
+enable it per shell, e.g. for Zsh:
+
+```bash
+eval "$(_STACKMAN_COMPLETE=zsh_source stackman)"   # bash_source / fish_source also supported
+```
+
+### Output conventions
+
+Streams and voice are deliberate so output is predictable for humans and scripts:
+
+- **stdout** carries the command's result: tracking confirmations, the `list`
+  tree, `status` fields, the `discover` plan, and (for `--json`) exactly one JSON
+  object and nothing else.
+- **stderr** carries diagnostics, prompts, and errors — including the
+  `forget --all` confirmation prompt and every failure message.
+- Progress narration during a multi-step operation (notably `sync`) is prefixed
+  with `[stackman]` and written to stdout; final result lines are unprefixed.
+  `sync` progress is intentionally on stdout (not stderr) because it is the
+  command's primary human-facing report and downstream tooling parses it.
+- Query commands never require a TTY. Confirmations for destructive bulk
+  operations are the only interactive prompts, and they are always bypassable
+  with `--yes`.
 
 ### Command semantics
 
 | Command | Role |
 |---------|------|
 | `stackman` | Show tracking state for the current branch. |
+| `stackman status [BRANCH] [--json]` | Show tracking state for `BRANCH` (defaults to current). `--json` emits a machine-readable object and exits 0 even when untracked. |
 | `stackman track [BRANCH] --parent PARENT` | Register or update one branch with its parent and fork point. `BRANCH` defaults to the current branch. |
 | `stackman chain ANCHOR BRANCH...` | Register an existing linear stack. `ANCHOR` is not tracked; every later branch points at the previous item. |
 | `stackman sync [BRANCH]` | Sync the full stack containing `BRANCH`; `BRANCH` defaults to the current branch. |
 | `stackman done [BRANCH]` | Mark a branch as done: remove it from Stackman tracking and reparent its children onto its recorded parent. Does not delete Git branches. |
-| `stackman list` | List tracked branches in the current repository. |
+| `stackman list [--json]` | Show tracked branches in the current repository as a stack tree rooted at each anchor; the current branch is marked `(current)`. Colorized only on a TTY (honors `NO_COLOR`). `--json` emits a machine-readable object. |
 | `stackman forget [BRANCH]` | Stop tracking a branch without reparenting children. Does not delete Git branches. |
+| `stackman forget --all [--global] [--dry-run] [-y]` | Forget all tracked branches in the current repository (or every repository with `--global`). `--dry-run` lists what would be removed and changes nothing. Prompts for confirmation unless `-y`/`--yes` (required when stdin is not a TTY). Does not delete Git branches. |
 | `stackman discover PR_NUMBER [--apply]` | Use `gh` to discover an open PR stack from a PR number. Read-only by default; `--apply` imports local branches into Stackman. |
 
 ## Core model

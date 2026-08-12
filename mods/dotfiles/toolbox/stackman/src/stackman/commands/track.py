@@ -1,20 +1,25 @@
 from __future__ import annotations
 
+from collections import defaultdict, deque
 from pathlib import Path
 from typing import Sequence
 
 from ..context import AppContext
-from ..git_ops import branch_exists, current_branch, merge_base, repo_db_key, repo_root
+from ..git_ops import branch_exists, merge_base
 from ..stack_ids import new_auto_stack_id
-from ..store import clear_branch_labels, get_branch, initialize, label_branch, list_branch_labels, upsert_branch
+from ..store import (
+    clear_branch_labels,
+    get_branch,
+    label_branch,
+    list_branch_labels,
+    list_branches,
+    upsert_branch,
+)
+from .shared import resolve_repo
 
 
 def run_track(ctx: AppContext, *, branch: str | None, parent: str) -> int:
-    initialize(ctx.db_path)
-
-    worktree = repo_root(ctx.cwd)
-    repo_key = repo_db_key(ctx.cwd)
-    branch_name = branch or current_branch(worktree)
+    worktree, repo_key, branch_name = resolve_repo(ctx, branch)
     _ensure_branch_exists(worktree, branch_name, role="branch")
     _ensure_branch_exists(worktree, parent, role="parent")
 
@@ -29,19 +34,43 @@ def run_track(ctx: AppContext, *, branch: str | None, parent: str) -> int:
 
     stack_ids, label_mode = _stack_labels_for_tracked_branch(ctx, repo_key, parent)
     anchor_branch_name = None if label_mode == "inherited" else parent
-    clear_branch_labels(ctx.db_path, repo_key, branch_name)
-    for stack_id in stack_ids:
-        label_branch(ctx.db_path, repo_key, branch_name, stack_id, anchor_branch_name=anchor_branch_name)
+    _relabel(ctx, repo_key, branch_name, stack_ids, anchor_branch_name)
+    # Keep the connected line in one stack: re-tracking an interior branch (e.g. onto a
+    # now-untracked parent, which mints a new stack id) must not orphan descendants that
+    # still carry the old label.
+    _propagate_labels_to_descendants(ctx, repo_key, branch_name, stack_ids, anchor_branch_name)
 
     ctx.stdout.write(f"Tracked branch {branch_name!r} with parent {parent!r} at {fork_point_sha[:7]}.\n")
     return 0
 
 
-def run_chain(ctx: AppContext, *, anchor: str, branches: Sequence[str]) -> int:
-    initialize(ctx.db_path)
+def _relabel(ctx: AppContext, repo_key: str, branch_name: str, stack_ids: list[str], anchor: str | None) -> None:
+    clear_branch_labels(ctx.db_path, repo_key, branch_name)
+    for stack_id in stack_ids:
+        label_branch(ctx.db_path, repo_key, branch_name, stack_id, anchor_branch_name=anchor)
 
-    worktree = repo_root(ctx.cwd)
-    repo_key = repo_db_key(ctx.cwd)
+
+def _propagate_labels_to_descendants(
+    ctx: AppContext, repo_key: str, root: str, stack_ids: list[str], anchor: str | None
+) -> None:
+    children: dict[str, list[str]] = defaultdict(list)
+    for record in list_branches(ctx.db_path, repo_key):
+        if record.parent_branch_name is not None:
+            children[record.parent_branch_name].append(record.branch_name)
+
+    queue: deque[str] = deque(children.get(root, []))
+    seen: set[str] = set()
+    while queue:
+        name = queue.popleft()
+        if name in seen:
+            continue
+        seen.add(name)
+        _relabel(ctx, repo_key, name, stack_ids, anchor)
+        queue.extend(children.get(name, []))
+
+
+def run_chain(ctx: AppContext, *, anchor: str, branches: Sequence[str]) -> int:
+    worktree, repo_key, _ = resolve_repo(ctx)
     chain = [anchor, *branches]
     _validate_chain(chain)
     for branch_name in chain:

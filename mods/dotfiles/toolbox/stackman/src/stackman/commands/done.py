@@ -3,17 +3,18 @@ from __future__ import annotations
 from pathlib import Path
 
 from ..context import AppContext
-from ..git_ops import current_branch, merge_base, repo_db_key, repo_root
-from ..store import delete_branch, get_branch, initialize, list_branches_with_parent, upsert_branch
+from ..git_ops import merge_base
+from ..store import (
+    get_branch,
+    list_branches_with_parent,
+    reparent_children_and_delete_branch,
+)
+from .shared import emit as _emit, resolve_repo
 
 
 def run(ctx: AppContext, *, branch: str | None, dry_run: bool = False) -> int:
     """Mark a tracked branch as done and lift its children onto its parent."""
-    initialize(ctx.db_path)
-
-    worktree = repo_root(ctx.cwd)
-    repo_key = repo_db_key(ctx.cwd)
-    branch_name = branch or current_branch(worktree)
+    worktree, repo_key, branch_name = resolve_repo(ctx, branch)
     tracked = get_branch(ctx.db_path, repo_key, branch_name)
     if tracked is None:
         raise SystemExit(
@@ -62,17 +63,15 @@ def _drop_branch_and_reparent_children(
         _emit(ctx, "[stackman] Dry run complete (no database changes).")
         return 0
 
-    for row in children:
-        fork = merge_base(worktree, row.branch_name, parent_name)
-        upsert_branch(
-            ctx.db_path,
-            repo_root=repo_key,
-            branch_name=row.branch_name,
-            parent_branch_name=parent_name,
-            fork_point_sha=fork,
-        )
-
-    if not delete_branch(ctx.db_path, repo_key, branch_name):
+    # Compute fork-points (git) up front, then commit the reparent + delete as one
+    # transaction so an interruption can't leave a half-reparented graph.
+    reparents = [
+        (row.branch_name, parent_name, merge_base(worktree, row.branch_name, parent_name))
+        for row in children
+    ]
+    if not reparent_children_and_delete_branch(
+        ctx.db_path, repo_key, branch_name=branch_name, reparents=reparents
+    ):
         raise SystemExit(f"Failed to remove branch {branch_name!r} from stackman tracking.")
 
     if children:
@@ -87,9 +86,3 @@ def _drop_branch_and_reparent_children(
             "(Git branches unchanged).\n"
         )
     return 0
-
-
-def _emit(ctx: AppContext, message: str) -> None:
-    ctx.stdout.write(message)
-    if not message.endswith("\n"):
-        ctx.stdout.write("\n")

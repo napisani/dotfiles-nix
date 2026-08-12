@@ -1,19 +1,35 @@
 from __future__ import annotations
 
+import json
+
 from ..context import AppContext
-from ..git_ops import branch_exists, current_branch, format_repo_key_for_display, repo_db_key, repo_root
-from ..store import get_branch, initialize
+from ..git_ops import branch_exists, format_repo_key_for_display
+from ..store import get_branch
+from .shared import resolve_repo
 
 
-def run(ctx: AppContext, *, branch: str | None = None) -> int:
-    initialize(ctx.db_path)
-    worktree = repo_root(ctx.cwd)
-    repo_key = repo_db_key(ctx.cwd)
-    branch_name = branch or current_branch(worktree)
+def run(ctx: AppContext, *, branch: str | None = None, as_json: bool = False) -> int:
+    worktree, repo_key, branch_name = resolve_repo(ctx, branch)
     if branch is not None and not branch_exists(worktree, branch_name):
         raise SystemExit(f"Branch {branch_name!r} does not exist in this Git repository.")
 
     tracked = get_branch(ctx.db_path, repo_key, branch_name)
+
+    if as_json:
+        payload = {
+            "branch": branch_name,
+            "tracked": tracked is not None,
+            "parent": tracked.parent_branch_name if tracked else None,
+            "fork_point": tracked.fork_point_sha if tracked else None,
+            "worktree": str(worktree),
+            "repo": format_repo_key_for_display(repo_key),
+        }
+        json.dump(payload, ctx.stdout)
+        ctx.stdout.write("\n")
+        # A successful query is exit 0 whether or not the branch is tracked, so
+        # scripts/agents can parse the result without branching on exit code.
+        return 0
+
     if tracked is None:
         ctx.stdout.write(
             f"Branch {branch_name!r} is not tracked in this Git repository "

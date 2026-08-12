@@ -11,23 +11,21 @@ from .rows import stack_from_row
 def create_stack(
     db_path: Path | str,
     stack_id: str,
-    name: str | None = None,
     *,
     anchor_branch_name: str | None = None,
 ) -> StackRecord:
     with connect(db_path) as conn:
         conn.execute(
             """
-            INSERT INTO stacks(id, name, anchor_branch_name)
-            VALUES (?, ?, ?)
+            INSERT INTO stacks(id, anchor_branch_name)
+            VALUES (?, ?)
             ON CONFLICT(id) DO UPDATE SET
-                name = COALESCE(excluded.name, stacks.name),
                 anchor_branch_name = COALESCE(stacks.anchor_branch_name, excluded.anchor_branch_name)
             """,
-            (stack_id, name, anchor_branch_name),
+            (stack_id, anchor_branch_name),
         )
         row = conn.execute(
-            "SELECT id, name, anchor_branch_name, created_at FROM stacks WHERE id = ?",
+            "SELECT id, anchor_branch_name, created_at FROM stacks WHERE id = ?",
             (stack_id,),
         ).fetchone()
     return stack_from_row(row)
@@ -36,7 +34,7 @@ def create_stack(
 def get_stack(db_path: Path | str, stack_id: str) -> StackRecord | None:
     with connect(db_path) as conn:
         row = conn.execute(
-            "SELECT id, name, anchor_branch_name, created_at FROM stacks WHERE id = ?",
+            "SELECT id, anchor_branch_name, created_at FROM stacks WHERE id = ?",
             (stack_id,),
         ).fetchone()
     return stack_from_row(row) if row else None

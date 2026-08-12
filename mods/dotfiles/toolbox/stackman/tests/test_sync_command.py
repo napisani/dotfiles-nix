@@ -1234,3 +1234,98 @@ def test_sync_exits_non_zero_when_conflicted_rebase_is_aborted(
     assert git_repo.rev_parse("feature") == original_tip
     assert "press Enter to resume" in stdout.getvalue()
     assert "was aborted" in stderr.getvalue()
+
+
+def test_sync_pushes_after_squash_even_when_no_rebase_needed(
+    git_repo,
+    stackman_db_path,
+    tmp_path,
+) -> None:
+    # Regression for the skip-guard/fork-point bug: when --squash rewrites HEAD but the
+    # stored fork-point already matches the parent tip (no rebase needed), the branch
+    # must still be pushed. Previously the `upstream == onto` guard skipped the push,
+    # leaving the remote stale while reporting a skip.
+    remote = tmp_path / "remote.git"
+    subprocess.run(["git", "init", "--bare", str(remote)], check=True, capture_output=True, text=True)
+    git_repo.git("remote", "add", "origin", str(remote))
+    git_repo.git("push", "-u", "origin", "main")
+
+    git_repo.checkout_new("feature", from_ref="main")
+    git_repo.commit("f1", filename="f1.txt", content="one\n")
+    git_repo.commit("f2", filename="f2.txt", content="two\n")
+    git_repo.commit("f3", filename="f3.txt", content="three\n")
+    git_repo.git("push", "-u", "origin", "feature")
+    remote_before = git_repo.git("rev-parse", "origin/feature")
+
+    # main does NOT move, so the stored fork-point equals main's tip: no rebase needed.
+    fork = git_repo.merge_base("feature", "main")
+    initialize(stackman_db_path)
+    repo_key = git_repo.canonical_repo_key()
+    upsert_branch(
+        stackman_db_path,
+        repo_root=repo_key,
+        branch_name="feature",
+        parent_branch_name="main",
+        fork_point_sha=fork,
+    )
+    label_branch(stackman_db_path, repo_key, "feature", "stack-1", anchor_branch_name="main")
+
+    git_repo.checkout("main")
+    stdout = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=stdout,
+        stderr=io.StringIO(),
+    )
+    assert app.sync(branch="feature", squash=True) == 0
+
+    out = stdout.getvalue()
+    assert "collapsing 3 post-fork commits into one" in out
+    assert "Pushing 'feature'" in out
+    # The remote must now match the squashed local tip, not the stale pre-squash commit.
+    local_tip = git_repo.rev_parse("feature")
+    remote_after = git_repo.git("rev-parse", "origin/feature")
+    assert remote_after == local_tip
+    assert remote_after != remote_before
+    assert _commit_count_in_range(git_repo, "main..feature") == 1
+
+
+def test_sync_skips_push_when_remote_already_current(
+    git_repo,
+    stackman_db_path,
+    tmp_path,
+) -> None:
+    remote = tmp_path / "remote2.git"
+    subprocess.run(["git", "init", "--bare", str(remote)], check=True, capture_output=True, text=True)
+    git_repo.git("remote", "add", "origin", str(remote))
+    git_repo.git("push", "-u", "origin", "main")
+
+    git_repo.checkout_new("feature", from_ref="main")
+    git_repo.commit("f1", filename="f1.txt", content="one\n")
+    git_repo.git("push", "-u", "origin", "feature")
+
+    fork = git_repo.merge_base("feature", "main")
+    initialize(stackman_db_path)
+    repo_key = git_repo.canonical_repo_key()
+    upsert_branch(
+        stackman_db_path,
+        repo_root=repo_key,
+        branch_name="feature",
+        parent_branch_name="main",
+        fork_point_sha=fork,
+    )
+    label_branch(stackman_db_path, repo_key, "feature", "stack-1", anchor_branch_name="main")
+
+    git_repo.checkout("main")
+    stdout = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=stdout,
+        stderr=io.StringIO(),
+    )
+    assert app.sync(branch="feature") == 0
+    assert "already up to date" in stdout.getvalue()
