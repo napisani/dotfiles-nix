@@ -1329,3 +1329,248 @@ def test_sync_skips_push_when_remote_already_current(
     )
     assert app.sync(branch="feature") == 0
     assert "already up to date" in stdout.getvalue()
+
+
+def test_sync_non_interactive_without_resolver_fails_with_conflict(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    """Test that sync fails with a clear error when no resolver is provided and stdin is not interactive."""
+    git_repo.commit("shared base", filename="shared.txt", content="base\n")
+    git_repo.checkout_new("feature", from_ref="main")
+    git_repo.commit("feature edits shared", filename="shared.txt", content="feature\n")
+    fork = git_repo.merge_base("feature", "main")
+
+    db_path = stackman_db_path
+    initialize(db_path)
+    upsert_branch(
+        db_path,
+        repo_root=git_repo.canonical_repo_key(),
+        branch_name="feature",
+        parent_branch_name="main",
+        fork_point_sha=fork,
+    )
+    label_branch(db_path, git_repo.canonical_repo_key(), "feature", "stack-no-resolver")
+
+    git_repo.checkout("main")
+    git_repo.commit("main edits shared", filename="shared.txt", content="main\n")
+
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    # Pass an empty StringIO stdin to simulate non-interactive mode
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=stdout,
+        stderr=stderr,
+    )
+    # Force non-interactive with no_wait=True and no resolver
+    assert app.sync(branch="feature", no_wait=True) != 0
+
+    err = stderr.getvalue()
+    assert "Conflict resolution required" in err or "no resolver" in err.lower()
+
+
+def test_sync_with_resolver_resolves_conflict(
+    git_repo,
+    stackman_db_path,
+    tmp_path,
+) -> None:
+    """Test that sync with a resolver command succeeds when the resolver completes the rebase."""
+    git_repo.commit("shared base", filename="shared.txt", content="base\n")
+    git_repo.checkout_new("feature", from_ref="main")
+    git_repo.commit("feature edits shared", filename="shared.txt", content="feature\n")
+    fork = git_repo.merge_base("feature", "main")
+
+    db_path = stackman_db_path
+    initialize(db_path)
+    repo_key = git_repo.canonical_repo_key()
+    upsert_branch(
+        db_path,
+        repo_root=repo_key,
+        branch_name="feature",
+        parent_branch_name="main",
+        fork_point_sha=fork,
+    )
+    label_branch(db_path, repo_key, "feature", "stack-with-resolver")
+
+    git_repo.checkout("main")
+    git_repo.commit("main edits shared", filename="shared.txt", content="main\n")
+
+    # Create a resolver script that resolves the conflict
+    resolver_script = tmp_path / "resolver.sh"
+    resolver_script.write_text(
+        "#!/bin/bash\n"
+        "# Simple resolver: take both sides\n"
+        "git status --porcelain | grep -E '^UU|^AA|^DD' | awk '{print $2}' | while read file; do\n"
+        "  echo 'main' > \"$file\"\n"
+        "  echo 'feature' >> \"$file\"\n"
+        "  git add \"$file\"\n"
+        "done\n"
+        "GIT_EDITOR=true git rebase --continue\n"
+        "exit $?\n"
+    )
+    resolver_script.chmod(0o755)
+
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=stdout,
+        stderr=stderr,
+    )
+    # Use --no-wait to force non-interactive mode and pass resolver
+    result = app.sync(branch="feature", resolver=str(resolver_script), no_wait=True)
+    out = stdout.getvalue()
+    err = stderr.getvalue()
+    if result != 0:
+        print(f"Sync failed with code {result}")
+        print(f"stdout: {out}")
+        print(f"stderr: {err}")
+    assert result == 0, f"Sync failed: {err}"
+
+    assert "Invoking resolver" in out or "completed successfully" in out
+
+
+def test_sync_with_failing_resolver_aborts_sync(
+    git_repo,
+    stackman_db_path,
+    tmp_path,
+) -> None:
+    """Test that sync aborts when the resolver fails."""
+    git_repo.commit("shared base", filename="shared.txt", content="base\n")
+    git_repo.checkout_new("feature", from_ref="main")
+    git_repo.commit("feature edits shared", filename="shared.txt", content="feature\n")
+    fork = git_repo.merge_base("feature", "main")
+
+    db_path = stackman_db_path
+    initialize(db_path)
+    repo_key = git_repo.canonical_repo_key()
+    upsert_branch(
+        db_path,
+        repo_root=repo_key,
+        branch_name="feature",
+        parent_branch_name="main",
+        fork_point_sha=fork,
+    )
+    label_branch(db_path, repo_key, "feature", "stack-failing-resolver")
+
+    git_repo.checkout("main")
+    git_repo.commit("main edits shared", filename="shared.txt", content="main\n")
+
+    # Create a resolver script that fails
+    resolver_script = tmp_path / "failing_resolver.sh"
+    resolver_script.write_text(
+        "#!/bin/bash\n"
+        "# Resolver that immediately fails\n"
+        "exit 1\n"
+    )
+    resolver_script.chmod(0o755)
+
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=stdout,
+        stderr=stderr,
+    )
+    # Use --no-wait to force non-interactive mode and pass failing resolver
+    result = app.sync(branch="feature", resolver=str(resolver_script), no_wait=True)
+    assert result != 0
+
+    err = stderr.getvalue()
+    assert "failed" in err.lower() or "exit code" in err.lower()
+
+
+def test_sync_multi_branch_stack_with_mid_stack_conflict_and_resolver(
+    git_repo,
+    stackman_db_path,
+    tmp_path,
+) -> None:
+    """Integration test: multi-branch stack with conflict in the middle, resolved by resolver."""
+    # Setup: main -> a -> b -> c
+    git_repo.commit("base", filename="base.txt", content="base\n")
+
+    # Branch a: clean
+    git_repo.checkout_new("a", from_ref="main")
+    git_repo.commit("a work", filename="a.txt", content="a\n")
+    fork_a = git_repo.merge_base("a", "main")
+
+    # Branch b: will cause conflict
+    git_repo.checkout_new("b", from_ref="a")
+    git_repo.commit("b edits shared", filename="shared.txt", content="b\n")
+    fork_b = git_repo.merge_base("b", "a")
+
+    # Branch c: clean
+    git_repo.checkout_new("c", from_ref="b")
+    git_repo.commit("c work", filename="c.txt", content="c\n")
+    fork_c = git_repo.merge_base("c", "b")
+
+    # Register the stack
+    db_path = stackman_db_path
+    initialize(db_path)
+    repo_key = git_repo.canonical_repo_key()
+    upsert_branch(db_path, repo_root=repo_key, branch_name="a", parent_branch_name="main", fork_point_sha=fork_a)
+    upsert_branch(db_path, repo_root=repo_key, branch_name="b", parent_branch_name="a", fork_point_sha=fork_b)
+    upsert_branch(db_path, repo_root=repo_key, branch_name="c", parent_branch_name="b", fork_point_sha=fork_c)
+    label_branch(db_path, repo_key, "a", "stack-multi")
+
+    # Cause conflict: main edits shared.txt
+    git_repo.checkout("main")
+    git_repo.commit("main edits shared", filename="shared.txt", content="main\n")
+
+    # Create resolver that handles the conflict
+    resolver_script = tmp_path / "resolver.sh"
+    resolver_script.write_text(
+        "#!/bin/bash\n"
+        "# Resolver for multi-branch test\n"
+        "for file in $(git status --porcelain | grep -E '^UU|^AA|^DD' | awk '{print $2}'); do\n"
+        "  echo 'main' > \"$file\"\n"
+        "  echo 'branch' >> \"$file\"\n"
+        "  git add \"$file\"\n"
+        "done\n"
+        "GIT_EDITOR=true git rebase --continue\n"
+        "exit $?\n"
+    )
+    resolver_script.chmod(0o755)
+
+    # Run sync with resolver
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=stdout,
+        stderr=stderr,
+    )
+    result = app.sync(branch="a", resolver=str(resolver_script), no_wait=True)
+    assert result == 0, f"Sync failed: {stderr.getvalue()}"
+
+    # Verify all branches were rebased and are ancestors of their parents
+    git_repo.checkout("a")
+    assert git_repo.is_ancestor(git_repo.rev_parse("main"), "HEAD")
+
+    git_repo.checkout("b")
+    assert git_repo.is_ancestor(git_repo.rev_parse("a"), "HEAD")
+
+    git_repo.checkout("c")
+    assert git_repo.is_ancestor(git_repo.rev_parse("b"), "HEAD")
+
+    # Verify that fork-points were updated
+    tracked_a = get_branch(db_path, repo_key, "a")
+    assert tracked_a is not None
+    assert tracked_a.fork_point_sha == git_repo.rev_parse("main")
+
+    tracked_b = get_branch(db_path, repo_key, "b")
+    assert tracked_b is not None
+    assert tracked_b.fork_point_sha == git_repo.rev_parse("a")
+
+    tracked_c = get_branch(db_path, repo_key, "c")
+    assert tracked_c is not None
+    assert tracked_c.fork_point_sha == git_repo.rev_parse("b")

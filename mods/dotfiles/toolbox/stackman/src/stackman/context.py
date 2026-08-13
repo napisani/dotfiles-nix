@@ -13,3 +13,4 @@ class AppContext:
     stdout: TextIO
     stderr: TextIO
     stack_id_factory: Callable[[], str] | None = None
+    resolver: str | None = None

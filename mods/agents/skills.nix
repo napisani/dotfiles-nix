@@ -283,6 +283,16 @@ let
       ];
       agents = allAgents;
     }
+    {
+      input = inputs.humanlayer-skills;
+      skills = [
+        {
+          name = "show-me";
+          path = "skills/show-me";
+        }
+      ];
+      agents = allAgents;
+    }
     # Loancrate-only: private skills (from napisani/monorepo priv/skills/)
     {
       input = inputs.private-skills;

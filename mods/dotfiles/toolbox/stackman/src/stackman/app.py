@@ -18,6 +18,7 @@ class StackmanApp:
     stdout: TextIO
     stderr: TextIO
     stack_id_factory: Callable[[], str] | None = None
+    resolver: str | None = None
 
     def _ctx(self) -> AppContext:
         return AppContext(
@@ -27,6 +28,7 @@ class StackmanApp:
             stdout=self.stdout,
             stderr=self.stderr,
             stack_id_factory=self.stack_id_factory,
+            resolver=self.resolver,
         )
 
     def _run(self, fn: Callable[[AppContext], int]) -> int:
@@ -50,6 +52,8 @@ class StackmanApp:
         verbose: bool = False,
         squash: bool = False,
         allow_dirty: bool = False,
+        resolver: str | None = None,
+        no_wait: bool = False,
     ) -> int:
         return self._run(
             lambda c: sync.run(
@@ -59,6 +63,8 @@ class StackmanApp:
                 verbose=verbose,
                 squash=squash,
                 allow_dirty=allow_dirty,
+                resolver=resolver,
+                no_wait=no_wait,
             )
         )
 

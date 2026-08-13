@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import NewType
+from typing import Literal, NewType
 
 # Distinct string-shaped domain concepts. NewType is a zero-cost identity at runtime
 # but lets a type checker catch a branch name passed where a stack id / repo key /
@@ -36,3 +36,22 @@ class StackRecord:
     id: StackId
     anchor_branch_name: BranchName | None = None
     created_at: str | None = None
+
+
+@dataclass(frozen=True)
+class ConflictResolutionResult:
+    """Result of attempting to resolve a merge conflict during a rebase.
+
+    Attributes:
+        status: 'success' if rebase completed cleanly; 'failure' if resolver
+                exited nonzero or rebase ended in an invalid state; 'needs_manual'
+                if user aborted the rebase (interactive mode only).
+        message: Human-readable summary of the result (e.g., error description,
+                 or "Rebase completed successfully").
+        resolver_output: Captured stdout/stderr from the resolver command,
+                        if one was invoked (None for interactive mode).
+    """
+
+    status: Literal["success", "failure", "needs_manual"]
+    message: str
+    resolver_output: str | None = None

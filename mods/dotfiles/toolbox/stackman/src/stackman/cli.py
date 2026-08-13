@@ -192,6 +192,17 @@ def chain(cfg: CliConfig, anchor: str, branches: tuple[str, ...], db_path, repo_
     is_flag=True,
     help="Skip dirty-worktree preflight; Git may still abort checkout or rebase.",
 )
+@click.option(
+    "--resolver",
+    type=str,
+    default=None,
+    help="Command to invoke for non-interactive conflict resolution. Use @prompt to inject the default conflict resolution prompt. (overrides STACKMAN_RESOLVER env var).",
+)
+@click.option(
+    "--no-wait",
+    is_flag=True,
+    help="Force non-interactive mode; skip TTY check for conflict resolution.",
+)
 @repo_options
 @click.pass_obj
 def sync_command(
@@ -201,11 +212,27 @@ def sync_command(
     verbose: bool,
     squash: bool,
     allow_dirty: bool,
+    resolver: str | None,
+    no_wait: bool,
     db_path,
     repo_path,
 ) -> None:
-    """Sync the full stack containing BRANCH (default: current branch)."""
+    """Sync the full stack containing BRANCH (default: current branch).
+
+    Use --resolver <cmd> to enable non-interactive conflict resolution. The resolver
+    command receives conflict context via environment variables and should complete
+    the rebase (run `git rebase --continue`) or exit nonzero to signal failure.
+    Use @prompt in the command to inject the default conflict resolution prompt.
+
+    Examples:
+      stackman sync --resolver "claude -p @prompt"
+      stackman sync --resolver "~/.local/bin/my-resolver"
+
+    Alternatively, set the STACKMAN_RESOLVER environment variable.
+    """
     app = cfg.resolve(db_path, repo_path)
+    # --resolver overrides STACKMAN_RESOLVER env var
+    resolver = resolver or os.environ.get("STACKMAN_RESOLVER")
     raise SystemExit(
         app.sync(
             branch=branch,
@@ -213,6 +240,8 @@ def sync_command(
             verbose=verbose,
             squash=squash,
             allow_dirty=allow_dirty,
+            resolver=resolver,
+            no_wait=no_wait,
         )
     )
 
@@ -304,6 +333,39 @@ def discover(cfg: CliConfig, pr_number: int, apply_changes: bool, db_path, repo_
     """Discover a stack by traversing open GitHub PR branches."""
     app = cfg.resolve(db_path, repo_path)
     raise SystemExit(app.discover(pr_number=pr_number, apply=apply_changes))
+
+
+@cli.command("show-resolver-prompt")
+@click.option(
+    "--template",
+    is_flag=True,
+    help="Show the raw template with {VAR} placeholders (no substitution).",
+)
+def show_resolver_prompt(template: bool) -> None:
+    """Show the default conflict resolution prompt for use with --resolver.
+
+    By default, displays the prompt with environment variables substituted
+    (useful for understanding how it works in your context).
+    Use --template to see the raw template with {VAR} placeholders.
+
+    Examples:
+      stackman show-resolver-prompt  # see the prompt with env vars filled in
+      stackman show-resolver-prompt --template  # see the template structure
+
+      # Use with an AI resolver:
+      claude -p "$(stackman show-resolver-prompt)"
+
+      # Extend the prompt for your needs:
+      PROMPT="$(stackman show-resolver-prompt)"
+      PROMPT="$PROMPT\\n\\nAdditional context: ..."
+      stackman sync --resolver "claude -p \\"$PROMPT\\""
+    """
+    from .resolver_prompt import get_template, get_default_prompt
+
+    if template:
+        click.echo(get_template())
+    else:
+        click.echo(get_default_prompt())
 
 
 def main(argv: list[str] | None = None) -> int:

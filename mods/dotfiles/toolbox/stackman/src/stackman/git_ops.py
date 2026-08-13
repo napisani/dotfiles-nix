@@ -262,3 +262,30 @@ def is_ancestor(cwd: Path, older: str, newer: str) -> bool:
     return result.returncode == 0
 
 
+def get_git_config(cwd: Path, key: str) -> str | None:
+    """Get a git config value; return None if not set or on error."""
+    result = _run_git(cwd, "config", "--get", key, check=False)
+    if result.returncode != 0:
+        return None
+    value = result.stdout.strip()
+    return value if value else None
+
+
+def get_pr_number(cwd: Path, branch: str) -> int | None:
+    """Get GitHub PR number for a branch; return None if not found or on error."""
+    try:
+        result = subprocess.run(
+            ["gh", "pr", "view", "--branch", branch, "--json", "number"],
+            cwd=cwd,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            return None
+        import json
+        data = json.loads(result.stdout)
+        pr_number = data.get("number")
+        return int(pr_number) if pr_number is not None else None
+    except Exception:
+        return None

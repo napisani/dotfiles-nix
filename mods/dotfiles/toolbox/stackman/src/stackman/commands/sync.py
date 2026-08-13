@@ -2,15 +2,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from ..conflict_resolver import RebaseConflictContext, resolve_rebase_conflict
 from ..context import AppContext
 from ..git_ops import (
     branch_exists,
     checkout,
     commits_since,
     current_branch,
-    is_ancestor,
     push_force_with_lease_current_branch,
-    rebase_in_progress,
     rebase_in_progress_any_linked,
     rebase_onto,
     repo_db_key,
@@ -20,7 +19,6 @@ from ..git_ops import (
     squash_commits_since,
     sync_relevant_worktrees,
     upstream_branch,
-    worktree_dirty_preview,
     worktree_path_for_branch,
 )
 from ..models import BranchRecord
@@ -46,6 +44,8 @@ def run(
     verbose: bool,
     squash: bool,
     allow_dirty: bool,
+    resolver: str | None = None,
+    no_wait: bool = False,
 ) -> int:
     initialize(ctx.db_path)
 
@@ -123,6 +123,8 @@ def run(
         original_branch,
         squash=squash,
         verbose=verbose,
+        resolver=resolver,
+        no_wait=no_wait,
     )
 
 
@@ -179,6 +181,8 @@ def _apply_sync(
     *,
     squash: bool,
     verbose: bool,
+    resolver: str | None = None,
+    no_wait: bool = False,
 ) -> int:
     by_name = {b.branch_name: b for b in all_branches}
     try:
@@ -192,6 +196,8 @@ def _apply_sync(
                 repo_key=repo_key,
                 squash=squash,
                 verbose=verbose,
+                resolver=resolver,
+                no_wait=no_wait,
             ):
                 return 1
     finally:
@@ -213,6 +219,8 @@ def _sync_one_branch(
     repo_key: str,
     squash: bool,
     verbose: bool,
+    resolver: str | None = None,
+    no_wait: bool = False,
 ) -> bool:
     """Rebase + push one branch. Returns True to continue, False to abort the sync."""
     branch_name = record.branch_name
@@ -251,13 +259,20 @@ def _sync_one_branch(
         )
         result = rebase_onto(branch_wt, onto=parent_tip, upstream=upstream)
         if result.returncode != 0:
-            if not _wait_for_rebase_resolution(
-                ctx,
+            conflict_ctx = RebaseConflictContext(
                 branch_name=branch_name,
                 branch_wt=branch_wt,
+                parent_name=parent_name,
                 parent_tip=parent_tip,
-                result=result,
-            ):
+                fork_point=upstream,
+            )
+            resolution = resolve_rebase_conflict(
+                ctx,
+                conflict_ctx,
+                resolver=resolver,
+                no_wait=no_wait,
+            )
+            if resolution.status != "success":
                 return False
     else:
         _emit(
@@ -374,36 +389,6 @@ def _resolve_stack_anchor(
     )
 
 
-def _wait_for_rebase_resolution(
-    ctx: AppContext,
-    *,
-    branch_name: str,
-    branch_wt: Path,
-    parent_tip: str,
-    result,
-) -> bool:
-    err = (result.stderr or "").strip() or (result.stdout or "").strip()
-    ctx.stderr.write(f"[stackman] Rebase failed on {branch_name!r} (exit {result.returncode}).\n")
-    if err:
-        ctx.stderr.write(f"{err}\n")
-
-    while True:
-        ctx.stdout.write(
-            "[stackman] Resolve conflicts, run `git rebase --continue` or `git rebase --abort`, "
-            "then press Enter to resume.\n"
-        )
-        ctx.stdout.flush()
-        if ctx.stdin.readline() == "":
-            ctx.stderr.write("[stackman] Input closed while waiting for rebase resolution.\n")
-            return False
-        if rebase_in_progress(branch_wt):
-            _emit(ctx, f"[stackman] Rebase on {branch_name!r} is still in progress.")
-            continue
-        if is_ancestor(branch_wt, parent_tip, "HEAD"):
-            _emit(ctx, f"[stackman] Rebase on {branch_name!r} completed; resuming sync.")
-            return True
-        ctx.stderr.write(f"[stackman] Rebase on {branch_name!r} was aborted.\n")
-        return False
 
 
 def _resolve_stack_id(ctx: AppContext, repo_key: str, branch_name: str) -> str:

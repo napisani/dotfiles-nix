@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
 
+# allows tmux scrollbacks to work with claude
+export CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1
+
 # ── Per-machine AI preferences ─────────────────────────────────────────────
 # Add a new branch here when a machine needs different values.
 if [ "${MACHINE_NAME:-}" = "nicks-loancrate-mbp" ]; then
-  export PREFERRED_AGENT="${PREFERRED_AGENT:-claude}"
-  export AI_PROVIDER="${AI_PROVIDER:-anthropic}"
-  export AI_MODEL="${AI_MODEL:-claude-sonnet-4-6}"
-  export AI_FAST_MODEL="${AI_FAST_MODEL:-claude-haiku-4-5}"
+	export PREFERRED_AGENT="${PREFERRED_AGENT:-claude}"
+	export AI_PROVIDER="${AI_PROVIDER:-anthropic}"
+	export AI_MODEL="${AI_MODEL:-claude-sonnet-4-6}"
+	export AI_FAST_MODEL="${AI_FAST_MODEL:-claude-haiku-4-5}"
 else
-  export PREFERRED_AGENT="${PREFERRED_AGENT:-pi}"
-  export AI_PROVIDER="${AI_PROVIDER:-anthropic}"
-  export AI_MODEL="${AI_MODEL:-claude-sonnet-4-5}"
-  export AI_FAST_MODEL="${AI_FAST_MODEL:-claude-haiku-4-5}"
+	export PREFERRED_AGENT="${PREFERRED_AGENT:-pi}"
+	export AI_PROVIDER="${AI_PROVIDER:-anthropic}"
+	export AI_MODEL="${AI_MODEL:-claude-sonnet-4-5}"
+	export AI_FAST_MODEL="${AI_FAST_MODEL:-claude-haiku-4-5}"
 fi
 
 # Shared across all machines
@@ -30,10 +33,10 @@ unset _ai_ollama_base
 ai_skill() {
 	local name="$1"
 	case "${PREFERRED_AGENT:-pi}" in
-		claude)   printf '/%s' "$name" ;;
-		codex)    printf '$%s' "$name" ;;
-		opencode) printf '/skill %s' "$name" ;;
-		pi|*)     printf '/skill:%s' "$name" ;;
+	claude) printf '/%s' "$name" ;;
+	codex) printf '$%s' "$name" ;;
+	opencode) printf '/skill %s' "$name" ;;
+	pi | *) printf '/skill:%s' "$name" ;;
 	esac
 }
 
