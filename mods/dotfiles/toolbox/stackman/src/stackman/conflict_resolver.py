@@ -114,16 +114,17 @@ class RebaseConflictResolution:
         """Attempt to resolve the conflict using the appropriate strategy.
 
         Returns ConflictResolutionResult with status in ["success", "failure", "needs_manual"].
+        Priority: resolver > interactive > fail
         """
         _emit(self.ctx, f"[stackman] Rebase conflict on {self.conflict_ctx.branch_name!r}.")
+
+        # Try resolver path if configured (prioritize over interactive)
+        if self.resolver:
+            return self._try_resolver()
 
         # Try interactive path if available and not forced to non-interactive
         if self._should_try_interactive():
             return self._try_interactive()
-
-        # Try resolver path if configured
-        if self.resolver:
-            return self._try_resolver()
 
         # No resolver and can't be interactive — fail with clear message
         self.ctx.stderr.write(
