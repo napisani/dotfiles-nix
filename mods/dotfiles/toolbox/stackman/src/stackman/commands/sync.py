@@ -19,6 +19,7 @@ from ..git_ops import (
     squash_commits_since,
     sync_relevant_worktrees,
     upstream_branch,
+    worktree_dirty_preview,
     worktree_path_for_branch,
 )
 from ..models import BranchRecord
