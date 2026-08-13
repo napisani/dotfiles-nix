@@ -249,3 +249,43 @@ class TestRebaseConflictResolution:
 
             assert result.status == "needs_manual"
             assert "aborted" in result.message.lower()
+
+    def test_resolver_prioritized_over_interactive(self) -> None:
+        """Test that resolver is used even when interactive mode is available."""
+        ctx = self._make_context()
+        ctx.stdin = io.StringIO("\n")  # stdin available (would enable interactive)
+
+        from stackman.conflict_resolver import RebaseConflictContext
+
+        conflict_ctx = RebaseConflictContext(
+            branch_name="feature",
+            branch_wt=Path("/tmp/repo"),
+            parent_name="main",
+            parent_tip="abc123",
+            fork_point="def456",
+        )
+
+        # Mock the resolver to succeed
+        with patch("stackman.conflict_resolver.rebase_in_progress", return_value=False), \
+             patch("stackman.conflict_resolver.is_ancestor", return_value=True), \
+             patch("stackman.conflict_resolver.worktree_dirty_preview", return_value=None), \
+             patch("stackman.conflict_resolver._invoke_resolver") as mock_invoke:
+            mock_invoke.return_value = ConflictResolutionResult(
+                status="success",
+                message="Resolved by resolver",
+            )
+
+            # Create resolution with both resolver and interactive stdin available
+            resolution = RebaseConflictResolution(
+                ctx,
+                conflict_ctx,
+                resolver="claude -p @prompt",  # resolver provided
+                no_wait=False,  # interactive would be available
+            )
+            result = resolution.resolve()
+
+            # Verify resolver was called (not interactive)
+            mock_invoke.assert_called_once()
+            assert result.status == "success"
+            # Verify stdin was not read (would indicate interactive was used)
+            assert ctx.stdin.getvalue() == "\n"  # stdin unchanged
