@@ -289,3 +289,20 @@ def get_pr_number(cwd: Path, branch: str) -> int | None:
         return int(pr_number) if pr_number is not None else None
     except Exception:
         return None
+
+
+def create_detached_worktree(repo_root: Path, worktree_path: Path, ref: str) -> subprocess.CompletedProcess[str]:
+    """Create a detached worktree at the given ref.
+
+    Returns the subprocess result; check returncode to verify success.
+    """
+    return _run_git(repo_root, "worktree", "add", "--detach", str(worktree_path), ref, check=False)
+
+
+def remove_worktree(repo_root: Path, worktree_path: Path) -> subprocess.CompletedProcess[str]:
+    """Remove a worktree (can be in any state).
+
+    Uses --force to remove even if the worktree is in an inconsistent state.
+    Returns the subprocess result; check returncode to verify success.
+    """
+    return _run_git(repo_root, "worktree", "remove", "--force", str(worktree_path), check=False)

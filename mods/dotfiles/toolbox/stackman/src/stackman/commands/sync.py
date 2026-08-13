@@ -8,10 +8,12 @@ from ..git_ops import (
     branch_exists,
     checkout,
     commits_since,
+    create_detached_worktree,
     current_branch,
     push_force_with_lease_current_branch,
     rebase_in_progress_any_linked,
     rebase_onto,
+    remove_worktree,
     repo_db_key,
     repo_root,
     rev_parse,
@@ -230,69 +232,92 @@ def _sync_one_branch(
         _emit(ctx, f"[stackman] Skipping {branch_name!r} (no parent recorded).")
         return True
 
-    branch_wt = worktree_path_for_branch(worktree, branch_name) or worktree
-    if branch_wt != worktree:
+    # Determine which worktree to use for the rebase
+    existing_wt = worktree_path_for_branch(worktree, branch_name)
+    temp_wt = None
+
+    if existing_wt:
+        # Branch is already checked out; use that worktree
+        branch_wt = existing_wt
         _emit(
             ctx,
             f"[stackman] → Using worktree {branch_wt} (branch {branch_name!r} is checked out there)",
         )
     else:
-        _emit(ctx, f"[stackman] → Checking out {branch_name!r}")
-    checkout(branch_wt, branch_name)
+        # Branch not checked out anywhere; create a temporary detached worktree
+        temp_wt = worktree.parent / f"{worktree.name}__rebase__{branch_name}"
+        branch_wt = temp_wt
 
-    parent_tip = rev_parse(branch_wt, parent_name)
-    upstream = record.fork_point_sha
+        _emit(
+            ctx,
+            f"[stackman] → Creating temporary worktree for {branch_name!r} at {temp_wt}",
+        )
+        result = create_detached_worktree(worktree, temp_wt, branch_name)
+        if result.returncode != 0:
+            ctx.stderr.write(f"[stackman] Failed to create worktree: {result.stderr}\n")
+            return False
 
-    if squash and not _squash_branch(ctx, branch_wt, branch_name, upstream):
-        return False
+    try:
+        parent_tip = rev_parse(branch_wt, parent_name)
+        upstream = record.fork_point_sha
 
-    if upstream != parent_tip:
-        if verbose:
+        if squash and not _squash_branch(ctx, branch_wt, branch_name, upstream):
+            return False
+
+        if upstream != parent_tip:
+            if verbose:
+                _emit(
+                    ctx,
+                    f"[stackman]   git rebase --onto {parent_tip} {upstream} "
+                    f"(replay commits after stored fork-point onto current {parent_name!r})",
+                )
             _emit(
                 ctx,
-                f"[stackman]   git rebase --onto {parent_tip} {upstream} "
-                f"(replay commits after stored fork-point onto current {parent_name!r})",
+                f"[stackman]   Rebasing {branch_name!r} onto {parent_name!r} "
+                f"at {parent_tip[:7]} (fork-point {upstream[:7]})",
             )
-        _emit(
-            ctx,
-            f"[stackman]   Rebasing {branch_name!r} onto {parent_name!r} "
-            f"at {parent_tip[:7]} (fork-point {upstream[:7]})",
-        )
-        result = rebase_onto(branch_wt, onto=parent_tip, upstream=upstream)
-        if result.returncode != 0:
-            conflict_ctx = RebaseConflictContext(
-                branch_name=branch_name,
-                branch_wt=branch_wt,
-                parent_name=parent_name,
-                parent_tip=parent_tip,
-                fork_point=upstream,
-            )
-            resolution = resolve_rebase_conflict(
+            result = rebase_onto(branch_wt, onto=parent_tip, upstream=upstream)
+            if result.returncode != 0:
+                conflict_ctx = RebaseConflictContext(
+                    branch_name=branch_name,
+                    branch_wt=branch_wt,
+                    parent_name=parent_name,
+                    parent_tip=parent_tip,
+                    fork_point=upstream,
+                )
+                resolution = resolve_rebase_conflict(
+                    ctx,
+                    conflict_ctx,
+                    resolver=resolver,
+                    no_wait=no_wait,
+                )
+                if resolution.status != "success":
+                    return False
+        else:
+            _emit(
                 ctx,
-                conflict_ctx,
-                resolver=resolver,
-                no_wait=no_wait,
+                f"[stackman]   Skipping {branch_name!r}; stored fork-point already matches "
+                f"current {parent_name!r} tip {parent_tip[:7]}",
             )
-            if resolution.status != "success":
-                return False
-    else:
-        _emit(
-            ctx,
-            f"[stackman]   Skipping {branch_name!r}; stored fork-point already matches "
-            f"current {parent_name!r} tip {parent_tip[:7]}",
+
+        # The branch is now based on parent_tip; record that (safe to persist before the
+        # push because the push decision below is driven by the actual local↔remote diff,
+        # not by this fork-point — so a failed push is retried on the next run).
+        update_branch_fork_point(
+            ctx.db_path,
+            repo_root=repo_key,
+            branch_name=branch_name,
+            fork_point_sha=parent_tip,
         )
 
-    # The branch is now based on parent_tip; record that (safe to persist before the
-    # push because the push decision below is driven by the actual local↔remote diff,
-    # not by this fork-point — so a failed push is retried on the next run).
-    update_branch_fork_point(
-        ctx.db_path,
-        repo_root=repo_key,
-        branch_name=branch_name,
-        fork_point_sha=parent_tip,
-    )
-
-    return _push_if_needed(ctx, branch_wt, branch_name)
+        return _push_if_needed(ctx, branch_wt, branch_name)
+    finally:
+        # Clean up temporary worktree if we created one
+        if temp_wt is not None:
+            _emit(ctx, f"[stackman] Cleaning up temporary worktree {temp_wt}")
+            remove_result = remove_worktree(worktree, temp_wt)
+            if remove_result.returncode != 0:
+                ctx.stderr.write(f"[stackman] Warning: failed to remove temporary worktree: {remove_result.stderr}\n")
 
 
 def _squash_branch(ctx: AppContext, branch_wt: Path, branch_name: str, upstream: str) -> bool:
