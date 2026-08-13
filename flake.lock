@@ -3,11 +3,11 @@
     "addyosmani-agent-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1786223156,
-        "narHash": "sha256-P9g6GT7DzwOEt9OsMecu9klc2WZiZ2pVsb6qrUsnAm4=",
+        "lastModified": 1786477736,
+        "narHash": "sha256-b/Z1Bl7IazUGz4WQaP1JFqUwBS60/KOHIzmcHPQJvLg=",
         "owner": "addyosmani",
         "repo": "agent-skills",
-        "rev": "7676817c12a1317454ae3898a0c5c1eacf5dd3d5",
+        "rev": "be42637c5af93fdc8526b68ec2f2651b930f316c",
         "type": "github"
       },
       "original": {
@@ -139,11 +139,11 @@
     "deepagents": {
       "flake": false,
       "locked": {
-        "lastModified": 1786429793,
-        "narHash": "sha256-BYw9+AS2s2orL8ljSgfM1Qv9WbhsyrVTJjKYJi3SFeU=",
+        "lastModified": 1786626714,
+        "narHash": "sha256-kgR/oJNGwYwndEuSSv97GiA/g+KVMD7FLI90RhtWFTo=",
         "owner": "langchain-ai",
         "repo": "deepagents",
-        "rev": "e12acbac89e553048b03fb6132b53e61b3433271",
+        "rev": "8d4cabc23585bc35fb10da9049c150e3e35e460e",
         "type": "github"
       },
       "original": {
@@ -233,11 +233,11 @@
         "systems": "systems_5"
       },
       "locked": {
-        "lastModified": 1710146030,
-        "narHash": "sha256-SZ5L6eA7HJ/nmkzGG7/ISclqe6oZdOZTNoesiInkXPQ=",
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "b1d9ab70662946ef0850d488da1c9019f3a9752a",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
         "type": "github"
       },
       "original": {
@@ -311,17 +311,33 @@
         ]
       },
       "locked": {
-        "lastModified": 1786356609,
-        "narHash": "sha256-ou8fYz5w9yhXC8YbvvExybFIa19MyW5G/8dEPqa90hM=",
+        "lastModified": 1786603258,
+        "narHash": "sha256-j1lYPT7YxOQc/G7NcJKqdpQ5/A5yX2aZdhVKkJR6cM4=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "c30c7955cec30d664a9baced6bc0112e263d4647",
+        "rev": "0668fdbc15bd602e463cab37ff64346021193652",
         "type": "github"
       },
       "original": {
         "owner": "nix-community",
         "ref": "master",
         "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "humanlayer-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786488027,
+        "narHash": "sha256-21aEcVlvF904z0M/JXWr32l5dlbAZr9rtgizzqNm0Ic=",
+        "owner": "humanlayer",
+        "repo": "skills",
+        "rev": "4d8d644ca747517973f58d7953f58d7cd07520cd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "humanlayer",
+        "repo": "skills",
         "type": "github"
       }
     },
@@ -344,11 +360,11 @@
     "lc-script-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1785845905,
-        "narHash": "sha256-/RTvi4ihjHTHXGVlkeoxKHa8FUNqQ7pGRAomYV4hq4w=",
+        "lastModified": 1786541106,
+        "narHash": "sha256-8fcS82rlqgh6sUODkLG6/7OOaBFdCqtWyjzdGC1SPGo=",
         "ref": "refs/heads/main",
-        "rev": "3e80485143dfdef8ccdd6e4dec22f76586893e96",
-        "revCount": 5,
+        "rev": "a9780bb429e2dea6a72a470ae7816975451a9450",
+        "revCount": 6,
         "type": "git",
         "url": "ssh://git@github.com/napisani/lc-script"
       },
@@ -360,11 +376,11 @@
     "mattpocock-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1786045791,
-        "narHash": "sha256-pseSJJb5nBBGPzpxA1GzjGLB9OrT+u0At1saJ4NqZ1E=",
+        "lastModified": 1786611981,
+        "narHash": "sha256-jsXcMkhu15MxR0zXnLLJeni0q0Aew2UxUSojl6zmOvg=",
         "owner": "mattpocock",
         "repo": "skills",
-        "rev": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+        "rev": "8b78b531ab965735c5dc74f6f7a219e1e37326df",
         "type": "github"
       },
       "original": {
@@ -391,11 +407,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1786348146,
-        "narHash": "sha256-we5zDEFfn8TgzeWKjKDMIjeQZ59omEPl23NIF+13/ys=",
+        "lastModified": 1786534138,
+        "narHash": "sha256-fBJMdnKUTUDtfi/BYLr71HLaC9dG382arxLF2Egg2uo=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "d482ef84049d9b7276b83a06e4e4d76983830097",
+        "rev": "044bfe75bfe4c7bbe043dc17b5e42ea823b84a09",
         "type": "github"
       },
       "original": {
@@ -488,11 +504,11 @@
     "private-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1786455369,
-        "narHash": "sha256-E6zm5NwYvyAa2jLgSFQnFZg+WBpVKF1yPNKl8OjyU4s=",
+        "lastModified": 1786626649,
+        "narHash": "sha256-VZj2VTDQRNvUtVmSvIEzUd5eZ7YUQ4k4Ma6ImV6k6Eg=",
         "ref": "refs/heads/main",
-        "rev": "deeecbbda2ba35a895ab21a7da20f0c8878367f7",
-        "revCount": 1232,
+        "rev": "9f76e2feaeb6de1fe10a3e5ca480488221fbed98",
+        "revCount": 1272,
         "type": "git",
         "url": "ssh://git@github.com/napisani/monorepo.git"
       },
@@ -532,11 +548,11 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1786414406,
-        "narHash": "sha256-rpzPnQ9U3w4AUsiDA1ytSMokUP4Tl9XqAdxGp9UZPXs=",
+        "lastModified": 1786535313,
+        "narHash": "sha256-QYXmcftTJzJpiFQglff2VShN8tFNymSc3ECpdeMKzOg=",
         "owner": "napisani",
         "repo": "proctmux",
-        "rev": "340bf7369b30c6f1bdfbd6a2ba823d4adadaa339",
+        "rev": "35e93af35e9e02ab45fa4975fb49fc6bf69ee5d7",
         "type": "github"
       },
       "original": {
@@ -629,6 +645,7 @@
         "deepagents": "deepagents",
         "gh-stack-skills": "gh-stack-skills",
         "home-manager": "home-manager",
+        "humanlayer-skills": "humanlayer-skills",
         "intellectronica-agent-skills": "intellectronica-agent-skills",
         "lc-script-skills": "lc-script-skills",
         "mattpocock-skills": "mattpocock-skills",
@@ -691,11 +708,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1786414404,
-        "narHash": "sha256-EUeDtEAFBSCdtdnX7rP5F6cyRWNJHYeAZ7CjovlWpdI=",
+        "lastModified": 1786535311,
+        "narHash": "sha256-/ZzJawk7oJauQ1NabLCaM4eMss/rOUYTGh2jeQD9/k8=",
         "owner": "napisani",
         "repo": "secret_inject",
-        "rev": "6c28466c733efee99292279e08dd9ea83ddce72c",
+        "rev": "32e83e670b797d96e29248465e73324d6adb7e73",
         "type": "github"
       },
       "original": {
@@ -723,11 +740,11 @@
     "superpowers": {
       "flake": false,
       "locked": {
-        "lastModified": 1785266736,
-        "narHash": "sha256-fnl+HbPL2qD5Zgz8a1NctjFJSqu6UsyHJAhQMLQNXXc=",
+        "lastModified": 1786553601,
+        "narHash": "sha256-EsGNO0dULWf5Bx6bGrCv2kI2Z8aKH0kRvGiuN23wChQ=",
         "owner": "obra",
         "repo": "superpowers",
-        "rev": "44c9b2d6e889982ac18c27d05a19fefe335194e1",
+        "rev": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
         "type": "github"
       },
       "original": {
@@ -813,11 +830,11 @@
     "understand-anything": {
       "flake": false,
       "locked": {
-        "lastModified": 1786415680,
-        "narHash": "sha256-FryBEM9zMFgHyL8/Xhq5cUGubC7OQP/JGnIkLqCzj6U=",
+        "lastModified": 1786457616,
+        "narHash": "sha256-R5mDA+I0g+DHIx5PSJWnzw+Bkl+/s9Ctxmtg8lhObps=",
         "owner": "Lum1104",
         "repo": "Understand-Anything",
-        "rev": "797ce7969312411be2e125c39628854166f055d7",
+        "rev": "32944829e7a63a9fa9c55d811d7f98a9530c6a6a",
         "type": "github"
       },
       "original": {
