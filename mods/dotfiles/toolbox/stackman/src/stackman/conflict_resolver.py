@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import shlex
 import subprocess
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -215,15 +216,38 @@ def _invoke_resolver(
         conflicted_files,
     )
 
-    # Expand @prompt to the default conflict resolution prompt
+    # Expand @prompt to a temporary file containing the default conflict resolution prompt
+    prompt_file = None
     if "@prompt" in resolver:
-        resolver = resolver.replace("@prompt", get_default_prompt())
+        try:
+            # Write prompt to a temporary file
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                suffix=".txt",
+                delete=False,
+                prefix="stackman-prompt-",
+            ) as f:
+                f.write(get_default_prompt())
+                prompt_file = f.name
+            # Replace @prompt with the file path
+            resolver = resolver.replace("@prompt", prompt_file)
+        except Exception as e:
+            ctx.stderr.write(f"[stackman] Failed to create prompt file: {e}\n")
+            return ConflictResolutionResult(
+                status="failure",
+                message=f"Failed to create prompt file: {e}",
+            )
 
     # Parse resolver command
     try:
         resolver_argv = shlex.split(resolver)
     except ValueError as e:
         ctx.stderr.write(f"[stackman] Failed to parse resolver command: {e}\n")
+        if prompt_file:
+            try:
+                os.unlink(prompt_file)
+            except Exception:
+                pass
         return ConflictResolutionResult(
             status="failure",
             message=f"Failed to parse resolver command: {e}",
@@ -231,6 +255,11 @@ def _invoke_resolver(
 
     if not resolver_argv:
         ctx.stderr.write("[stackman] Resolver command is empty.\n")
+        if prompt_file:
+            try:
+                os.unlink(prompt_file)
+            except Exception:
+                pass
         return ConflictResolutionResult(
             status="failure",
             message="Resolver command is empty",
@@ -240,68 +269,76 @@ def _invoke_resolver(
     resolver_env = os.environ.copy()
     resolver_env.update(env_vars)
 
-    # Run resolver with stdin=/dev/null, timeout 600s
     try:
-        resolver_result = subprocess.run(
-            resolver_argv,
-            cwd=conflict_ctx.branch_wt,
-            stdin=subprocess.DEVNULL,
-            capture_output=True,
-            text=True,
-            timeout=600,
-            env=resolver_env,
-        )
-    except subprocess.TimeoutExpired:
-        ctx.stderr.write("[stackman] Resolver timed out after 600 seconds.\n")
-        _abort_rebase(conflict_ctx.branch_wt)
-        return ConflictResolutionResult(
-            status="failure",
-            message="Resolver timed out after 600 seconds",
-        )
-    except Exception as e:
-        ctx.stderr.write(f"[stackman] Resolver invocation failed: {e}\n")
-        _abort_rebase(conflict_ctx.branch_wt)
-        return ConflictResolutionResult(
-            status="failure",
-            message=f"Resolver invocation failed: {e}",
-        )
+        # Run resolver with stdin=/dev/null, timeout 600s
+        try:
+            resolver_result = subprocess.run(
+                resolver_argv,
+                cwd=conflict_ctx.branch_wt,
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+                timeout=600,
+                env=resolver_env,
+            )
+        except subprocess.TimeoutExpired:
+            ctx.stderr.write("[stackman] Resolver timed out after 600 seconds.\n")
+            _abort_rebase(conflict_ctx.branch_wt)
+            return ConflictResolutionResult(
+                status="failure",
+                message="Resolver timed out after 600 seconds",
+            )
+        except Exception as e:
+            ctx.stderr.write(f"[stackman] Resolver invocation failed: {e}\n")
+            _abort_rebase(conflict_ctx.branch_wt)
+            return ConflictResolutionResult(
+                status="failure",
+                message=f"Resolver invocation failed: {e}",
+            )
 
-    # Check resolver outcome
-    resolver_output = ""
-    if resolver_result.stdout:
-        resolver_output += resolver_result.stdout
-        ctx.stdout.write(resolver_result.stdout)
-    if resolver_result.stderr:
-        resolver_output += resolver_result.stderr
-        ctx.stderr.write(resolver_result.stderr)
+        # Check resolver outcome
+        resolver_output = ""
+        if resolver_result.stdout:
+            resolver_output += resolver_result.stdout
+            ctx.stdout.write(resolver_result.stdout)
+        if resolver_result.stderr:
+            resolver_output += resolver_result.stderr
+            ctx.stderr.write(resolver_result.stderr)
 
-    if resolver_result.returncode != 0:
-        ctx.stderr.write(f"[stackman] Resolver failed: exit code {resolver_result.returncode}\n")
-        _abort_rebase(conflict_ctx.branch_wt)
+        if resolver_result.returncode != 0:
+            ctx.stderr.write(f"[stackman] Resolver failed: exit code {resolver_result.returncode}\n")
+            _abort_rebase(conflict_ctx.branch_wt)
+            return ConflictResolutionResult(
+                status="failure",
+                message=f"Resolver exited with code {resolver_result.returncode}",
+                resolver_output=resolver_output if resolver_output else None,
+            )
+
+        # Validate that the rebase actually succeeded (check end state)
+        validator = RebaseConflictValidator(conflict_ctx.branch_wt, conflict_ctx.parent_tip)
+        success, error_msg = validator.validate_rebase_success()
+        if not success:
+            ctx.stderr.write(f"[stackman] Resolver exited successfully but {error_msg}.\n")
+            _abort_rebase(conflict_ctx.branch_wt)
+            return ConflictResolutionResult(
+                status="failure",
+                message=f"Resolver exited successfully but {error_msg}",
+                resolver_output=resolver_output if resolver_output else None,
+            )
+
+        _emit(ctx, "[stackman] Resolver completed successfully; resuming sync.")
         return ConflictResolutionResult(
-            status="failure",
-            message=f"Resolver exited with code {resolver_result.returncode}",
+            status="success",
+            message="Resolver completed successfully",
             resolver_output=resolver_output if resolver_output else None,
         )
-
-    # Validate that the rebase actually succeeded (check end state)
-    validator = RebaseConflictValidator(conflict_ctx.branch_wt, conflict_ctx.parent_tip)
-    success, error_msg = validator.validate_rebase_success()
-    if not success:
-        ctx.stderr.write(f"[stackman] Resolver exited successfully but {error_msg}.\n")
-        _abort_rebase(conflict_ctx.branch_wt)
-        return ConflictResolutionResult(
-            status="failure",
-            message=f"Resolver exited successfully but {error_msg}",
-            resolver_output=resolver_output if resolver_output else None,
-        )
-
-    _emit(ctx, "[stackman] Resolver completed successfully; resuming sync.")
-    return ConflictResolutionResult(
-        status="success",
-        message="Resolver completed successfully",
-        resolver_output=resolver_output if resolver_output else None,
-    )
+    finally:
+        # Clean up prompt file if it was created
+        if prompt_file:
+            try:
+                os.unlink(prompt_file)
+            except Exception:
+                pass
 
 
 def _populate_resolver_env_vars(
