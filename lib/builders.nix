@@ -34,7 +34,7 @@ rec {
     pkgs-unstable = import nixpkgs {
       inherit system;
       config.allowUnfree = true;
-      overlays = [ (import "${self}/overlays/oxlint-darwin-ps-fix.nix") ];
+      overlays = [ ];
     };
     # Make custom packages available directly
     inherit (inputs)

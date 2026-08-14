@@ -293,6 +293,16 @@ let
       ];
       agents = allAgents;
     }
+    {
+      input = inputs.builderio-skills;
+      skills = [
+        {
+          name = "visual-explainer";
+          path = "skills/visual-explainer";
+        }
+      ];
+      agents = allAgents;
+    }
     # Loancrate-only: private skills (from napisani/monorepo priv/skills/)
     {
       input = inputs.private-skills;

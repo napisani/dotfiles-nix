@@ -1574,3 +1574,205 @@ def test_sync_multi_branch_stack_with_mid_stack_conflict_and_resolver(
     tracked_c = get_branch(db_path, repo_key, "c")
     assert tracked_c is not None
     assert tracked_c.fork_point_sha == git_repo.rev_parse("b")
+
+
+def test_sync_detects_and_fixes_orphaned_fork_point(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    """
+    Test that stackman detects when a parent branch has been rebased,
+    recalculates the fork-point, and syncs correctly.
+
+    This reproduces the bug where:
+    1. Parent branch (hot-eval) exists with commits
+    2. Child branch (nick/lc-28816) is tracked with fork-point in parent
+    3. Parent branch is rebased to new commits (old commits orphaned)
+    4. Sync should detect orphaned fork-point and recalculate
+
+    Regression test for: https://github.com/napisani/loancrate/pull/22338
+    """
+    # Setup: Create parent branch with initial commits
+    git_repo.commit("base", filename="base.txt", content="base\n")
+
+    git_repo.checkout_new("hot_eval_v1", from_ref="main")
+    git_repo.commit("hot-eval v1 feature", filename="hoteval.txt", content="v1\n")
+    hot_eval_v1_tip = git_repo.rev_parse("hot_eval_v1")
+
+    # Create child branch based on parent's v1
+    git_repo.checkout_new("feature", from_ref="hot_eval_v1")
+    old_fork_point = git_repo.merge_base("feature", "hot_eval_v1")
+    git_repo.commit("feature work 1", filename="feature.txt", content="feature 1\n")
+    git_repo.commit("feature work 2", filename="feature2.txt", content="feature 2\n")
+    git_repo.commit("feature work 3", filename="feature3.txt", content="feature 3\n")
+    feature_tip = git_repo.rev_parse("feature")
+
+    # Register feature branch with fork-point at old parent commit
+    db_path = stackman_db_path
+    initialize(db_path)
+    repo_key = git_repo.canonical_repo_key()
+    upsert_branch(
+        db_path,
+        repo_root=repo_key,
+        branch_name="feature",
+        parent_branch_name="hot_eval_v1",
+        fork_point_sha=old_fork_point,
+    )
+    label_branch(db_path, repo_key, "feature", "stack-test")
+
+    # Verify initial state
+    tracked = get_branch(db_path, repo_key, "feature")
+    assert tracked is not None
+    assert tracked.fork_point_sha == old_fork_point
+
+    # NOW: Rebase the parent branch (this is what happened with hot-eval)
+    # Reset hot_eval_v1 to a new set of commits
+    git_repo.checkout("hot_eval_v1")
+    # Reset to main (orphaning the old v1 commits)
+    git_repo.git("reset", "--hard", "main")
+    # Add new commits
+    git_repo.commit("hot-eval v2 feature A", filename="hotevalA.txt", content="v2-A\n")
+    git_repo.commit("hot-eval v2 feature B", filename="hotevalB.txt", content="v2-B\n")
+    hot_eval_v2_tip = git_repo.rev_parse("hot_eval_v1")
+
+    # Verify that old fork-point is no longer an ancestor of parent
+    assert not git_repo.is_ancestor(old_fork_point, "hot_eval_v1")
+
+    # Now sync the child branch
+    # stackman should detect that old_fork_point is orphaned and recalculate
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=stdout,
+        stderr=stderr,
+    )
+    assert app.sync(branch="feature") == 0
+    assert stderr.getvalue() == ""
+
+    out = stdout.getvalue()
+    # Verify that stackman detected the orphaned fork-point
+    assert "Fork-point" in out or "orphaned" in out.lower() or "Recalculating" in out or "fork-point" in out.lower()
+    assert "Sync finished successfully" in out
+
+    # Verify the feature branch is now correctly based on the new parent tip
+    git_repo.checkout("feature")
+    assert git_repo.is_ancestor(git_repo.rev_parse("hot_eval_v1"), "HEAD")
+
+    # Verify that the fork-point was updated to the new parent tip
+    tracked = get_branch(db_path, repo_key, "feature")
+    assert tracked is not None
+    # The new fork-point should be the merge-base of feature and hot_eval_v1 after rebase
+    # which should be the new hot_eval_v1 tip (since feature was rebased onto it)
+    expected_new_fork_point = git_repo.rev_parse("hot_eval_v1")
+    assert tracked.fork_point_sha == expected_new_fork_point
+
+    # Verify feature's commits are still there (rebased, not lost)
+    # Note: after recalculating fork-point to main, feature will include all commits
+    # since main (including the old parent commits A, and the 3 feature commits)
+    commits = _commit_subjects_in_range(git_repo, f"main..feature")
+    assert len(commits) >= 3
+    assert "feature work 1" in commits
+    assert "feature work 2" in commits
+    assert "feature work 3" in commits
+
+
+def test_sync_handles_orphaned_fork_point_in_multi_level_stack(
+    git_repo,
+    stackman_db_path,
+) -> None:
+    """
+    Test orphaned fork-point detection in a three-level stack (without conflicts).
+    Verifies that when a parent is rebased, all descendants are correctly rebased.
+
+    Stack: main -> parent -> child -> grandchild
+    (Uses distinct files to avoid merge conflicts)
+    """
+    # Setup: Create a three-level stack
+    git_repo.commit("base", filename="base.txt", content="base\n")
+
+    # Parent level - edits parent-only.txt
+    git_repo.checkout_new("parent", from_ref="main")
+    git_repo.commit("parent v1", filename="parent-only.txt", content="parent-v1\n")
+    parent_v1_fork = git_repo.merge_base("parent", "main")
+
+    # Child level - edits child-only.txt (no conflict with parent)
+    git_repo.checkout_new("child", from_ref="parent")
+    git_repo.commit("child work", filename="child-only.txt", content="child\n")
+    child_fork = git_repo.merge_base("child", "parent")
+
+    # Grandchild level - edits grandchild-only.txt (no conflict with parent or child)
+    git_repo.checkout_new("grandchild", from_ref="child")
+    git_repo.commit("grandchild work", filename="grandchild-only.txt", content="grandchild\n")
+    grandchild_fork = git_repo.merge_base("grandchild", "child")
+
+    # Register the stack
+    db_path = stackman_db_path
+    initialize(db_path)
+    repo_key = git_repo.canonical_repo_key()
+    upsert_branch(
+        db_path,
+        repo_root=repo_key,
+        branch_name="parent",
+        parent_branch_name="main",
+        fork_point_sha=parent_v1_fork,
+    )
+    upsert_branch(
+        db_path,
+        repo_root=repo_key,
+        branch_name="child",
+        parent_branch_name="parent",
+        fork_point_sha=child_fork,
+    )
+    upsert_branch(
+        db_path,
+        repo_root=repo_key,
+        branch_name="grandchild",
+        parent_branch_name="child",
+        fork_point_sha=grandchild_fork,
+    )
+    label_branch(db_path, repo_key, "parent", "stack-deep")
+
+    # Rebase parent (orphaning old commits)
+    git_repo.checkout("parent")
+    git_repo.git("reset", "--hard", "main")
+    git_repo.commit("parent v2", filename="parent-v2.txt", content="parent-v2\n")
+
+    # Sync the entire stack
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    app = StackmanApp(
+        db_path=stackman_db_path,
+        cwd=git_repo.root,
+        stdin=io.StringIO(""),
+        stdout=stdout,
+        stderr=stderr,
+    )
+    result = app.sync(branch="parent")
+    assert result == 0, f"Sync failed: stdout={stdout.getvalue()}, stderr={stderr.getvalue()}"
+    assert stderr.getvalue() == ""
+
+    # Verify all branches are correctly rebased
+    git_repo.checkout("parent")
+    assert git_repo.is_ancestor(git_repo.rev_parse("main"), "HEAD")
+
+    git_repo.checkout("child")
+    assert git_repo.is_ancestor(git_repo.rev_parse("parent"), "HEAD")
+
+    git_repo.checkout("grandchild")
+    assert git_repo.is_ancestor(git_repo.rev_parse("child"), "HEAD")
+
+    # Verify fork-points were updated
+    tracked_parent = get_branch(db_path, repo_key, "parent")
+    assert tracked_parent is not None
+    assert tracked_parent.fork_point_sha == git_repo.rev_parse("main")
+
+    tracked_child = get_branch(db_path, repo_key, "child")
+    assert tracked_child is not None
+    assert tracked_child.fork_point_sha == git_repo.rev_parse("parent")
+
+    tracked_grandchild = get_branch(db_path, repo_key, "grandchild")
+    assert tracked_grandchild is not None
+    assert tracked_grandchild.fork_point_sha == git_repo.rev_parse("child")

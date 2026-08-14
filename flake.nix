@@ -100,6 +100,10 @@
       url = "github:humanlayer/skills";
       flake = false;
     };
+    builderio-skills = {
+      url = "github:nicobailon/visual-explainer";
+      flake = false;
+    };
     # Private napisani repos — fetched over SSH (gh/ssh creds required to
     # update the lock; rebuilds use the pinned lock and need no network).
     # private-skills now lives in napisani/monorepo at priv/skills/.

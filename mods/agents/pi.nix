@@ -103,6 +103,7 @@ let
     "npm:@juicesharp/rpiv-btw"
     "npm:pi-vim"
     "npm:pi-web-access"
+    "git:github.com/nicobailon/visual-explainer"
   ];
 
   installUnderstandAnythingPlugin = ''

@@ -100,6 +100,22 @@
         "type": "github"
       }
     },
+    "builderio-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786658027,
+        "narHash": "sha256-7xC1zWYDfwaQMzcPAsI7cAI4LG5iLLGTgqLmu+4JCG8=",
+        "owner": "nicobailon",
+        "repo": "visual-explainer",
+        "rev": "08f91a73096e8d9a3d79a23067ac09c3c19bc1b4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nicobailon",
+        "repo": "visual-explainer",
+        "type": "github"
+      }
+    },
     "crane": {
       "locked": {
         "lastModified": 1766774972,
@@ -641,6 +657,7 @@
         "animal_rescue": "animal_rescue",
         "anthropic-skills": "anthropic-skills",
         "arjunmahishi-dotfiles": "arjunmahishi-dotfiles",
+        "builderio-skills": "builderio-skills",
         "darwin": "darwin",
         "deepagents": "deepagents",
         "gh-stack-skills": "gh-stack-skills",

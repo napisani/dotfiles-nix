@@ -67,13 +67,16 @@ let
   ];
   declaredMcpEntries = shared.mkDeclaredEntriesFromSources mcpSources;
 
-  # Claude Code plugin marketplace — Loancrate org skills package (lc@ and
-  # code@ plugins).
+  # Claude Code plugins — public community plugins + Loancrate org plugins.
   pluginMarketplace = if isLoancrateMac then "loancrate/org-claude-skills#workmux" else null;
-  declaredPlugins = lib.optionals isLoancrateMac [
-    "lc@lc"
-    "code@lc"
-  ];
+  declaredPlugins =
+    [
+      "github:nicobailon/visual-explainer"
+    ]
+    ++ lib.optionals isLoancrateMac [
+      "lc@lc"
+      "code@lc"
+    ];
 
   loancrateBaseConfig = builtins.toJSON {
     user_prefix = "nick";

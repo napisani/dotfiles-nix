@@ -11,8 +11,7 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 3. [Nix / Home Manager config notes](#nix--home-manager-config-notes)
 4. [Neovim 0.12 `:checkhealth` remediation plan](#neovim-012-checkhealth-remediation-plan)
 5. [fff.nvim binary (lazy.nvim build hook)](#fffnvim-binary-lazyvim-build-hook)
-6. [oxlint build fails with `spawn EPERM` on Darwin](#oxlint-build-fails-with-spawn-eperm-on-darwin)
-7. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
+6. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
 
 ---
 
@@ -80,7 +79,6 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 | Item | Detail |
 |------|--------|
 | **`allowUnfreePredicate = (_: true)`** | Documented in `homes/home-supermicro.nix` as a workaround for [home-manager#2942](https://github.com/nix-community/home-manager/issues/2942)-style unfree evaluation. Revisit if HM/nixpkgs simplify unfree handling. |
-| **`lib.builders.mkSpecialArgs`** | `pkgs-unstable` is built with `overlays = [ (import ./overlays/oxlint-darwin-ps-fix.nix) ]` (see [oxlint build fails with `spawn EPERM` on Darwin](#oxlint-build-fails-with-spawn-eperm-on-darwin)). The unrelated `overlays = [ ];` field returned by `mkSpecialArgs` itself is a separate, still-unused passthrough — add shared overlays there only when a cross-profile package override is intentionally needed. |
 
 ---
 
@@ -148,19 +146,6 @@ cd "$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/nvim" && nvim -u init.vim "+checkhe
 
 ---
 
-## oxlint build fails with `spawn EPERM` on Darwin
-
-| Item | Detail |
-|------|--------|
-| **Location** | `overlays/oxlint-darwin-ps-fix.nix`, applied to `pkgs-unstable` in `lib/builders.nix` |
-| **Symptom** | `nix build` / `darwin-rebuild switch` fails building `oxlint`: Rust crates compile fine, then `Internal Error: spawn EPERM` from `@napi-rs/cli`'s `dist/cli.js` (`acquireReconciliationLock` → `readProcessIncarnation` → `execFile`), which cascades into `home-manager-applications`, `home-manager-generation`, and the whole `darwin-system` derivation failing. |
-| **Why** | `@napi-rs/cli >= 3.8` (pulled in by oxlint's napi-rs build step) shells out to `/bin/ps` to read the process start time while acquiring its filesystem reconciliation lock. The Nix Darwin build sandbox denies that exec; Node surfaces it as a synchronous `spawn EPERM` from `execFile`, which escapes napi's callback-based error handling and fails the build. |
-| **Upstream status** | Already fixed in nixpkgs **`master`** (oxlint 1.78.0's `package.nix` adds a Darwin-only `preBuild` that patches `@napi-rs/cli`'s `dist/cli.js` to point the `/bin/ps` lookup at `${darwin.adv_cmds}/bin/ps`, a store path the sandbox allows). Not yet channel-promoted to `nixpkgs-unstable` — as of this repo's pinned rev (`d482ef8`, 2026-08-10), our pin **is** the tip of `nixpkgs-unstable`, so bumping the flake input doesn't pick up the fix. |
-| **Workaround** | `overlays/oxlint-darwin-ps-fix.nix` re-applies the same upstream patch via `overrideAttrs`, appending to `oxlint`'s `preBuild` (Darwin only, via `lib.optionalString stdenv.hostPlatform.isDarwin`) to `substituteInPlace` every `@napi-rs/cli` `cli.js` under `node_modules/.pnpm/`, swapping `"/bin/ps"` for `"${darwin.adv_cmds}/bin/ps"`. Verified with `nix build '<oxlint-drv>^*'` — builds clean, no `spawn EPERM`. |
-| **Remove when** | `nixpkgs-unstable` channel promotes a commit that includes the upstream fix (check `pkgs/by-name/ox/oxlint/package.nix` for a Darwin `preBuild` patching `/bin/ps`). Then delete `overlays/oxlint-darwin-ps-fix.nix` and the `overlays = [ ... ]` line in `lib/builders.nix`'s `pkgs-unstable` import. |
-| **How to verify it's still needed** | `nix eval --raw '.#darwinConfigurations.<host>.config.home-manager.users.nick.home.packages' --apply 'pkgs: (builtins.head (builtins.filter (p: (builtins.match ".*oxlint.*" (p.name or "")) != null) pkgs)).drvPath'` then `nix derivation show <drv>` and check whether nixpkgs' own `preBuild` already contains the `/bin/ps` substitution — if so, this overlay is redundant (harmless no-op via `old.preBuild or ""`, but should be removed). |
-
----
 
 ## Future improvements (consolidation and monitoring)
 
@@ -192,4 +177,5 @@ cd "$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/nvim" && nvim -u init.vim "+checkhe
 | 2026-04-28 | Documented fff.nvim binary download via lazy.nvim build hook; noted nixpkgs has `vimPlugins.fff-nvim` 0.5.1 (Nix-aware, patches download.lua). |
 | 2026-05-07 | Removed the temporary `direnv` `CGO_ENABLED = 1` override and matching `mise` override after the locked stock `direnv-2.37.1` substituted from cache and passed a basic allow/export smoke test. |
 | 2026-08-11 | Added `overlays/oxlint-darwin-ps-fix.nix` to fix `oxlint` build failing with `spawn EPERM` under the Darwin sandbox (`@napi-rs/cli` `/bin/ps` exec); mirrors the fix already merged in nixpkgs `master` but not yet promoted to `nixpkgs-unstable`. |
+| 2026-08-13 | Removed `oxlint-darwin-ps-fix.nix` overlay; the fix is now in nixpkgs-unstable (oxlint 1.78.0), and the overlay was causing spurious substitution failures. |
 | *(add entries when adding/removing workarounds)* | |

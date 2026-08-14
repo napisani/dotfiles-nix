@@ -10,6 +10,8 @@ from ..git_ops import (
     commits_since,
     create_detached_worktree,
     current_branch,
+    is_ancestor,
+    merge_base,
     push_force_with_lease_current_branch,
     rebase_in_progress_any_linked,
     rebase_onto,
@@ -260,6 +262,27 @@ def _sync_one_branch(
     try:
         parent_tip = rev_parse(branch_wt, parent_name)
         upstream = record.fork_point_sha
+
+        # Validate that the stored fork-point is still an ancestor of the parent.
+        # If the parent branch was rebased, the fork-point may be orphaned.
+        if not is_ancestor(branch_wt, upstream, parent_name):
+            _emit(
+                ctx,
+                f"[stackman] ⚠️  Fork-point {upstream[:7]} is no longer an ancestor of {parent_name!r}. "
+                f"Recalculating (parent may have been rebased or rewritten).",
+            )
+            upstream = merge_base(branch_wt, branch_name, parent_name)
+            _emit(
+                ctx,
+                f"[stackman]    Recalculated fork-point: {upstream[:7]}",
+            )
+            # Update the record to avoid repeated recalculation on future syncs
+            update_branch_fork_point(
+                ctx.db_path,
+                repo_root=repo_key,
+                branch_name=branch_name,
+                fork_point_sha=upstream,
+            )
 
         if squash and not _squash_branch(ctx, branch_wt, branch_name, upstream):
             return False
