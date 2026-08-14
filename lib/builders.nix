@@ -40,6 +40,7 @@ rec {
     inherit (inputs)
       procmux
       proctmux
+      stackman
       secret_inject
       animal_rescue
       scrollbacktamer

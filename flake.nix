@@ -21,6 +21,10 @@
     };
 
     proctmux.url = "github:napisani/proctmux";
+    stackman = {
+      url = "github:napisani/monorepo?dir=pub/stackman";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     secret_inject.url = "github:napisani/secret_inject";
     animal_rescue.url = "github:napisani/animal-rescue";
     scrollbacktamer.url = "github:napisani/scrollbacktamer";
@@ -197,13 +201,10 @@
           # reason unrelated to the activation-name-collision class this check
           # exists to catch. Exclude it so the check stays green on the
           # machines that actually build.
-          darwinNames = builtins.filter (n: n != "maclab") (
-            builtins.attrNames self.darwinConfigurations
-          );
+          darwinNames = builtins.filter (n: n != "maclab") (builtins.attrNames self.darwinConfigurations);
           forceDarwinScript =
             name:
-            builtins.stringLength
-              self.darwinConfigurations.${name}.config.system.activationScripts.script.text;
+            builtins.stringLength self.darwinConfigurations.${name}.config.system.activationScripts.script.text;
           forceHomeActivation =
             cfg:
             let

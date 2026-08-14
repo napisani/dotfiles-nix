@@ -23,19 +23,11 @@ in
       ${pkgs.uv}/bin/uv tool install $tool || true
     done
 
-    # Install editable multi-module tools from toolbox/
+    # Install editable multi-module tools that still live in toolbox/.
     # Any subdirectory containing a pyproject.toml is treated as an installable tool.
     TOOLBOX="$HOME/toolbox"
     if [ -d "$TOOLBOX" ]; then
-      STACKMAN_TOOL="$TOOLBOX/stackman"
-      if [ -f "$STACKMAN_TOOL/pyproject.toml" ]; then
-        ${pkgs.uv}/bin/uv tool install --editable "$STACKMAN_TOOL"
-      fi
-
       for tool_dir in "$TOOLBOX"/*/; do
-        if [ "$tool_dir" = "$STACKMAN_TOOL/" ]; then
-          continue
-        fi
         if [ -f "''${tool_dir}pyproject.toml" ]; then
           ${pkgs.uv}/bin/uv tool install --editable "$tool_dir" || true
         fi
