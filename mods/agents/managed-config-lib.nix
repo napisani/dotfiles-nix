@@ -81,8 +81,9 @@ let
   # of merging a config file. Uninstalls anything this mechanism previously
   # installed but is no longer declared; never touches plugins Claude itself
   # or the user installed outside of Nix (they never enter the tracked
-  # managed-set, so they're never pruned). `marketplace` is a single value
-  # (not a list) since no current caller ever needs more than one.
+  # managed-set, so they're never pruned). Every declared marketplace is
+  # registered before plugin installation so one agent can consume plugins
+  # from independent sources.
   #
   # Trusted-path-first PATH: Homebrew/system before $HOME/.local/bin, so a
   # file planted in the user-writable npm-global bin dir (where ~9 packages
@@ -90,14 +91,14 @@ let
   # destructively-acting, unattended script.
   mkClaudePluginInstall =
     {
-      marketplace ? null,
+      marketplaces ? [ ],
       declaredPlugins,
       stateId,
     }:
     ''
       export PATH="/opt/homebrew/bin:/run/current-system/sw/bin:$HOME/.local/bin:$PATH"
       if command -v claude >/dev/null 2>&1; then
-        MARKETPLACE=${lib.escapeShellArg (if marketplace == null then "" else marketplace)} \
+        MARKETPLACES=${lib.escapeShellArg (builtins.toJSON marketplaces)} \
         DECLARED_PLUGINS=${lib.escapeShellArg (builtins.toJSON declaredPlugins)} \
         STATE_FILE=${lib.escapeShellArg (mkStateFile stateId)} \
           ${nodeBin}/node ${scriptsDir}/apply-claude-plugins.js

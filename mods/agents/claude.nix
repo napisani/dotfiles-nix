@@ -68,15 +68,17 @@ let
   declaredMcpEntries = shared.mkDeclaredEntriesFromSources mcpSources;
 
   # Claude Code plugins — public community plugins + Loancrate org plugins.
-  pluginMarketplace = if isLoancrateMac then "loancrate/org-claude-skills#workmux" else null;
-  declaredPlugins =
-    [
-      "github:nicobailon/visual-explainer"
-    ]
-    ++ lib.optionals isLoancrateMac [
-      "lc@lc"
-      "code@lc"
-    ];
+  pluginMarketplaces = [
+    "nicobailon/visual-explainer"
+  ]
+  ++ lib.optionals isLoancrateMac [ "loancrate/org-claude-skills#workmux" ];
+  declaredPlugins = [
+    "visual-explainer@visual-explainer-marketplace"
+  ]
+  ++ lib.optionals isLoancrateMac [
+    "lc@lc"
+    "code@lc"
+  ];
 
   loancrateBaseConfig = builtins.toJSON {
     user_prefix = "nick";
@@ -135,7 +137,7 @@ in
 
   home.activation.installClaudePlugins = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     managedConfig.mkClaudePluginInstall {
-      marketplace = pluginMarketplace;
+      marketplaces = pluginMarketplaces;
       inherit declaredPlugins;
       stateId = "claude-plugins";
     }

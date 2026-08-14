@@ -12,8 +12,8 @@
 // for the common steady-state case.
 //
 // Env vars:
-//   MARKETPLACE      — single marketplace source string to register (e.g.
-//                      "loancrate/org-claude-skills#workmux"), or empty/unset
+//   MARKETPLACES     — JSON array of marketplace source strings to register
+//                      before installing plugins
 //   DECLARED_PLUGINS — JSON array of "<plugin>@<marketplaceName>" strings,
 //                      this run's full declared set
 //   STATE_FILE       — path to a small JSON file recording the previously-
@@ -22,7 +22,7 @@
 const { execFileSync } = require("node:child_process");
 const { readManagedState, writeManagedState } = require("../../scripts/lib/managed-state.js");
 
-const marketplace = process.env.MARKETPLACE || "";
+const marketplaces = JSON.parse(process.env.MARKETPLACES || "[]");
 const declaredPlugins = JSON.parse(process.env.DECLARED_PLUGINS || "[]");
 const stateFile = process.env.STATE_FILE;
 
@@ -36,7 +36,7 @@ function run(args) {
 const { ok: stateOk, managed: previouslyManaged } = readManagedState(stateFile);
 const currentManaged = new Set(declaredPlugins);
 
-if (marketplace) {
+for (const marketplace of marketplaces) {
   try {
     run(["plugin", "marketplace", "add", marketplace, "--scope", "user"]);
   } catch (e) {

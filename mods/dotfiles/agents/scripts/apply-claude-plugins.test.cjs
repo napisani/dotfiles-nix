@@ -36,6 +36,27 @@ function readCalls(logFile) {
   return fs.readFileSync(logFile, "utf8").trim().split("\n").filter(Boolean);
 }
 
+test("registers every declared marketplace", () => {
+  const dir = mkTmpDir();
+  const log = path.join(dir, "calls.log");
+  const state = path.join(dir, "state.json");
+
+  run(dir, {
+    CALL_LOG: log,
+    MARKETPLACES: JSON.stringify([
+      "nicobailon/visual-explainer",
+      "loancrate/org-claude-skills#workmux",
+    ]),
+    DECLARED_PLUGINS: "[]",
+    STATE_FILE: state,
+  });
+
+  assert.deepEqual(readCalls(log), [
+    "plugin marketplace add nicobailon/visual-explainer --scope user",
+    "plugin marketplace add loancrate/org-claude-skills#workmux --scope user",
+  ]);
+});
+
 test("a newly declared plugin gets a full uninstall-then-install cycle", () => {
   const dir = mkTmpDir();
   const log = path.join(dir, "calls.log");

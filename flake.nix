@@ -22,7 +22,7 @@
 
     proctmux.url = "github:napisani/proctmux";
     stackman = {
-      url = "github:napisani/monorepo?dir=pub/stackman";
+      url = "git+ssh://git@github.com/napisani/monorepo.git?dir=pub/stackman";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     secret_inject.url = "github:napisani/secret_inject";
