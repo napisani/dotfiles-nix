@@ -22,7 +22,7 @@
 
     proctmux.url = "github:napisani/proctmux";
     stackman = {
-      url = "git+ssh://git@github.com/napisani/monorepo.git?dir=pub/stackman";
+      url = "git+https://github.com/napisani/monorepo.git?dir=pub/stackman";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     secret_inject.url = "github:napisani/secret_inject";
@@ -108,15 +108,17 @@
       url = "github:nicobailon/visual-explainer";
       flake = false;
     };
-    # Private napisani repos — fetched over SSH (gh/ssh creds required to
+    # Private napisani repos — fetched over HTTPS (gh auth token required to
     # update the lock; rebuilds use the pinned lock and need no network).
+    # SSH URLs don't work here: darwin-rebuild runs as root via sudo, and
+    # root's ssh can't see /Users/<user>/.ssh keys nor the (empty) agent.
     # private-skills now lives in napisani/monorepo at priv/skills/.
     private-skills = {
-      url = "git+ssh://git@github.com/napisani/monorepo.git";
+      url = "git+https://github.com/napisani/monorepo.git";
       flake = false;
     };
     lc-script-skills = {
-      url = "git+ssh://git@github.com/napisani/lc-script";
+      url = "git+https://github.com/napisani/lc-script";
       flake = false;
     };
 

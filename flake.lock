@@ -400,11 +400,11 @@
         "rev": "a9780bb429e2dea6a72a470ae7816975451a9450",
         "revCount": 6,
         "type": "git",
-        "url": "ssh://git@github.com/napisani/lc-script"
+        "url": "https://github.com/napisani/lc-script"
       },
       "original": {
         "type": "git",
-        "url": "ssh://git@github.com/napisani/lc-script"
+        "url": "https://github.com/napisani/lc-script"
       }
     },
     "mattpocock-skills": {
@@ -441,11 +441,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1786534138,
-        "narHash": "sha256-fBJMdnKUTUDtfi/BYLr71HLaC9dG382arxLF2Egg2uo=",
+        "lastModified": 1786593342,
+        "narHash": "sha256-smTKQXMLLStzc8zJevMCckbk3My7SvbbLmPYZUJJKW4=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "044bfe75bfe4c7bbe043dc17b5e42ea823b84a09",
+        "rev": "6b5e5b7a6631f065bf6908986990b37d845f847f",
         "type": "github"
       },
       "original": {
@@ -538,17 +538,17 @@
     "private-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1786626649,
-        "narHash": "sha256-VZj2VTDQRNvUtVmSvIEzUd5eZ7YUQ4k4Ma6ImV6k6Eg=",
+        "lastModified": 1786755822,
+        "narHash": "sha256-OfhqOw4JHNN5YcScQADelT44RoA9KVqZx2VQkojzWQE=",
         "ref": "refs/heads/main",
-        "rev": "9f76e2feaeb6de1fe10a3e5ca480488221fbed98",
-        "revCount": 1272,
+        "rev": "2ad0405d396b6d0e5dfd886cae24210845d17012",
+        "revCount": 1303,
         "type": "git",
-        "url": "ssh://git@github.com/napisani/monorepo.git"
+        "url": "https://github.com/napisani/monorepo.git"
       },
       "original": {
         "type": "git",
-        "url": "ssh://git@github.com/napisani/monorepo.git"
+        "url": "https://github.com/napisani/monorepo.git"
       }
     },
     "procmux": {
@@ -782,18 +782,18 @@
       },
       "locked": {
         "dir": "pub/stackman",
-        "lastModified": 1786713053,
-        "narHash": "sha256-fuc74rjnj7CUlwuKHBkfavop/peLTJ5ymVQhf2CSvYs=",
+        "lastModified": 1786755822,
+        "narHash": "sha256-OfhqOw4JHNN5YcScQADelT44RoA9KVqZx2VQkojzWQE=",
         "ref": "refs/heads/main",
-        "rev": "1f80e7153fc792e2627472f524f9bb607d9317ca",
-        "revCount": 1301,
+        "rev": "2ad0405d396b6d0e5dfd886cae24210845d17012",
+        "revCount": 1303,
         "type": "git",
-        "url": "ssh://git@github.com/napisani/monorepo.git"
+        "url": "https://github.com/napisani/monorepo.git"
       },
       "original": {
         "dir": "pub/stackman",
         "type": "git",
-        "url": "ssh://git@github.com/napisani/monorepo.git"
+        "url": "https://github.com/napisani/monorepo.git"
       }
     },
     "superpowers": {
