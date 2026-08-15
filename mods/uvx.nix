@@ -16,6 +16,12 @@ in
   ];
 
   home.activation.installUvTools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    # Stackman graduated from toolbox/uv-tool to a first-class Nix package.
+    # Prune any old uv-installed shim so ~/.local/bin cannot shadow the Nix executable.
+    if ${pkgs.uv}/bin/uv tool list | ${pkgs.gnugrep}/bin/grep -q '^stackman '; then
+      ${pkgs.uv}/bin/uv tool uninstall stackman || true
+    fi
+
     # Install sqlit-tui with the postgres dependency
     ${pkgs.uv}/bin/uv tool install --with psycopg2-binary 'sqlit-tui[postgres]' --force
 
