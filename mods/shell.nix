@@ -25,6 +25,15 @@ in
       settings = {
         style = "compact";
         sync_address = "https://atuin.napisani.xyz";
+        # Self-hosted Atuin AI server (atuin-ai-server in the home chart,
+        # OpenRouter-backed). The matching api_token comes from the shared
+        # Doppler key ATUIN_AI_AUTH_TOKEN (workstation_env_vars):
+        # 0064_atuin_ai.bashrc maps it onto atuin's ATUIN_AI__API_TOKEN env
+        # override, which sets `ai.api_token`.
+        # See the kube-home-lab atuin.ts app definition for server setup.
+        ai = {
+          endpoint = "https://atuin-ai.napisani.xyz";
+        };
       };
     };
     bash = {
