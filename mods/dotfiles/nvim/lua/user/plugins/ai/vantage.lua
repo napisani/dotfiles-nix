@@ -50,11 +50,17 @@ end
 
 M.opts = {
 	agent = {
-		provider = vim.env.AI_PROVIDER or "anthropic",
-		model = vim.env.AI_FAST_MODEL or "claude-haiku-4-5",
-		options = {
-			reasoning = "minimal",
+		models = {
+			{
+				name = "default",
+				provider = vim.env.AI_PROVIDER or "anthropic",
+				model = vim.env.AI_FAST_MODEL or "claude-haiku-4-5",
+				options = {
+					reasoning = "minimal",
+				},
+			},
 		},
+		default_model = "default",
 	},
 }
 
