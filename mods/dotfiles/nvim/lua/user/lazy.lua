@@ -25,7 +25,7 @@ vim.g.maplocalleader = ";"
 vim.g.nvim_dadbod_bg_port = "4545"
 vim.g.nvim_dadbod_bg_log_file = "/tmp/nvim-dadbod-dbg.log"
 
-local vantage_dir = "/Users/nick/code/learn-lsp"
+local vantage_dir = "/Users/nick/code/monorepo/pub/vantage-nvim"
 
 -- Setup lazy.nvim
 require("lazy").setup({
@@ -292,10 +292,8 @@ require("lazy").setup({
 
 		-- Inline AI annotations and review lenses
 		{
-			-- dir = vantage_dir,
-			"napisani/vantage-nvim",
+			dir = vantage_dir,
 			name = "vantage.nvim",
-			build = "npm ci --omit=dev && npm run compile",
 			opts = require("user.plugins.ai.vantage").opts,
 			-- lazy.nvim only reruns `build` when the plugin's pinned commit
 			-- changes, so if node_modules ever gets wiped externally (as

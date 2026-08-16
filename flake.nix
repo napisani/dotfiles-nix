@@ -65,7 +65,7 @@
       flake = false;
     };
     vantage-nvim-skills = {
-      url = "github:napisani/vantage-nvim";
+      url = "git+https://github.com/napisani/monorepo.git?dir=pub/vantage-nvim";
       flake = false;
     };
     playwright-cli-skills = {

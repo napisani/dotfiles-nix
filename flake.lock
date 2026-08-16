@@ -945,17 +945,19 @@
     "vantage-nvim-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1784297050,
-        "narHash": "sha256-RKipbdLVJUPQQvqHN7r6UMC3mzrzYsZUUKTwb90FOqw=",
-        "owner": "napisani",
-        "repo": "vantage-nvim",
-        "rev": "f9d45792a97b37864c7172de0321daf4b5187615",
-        "type": "github"
+        "dir": "pub/vantage-nvim",
+        "lastModified": 1786797909,
+        "narHash": "sha256-LdZBgdL4j0bK7F5GiOA4qLvAWohhgcteb4XVL3052k8=",
+        "ref": "refs/heads/main",
+        "rev": "84315d8a151c1ed056f1521aea5bd06413e007e6",
+        "revCount": 1307,
+        "type": "git",
+        "url": "https://github.com/napisani/monorepo.git"
       },
       "original": {
-        "owner": "napisani",
-        "repo": "vantage-nvim",
-        "type": "github"
+        "dir": "pub/vantage-nvim",
+        "type": "git",
+        "url": "https://github.com/napisani/monorepo.git"
       }
     },
     "workmux-skills": {
