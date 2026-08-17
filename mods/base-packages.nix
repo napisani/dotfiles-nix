@@ -42,6 +42,7 @@ in
       git-lfs
       # ngrok
       fd
+      fff
 
       # search for packages on nixos
       nix-search-cli

@@ -100,7 +100,9 @@ let
 
   declaredPiPackages = [
     "npm:@datspike/pi-inline-slash-extension"
+    "npm:@ff-labs/pi-fff"
     "npm:@juicesharp/rpiv-btw"
+    "npm:pi-fabric"
     "npm:pi-vim"
     "npm:pi-web-access"
     "git:github.com/nicobailon/visual-explainer"
