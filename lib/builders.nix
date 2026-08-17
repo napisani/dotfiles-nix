@@ -1,11 +1,28 @@
 {
   inputs,
   nixpkgs,
+  nixpkgs-unstable,
   home-manager,
+  home-manager-26,
+  darwin,
+  darwin-26,
   lib,
   self,
 }:
 rec {
+  # nixpkgs 26.11 dropped x86_64-darwin (Intel Macs). maclab is the only
+  # x86_64-darwin host, so it gets the 26.05 stack (nixpkgs + nix-darwin-26
+  # + home-manager release-26.05); everything else stays on nixpkgs-unstable
+  # / master branches.
+  isIntelMac = system: system == "x86_64-darwin";
+  # The main nixpkgs input is already the 26.05-darwin branch; on non-Intel
+  # systems, "unstable" for pkgs-unstable means the separate
+  # nixpkgs-unstable input, and the 26.05 branch on Intel Macs (since
+  # nixpkgs-unstable dropped them).
+  nixpkgsFor = system: if isIntelMac system then nixpkgs else nixpkgs-unstable;
+  darwinFor = system: if isIntelMac system then darwin-26 else darwin;
+  homeManagerFor = system: if isIntelMac system then home-manager-26 else home-manager;
+
   # Where this flake checkout lives relative to $HOME, on every host that
   # doesn't override it in flake.nix. This is the ONE place that default
   # lives — mkDarwinSystem/mkNixOSSystem forward whatever's passed (or this
@@ -31,7 +48,13 @@ rec {
     # "loancrate" ]). Agent modules gate on these instead of hostname string
     # equality, so renaming a machine can't silently disable gated assets.
     machineRoles = roles;
-    pkgs-unstable = import nixpkgs {
+    # macOS Intel Macs (x86_64-darwin) use the nixpkgs-26.05-darwin stack
+    # (nixpkgs 26.11 dropped Intel support). Modules can use this flag to
+    # conditionally avoid options that don't exist in the 26.05 release.
+    useHomeManager26 = isIntelMac system;
+    # "unstable" is nixpkgs-unstable everywhere except x86_64-darwin, where
+    # it's the 26.05-darwin branch (the last release supporting Intel Macs).
+    pkgs-unstable = import (nixpkgsFor system) {
       inherit system;
       config.allowUnfree = true;
       overlays = [ ];
@@ -60,12 +83,12 @@ rec {
       homeModules ? [ ],
       homeManagerRelPath ? defaultHomeManagerRelPath,
     }:
-    inputs.darwin.lib.darwinSystem {
+    (darwinFor system).lib.darwinSystem {
       inherit system;
       modules = [
         "${self}/systems/profiles/darwin-base.nix"
 
-        home-manager.darwinModules.home-manager
+        (homeManagerFor system).darwinModules.home-manager
         {
           home-manager = {
             useGlobalPkgs = false;

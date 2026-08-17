@@ -1,7 +1,9 @@
 {
   pkgs,
   config,
+  lib,
   homeManagerRelPath,
+  useHomeManager26 ? false,
   ...
 }:
 let
@@ -18,6 +20,10 @@ in
     fzf = {
       enable = true;
       enableBashIntegration = true;
+      # historyWidget was added in home-manager after the 26.05 release;
+      # maclab (x86_64-darwin) uses the 26.05 home-manager stack, which
+      # doesn't support this option.
+    } // lib.optionalAttrs (!useHomeManager26) {
       historyWidget.bash.command = "";
     };
     atuin = {

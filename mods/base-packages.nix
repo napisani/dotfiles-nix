@@ -42,7 +42,7 @@ in
       git-lfs
       # ngrok
       fd
-      fff
+    ] ++ lib.optionals (system != "x86_64-darwin") [ fff ] ++ [
 
       # search for packages on nixos
       nix-search-cli

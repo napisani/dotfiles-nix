@@ -2,15 +2,39 @@
   description = "Home Manager configuration";
   inputs = {
     # Core infrastructure
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # nixpkgs 26.11 dropped x86_64-darwin (Intel Macs). The main nixpkgs
+    # input is the 26.05-darwin branch — the last release supporting Intel
+    # Macs — and every input that follows nixpkgs (procmux, animal_rescue,
+    # rift, stackman, nix-darwin-26, home-manager-26) stays on it so
+    # everything evaluates on all systems. Arm64 Macs get bleeding-edge
+    # packages via the separate nixpkgs-unstable input (pkgs-unstable in
+    # specialArgs); Intel Macs (maclab) get 26.05 there instead, since
+    # unstable dropped them.
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     darwin = {
       url = "github:lnl7/nix-darwin/master";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    # 26.05 release branch of nix-darwin, paired with the main nixpkgs
+    # input for the Intel Mac (maclab, x86_64-darwin) config only.
+    darwin-26 = {
+      url = "github:lnl7/nix-darwin/nix-darwin-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     home-manager = {
       url = "github:nix-community/home-manager/master";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    # home-manager release branch matching nixpkgs 26.05, for maclab only.
+    # master asserts fzf >= 0.73.0 for nushell integration, but nixpkgs
+    # 26.05 ships fzf 0.72.0; release-26.05 has no such assertion.
+    home-manager-26 = {
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -25,7 +49,12 @@
       url = "git+https://github.com/napisani/monorepo.git?dir=pub/stackman";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    secret_inject.url = "github:napisani/secret_inject";
+    secret_inject = {
+      url = "github:napisani/secret_inject";
+      # Its own lock pins a 26.11-era nixpkgs that dropped x86_64-darwin;
+      # follow the main nixpkgs (26.05-darwin) so maclab can evaluate it.
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     animal_rescue.url = "github:napisani/animal-rescue";
     scrollbacktamer.url = "github:napisani/scrollbacktamer";
 
@@ -128,8 +157,11 @@
     {
       self,
       nixpkgs,
+      nixpkgs-unstable,
       home-manager,
+      home-manager-26,
       darwin,
+      darwin-26,
       ...
     }@inputs:
     let
@@ -138,7 +170,11 @@
         inherit
           inputs
           nixpkgs
+          nixpkgs-unstable
           home-manager
+          home-manager-26
+          darwin
+          darwin-26
           lib
           self
           ;
