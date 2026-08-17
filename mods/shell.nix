@@ -32,6 +32,7 @@ in
         # override, which sets `ai.api_token`.
         # See the kube-home-lab atuin.ts app definition for server setup.
         ai = {
+          enabled = true;
           endpoint = "https://atuin-ai.napisani.xyz";
         };
       };
