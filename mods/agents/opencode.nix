@@ -37,21 +37,9 @@ let
     force = true;
   };
 
-  # The Loancrate Mac uses its local Ollama instance; other machines retain
-  # the shared remote provider. config.json is generated so this route is
-  # evaluated per machine.
-  remoteOllamaProvider = import ./ollama-provider.nix;
-  ollamaProvider =
-    if isLoancrateMac then
-      {
-        baseUrl = "http://localhost:11434/v1";
-        models = [
-          "qwen3:1.7b"
-          "qwen3.6-coding"
-        ];
-      }
-    else
-      remoteOllamaProvider;
+  # config.json is generated so this route (Loancrate Mac local vs. shared
+  # remote provider — see ollama-provider.nix) is evaluated per machine.
+  ollamaProvider = import ./ollama-provider.nix { inherit isLoancrateMac; };
   mkOpencodeModels = ids: builtins.listToAttrs (map (id: {
     name = id;
     value.name = id;

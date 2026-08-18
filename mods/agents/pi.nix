@@ -28,18 +28,7 @@ let
   instructions = callAgentLib ./instructions.nix;
   managedConfig = callAgentLib ./managed-config-lib.nix;
 
-  remoteOllamaProvider = import ./ollama-provider.nix;
-  ollamaProvider =
-    if shared.isLoancrateMac then
-      {
-        baseUrl = "http://localhost:11434/v1";
-        models = [
-          "qwen3:1.7b"
-          "qwen3.6-coding"
-        ];
-      }
-    else
-      remoteOllamaProvider;
+  ollamaProvider = import ./ollama-provider.nix { inherit (shared) isLoancrateMac; };
 
   managedPiProviders = {
     ollama = {
