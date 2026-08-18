@@ -20,8 +20,8 @@ if (fs.existsSync(settingsPath)) {
 
 const managed = {
   defaultProvider: "openai-codex",
-  defaultModel: "gpt-5.5",
-  defaultThinkingLevel: "xhigh",
+  defaultModel: "gpt-5.6-luna",
+  defaultThinkingLevel: "high",
   theme: "kanagawa",
 };
 const managedSkills = [
@@ -46,8 +46,8 @@ for (const [key, value] of Object.entries(managed)) {
 const currentOpenAI = settings.openaiReasoningMode && typeof settings.openaiReasoningMode === "object"
   ? settings.openaiReasoningMode
   : {};
-if (currentOpenAI.fast !== true) {
-  settings.openaiReasoningMode = { ...currentOpenAI, fast: true };
+if (currentOpenAI.fast !== false) {
+  settings.openaiReasoningMode = { ...currentOpenAI, fast: false };
   changed = true;
 }
 
@@ -91,5 +91,5 @@ if (settings.providers !== undefined) {
 if (changed) {
   fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
   fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
-  console.log("agents: applied Pi defaults -> openai-codex/gpt-5.5/xhigh, fast:on, theme:kanagawa, monorepo app skills, managed Pi packages");
+  console.log("agents: applied Pi defaults -> openai-codex/gpt-5.6-luna/high, fast:off, theme:kanagawa, monorepo app skills, managed Pi packages");
 }

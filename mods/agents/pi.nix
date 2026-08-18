@@ -105,6 +105,7 @@ let
     "npm:pi-fabric"
     "npm:pi-vim"
     "npm:pi-web-access"
+    "npm:claude-agent-sdk-pi"
     "git:github.com/nicobailon/visual-explainer"
   ];
 
