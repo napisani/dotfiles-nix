@@ -274,11 +274,11 @@ let
     # }
     {
       input = inputs.no-ai-slop;
-      # SKILL.md lives at the repo root, so the skill dir is the input itself.
+      # The repository stores this skill under `skills/no-ai-slop`.
       skills = [
         {
           name = "no-ai-slop";
-          path = ".";
+          path = "skills/no-ai-slop";
         }
       ];
       agents = allAgents;
@@ -288,7 +288,7 @@ let
       skills = [
         {
           name = "show-me";
-          path = "skills/show-me";
+          path = "plugins/show-me/skills/show-me";
         }
       ];
       agents = allAgents;
