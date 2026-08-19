@@ -55,15 +55,6 @@ let
         url = "https://bde.dsci.loancrate.dev/mcp";
       };
     }
-    {
-      name = "agentmemory";
-      config = {
-        command = shared.agentmemoryMcpBin;
-        env = {
-          AGENTMEMORY_URL = shared.agentmemoryUrl;
-        };
-      };
-    }
   ];
   declaredMcpEntries = shared.mkDeclaredEntriesFromSources mcpSources;
 

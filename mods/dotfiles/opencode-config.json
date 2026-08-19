@@ -4,17 +4,7 @@
   "model": "openai/gpt-5.4",
   "autoshare": false,
   "autoupdate": true,
-  "mcp": {
-    "agentmemory": {
-      "type": "local",
-      "command": [
-        "/Users/nick/.local/bin/agentmemory-mcp"
-      ],
-      "environment": {
-        "AGENTMEMORY_URL": "http://localhost:3111"
-      }
-    }
-  },
+  "mcp": {},
   "tools": {},
   "command": {}
 }

@@ -107,10 +107,7 @@ let
     {
       # NOTE ON UPSTREAM DRIFT (pinned rev): `diagnose` was renamed upstream
       # to `diagnosing-bugs` (migrated below); `write-a-skill`, `caveman`, and
-      # `zoom-out` no longer exist at this rev and were dropped; `handoff`
-      # also ships here but is installed from agentmemory below (its handoff is
-      # what currently wins under the old last-writer mechanism), so it's
-      # omitted here to avoid a same-name home.file collision.
+      # `zoom-out` no longer exist at this rev and were dropped.
       input = inputs.mattpocock-skills;
       skills = [
         {
@@ -120,6 +117,10 @@ let
         {
           name = "resolving-merge-conflicts";
           path = "skills/engineering/resolving-merge-conflicts";
+        }
+        {
+          name = "handoff";
+          path = "skills/productivity/handoff";
         }
         {
           name = "grill-me";
@@ -220,44 +221,6 @@ let
         {
           name = "worktree";
           path = "skills/worktree";
-        }
-      ];
-      agents = allAgents;
-    }
-    {
-      input = inputs.agentmemory-skills;
-      skills = [
-        {
-          name = "recall";
-          path = "plugin/skills/recall";
-        }
-        {
-          name = "remember";
-          path = "plugin/skills/remember";
-        }
-        {
-          name = "session-history";
-          path = "plugin/skills/session-history";
-        }
-        {
-          name = "forget";
-          path = "plugin/skills/forget";
-        }
-        {
-          name = "handoff";
-          path = "plugin/skills/handoff";
-        }
-        {
-          name = "recap";
-          path = "plugin/skills/recap";
-        }
-        {
-          name = "commit-context";
-          path = "plugin/skills/commit-context";
-        }
-        {
-          name = "commit-history";
-          path = "plugin/skills/commit-history";
         }
       ];
       agents = allAgents;

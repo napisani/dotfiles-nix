@@ -21,11 +21,6 @@ let
     "@agentclientprotocol/claude-agent-acp"
     "@zed-industries/codex-acp"
     "@playwright/cli"
-    # agentmemory: MCP server binary (mods/agents/{claude,codex,pi}.nix each
-    # reference ~/.local/bin/agentmemory-mcp directly, no npx spawn) + the
-    # `agentmemory` CLI for running the full persistent server/viewer.
-    "@agentmemory/mcp"
-    "@agentmemory/agentmemory"
   ];
 
   removedNpmPackages = [
@@ -34,6 +29,8 @@ let
     # Duplicated `rtk init -g --opencode`'s own generated plugin
     # (~/.config/opencode/plugins/rtk.ts) — keep just the one rtk source.
     "openrtk"
+    "@agentmemory/mcp"
+    "@agentmemory/agentmemory"
   ];
 
   # Pi packages are declared and diff-pruned in mods/agents/pi.nix

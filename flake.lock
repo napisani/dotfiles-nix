@@ -32,27 +32,11 @@
         "type": "github"
       }
     },
-    "agentmemory-skills": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1786888472,
-        "narHash": "sha256-A1ytAUg7DFAU/JTv9bihvlZrhq60g38aGwcjTqMVTt4=",
-        "owner": "rohitg00",
-        "repo": "agentmemory",
-        "rev": "2d38dafede67d0d4ed920cde94d2106e98825b8a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "rohitg00",
-        "repo": "agentmemory",
-        "type": "github"
-      }
-    },
     "animal_rescue": {
       "inputs": {
         "flake-utils": "flake-utils",
         "goflake": "goflake",
-        "nixpkgs": "nixpkgs_animal_rescue"
+        "nixpkgs": "nixpkgs"
       },
       "locked": {
         "lastModified": 1730429247,
@@ -467,18 +451,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1786920013,
-        "narHash": "sha256-tlbRqzZ3suDUO3vyR0QFBk0TrxJiRP50t7VWfHhtVrw=",
+        "lastModified": 1707588924,
+        "narHash": "sha256-0e1ce6X5ghapv6cAF9rxLZKeNyFHHXsLbGxN2cQQE8U=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "33da5f36e599b50aa7dbbfacb718254423b18354",
+        "rev": "10b813040df67c4039086db0f6eaf65c536886c6",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
-        "ref": "nixpkgs-26.05-darwin",
-        "repo": "nixpkgs",
-        "type": "github"
+        "id": "nixpkgs",
+        "type": "indirect"
       }
     },
     "nixpkgs-unstable": {
@@ -713,7 +695,6 @@
     "root": {
       "inputs": {
         "addyosmani-agent-skills": "addyosmani-agent-skills",
-        "agentmemory-skills": "agentmemory-skills",
         "animal_rescue": "animal_rescue",
         "anthropic-skills": "anthropic-skills",
         "arjunmahishi-dotfiles": "arjunmahishi-dotfiles",
@@ -741,7 +722,6 @@
         "softaworks-agent-toolkit": "softaworks-agent-toolkit",
         "stackman": "stackman",
         "superpowers": "superpowers",
-        "understand-anything": "understand-anything",
         "vantage-nvim-skills": "vantage-nvim-skills",
         "workmux-skills": "workmux-skills"
       }
@@ -948,22 +928,6 @@
         "type": "github"
       }
     },
-    "understand-anything": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1786457616,
-        "narHash": "sha256-R5mDA+I0g+DHIx5PSJWnzw+Bkl+/s9Ctxmtg8lhObps=",
-        "owner": "Lum1104",
-        "repo": "Understand-Anything",
-        "rev": "32944829e7a63a9fa9c55d811d7f98a9530c6a6a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Lum1104",
-        "repo": "Understand-Anything",
-        "type": "github"
-      }
-    },
     "uv2nix": {
       "inputs": {
         "nixpkgs": [
@@ -1021,20 +985,6 @@
         "owner": "raine",
         "repo": "workmux",
         "type": "github"
-      }
-    },
-    "nixpkgs_animal_rescue": {
-      "locked": {
-        "lastModified": 1707588924,
-        "narHash": "sha256-0e1ce6X5ghapv6cAF9rxLZKeNyFHHXsLbGxN2cQQE8U=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "10b813040df67c4039086db0f6eaf65c536886c6",
-        "type": "github"
-      },
-      "original": {
-        "id": "nixpkgs",
-        "type": "indirect"
       }
     }
   },

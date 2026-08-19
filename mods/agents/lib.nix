@@ -42,15 +42,6 @@ let
   nodeBin = "${pkgs-unstable.nodejs}/bin";
   gitBin = "${pkgs-unstable.git}/bin";
 
-  # agentmemory MCP server facts, shared by claude/codex/pi's own MCP
-  # declarations. Agent-blind data, not policy — each agent still declares
-  # its own MCP entry shape locally (Pi adds lifecycle="lazy", etc.); only
-  # these two facts are shared, so changing the port is a one-line edit.
-  # The binary is installed globally by mods/npmx.nix (`npm install -g
-  # @agentmemory/mcp`), not spawned via npx.
-  agentmemoryMcpBin = "${home}/.local/bin/agentmemory-mcp";
-  agentmemoryUrl = "http://localhost:3111";
-
   # Machine gating: derived from the flake-declared roles list (passed as a
   # specialArg from flake.nix's own machine definitions), not a hostname
   # string equality and not the hand-duplicated MACHINE_NAME sessionVariable.
@@ -170,8 +161,6 @@ in
     allAgents
     nodeBin
     gitBin
-    agentmemoryMcpBin
-    agentmemoryUrl
     isLoancrateMac
     mkFixPathConflicts
     mkRtkHookInstall

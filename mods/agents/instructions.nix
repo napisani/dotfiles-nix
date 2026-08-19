@@ -24,11 +24,20 @@ let
 
   # Write repo-managed instruction content to one agent's instruction path.
   # Uses a temp-file rename for atomicity (avoids partial writes). Agent-
-  # blind: takes a target path, not agent identity.
+  # blind: takes a target path plus an optional list of extra source paths
+  # (e.g. an agent-only addendum) to concatenate after the shared source —
+  # never an agent identity. Callers with no extras get exactly the old
+  # behavior.
   writeAgentInstructions =
-    { target }:
+    {
+      target,
+      extraSourcePaths ? [ ],
+    }:
+    let
+      allSources = [ sharedAgentInstructionsSource ] ++ extraSourcePaths;
+      catArgs = lib.concatMapStringsSep " " lib.escapeShellArg allSources;
+    in
     ''
-      _base="${sharedAgentInstructionsSource}"
       _target="${target}"
 
       mkdir -p "$(dirname "$_target")"
@@ -37,7 +46,7 @@ let
         echo "agents: refusing to replace directory at $_target"
       else
         _tmp="$(mktemp)"
-        cat "$_base" > "$_tmp"
+        cat ${catArgs} > "$_tmp"
         mv "$_tmp" "$_target"
         echo "agents: wrote shared instructions -> $_target"
       fi

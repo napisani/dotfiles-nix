@@ -7,7 +7,7 @@
 # pruned via `pi install`/`pi remove`, replacing the old manually-maintained
 # removedPiPackages list in npmx.nix — including a one-time legacySeed for
 # npm:pi-skillful, which that old list used to actively remove every run),
-# extension/theme links, settings, and the Understand-Anything plugin.
+# extension/theme links, and settings.
 {
   config,
   lib,
@@ -22,7 +22,7 @@ let
   shared = import ./lib.nix {
     inherit config lib pkgs-unstable hostname machineRoles inputs homeManagerRelPath;
   };
-  inherit (shared) home dotfiles nodeBin gitBin callAgentLib;
+  inherit (shared) home dotfiles nodeBin callAgentLib;
 
   skills = callAgentLib ./skills.nix;
   instructions = callAgentLib ./instructions.nix;
@@ -74,16 +74,6 @@ let
         lifecycle = "lazy";
       };
     }
-    {
-      name = "agentmemory";
-      config = {
-        command = shared.agentmemoryMcpBin;
-        env = {
-          AGENTMEMORY_URL = shared.agentmemoryUrl;
-        };
-        lifecycle = "lazy";
-      };
-    }
   ];
   declaredMcpEntries = shared.mkDeclaredEntriesFromSources mcpSources;
 
@@ -98,45 +88,6 @@ let
     "git:github.com/nicobailon/visual-explainer"
   ];
 
-  installUnderstandAnythingPlugin = ''
-    _ua_repo_url="https://github.com/Lum1104/Understand-Anything.git"
-    _ua_repo_dir="$HOME/.understand-anything/repo"
-    _ua_plugin_root="$_ua_repo_dir/understand-anything-plugin"
-    _ua_plugin_link="$HOME/.understand-anything-plugin"
-
-    if [ -d "$_ua_repo_dir/.git" ]; then
-      echo "agents: updating Understand-Anything checkout at $_ua_repo_dir"
-      if ! ${gitBin}/git -C "$_ua_repo_dir" fetch --depth=1 origin main; then
-        echo "agents: WARNING: failed to fetch Understand-Anything" >&2
-      elif ! ${gitBin}/git -C "$_ua_repo_dir" reset --hard origin/main; then
-        echo "agents: WARNING: failed to reset Understand-Anything checkout" >&2
-      fi
-    else
-      if [ -e "$_ua_repo_dir" ] || [ -L "$_ua_repo_dir" ]; then
-        echo "agents: replacing unmanaged Understand-Anything checkout at $_ua_repo_dir"
-        rm -rf "$_ua_repo_dir"
-      fi
-      mkdir -p "$(dirname "$_ua_repo_dir")"
-      echo "agents: cloning Understand-Anything -> $_ua_repo_dir"
-      if ! ${gitBin}/git clone --depth=1 "$_ua_repo_url" "$_ua_repo_dir"; then
-        echo "agents: WARNING: failed to clone Understand-Anything" >&2
-      fi
-    fi
-
-    if [ -d "$_ua_plugin_root" ]; then
-      if [ -e "$_ua_plugin_link" ] && [ ! -L "$_ua_plugin_link" ]; then
-        echo "agents: replacing unmanaged Understand-Anything plugin root at $_ua_plugin_link"
-        rm -rf "$_ua_plugin_link"
-      fi
-
-      if [ ! -L "$_ua_plugin_link" ] || [ "$(readlink "$_ua_plugin_link")" != "$_ua_plugin_root" ]; then
-        ln -sfn "$_ua_plugin_root" "$_ua_plugin_link"
-        echo "agents: linked Understand-Anything plugin root -> $_ua_plugin_link"
-      fi
-    else
-      echo "agents: WARNING: Understand-Anything plugin root missing at $_ua_plugin_root" >&2
-    fi
-  '';
 in
 {
   # Layer 0 links. Pi skills: community + Pi-local only — shared skills are
@@ -180,7 +131,10 @@ in
   );
 
   home.activation.writePiInstructions = lib.hm.dag.entryAfter [ "installPiRtkHooks" ] (
-    instructions.writeAgentInstructions { target = instructionsTarget; }
+    instructions.writeAgentInstructions {
+      target = instructionsTarget;
+      extraSourcePaths = [ "${dotfiles}/agents/pi/instructions.md" ];
+    }
   );
 
   home.activation.configurePiMcpServers = lib.hm.dag.entryAfter [ "linkGeneration" ] (
@@ -212,8 +166,5 @@ in
     MANAGED_PROVIDERS=${lib.escapeShellArg (builtins.toJSON managedPiProviders)} \
     REMOVED_PROVIDERS=${lib.escapeShellArg (builtins.toJSON [ "mlx" ])} \
       ${nodeBin}/node ${scriptsDir}/apply-pi-models.js
-
-    # ── Understand-Anything plugin (Pi-only, requires full repo clone) ─────────
-    ${installUnderstandAnythingPlugin}
   '';
 }

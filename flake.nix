@@ -109,16 +109,8 @@
       url = "github:softaworks/agent-toolkit";
       flake = false;
     };
-    understand-anything = {
-      url = "github:Lum1104/Understand-Anything";
-      flake = false;
-    };
     workmux-skills = {
       url = "github:raine/workmux";
-      flake = false;
-    };
-    agentmemory-skills = {
-      url = "github:rohitg00/agentmemory";
       flake = false;
     };
     gh-stack-skills = {
