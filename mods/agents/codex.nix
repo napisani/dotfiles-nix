@@ -54,12 +54,13 @@ let
   # frontmatter field — it's a sibling `agents/openai.yaml` with
   # `policy.allow_implicit_invocation: false` (see
   # github.com/mattpocock/skills#516). Catalog skills are read-only pinned
-  # store paths, so a skill flagged manualOnlyAgents = [ "codex" ... ] gets
-  # that file injected into a patched copy instead.
+  # store paths, so a skill with disableModelInvocation = true gets that
+  # file injected into a patched copy instead.
   patchCodexSkillSource =
     s: src:
-    if builtins.elem "codex" (s.manualOnlyAgents or [ ]) then
+    if skills.isSkillManualOnlyFor { inherit s; agentId = "codex"; } then
       skills.mkPatchedSkillSource {
+        name = s.name;
         sourcePath = src;
         addFiles."agents/openai.yaml" = ''
           policy:

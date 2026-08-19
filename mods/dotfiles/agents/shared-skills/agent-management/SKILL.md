@@ -26,7 +26,7 @@ Every managed asset is sorted by one question: **who else writes to this path?**
 | File | Owns |
 |---|---|
 | `mods/agents/lib.nix` | Agent-blind facts and utilities: `dotfiles`, `home`, `allAgents`, machine roles (`isLoancrateMac`), shared agentmemory facts, `mkFixPathConflicts`, `mkRtkHookInstall`, `mkWarn`, `mkLocalFileLinks`, `mkDeclaredEntriesFromSources`, `callAgentLib` |
-| `mods/agents/skills.nix` | The cross-agent skill **catalog** (one declared list — see below) + the `home.file` generators `mkCommunitySkillFiles`/`mkLocalSkillFiles` |
+| `mods/agents/skills.nix` | The cross-agent skill **catalog** (one declared list — see below) + the `home.file` generators `mkCommunitySkillFiles`/`mkLocalSkillFiles`, plus `mkSkillOverrides`/`mkPatchedSkillSource` for manual-only skills (see below) |
 | `mods/agents/shared-store.nix` | The cross-agent global store `~/.agents/skills` (Pi auto-discovers it), via `home.file` |
 | `mods/agents/instructions.nix` | The shared `AGENTS.md` source + `writeAgentInstructions`/`removeStaleInstructionSymlink` |
 | `mods/agents/managed-config-lib.nix` | Layer 1 JSON/TOML full-key merge (`mkJsonManagedMerge`, `mkTomlManagedMerge`) and Layer 2 CLI diff+prune (`mkClaudePluginInstall`, `mkPiPackageInstall`) |
@@ -81,6 +81,24 @@ Two steps, because skills are Layer 0 pinned content:
 
 For a skill that lives in **this repo** (not fetched), drop a `SKILL.md` under `mods/dotfiles/agents/shared-skills/<name>/` — no catalog entry needed; `shared-store.nix` and each agent's `mkLocalSkillFiles` call link it everywhere automatically, and edits to it are live (out-of-store symlink).
 
+### Make a skill manual-only (invisible to progressive disclosure)
+
+For a skill you only want invoked by explicit name — never auto-triggered by Claude/Pi/Codex matching its description — add `disableModelInvocation = true;` to its entry in `skills.nix`'s catalog:
+```nix
+{ name = "the-skill"; path = "skills/the-skill"; disableModelInvocation = true; }
+```
+This is a plain intent flag on the skill — it says nothing about which agents can honor it. `manualOnlyCapableAgents` (in `skills.nix`) separately declares which agents actually have a manual-only mechanism today, and `isSkillManualOnlyFor { s; agentId; }` combines the two. Keeping "the skill wants this" and "the agent can do this" as two separate declarations means a skill's flag never needs editing when an agent gains or loses support — only `manualOnlyCapableAgents` changes.
+
+Each capable agent realizes "manual-only" its own way (no shared mechanism, per "the one rule that matters") by calling `isSkillManualOnlyFor` for its own `agentId`:
+- **Claude Code**: `mkSkillOverrides { agentId = "claude-code"; }` collects matching skills into `{ skillName = "user-invocable-only"; }`, applied to `~/.claude/settings.json`'s `skillOverrides` key via `mkJsonManagedMerge` (Layer 1 — revocable the same way `mcpServers` is).
+- **Pi**: honors `disable-model-invocation: true` natively in a skill's own `SKILL.md` frontmatter, but catalog skills are read-only pinned store paths — `pi.nix`'s `patchPiSkillSource` uses `mkPatchedSkillSource` to splice that key into a patched copy instead of the vendored file.
+- **Codex**: its real control is a sibling `agents/openai.yaml` (`policy.allow_implicit_invocation: false`), not the frontmatter field — `codex.nix`'s `patchCodexSkillSource` injects that file into a patched copy via `mkPatchedSkillSource`.
+- **OpenCode**: not in `manualOnlyCapableAgents` — no mechanism exists upstream (anomalyco/opencode#11972 is open, unresolved). Add it there once that lands; no catalog skill needs touching.
+
+`mkPatchedSkillSource` is the shared Layer 0 primitive behind Pi/Codex: it copies a skill's store path into a new derivation and either adds files or splices a line into an existing one (generic patch specs, not agent identity — see its doc comment in `skills.nix`). It's revocable the same way any Layer 0 asset is: drop `disableModelInvocation`, the unpatched symlink comes back next switch.
+
+For a **local skill** (not in the catalog — see "Add a community skill" above), skip all of this: just hand-edit that skill's own `SKILL.md`/`agents/openai.yaml` directly, since those files are already live-editable out-of-store symlinks.
+
 ### Update a pinned skill
 
 `nix flake update <input-name>` then rebuild. Skills no longer auto-update on every rebuild — that's deliberate (pinned = reproducible/auditable). A periodic `nix flake update` is how you pull upstream changes.
@@ -117,7 +135,7 @@ Moving an old imperative removal onto a tracked-state mechanism? Seed the state 
 
 ## Verifying a change actually works
 
-- **`rtk nix flake check` is the first-class check.** It builds `checks.aarch64-darwin.activation-merge-forced`, which forces `system.activationScripts.script.text` and every `home.activation.<name>.data` for all machines — the exact evaluation `darwin-rebuild switch` does. This catches option-merge conflicts (two files defining `home.activation.<sameName>`), which are invisible to `nix-instantiate --parse` and to `nix eval ...--apply builtins.attrNames` (listing keys does **not** force their merged values). A real collision here — `mods/opencode.nix` vs `mods/agents/opencode.nix` both defining `fixOpencodePathConflicts` — is exactly what this guards.
+- **`rtk nix flake check` is the first-class check — run it from `pub/dotfiles-nix/`, not the monorepo root.** This directory is its own flake; the monorepo root has a different flake with its own (unrelated) `checks` output. Running from the root silently checks the wrong thing — e.g. its `devShells` check — and reports success without evaluating any agents/*.nix change at all. `cd pub/dotfiles-nix` first. From there, `rtk nix flake check` builds `checks.aarch64-darwin.activation-merge-forced`, which forces `system.activationScripts.script.text` and every `home.activation.<name>.data` for all machines — the exact evaluation `darwin-rebuild switch` does. This catches option-merge conflicts (two files defining `home.activation.<sameName>`), which are invisible to `nix-instantiate --parse` and to `nix eval ...--apply builtins.attrNames` (listing keys does **not** force their merged values). A real collision here — `mods/opencode.nix` vs `mods/agents/opencode.nix` both defining `fixOpencodePathConflicts` — is exactly what this guards.
 - **`git add` matters.** Flakes only see tracked (or staged) files, so a brand-new file or an edit is invisible to `nix eval`/`nix build`/`flake check` until at least `git add`ed. Staging is enough.
 - **Test scripts standalone.** Anything under `mods/dotfiles/agents/scripts/` is plain Node with a documented env-var contract (see each script's header) and a `.test.cjs` suite — run `node --test <file>` against scratch dirs before trusting the Nix wiring.
 - **After a switch, read the convergence line.** `report.nix` prints either `agents: all managed agent assets converged cleanly` or an aggregated `⚠ N warning(s)` block (also saved to `~/.local/state/agents-nix/last-activation-warnings.txt`). "Switch succeeded" and "everything converged" are not the same thing — the soft-fail guards keep one broken mechanism from aborting activation, so check this line.

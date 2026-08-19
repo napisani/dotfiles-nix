@@ -39,10 +39,17 @@ in
   # Runs after every agent's last step and installNpmxTools. Home-manager
   # ignores DAG references to entries that don't exist on a given machine, so
   # this list can safely name all of them.
+  #
+  # NOTE: adding a new home.activation step to any agents/*.nix file that can
+  # call shared.mkWarn (directly or via a managed-config-lib.nix helper) means
+  # adding its name here too — otherwise home-manager may order this summary
+  # before that step runs, and a warning from it won't make the printed
+  # report (though it still lands in warnFile for that run).
   home.activation.agentsWarnReportSummary =
     lib.hm.dag.entryAfter [
       "writeClaudeInstructions"
       "configureClaudeMcpServers"
+      "configureClaudeSkillOverrides"
       "installClaudePlugins"
       "applyClaudeWorkmuxHooks"
       "applyLoancrateConfig"

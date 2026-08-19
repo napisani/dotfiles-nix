@@ -10,7 +10,7 @@
 //                     are merged key-by-key, not replaced wholesale)
 
 const fs = require("node:fs");
-const path = require("node:path");
+const { atomicWriteFileSync } = require("../../scripts/lib/managed-state.js");
 
 const targetFile = process.env.TARGET_FILE;
 const sourceFile = process.env.SOURCE_FILE;
@@ -33,8 +33,7 @@ function writeJsonIfChanged(file, value) {
   const next = JSON.stringify(value, null, 2) + "\n";
   const current = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
   if (current === next) return;
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, next);
+  atomicWriteFileSync(file, next);
   console.log("agents: applied Claude Workmux status hooks -> " + file);
 }
 

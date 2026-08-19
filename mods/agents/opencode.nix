@@ -78,9 +78,10 @@ in
   # themes, plugins, local skills) stay live out-of-store symlinks.
   # `.config/opencode/skills/local` sits beside the community/shared skill
   # links; names don't collide.
-  # A skill's manualOnlyAgents flag (skills.nix) is a no-op for OpenCode: it
-  # has no manual-only mechanism upstream (anomalyco/opencode#11972 is still
-  # open, no workaround exists). Revisit once that lands.
+  # A skill's disableModelInvocation flag (skills.nix) is a no-op for
+  # OpenCode: it's excluded from manualOnlyCapableAgents since OpenCode has no
+  # manual-only mechanism upstream (anomalyco/opencode#11972 is still open, no
+  # workaround exists). Revisit once that lands.
   home.file =
     skills.mkCommunitySkillFiles {
       agentId = "opencode";

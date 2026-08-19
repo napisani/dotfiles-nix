@@ -38,7 +38,7 @@ let
       catArgs = lib.concatMapStringsSep " " lib.escapeShellArg allSources;
     in
     ''
-      _target="${target}"
+      _target=${lib.escapeShellArg target}
 
       mkdir -p "$(dirname "$_target")"
 
@@ -59,9 +59,10 @@ let
   removeStaleInstructionSymlink =
     { target }:
     ''
-      if [ -L "${target}" ]; then
-        echo "agents: removing old instruction symlink at ${target}"
-        rm -f "${target}"
+      _target=${lib.escapeShellArg target}
+      if [ -L "$_target" ]; then
+        echo "agents: removing old instruction symlink at $_target"
+        rm -f "$_target"
       fi
     '';
 in

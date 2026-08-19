@@ -139,12 +139,13 @@ let
 
   # Pi natively honors `disable-model-invocation: true` in a skill's own
   # SKILL.md frontmatter, but catalog skills are read-only pinned store
-  # paths — so for a skill flagged manualOnlyAgents = [ "pi" ... ], splice
-  # that key into a patched copy instead of editing the vendored file.
+  # paths — so for a skill with disableModelInvocation = true, splice that
+  # key into a patched copy instead of editing the vendored file.
   patchPiSkillSource =
     s: src:
-    if builtins.elem "pi" (s.manualOnlyAgents or [ ]) then
+    if skills.isSkillManualOnlyFor { inherit s; agentId = "pi"; } then
       skills.mkPatchedSkillSource {
+        name = s.name;
         sourcePath = src;
         insertAfterLine = {
           file = "SKILL.md";

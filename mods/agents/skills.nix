@@ -10,17 +10,22 @@
 #
 # Catalog entry fields:
 #   input      — a flake input (from flake.nix), pinned via flake.lock
-#   skills     — list of { name; path; manualOnlyAgents ? []; }: the installed
-#                skill name, its in-repo directory path within `input`, and
-#                optionally which agent IDs should treat it as manual-only
-#                (invoked by name, never auto-triggered by description
-#                matching). manualOnlyAgents is plain data — no agent-identity
-#                branching here; mkSkillOverrides/mkPatchedSkillSource below
-#                just filter on it, and each agent module decides how to
+#   skills     — list of { name; path; disableModelInvocation ? false; }: the
+#                installed skill name, its in-repo directory path within
+#                `input`, and whether it should be invoked by name only
+#                (never auto-triggered by description matching). This is a
+#                plain intent flag — it says nothing about *which* agents can
+#                honor it. That's decided separately by
+#                `manualOnlyCapableAgents` below (today: every agent except
+#                OpenCode, which has no such mechanism upstream —
+#                anomalyco/opencode#11972). `isSkillManualOnlyFor` combines
+#                the two; each agent module calls it to decide whether to
 #                realize "manual-only" in its own mechanism (see claude.nix,
-#                pi.nix, codex.nix). opencode has no such mechanism upstream
-#                (anomalyco/opencode#11972) so the field is a no-op there.
-#   agents     — list of agent IDs this entry targets
+#                pi.nix, codex.nix) — no agent-identity branching in the
+#                catalog itself.
+#   agents     — list of agent IDs this entry targets (default: allAgents —
+#                nearly every entry targets all four, so only entries scoped
+#                to a subset need to state it)
 #   condition  — boolean; when false the entry is skipped (default: true)
 {
   config,
@@ -52,6 +57,26 @@ let
     gitBin
     ;
 
+  # Every agent with a working manual-only mechanism today (see "Make a skill
+  # manual-only" in the agent-management skill) — i.e. every agent except
+  # OpenCode, which has none upstream yet (anomalyco/opencode#11972). This is
+  # the one place that knows which agents can act on a skill's
+  # disableModelInvocation flag — the catalog itself never names an agent, so
+  # OpenCode gaining support later, or an agent losing it, is a one-line
+  # change here instead of a hunt through every flagged skill.
+  manualOnlyCapableAgents = [
+    "claude-code"
+    "pi"
+    "codex"
+  ];
+
+  # Should `agentId` treat `s` as manual-only? True iff the skill asked for it
+  # (disableModelInvocation) AND this agent actually has a mechanism for it
+  # (manualOnlyCapableAgents) — the catalog's intent and each agent's
+  # capability are declared separately and only combined here.
+  isSkillManualOnlyFor =
+    { s, agentId }: (s.disableModelInvocation or false) && builtins.elem agentId manualOnlyCapableAgents;
+
   # Catalog: each entry pins a flake input (from flake.nix) and names the
   # skills to install from it by their in-repo directory `path`. `path`
   # is verified against the input's actual store tree, not the README —
@@ -76,7 +101,6 @@ let
           path = "skills/frontend-design";
         }
       ];
-      agents = allAgents;
     }
     {
       input = inputs.wshobson-agents;
@@ -86,7 +110,6 @@ let
           path = "plugins/llm-application-dev/skills/prompt-engineering-patterns";
         }
       ];
-      agents = allAgents;
     }
     {
       input = inputs.intellectronica-agent-skills;
@@ -96,7 +119,6 @@ let
           path = "skills/context7";
         }
       ];
-      agents = allAgents;
     }
     {
       input = inputs.addyosmani-agent-skills;
@@ -106,7 +128,6 @@ let
           path = "skills/code-simplification";
         }
       ];
-      agents = allAgents;
     }
     {
       input = inputs.superpowers;
@@ -120,7 +141,6 @@ let
           path = "skills/systematic-debugging";
         }
       ];
-      agents = allAgents;
     }
     {
       # NOTE ON UPSTREAM DRIFT (pinned rev): `diagnose` was renamed upstream
@@ -175,14 +195,9 @@ let
         {
           name = "prototype";
           path = "skills/engineering/prototype";
-          manualOnlyAgents = [
-            "claude-code"
-            "pi"
-            "codex"
-          ];
+          disableModelInvocation = true;
         }
       ];
-      agents = allAgents;
     }
     {
       input = inputs.proctmux;
@@ -192,7 +207,6 @@ let
           path = "skills/proctmux-config";
         }
       ];
-      agents = allAgents;
     }
     {
       input = inputs.vantage-nvim-skills;
@@ -206,7 +220,6 @@ let
           path = "skills/vantage-author-walkthrough";
         }
       ];
-      agents = allAgents;
     }
     {
       input = inputs.playwright-cli-skills;
@@ -216,7 +229,6 @@ let
           path = "skills/playwright-cli";
         }
       ];
-      agents = allAgents;
     }
     {
       input = inputs.deepagents;
@@ -226,7 +238,6 @@ let
           path = "libs/code/examples/skills/web-research";
         }
       ];
-      agents = allAgents;
     }
     {
       input = inputs.softaworks-agent-toolkit;
@@ -236,7 +247,6 @@ let
           path = "dist/plugins/mermaid-diagrams/skills/mermaid-diagrams";
         }
       ];
-      agents = allAgents;
     }
     {
       input = inputs.workmux-skills;
@@ -246,7 +256,6 @@ let
           path = "skills/worktree";
         }
       ];
-      agents = allAgents;
     }
     # {
     #   input = inputs.gh-stack-skills;
@@ -267,7 +276,6 @@ let
           path = "skills/no-ai-slop";
         }
       ];
-      agents = allAgents;
     }
     {
       input = inputs.humanlayer-skills;
@@ -277,7 +285,6 @@ let
           path = "plugins/show-me/skills/show-me";
         }
       ];
-      agents = allAgents;
     }
     {
       input = inputs.builderio-skills;
@@ -287,7 +294,6 @@ let
           path = "skills/visual-explainer";
         }
       ];
-      agents = allAgents;
     }
     # Loancrate-only: private skills (from napisani/monorepo priv/skills/)
     {
@@ -320,27 +326,18 @@ let
         {
           name = "multi-valued-review";
           path = "priv/skills/multi-valued-review";
-          manualOnlyAgents = [
-            "claude-code"
-            "pi"
-            "codex"
-          ];
+          disableModelInvocation = true;
         }
         {
           name = "mvr-suggestions";
           path = "priv/skills/mvr-suggestions";
-          manualOnlyAgents = [
-            "claude-code"
-            "pi"
-            "codex"
-          ];
+          disableModelInvocation = true;
         }
         {
           name = "loancrate-slack-relay";
           path = "priv/skills/loancrate-slack-relay";
         }
       ];
-      agents = allAgents;
       condition = isLoancrateMac;
     }
     # Loancrate-only: lc-script
@@ -364,7 +361,6 @@ let
           path = "skills/loancrate-run-local-agent-eval";
         }
       ];
-      agents = allAgents;
       condition = isLoancrateMac;
     }
   ];
@@ -387,11 +383,11 @@ let
       agentId,
       skillDirRelPath,
       # Optional hook so an agent module can substitute a patched derivation
-      # (see mkPatchedSkillSource) for skills flagged manualOnlyAgents when
-      # this agent's own manual-only mechanism needs the skill's own files
-      # changed (Pi's frontmatter, Codex's sibling openai.yaml) rather than
-      # an external override file (Claude Code's skillOverrides). Defaults to
-      # the identity function — most agents don't need it.
+      # (see mkPatchedSkillSource) for skills where isSkillManualOnlyFor is
+      # true, when this agent's own manual-only mechanism needs the skill's
+      # own files changed (Pi's frontmatter, Codex's sibling openai.yaml)
+      # rather than an external override file (Claude Code's skillOverrides).
+      # Defaults to the identity function — most agents don't need it.
       patchSource ? (s: src: src),
     }:
     builtins.listToAttrs (
@@ -404,33 +400,26 @@ let
             force = true;
           };
         }) source.skills
-      ) (builtins.filter (s: builtins.elem agentId (s.agents or [ ])) enabledSkillSources)
+      ) (builtins.filter (s: builtins.elem agentId (s.agents or allAgents)) enabledSkillSources)
     );
 
   # Attrset { skillName = "user-invocable-only"; ... } for every catalog skill
-  # flagged manualOnlyAgents for `agentId`. Feeds an agent's own settings-based
-  # override mechanism (currently only Claude Code's skillOverrides — see
-  # claude.nix) via managed-config-lib.nix's mkJsonManagedMerge, so it's
-  # revocable the same way mcpServers is: drop the flag, the override
-  # disappears on the next declared-set replace.
+  # where isSkillManualOnlyFor is true for `agentId`. Feeds an agent's own
+  # settings-based override mechanism (currently only Claude Code's
+  # skillOverrides — see claude.nix) via managed-config-lib.nix's
+  # mkJsonManagedMerge, so it's revocable the same way mcpServers is: drop the
+  # flag, the override disappears on the next declared-set replace.
   mkSkillOverrides =
     { agentId }:
     builtins.listToAttrs (
-      lib.concatMap (
-        source:
-        lib.concatMap (
-          s:
-          if builtins.elem agentId (s.manualOnlyAgents or [ ]) then
-            [
-              {
-                name = s.name;
-                value = "user-invocable-only";
-              }
-            ]
-          else
-            [ ]
-        ) source.skills
-      ) enabledSkillSources
+      map (s: {
+        inherit (s) name;
+        value = "user-invocable-only";
+      }) (
+        builtins.filter (s: isSkillManualOnlyFor { inherit s agentId; }) (
+          lib.concatMap (source: source.skills) enabledSkillSources
+        )
+      )
     );
 
   # Copy a skill's (read-only, pinned) store path into a new derivation and
@@ -440,19 +429,29 @@ let
   # override file. Agent-blind: takes a source path and generic patch specs,
   # not agent identity — callers (pi.nix, codex.nix) supply the agent-specific
   # patch content themselves.
+  #   name             — the skill's own name, used only to make the
+  #                      resulting store path identifiable (e.g. when
+  #                      inspecting `nix build` output during validation)
   #   sourcePath       — the skill directory to copy and patch
   #   addFiles         — { relPath = content; ... } files to create/overwrite
   #   insertAfterLine  — optional { file; afterLine; text; }: splice `text` as
   #                      a new line immediately after line `afterLine` of
   #                      `file` (1-indexed) — e.g. inserting a frontmatter key
-  #                      right after SKILL.md's opening `---`
+  #                      right after SKILL.md's opening `---`. Verified at
+  #                      build time that `file`'s first line is exactly `---`,
+  #                      so a skill whose frontmatter doesn't open on line 1
+  #                      (BOM, leading blank line, no frontmatter at all)
+  #                      fails the build loudly instead of silently landing
+  #                      the patch outside the frontmatter block and leaving
+  #                      the skill auto-invocable.
   mkPatchedSkillSource =
     {
+      name,
       sourcePath,
       addFiles ? { },
       insertAfterLine ? null,
     }:
-    pkgs-unstable.runCommand "patched-skill" { } (
+    pkgs-unstable.runCommand "patched-skill-${name}" { } (
       ''
         cp -r ${sourcePath} "$out"
         chmod -R u+w "$out"
@@ -470,7 +469,12 @@ let
         ) addFiles
       )
       + lib.optionalString (insertAfterLine != null) ''
-        sed -i ${lib.escapeShellArg "${toString insertAfterLine.afterLine}a\\${insertAfterLine.text}"} "$out/${insertAfterLine.file}"
+        _target="$out/${insertAfterLine.file}"
+        if [ "$(sed -n '1p' "$_target")" != "---" ]; then
+          echo "mkPatchedSkillSource: ${name}: expected '$_target' to open with a '---' frontmatter line, refusing to patch" >&2
+          exit 1
+        fi
+        sed -i ${lib.escapeShellArg "${toString insertAfterLine.afterLine}a\\${insertAfterLine.text}"} "$_target"
       ''
     );
 
@@ -510,5 +514,6 @@ in
     mkLocalSkillFiles
     mkSkillOverrides
     mkPatchedSkillSource
+    isSkillManualOnlyFor
     ;
 }

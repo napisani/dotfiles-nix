@@ -58,8 +58,8 @@ let
   ];
   declaredMcpEntries = shared.mkDeclaredEntriesFromSources mcpSources;
 
-  # Catalog skills flagged manualOnlyAgents = [ "claude-code" ... ] land here
-  # as { skillName = "user-invocable-only"; }, applied to settings.json below.
+  # Catalog skills with disableModelInvocation = true land here as
+  # { skillName = "user-invocable-only"; }, applied to settings.json below.
   declaredSkillOverrides = skills.mkSkillOverrides { agentId = "claude-code"; };
 
   # Claude Code plugins — public community plugins + Loancrate org plugins.
@@ -138,7 +138,7 @@ in
   # Full ownership of settings.json's skillOverrides key, chained after
   # applyClaudeWorkmuxHooks since that step also reads/writes settings.json —
   # sequencing avoids one activation step clobbering the other's write.
-  # Revocable like mcpServers: dropping a skill's manualOnlyAgents entry
+  # Revocable like mcpServers: dropping a skill's disableModelInvocation flag
   # removes it from the declared set, so the next switch rewrites the key
   # without it.
   home.activation.configureClaudeSkillOverrides = lib.hm.dag.entryAfter [ "applyClaudeWorkmuxHooks" ] (

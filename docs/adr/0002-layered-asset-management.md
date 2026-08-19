@@ -41,6 +41,16 @@ Sort every asset by who writes its path, and give each layer one mechanism:
   commands, Pi extensions/themes, the `~/.agents/skills` store) is linked via
   `mkOutOfStoreSymlink` so edits stay live. Revocation and rollback come from
   home-manager's own bookkeeping; activation needs no network.
+  - **Variant: patched store content.** Some agent-specific behavior (Pi's
+    `disable-model-invocation` frontmatter key, Codex's sibling
+    `agents/openai.yaml`) has to live inside a vendored skill's own files, but
+    those files are read-only pinned store paths. `skills.nix`'s
+    `mkPatchedSkillSource` copies the store path into a new derivation and
+    applies the patch there, and that derivation is what gets `home.file`-
+    linked instead of the raw input path. Still Layer 0: revocation is still
+    home-manager's own link bookkeeping (drop the flag, the unpatched symlink
+    comes back), it's just a derivation instead of a bare store path as the
+    `home.file` source.
 - **Layer 1 — Nix and the tool both write the file** → activation-time **full
   key ownership**. The declared set replaces the managed key (`mcpServers` /
   `mcp_servers`) each run; sibling keys the tool writes are preserved; the

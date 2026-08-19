@@ -19,12 +19,7 @@
 # All source lists (skill catalog, MCP entries, plugin/package lists) support
 # an optional `condition` attribute (boolean). When false the entry is
 # skipped. Defaults to true (installed everywhere).
-{
-  config,
-  lib,
-  pkgs-unstable,
-  ...
-}:
+{ ... }:
 {
   imports = [
     ./claude.nix
