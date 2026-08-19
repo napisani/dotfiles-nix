@@ -137,6 +137,24 @@ let
   ];
   declaredMcpEntries = shared.mkDeclaredEntriesFromSources mcpSources;
 
+  # Pi natively honors `disable-model-invocation: true` in a skill's own
+  # SKILL.md frontmatter, but catalog skills are read-only pinned store
+  # paths — so for a skill flagged manualOnlyAgents = [ "pi" ... ], splice
+  # that key into a patched copy instead of editing the vendored file.
+  patchPiSkillSource =
+    s: src:
+    if builtins.elem "pi" (s.manualOnlyAgents or [ ]) then
+      skills.mkPatchedSkillSource {
+        sourcePath = src;
+        insertAfterLine = {
+          file = "SKILL.md";
+          afterLine = 1;
+          text = "disable-model-invocation: true";
+        };
+      }
+    else
+      src;
+
   declaredPiPackages = [
     "npm:@datspike/pi-inline-slash-extension"
     "npm:@ff-labs/pi-fff"
@@ -160,6 +178,7 @@ in
     skills.mkCommunitySkillFiles {
       agentId = "pi";
       skillDirRelPath = ".pi/agent/skills";
+      patchSource = patchPiSkillSource;
     }
     // skills.mkLocalSkillFiles {
       sourceRelPath = "agents/pi/skills";

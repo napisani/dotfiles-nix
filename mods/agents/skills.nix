@@ -10,8 +10,16 @@
 #
 # Catalog entry fields:
 #   input      — a flake input (from flake.nix), pinned via flake.lock
-#   skills     — list of { name; path; }: the installed skill name and its
-#                in-repo directory path within `input`
+#   skills     — list of { name; path; manualOnlyAgents ? []; }: the installed
+#                skill name, its in-repo directory path within `input`, and
+#                optionally which agent IDs should treat it as manual-only
+#                (invoked by name, never auto-triggered by description
+#                matching). manualOnlyAgents is plain data — no agent-identity
+#                branching here; mkSkillOverrides/mkPatchedSkillSource below
+#                just filter on it, and each agent module decides how to
+#                realize "manual-only" in its own mechanism (see claude.nix,
+#                pi.nix, codex.nix). opencode has no such mechanism upstream
+#                (anomalyco/opencode#11972) so the field is a no-op there.
 #   agents     — list of agent IDs this entry targets
 #   condition  — boolean; when false the entry is skipped (default: true)
 {
@@ -167,6 +175,11 @@ let
         {
           name = "prototype";
           path = "skills/engineering/prototype";
+          manualOnlyAgents = [
+            "claude-code"
+            "pi"
+            "codex"
+          ];
         }
       ];
       agents = allAgents;
@@ -307,10 +320,20 @@ let
         {
           name = "multi-valued-review";
           path = "priv/skills/multi-valued-review";
+          manualOnlyAgents = [
+            "claude-code"
+            "pi"
+            "codex"
+          ];
         }
         {
           name = "mvr-suggestions";
           path = "priv/skills/mvr-suggestions";
+          manualOnlyAgents = [
+            "claude-code"
+            "pi"
+            "codex"
+          ];
         }
         {
           name = "loancrate-slack-relay";
@@ -363,6 +386,13 @@ let
     {
       agentId,
       skillDirRelPath,
+      # Optional hook so an agent module can substitute a patched derivation
+      # (see mkPatchedSkillSource) for skills flagged manualOnlyAgents when
+      # this agent's own manual-only mechanism needs the skill's own files
+      # changed (Pi's frontmatter, Codex's sibling openai.yaml) rather than
+      # an external override file (Claude Code's skillOverrides). Defaults to
+      # the identity function — most agents don't need it.
+      patchSource ? (s: src: src),
     }:
     builtins.listToAttrs (
       lib.concatMap (
@@ -370,11 +400,78 @@ let
         map (s: {
           name = "${skillDirRelPath}/${s.name}";
           value = {
-            source = skillSourcePath source s;
+            source = patchSource s (skillSourcePath source s);
             force = true;
           };
         }) source.skills
       ) (builtins.filter (s: builtins.elem agentId (s.agents or [ ])) enabledSkillSources)
+    );
+
+  # Attrset { skillName = "user-invocable-only"; ... } for every catalog skill
+  # flagged manualOnlyAgents for `agentId`. Feeds an agent's own settings-based
+  # override mechanism (currently only Claude Code's skillOverrides — see
+  # claude.nix) via managed-config-lib.nix's mkJsonManagedMerge, so it's
+  # revocable the same way mcpServers is: drop the flag, the override
+  # disappears on the next declared-set replace.
+  mkSkillOverrides =
+    { agentId }:
+    builtins.listToAttrs (
+      lib.concatMap (
+        source:
+        lib.concatMap (
+          s:
+          if builtins.elem agentId (s.manualOnlyAgents or [ ]) then
+            [
+              {
+                name = s.name;
+                value = "user-invocable-only";
+              }
+            ]
+          else
+            [ ]
+        ) source.skills
+      ) enabledSkillSources
+    );
+
+  # Copy a skill's (read-only, pinned) store path into a new derivation and
+  # apply small file-level patches on top — for agents whose manual-only
+  # mechanism must live inside the skill's own files (Pi's `SKILL.md`
+  # frontmatter, Codex's sibling `agents/openai.yaml`) rather than an external
+  # override file. Agent-blind: takes a source path and generic patch specs,
+  # not agent identity — callers (pi.nix, codex.nix) supply the agent-specific
+  # patch content themselves.
+  #   sourcePath       — the skill directory to copy and patch
+  #   addFiles         — { relPath = content; ... } files to create/overwrite
+  #   insertAfterLine  — optional { file; afterLine; text; }: splice `text` as
+  #                      a new line immediately after line `afterLine` of
+  #                      `file` (1-indexed) — e.g. inserting a frontmatter key
+  #                      right after SKILL.md's opening `---`
+  mkPatchedSkillSource =
+    {
+      sourcePath,
+      addFiles ? { },
+      insertAfterLine ? null,
+    }:
+    pkgs-unstable.runCommand "patched-skill" { } (
+      ''
+        cp -r ${sourcePath} "$out"
+        chmod -R u+w "$out"
+      ''
+      + lib.concatStrings (
+        lib.mapAttrsToList (
+          relPath: content:
+          # Content goes through writeText (its own store path) rather than a
+          # shell heredoc, so arbitrary file content never has to survive
+          # quoting/indentation inside this derivation's builder script.
+          ''
+            mkdir -p "$(dirname "$out/${relPath}")"
+            cp ${pkgs-unstable.writeText (builtins.replaceStrings [ "/" ] [ "_" ] relPath) content} "$out/${relPath}"
+          ''
+        ) addFiles
+      )
+      + lib.optionalString (insertAfterLine != null) ''
+        sed -i ${lib.escapeShellArg "${toString insertAfterLine.afterLine}a\\${insertAfterLine.text}"} "$out/${insertAfterLine.file}"
+      ''
     );
 
   # home.file attrset linking each skill directory under a dotfiles subdir into
@@ -411,5 +508,7 @@ in
     enabledSkillSources
     mkCommunitySkillFiles
     mkLocalSkillFiles
+    mkSkillOverrides
+    mkPatchedSkillSource
     ;
 }

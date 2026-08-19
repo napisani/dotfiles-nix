@@ -49,6 +49,25 @@ let
     }
   ];
   declaredMcpEntries = shared.mkDeclaredEntriesFromSources mcpSources;
+
+  # Codex's real manual-only control isn't the `disable-model-invocation`
+  # frontmatter field — it's a sibling `agents/openai.yaml` with
+  # `policy.allow_implicit_invocation: false` (see
+  # github.com/mattpocock/skills#516). Catalog skills are read-only pinned
+  # store paths, so a skill flagged manualOnlyAgents = [ "codex" ... ] gets
+  # that file injected into a patched copy instead.
+  patchCodexSkillSource =
+    s: src:
+    if builtins.elem "codex" (s.manualOnlyAgents or [ ]) then
+      skills.mkPatchedSkillSource {
+        sourcePath = src;
+        addFiles."agents/openai.yaml" = ''
+          policy:
+            allow_implicit_invocation: false
+        '';
+      }
+    else
+      src;
 in
 {
   # Skills are Layer 0 (only Nix writes ~/.codex/skills): home.file links, not
@@ -59,6 +78,7 @@ in
     skills.mkCommunitySkillFiles {
       agentId = "codex";
       skillDirRelPath = ".codex/skills";
+      patchSource = patchCodexSkillSource;
     }
     // skills.mkLocalSkillFiles {
       sourceRelPath = "agents/shared-skills";
