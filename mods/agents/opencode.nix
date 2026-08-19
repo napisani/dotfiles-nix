@@ -135,7 +135,12 @@ in
     }
   );
 
-  home.activation.writeOpencodeInstructions = lib.hm.dag.entryAfter [ "installOpencodeRtkHooks" ] (
-    instructions.writeAgentInstructions { target = instructionsTarget; }
-  );
+  home.activation.writeOpencodeInstructions = lib.hm.dag.entryAfter [ "installOpencodeRtkHooks" ] ''
+    ${instructions.writeAgentInstructions { target = instructionsTarget; }}
+
+    ${shared.mkRtkHookInstall {
+      rtkArgs = "--opencode";
+      label = "opencode (re-applying RTK.md reference)";
+    }}
+  '';
 }

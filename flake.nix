@@ -73,6 +73,10 @@
       url = "github:anthropics/skills";
       flake = false;
     };
+    wshobson-agents = {
+      url = "github:wshobson/agents";
+      flake = false;
+    };
     intellectronica-agent-skills = {
       url = "github:intellectronica/agent-skills";
       flake = false;

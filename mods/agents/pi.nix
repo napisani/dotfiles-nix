@@ -74,6 +74,66 @@ let
         lifecycle = "lazy";
       };
     }
+    # Loancrate org connectors — mirrors the claude.ai account-linked MCP
+    # connectors already authenticated in Claude Code on this machine. Pi has
+    # no equivalent auto-discovered connector directory, so each is declared
+    # here explicitly with its own OAuth handshake (same clientName/clientUri
+    # pattern as the figma entry above).
+    {
+      name = "datadog";
+      condition = shared.isLoancrateMac;
+      config = {
+        url = "https://mcp.datadoghq.com/api/unstable/mcp-server/mcp";
+        auth = "oauth";
+        oauth = {
+          clientName = "Codex";
+          clientUri = "https://github.com/openai/codex";
+        };
+        lifecycle = "lazy";
+      };
+    }
+    {
+      name = "gmail";
+      condition = shared.isLoancrateMac;
+      config = {
+        url = "https://gmailmcp.googleapis.com/mcp/v1";
+        auth = "oauth";
+        oauth = {
+          clientName = "Codex";
+          clientUri = "https://github.com/openai/codex";
+        };
+        lifecycle = "lazy";
+      };
+    }
+    {
+      name = "notion";
+      condition = shared.isLoancrateMac;
+      config = {
+        url = "https://mcp.notion.com/mcp";
+        auth = "oauth";
+        oauth = {
+          clientName = "Codex";
+          clientUri = "https://github.com/openai/codex";
+        };
+        lifecycle = "lazy";
+      };
+    }
+    {
+      name = "sentry";
+      condition = shared.isLoancrateMac;
+      config = {
+        url = "https://mcp.sentry.dev/mcp";
+        auth = "oauth";
+        oauth = {
+          clientName = "Codex";
+          clientUri = "https://github.com/openai/codex";
+        };
+        lifecycle = "lazy";
+      };
+    }
+    # slack omitted: its OAuth server doesn't support dynamic client
+    # registration, so Pi (unlike Claude Code's own registered client) has no
+    # way to obtain a client_id for it.
   ];
   declaredMcpEntries = shared.mkDeclaredEntriesFromSources mcpSources;
 

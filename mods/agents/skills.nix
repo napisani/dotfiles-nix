@@ -71,6 +71,16 @@ let
       agents = allAgents;
     }
     {
+      input = inputs.wshobson-agents;
+      skills = [
+        {
+          name = "prompt-engineering-patterns";
+          path = "plugins/llm-application-dev/skills/prompt-engineering-patterns";
+        }
+      ];
+      agents = allAgents;
+    }
+    {
       input = inputs.intellectronica-agent-skills;
       skills = [
         {
@@ -301,6 +311,10 @@ let
         {
           name = "mvr-suggestions";
           path = "priv/skills/mvr-suggestions";
+        }
+        {
+          name = "loancrate-slack-relay";
+          path = "priv/skills/loancrate-slack-relay";
         }
       ];
       agents = allAgents;

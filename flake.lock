@@ -723,7 +723,8 @@
         "stackman": "stackman",
         "superpowers": "superpowers",
         "vantage-nvim-skills": "vantage-nvim-skills",
-        "workmux-skills": "workmux-skills"
+        "workmux-skills": "workmux-skills",
+        "wshobson-agents": "wshobson-agents"
       }
     },
     "rust-analyzer-src": {
@@ -984,6 +985,22 @@
       "original": {
         "owner": "raine",
         "repo": "workmux",
+        "type": "github"
+      }
+    },
+    "wshobson-agents": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787067779,
+        "narHash": "sha256-KwpU+S33MMzhG/dqwMnqv1lNlqkiAxB+KBu6ShZQXTA=",
+        "owner": "wshobson",
+        "repo": "agents",
+        "rev": "367cb6a4a182cf7e9b0a17c9429f7411ddd9cf35",
+        "type": "github"
+      },
+      "original": {
+        "owner": "wshobson",
+        "repo": "agents",
         "type": "github"
       }
     }

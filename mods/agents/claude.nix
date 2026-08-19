@@ -114,9 +114,14 @@ in
     }
   );
 
-  home.activation.writeClaudeInstructions = lib.hm.dag.entryAfter [ "installClaudeRtkHooks" ] (
-    instructions.writeAgentInstructions { target = instructionsTarget; }
-  );
+  home.activation.writeClaudeInstructions = lib.hm.dag.entryAfter [ "installClaudeRtkHooks" ] ''
+    ${instructions.writeAgentInstructions { target = instructionsTarget; }}
+
+    ${shared.mkRtkHookInstall {
+      rtkArgs = "--auto-patch";
+      label = "claude-code (re-applying RTK.md reference)";
+    }}
+  '';
 
   home.activation.configureClaudeMcpServers = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     managedConfig.mkJsonManagedMerge {
