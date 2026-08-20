@@ -3,6 +3,7 @@
   config,
   lib,
   homeManagerRelPath,
+  machineRoles ? [ ],
   useHomeManager26 ? false,
   ...
 }:
@@ -14,6 +15,11 @@ let
     source = mkSym path;
     force = true;
   };
+  npmrc =
+    "prefix=${config.home.homeDirectory}/.local\n"
+    + lib.optionalString (builtins.elem "loancrate" machineRoles) (
+      "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}\n"
+    );
 in
 {
   programs = {
@@ -80,6 +86,7 @@ in
     starship.enable = true;
   };
   home.file = {
+    ".npmrc".text = npmrc;
     ".config/pet".source = ./dotfiles/pet;
     ".config/mcphub/servers.json" = mkForcedSym "mcphub-servers.json";
     ".aerospace.toml" = mkForcedSym ".aerospace.toml";
