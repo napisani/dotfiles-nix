@@ -9,9 +9,10 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 1. [Neovim / Lua](#neovim--lua)
 2. [nvim-treesitter configuration](#nvim-treesitter-configuration)
 3. [Nix / Home Manager config notes](#nix--home-manager-config-notes)
-4. [Neovim 0.12 `:checkhealth` remediation plan](#neovim-012-checkhealth-remediation-plan)
-5. [fff.nvim binary (lazy.nvim build hook)](#fffnvim-binary-lazyvim-build-hook)
-6. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
+4. [tmux `extended-keys` vs. multi-line paste](#tmux-extended-keys-vs-multi-line-paste)
+5. [Neovim 0.12 `:checkhealth` remediation plan](#neovim-012-checkhealth-remediation-plan)
+6. [fff.nvim binary (lazy.nvim build hook)](#fffnvim-binary-lazyvim-build-hook)
+7. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
 
 ---
 
@@ -79,6 +80,22 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 | Item | Detail |
 |------|--------|
 | **`allowUnfreePredicate = (_: true)`** | Documented in `homes/home-supermicro.nix` as a workaround for [home-manager#2942](https://github.com/nix-community/home-manager/issues/2942)-style unfree evaluation. Revisit if HM/nixpkgs simplify unfree handling. |
+
+---
+
+## tmux `extended-keys` vs. multi-line paste
+
+| Item | Detail |
+|------|--------|
+| **Symptom** | Pasting multi-line text (e.g. a shell command with `\` line continuations) at a plain shell prompt inside tmux inserts literal garbage like `^[[106;5u` instead of the real newlines, corrupting the paste. |
+| **Root cause** | `.tmux.conf` (formerly) set `extended-keys on` / `extended-keys-format csi-u` globally, enabling Kitty-keyboard-protocol key reporting (needed for Neovim/agent CLIs to disambiguate e.g. Ctrl-I from Tab, or get Shift+Enter). tmux has a known bug — [tmux/tmux#4663](https://github.com/tmux/tmux/issues/4663) — where it also re-encodes newlines **inside a bracketed paste** as literal CSI-u escape text, even though the protocol spec says paste content should pass through untouched. Reproduced directly on tmux 3.7b (the issue's fix, if any, didn't hold for this build). |
+| **Options considered and rejected** | (1) Leave `extended-keys` on always — pastes stay broken. (2) Toggle it via Neovim `FocusGained`/`FocusLost` autocmds only — misses agent CLIs (claude/codex/pi/opencode) run directly at the shell, which also need Shift+Enter. (3) Toggle via tmux hooks (`pane-focus-in`, `window-pane-changed`) keyed on `#{pane_current_command}` — tested directly against real `select-pane`/`select-window` (the same commands the `h`/`j`/`k`/`l` pane bindings use) and neither hook fired in this tmux 3.7b build, even though other hooks like `after-select-window` did. |
+| **Workaround (current)** | `mods/dotfiles/.tmux.conf` defaults `extended-keys off`. `mods/dotfiles/.bashrc.d/0069_tmux_extended_keys.bashrc` defines shell wrapper functions for `nvim`, `vim`, `claude`, `codex`, `pi`, `opencode` that flip `tmux set-option -g extended-keys always` right before exec'ing the real binary and back `off` right after it exits, via a `_TMUX_EXTKEYS_DEPTH` counter so nesting one inside another (e.g. `nvim` opened from inside `claude`) doesn't turn it off early on the inner exit. |
+| **`on` vs. `always`** | The wrapper's active state must be `always`, not `on`. `on` only forwards the enhanced encoding if tmux detected the outer terminal supports it, and that detection appears to happen once at client-attach time — since the session now starts at `off`, switching to `on` later left tmux still thinking the client couldn't handle it: confirmed live, Shift+Enter in an already-running Pi session silently degraded to plain Enter with `extended-keys on`, and started working immediately (no restart) the moment it was switched to `extended-keys always` instead. |
+| **Known limitation** | A program invoked another way — e.g. `nvim` launched as `$EDITOR` by a non-interactive subshell that doesn't source `.bashrc.d` — skips the wrapper and runs with whatever `extended-keys` state was already set. |
+| **Rollout note** | `.tmux.conf` is a live out-of-store symlink (`tmux source-file` picks up edits immediately); `.bashrc.d` is copied into the Nix store at build time (`shell.nix`: `".bashrc.d".source = ./dotfiles/.bashrc.d;`), so the wrapper file needs an actual `darwin-rebuild switch` before a new shell sees it — unlike `shell_scripts/`, which is a whole-directory live symlink. |
+| **Revisit when** | tmux ships a real fix for [tmux/tmux#4663](https://github.com/tmux/tmux/issues/4663) (test by removing the wrapper and pasting multi-line text at a plain prompt), or a per-window/per-pane override for `extended-keys` becomes possible (confirmed empirically on 3.7b: even a `-w`-flagged `set-option` mutates the global value, so it's effectively server-wide only). |
+| **Related upstream reports** | [tmux/tmux#4663](https://github.com/tmux/tmux/issues/4663) — this bug, closed upstream against an older tmux but still reproduces on 3.7b. Also see the related, still-open [neovim/neovim#38021](https://github.com/neovim/neovim/issues/38021) ("Bracketed paste under tmux is contaminated with extended keys") for the same root cause from Neovim's side. |
 
 ---
 
@@ -178,4 +195,6 @@ cd "$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/nvim" && nvim -u init.vim "+checkhe
 | 2026-05-07 | Removed the temporary `direnv` `CGO_ENABLED = 1` override and matching `mise` override after the locked stock `direnv-2.37.1` substituted from cache and passed a basic allow/export smoke test. |
 | 2026-08-11 | Added `overlays/oxlint-darwin-ps-fix.nix` to fix `oxlint` build failing with `spawn EPERM` under the Darwin sandbox (`@napi-rs/cli` `/bin/ps` exec); mirrors the fix already merged in nixpkgs `master` but not yet promoted to `nixpkgs-unstable`. |
 | 2026-08-13 | Removed `oxlint-darwin-ps-fix.nix` overlay; the fix is now in nixpkgs-unstable (oxlint 1.78.0), and the overlay was causing spurious substitution failures. |
+| 2026-08-20 | Defaulted tmux `extended-keys` off (`.tmux.conf`) and added `.bashrc.d/0069_tmux_extended_keys.bashrc` shell wrappers (`nvim`/`vim`/`claude`/`codex`/`pi`/`opencode`) to toggle it only while one of those programs is running, working around tmux/tmux#4663 corrupting multi-line pastes at the shell prompt. |
+| 2026-08-20 | Fixed the above: wrapper's active state must be `extended-keys always`, not `on` — `on`'s client-support detection doesn't re-trigger on a later switch, so Shift+Enter silently degraded to plain Enter until confirmed live and corrected to `always`. |
 | *(add entries when adding/removing workarounds)* | |
