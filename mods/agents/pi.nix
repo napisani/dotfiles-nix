@@ -164,6 +164,7 @@ let
     "npm:pi-vim"
     "npm:pi-web-access"
     "npm:claude-agent-sdk-pi"
+    "npm:pi-goal"
     "git:github.com/nicobailon/visual-explainer"
   ];
 
