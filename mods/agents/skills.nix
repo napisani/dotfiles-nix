@@ -300,10 +300,6 @@ let
       input = inputs.private-skills;
       skills = [
         {
-          name = "loancrate-pr-workflow";
-          path = "priv/skills/loancrate-pr-workflow";
-        }
-        {
           name = "loancrate-with-workmux-stack-handoff";
           path = "priv/skills/loancrate-with-workmux-stack-handoff";
         }
