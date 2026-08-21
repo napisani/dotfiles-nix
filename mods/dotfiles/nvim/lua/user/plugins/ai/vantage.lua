@@ -49,12 +49,15 @@ local function visual_opts(args)
 end
 
 M.opts = {
+	input = {
+		provider = "ui2",
+	},
 	agent = {
 		models = {
 			{
 				name = "default",
-				provider = vim.env.AI_PROVIDER or "anthropic",
-				model = vim.env.AI_FAST_MODEL or "claude-haiku-4-5",
+				provider = "openai-codex",
+				model = "gpt-5.6-luna",
 				options = {
 					reasoning = "minimal",
 				},
@@ -103,14 +106,46 @@ function M.get_keymaps()
 			{ "<leader>vbr", with_vantage("agent_reset"), desc = "reset agent session" },
 		},
 		visual = {
-			{ "<leader>va", function() with_vantage("annotate", visual_opts())() end, desc = "annotate selection" },
-			{ "<leader>ve", function() with_vantage("edit", visual_opts())() end, desc = "edit selection" },
-			{ "<leader>vE", function() with_vantage("explain", visual_opts())() end, desc = "explain selection" },
-			{ "<leader>v?", function() with_vantage("question", visual_opts())() end, desc = "ask about selection" },
-			{ "<leader>vf", function() with_vantage("search", visual_opts())() end, desc = "search from selection" },
+			{
+				"<leader>va",
+				function()
+					with_vantage("annotate", visual_opts())()
+				end,
+				desc = "annotate selection",
+			},
+			{
+				"<leader>ve",
+				function()
+					with_vantage("edit", visual_opts())()
+				end,
+				desc = "edit selection",
+			},
+			{
+				"<leader>vE",
+				function()
+					with_vantage("explain", visual_opts())()
+				end,
+				desc = "explain selection",
+			},
+			{
+				"<leader>v?",
+				function()
+					with_vantage("question", visual_opts())()
+				end,
+				desc = "ask about selection",
+			},
+			{
+				"<leader>vf",
+				function()
+					with_vantage("search", visual_opts())()
+				end,
+				desc = "search from selection",
+			},
 			{
 				"<leader>vW",
-				function() with_vantage("generate_walkthrough", visual_opts())() end,
+				function()
+					with_vantage("generate_walkthrough", visual_opts())()
+				end,
 				desc = "generate walkthrough from selection",
 			},
 		},
