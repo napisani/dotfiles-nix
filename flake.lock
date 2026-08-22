@@ -483,11 +483,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1787172299,
-        "narHash": "sha256-PShzS87awOlE5XWkxUGBd/58/F+AtE2ZMgFffKj4r8s=",
+        "lastModified": 1787209939,
+        "narHash": "sha256-WvvHR4kSQLAbtouMC/ruZ5UpLwlUcY3K4FAllMN+yGk=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "07e1d92cdc0ed416cfa11ff3ca40d17e61cfba7a",
+        "rev": "391b592eb44808b3bd0cb80bb71b63a5a118b8bb",
         "type": "github"
       },
       "original": {
@@ -580,11 +580,11 @@
     "private-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1787317701,
-        "narHash": "sha256-E1tEFXQc74T5k1sc55LsWY7/XnrCsoyQOGXM4vUtsd8=",
+        "lastModified": 1787337097,
+        "narHash": "sha256-6tSsvxhNGaoV6KEhIRiANHhqM4JWSHvjVVmTABQNs8w=",
         "ref": "refs/heads/main",
-        "rev": "073d8d37add5a250e4b30b1c521c46203916aa7b",
-        "revCount": 1381,
+        "rev": "fe43443ab2928f16b5187cf116869fa6ad62ccce",
+        "revCount": 1383,
         "type": "git",
         "url": "https://github.com/napisani/monorepo.git"
       },
@@ -829,11 +829,11 @@
       },
       "locked": {
         "dir": "pub/stackman",
-        "lastModified": 1787317701,
-        "narHash": "sha256-E1tEFXQc74T5k1sc55LsWY7/XnrCsoyQOGXM4vUtsd8=",
+        "lastModified": 1787337097,
+        "narHash": "sha256-6tSsvxhNGaoV6KEhIRiANHhqM4JWSHvjVVmTABQNs8w=",
         "ref": "refs/heads/main",
-        "rev": "073d8d37add5a250e4b30b1c521c46203916aa7b",
-        "revCount": 1381,
+        "rev": "fe43443ab2928f16b5187cf116869fa6ad62ccce",
+        "revCount": 1383,
         "type": "git",
         "url": "https://github.com/napisani/monorepo.git"
       },
@@ -977,11 +977,11 @@
       "flake": false,
       "locked": {
         "dir": "pub/vantage-nvim",
-        "lastModified": 1787317701,
-        "narHash": "sha256-E1tEFXQc74T5k1sc55LsWY7/XnrCsoyQOGXM4vUtsd8=",
+        "lastModified": 1787337097,
+        "narHash": "sha256-6tSsvxhNGaoV6KEhIRiANHhqM4JWSHvjVVmTABQNs8w=",
         "ref": "refs/heads/main",
-        "rev": "073d8d37add5a250e4b30b1c521c46203916aa7b",
-        "revCount": 1381,
+        "rev": "fe43443ab2928f16b5187cf116869fa6ad62ccce",
+        "revCount": 1383,
         "type": "git",
         "url": "https://github.com/napisani/monorepo.git"
       },
