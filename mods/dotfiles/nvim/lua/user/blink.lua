@@ -63,8 +63,7 @@ local M = {
 					min_keyword_length = 0,
 					score_offset = 95,
 					enabled = function()
-						local ok, value = pcall(vim.api.nvim_buf_get_var, 0, "prompt_builder")
-						return ok and value == true
+						return require("user.snacks.ai_skills").is_composition(0)
 					end,
 				},
 				skills = {
@@ -73,8 +72,7 @@ local M = {
 					min_keyword_length = 0,
 					score_offset = 100,
 					enabled = function()
-						local ok, value = pcall(vim.api.nvim_buf_get_var, 0, "prompt_builder")
-						return ok and value == true
+						return require("user.snacks.ai_skills").is_composition(0)
 					end,
 				},
 			},

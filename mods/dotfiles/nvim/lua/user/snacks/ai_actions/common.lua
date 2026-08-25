@@ -1,150 +1,77 @@
---- Shared utilities for AI action backends.
+--- Shared formatting for AI action entries.
 --
--- Centralises context formatting and capture logic so each backend
--- only needs to deal with its own transport/submission mechanics.
+-- Deliberately thin. Two things used to be duplicated here and drift apart:
+--
+--   1. The `@`-reference format. This module previously carried two emitters of
+--      its own (`@path:42` and `@path lines 1-2`) while Vantage emitted a third
+--      (`@path line 42` / `@path lines 1-2`). Vantage's prompt buffer is what
+--      *parses* `@`-refs, so Vantage owns the format and everything here routes
+--      through `vantage.format_reference`.
+--   2. Entry assembly (ref + fenced selection + labeled body), which existed
+--      both here and inline in `ai_actions.lua`. There is now one `build_entry`.
+--
+-- Context capture also lived here once. It is Vantage's `context()` now, which
+-- additionally handles live visual selections that a plain Lua visual keymap
+-- cannot get from the '< / '> marks.
+---@module user.snacks.ai_actions.common
 
 local M = {}
 
---- Ref styles used by context builders.
--- "at"       → @path:line
--- "markdown" → File: `path:line`
-M.REF_STYLE_AT = "at"
-M.REF_STYLE_MARKDOWN = "markdown"
-
---- Format a file + line reference string.
----@param ctx table { relative_path?, file_path?, line? }
----@param style string "at" | "markdown"
----@return string|nil  nil when there is nothing to format
-function M.format_file_ref(ctx, style)
-	local ref = ctx.relative_path or ctx.file_path or ""
-	if ref == "" then
+local function vantage()
+	local ok, mod = pcall(require, "vantage")
+	if not ok then
+		vim.notify("vantage.nvim not found", vim.log.levels.ERROR)
 		return nil
 	end
-	local line_suffix = ctx.line and (":" .. ctx.line) or ""
-	if style == M.REF_STYLE_MARKDOWN then
-		return "File: `" .. ref .. line_suffix .. "`"
-	end
-	-- default: "at"
-	return "@" .. ref .. line_suffix
+	return mod
 end
 
---- Wrap a selection string in code fences with an optional heading label.
----@param selection string|nil
----@param style string "at" | "markdown"
----@param label string|nil
----@return string|nil  nil when selection is empty/nil
-function M.format_selection(selection, style, label)
-	if not selection or selection == "" then
+---The `@`-reference for a Vantage context's scope. Vantage relativizes the
+---absolute path itself against the root it resolves refs against, so there is
+---no local path rule to drift from it.
+---@param ctx table Vantage context params (filePath, range)
+---@return string|nil
+local function context_reference(ctx)
+	local v = vantage()
+	if not v or not ctx or type(ctx.filePath) ~= "string" or ctx.filePath == "" then
 		return nil
 	end
-	local prefix = ""
-	if label and label ~= "" then
-		prefix = label .. ":\n"
-	end
-	if style == M.REF_STYLE_MARKDOWN then
-		return prefix .. "```\n" .. selection .. "\n```"
-	end
-	return prefix .. "```\n" .. selection .. "\n```"
+	return v.format_reference({
+		path = ctx.filePath,
+		start_line = ctx.range and ctx.range.startLine,
+		end_line = ctx.range and ctx.range.endLine,
+	})
 end
 
---- Build a complete context message from file ref + selection + optional prompt.
----@param ctx table   { relative_path?, file_path?, line?, selection? }
----@param opts table? {
---- style?: string,
---- separator?: string,
---- prompt?: string,
---- prompt_label?: string|false,
---- selection_label?: string|false
---- }
----@return string      assembled message (may be "")
-function M.build_context_message(ctx, opts)
-	opts = opts or {}
-	local style = opts.style or M.REF_STYLE_AT
-	local sep = opts.separator or "\n\n"
-	local selection_label = opts.selection_label
-	if selection_label == nil then
-		selection_label = "Selection"
-	end
-	local prompt_label = opts.prompt_label
-	if prompt_label == nil then
-		prompt_label = "Instruction"
-	end
-
-	local parts = {}
-
-	local ref = M.format_file_ref(ctx, style)
-	if ref then
-		table.insert(parts, ref)
-	end
-
-	local sel = M.format_selection(ctx.selection, style, selection_label or nil)
-	if sel then
-		table.insert(parts, sel)
-	end
-
-	if opts.prompt and opts.prompt ~= "" then
-		if prompt_label then
-			table.insert(parts, prompt_label .. ":\n" .. opts.prompt)
-		else
-			table.insert(parts, opts.prompt)
-		end
-	end
-
-	return table.concat(parts, sep)
-end
-
-local function normalize_reference_item(spec)
-	if not spec then
+---One `@`-reference line for a picker/git reference item. Line bounds alone
+---decide whether a range is emitted -- there is no `kind` discriminator, since
+---it only restated what the bounds already say and silently dropped any item
+---whose value was unrecognized.
+---@param item { relative_path?: string, path?: string, start_line?: number, end_line?: number }
+---@return string|nil
+local function reference_line(item)
+	local v = vantage()
+	if not v or not item then
 		return nil
 	end
-
-	local kind = spec.kind or spec.type
-	local relative_path = spec.relative_path or spec.path
-	if not kind or not relative_path or relative_path == "" then
-		return nil
-	end
-
-	return {
-		kind = kind,
-		relative_path = relative_path,
-		start_line = spec.start_line,
-		end_line = spec.end_line,
-	}
+	return v.format_reference({
+		path = item.relative_path or item.path,
+		start_line = item.start_line,
+		end_line = item.end_line,
+	})
 end
 
-local function format_at_reference(relative_path, start_line, end_line)
-	if start_line and end_line then
-		return string.format("@%s lines %s-%s", relative_path, start_line, end_line)
-	end
-	return "@" .. relative_path
-end
-
-local function format_reference_item(spec)
-	spec = normalize_reference_item(spec)
-	if not spec then
-		return nil
-	end
-
-	if spec.kind == "file" then
-		return format_at_reference(spec.relative_path)
-	end
-
-	if spec.kind == "selection" and spec.start_line and spec.end_line then
-		return format_at_reference(spec.relative_path, spec.start_line, spec.end_line)
-	end
-
-	return nil
-end
-
+---Newline-joined `@`-reference lines for a list of reference items.
+---@param spec { items?: table[] }|table a list wrapper, or a single item
+---@return string
 function M.format_reference_payload(spec)
 	if not spec then
 		return ""
 	end
 
-	local items = spec.items or { spec }
 	local lines = {}
-	for _, item in ipairs(items) do
-		local line = format_reference_item(item)
+	for _, item in ipairs(spec.items or { spec }) do
+		local line = reference_line(item)
 		if line then
 			table.insert(lines, line)
 		end
@@ -153,112 +80,44 @@ function M.format_reference_payload(spec)
 	if #lines == 0 then
 		return ""
 	end
-
 	return table.concat(lines, "\n") .. "\n"
 end
 
----@param ctx { relative_path?: string, file_path?: string, selection?: string, start_line?: number, end_line?: number }|nil
-function M.format_context_ref_line(ctx)
-	if not ctx then
-		return nil
+---Assemble one entry: the scope's `@`-ref, the selection fenced when asked for,
+---then the body under its label. The ref format is Vantage's; the fence and
+---labels are our presentation and stay here.
+---@param ctx table Vantage context params (filePath, range, selectedText)
+---@param opts { body?: string, body_label?: string }?
+---@return string entry may be "" when there is nothing to say
+function M.build_entry(ctx, opts)
+	opts = opts or {}
+	local parts = {}
+
+	local ref = context_reference(ctx)
+	if ref then
+		table.insert(parts, ref)
 	end
 
-	local relative_path = ctx.relative_path
-		or (ctx.file_path and vim.fn.fnamemodify(ctx.file_path, ":."))
-		or ""
-	if relative_path == "" or relative_path == "." then
-		return nil
+	-- Vantage's context is line-granular, so this is never a charwise selection.
+	-- Label it by what it is, and rely on selectionSource rather than a mode flag
+	-- threaded down from the keymap.
+	local selected = ctx and ctx.selectionSource ~= "cursor" and ctx.selectedText or nil
+	if selected and selected ~= "" then
+		local range = ctx.range
+		local heading = range and string.format("Lines %d-%d:", range.startLine, range.endLine) or "Lines:"
+		table.insert(parts, heading .. "\n```\n" .. selected .. "\n```")
 	end
 
-	if ctx.selection and ctx.start_line and ctx.end_line then
-		return format_at_reference(relative_path, ctx.start_line, ctx.end_line)
-	end
-
-	return format_at_reference(relative_path)
-end
-
---- Capture buffer / file / line / selection context from the current window.
---
--- Must be called synchronously before any async operation (e.g. Snacks.input)
--- because visual marks and cursor position are only reliable at call-time.
---
--- '< / '> are only committed when Visual mode is formally exited (Esc, an
--- operator, or a ":"-range command). Our visual keymaps are bound as plain
--- Lua-function callbacks, which Neovim invokes without going through any of
--- those -- so at call-time we're often still "in" Visual mode from the
--- marks' perspective, and '< / '> still hold whatever was left over from the
--- *previous* selection that was properly closed. Reading them here would
--- silently capture stale (sometimes off-by-one-selection) text. While still
--- in Visual mode, use the live anchor ("v") / cursor (".") positions
--- instead, which track the active selection in real time; fall back to
--- '< / '> once Visual mode has actually been left.
----@param mode string "n" | "v"
----@return table|nil ctx  nil when the buffer has no file name
-function M.capture_context(mode)
-	local bufnr = vim.api.nvim_get_current_buf()
-	local file_path = vim.api.nvim_buf_get_name(bufnr)
-	if file_path == "" then
-		vim.notify("Current buffer has no file name", vim.log.levels.WARN)
-		return nil
-	end
-	local relative_path = vim.fn.fnamemodify(file_path, ":.")
-	local line = vim.api.nvim_win_get_cursor(0)[1]
-
-	local selection = nil
-	local start_line, end_line = line, line
-	if mode == "v" then
-		local vim_mode = vim.fn.mode()
-		local still_in_visual = vim_mode == "v" or vim_mode == "V" or vim_mode == "\22"
-
-		local anchor_line, anchor_col, cursor_line, cursor_col
-		if still_in_visual then
-			anchor_line, anchor_col = vim.fn.line("v"), vim.fn.col("v")
-			cursor_line, cursor_col = vim.fn.line("."), vim.fn.col(".")
+	if opts.body and opts.body ~= "" then
+		local label = opts.body_label
+		if label and label ~= "" then
+			table.insert(parts, label .. ":\n" .. opts.body)
 		else
-			anchor_line, anchor_col = vim.fn.line("'<"), vim.fn.col("'<")
-			cursor_line, cursor_col = vim.fn.line("'>"), vim.fn.col("'>")
-		end
-
-		if anchor_line > cursor_line or (anchor_line == cursor_line and anchor_col > cursor_col) then
-			anchor_line, anchor_col, cursor_line, cursor_col = cursor_line, cursor_col, anchor_line, anchor_col
-		end
-
-		start_line, end_line = anchor_line, cursor_line
-
-		local start_col, end_col
-		if still_in_visual and vim_mode == "V" then
-			-- Linewise: "v"/"." are raw cursor columns, not adjusted to full
-			-- line bounds the way committed '< / '> marks are. Select the
-			-- whole line explicitly.
-			start_col = 0
-			end_col = #vim.fn.getline(end_line)
-		else
-			start_col = anchor_col - 1
-			end_col = cursor_col -- nvim_buf_get_text end_col is exclusive
-		end
-
-		local ok, lines = pcall(
-			vim.api.nvim_buf_get_text,
-			bufnr,
-			start_line - 1,
-			start_col,
-			end_line - 1,
-			end_col,
-			{}
-		)
-		if ok and #lines > 0 then
-			selection = table.concat(lines, "\n")
+			table.insert(parts, opts.body)
 		end
 	end
 
-	return {
-		file_path = file_path,
-		relative_path = relative_path,
-		line = line,
-		start_line = start_line,
-		end_line = end_line,
-		selection = selection,
-	}
+	return table.concat(parts, "\n\n")
 end
 
 return M

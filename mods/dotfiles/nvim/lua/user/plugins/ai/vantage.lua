@@ -34,23 +34,25 @@ local function command_opts(args)
 	}
 end
 
+-- Visual keymaps deliberately pass no range. These are plain Lua-function
+-- keymaps, which never commit the '< / '> marks -- reading them here would
+-- capture the *previous* selection. Leaving range = 0 lets Vantage resolve the
+-- scope itself from the live visual selection (see vantage.visual.live_range),
+-- which is still active when the callback runs.
 local function visual_opts(args)
-	local start_line = vim.fn.getpos("'<")[2]
-	local end_line = vim.fn.getpos("'>")[2]
-	if start_line > end_line then
-		start_line, end_line = end_line, start_line
-	end
-
-	local opts = command_opts(args)
-	opts.range = 2
-	opts.line1 = start_line
-	opts.line2 = end_line
-	return opts
+	return command_opts(args)
 end
 
 M.opts = {
 	input = {
 		provider = "ui2",
+	},
+	composition = {
+		-- Staged composition text goes to the wiremux route (a terminal pane
+		-- running another agent), not to Vantage's own backend.
+		on_send = function(text)
+			return require("user.plugins.ai.wiremux").send_text(text .. "\n", { focus = true, submit = true })
+		end,
 	},
 	agent = {
 		models = {

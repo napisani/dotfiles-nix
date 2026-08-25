@@ -53,7 +53,7 @@ function source.new(opts)
 end
 
 function source:enabled()
-	return ai_skills.is_prompt_builder(vim.api.nvim_get_current_buf())
+	return ai_skills.is_composition(vim.api.nvim_get_current_buf())
 end
 
 function source:get_trigger_characters()
@@ -63,7 +63,7 @@ end
 function source:get_completions(ctx, callback)
 	local provider = ai_skills.current_provider()
 	local bufnr, range = skill_token_range(ctx)
-	if not range or not ai_skills.is_prompt_builder(bufnr) then
+	if not range or not ai_skills.is_composition(bufnr) then
 		callback({ items = {}, is_incomplete_backward = false, is_incomplete_forward = false })
 		return
 	end

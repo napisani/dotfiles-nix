@@ -1,7 +1,39 @@
 local file_utils = require("user.utils.file_utils")
-local prompt_builder = require("user.prompt_builder")
+local common = require("user.snacks.ai_actions.common")
 
 local M = {}
+
+local function to_reference_item(file_info)
+	return {
+		relative_path = file_info.relative_path,
+		start_line = file_info.start_line,
+		end_line = file_info.end_line,
+	}
+end
+
+--- Format reference items and stage them in Vantage's composition buffer.
+--- Reference formatting stays here rather than in Vantage: deciding which files
+--- to reference (and the git/picker logic behind it) is config-side by design.
+--- Uses blank-line separation so a run of refs reads as one list rather than as
+--- separate `---`-delimited entries.
+local function stage_reference_items(items)
+	if not items or #items == 0 then
+		return false
+	end
+	local payload = common.format_reference_payload({ items = items })
+	if payload == "" then
+		return false
+	end
+	return require("vantage").compose_append(payload, { separation = "blank" })
+end
+
+---@param file_info { file_path: string, relative_path: string, start_line?: number, end_line?: number, bufnr?: number }
+local function stage_file_info(file_info)
+	if not file_info or not file_info.relative_path or file_info.relative_path == "" then
+		return
+	end
+	stage_reference_items({ to_reference_item(file_info) })
+end
 
 local function get_relative_path_for_file(file_path)
 	local root_dir = vim.fs.root(file_path, { ".git" }) or file_utils.get_root_dir()
@@ -23,29 +55,14 @@ end
 ---so prefer the live visual anchor (`v`) and current cursor.
 ---@return integer|nil start_line
 ---@return integer|nil end_line
+-- Vantage owns live visual-range detection; keeping a second implementation
+-- here meant carrying the '< / '> fallback its docs call out as wrong.
 local function get_visual_line_range()
-	local mode = vim.fn.mode(1)
-	local start_line
-	local end_line
-
-	if mode and mode:match("[vV\22]") then
-		start_line = vim.fn.getpos("v")[2]
-		end_line = vim.api.nvim_win_get_cursor(0)[1]
-	else
-		start_line = vim.fn.line("'<")
-		end_line = vim.fn.line("'>")
-	end
-
-	start_line = tonumber(start_line) or 0
-	end_line = tonumber(end_line) or 0
-	if start_line <= 0 or end_line <= 0 then
+	local ok, vantage = pcall(require, "vantage")
+	if not ok then
 		return nil, nil
 	end
-	if start_line > end_line then
-		start_line, end_line = end_line, start_line
-	end
-
-	return start_line, end_line
+	return vantage.visual_range()
 end
 
 local function process_selection(selection, callback)
@@ -93,21 +110,6 @@ local function coerce_and_validate_selection(selection)
 	return selection
 end
 
-local function to_reference_item(file_info)
-	if file_info.start_line and file_info.end_line then
-		return {
-			kind = "selection",
-			relative_path = file_info.relative_path,
-			start_line = file_info.start_line,
-			end_line = file_info.end_line,
-		}
-	end
-
-	return {
-		kind = "file",
-		relative_path = file_info.relative_path,
-	}
-end
 
 local function get_selection_from_picker(picker, fallback_item)
 	if picker and type(picker.selected) == "function" then
@@ -162,7 +164,7 @@ function M.add_current_buffer_to_chat()
 		return
 	end
 
-	prompt_builder.append_file_info({
+	stage_file_info({
 		file_path = file_path,
 		relative_path = get_relative_path_for_file(file_path),
 		bufnr = bufnr,
@@ -181,7 +183,7 @@ function M.add_visual_range_to_chat()
 		return
 	end
 
-	prompt_builder.append_file_info({
+	stage_file_info({
 		file_path = file_path,
 		relative_path = get_relative_path_for_file(file_path),
 		bufnr = bufnr,
@@ -203,7 +205,7 @@ function M.append_file_selection_to_chat(selection)
 		return false
 	end
 
-	prompt_builder.append_references(refs)
+	stage_reference_items(refs)
 	return true
 end
 

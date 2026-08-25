@@ -30,8 +30,6 @@ end
 -- Which-key setup (loads all keymaps including from modular plugins)
 require("user.whichkey.whichkey")
 
--- PromptBuilder (Wiremux staging buffer); load after which-key for buffer-local <C-g>
-require("user.prompt_builder").setup()
 
 require("user.mermaid").setup()
 

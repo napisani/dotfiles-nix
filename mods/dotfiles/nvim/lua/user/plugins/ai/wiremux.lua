@@ -437,7 +437,7 @@ end
 local function pick_prompt()
 	with_snacks_picker({
 		items = prompt_picker_items(),
-		prompt = "Canned prompts → PromptBuilder",
+		prompt = "Canned prompts → composition",
 		preview = "preview",
 		format_item = function(item)
 			if not item then
@@ -451,7 +451,7 @@ local function pick_prompt()
 		end
 		local body = expand_prompt_template(item.value)
 		if body and body ~= "" then
-			require("user.prompt_builder").append_text(body)
+			require("vantage").compose_append(body)
 		end
 	end)
 end
@@ -497,11 +497,14 @@ local function ref_from_git_conflicts()
 	end)
 end
 
-local function snack_context_to_builder(mode, input_prompt, body_label)
-	require("user.snacks.ai_actions").append_snack_context_to_prompt_builder({
-		mode = mode,
-		input_prompt = input_prompt,
-		body_label = body_label,
+-- Collects the body in Vantage's prompt buffer (multi-line, @ref-aware) rather
+-- than a single-line Snacks.input.
+-- Collects the body in Vantage's prompt buffer (multi-line, @ref-aware). Vantage
+-- resolves the scope itself, so there is no mode to pass.
+local function context_to_composition(label)
+	require("user.snacks.ai_actions").append_context_to_composition({
+		input_prompt = label,
+		body_label = label,
 	})
 end
 
@@ -509,60 +512,60 @@ function M.get_keymaps()
 	local ai_context = "user.snacks.ai_context_files"
 	return {
 		normal = {
-			{ "<leader>a", group = "Wiremux + PromptBuilder" },
+			{ "<leader>a", group = "Wiremux + composition" },
 			{ "<leader>ai", function()
-				require("user.prompt_builder").open_or_focus()
-			end, desc = "open/focus PromptBuilder" },
+				require("vantage").compose()
+			end, desc = "open/focus composition" },
 			{ "<leader>ao", M.toggle_target, desc = "show/hide route target" },
 			{ "<leader>aq", M.close_target, desc = "close target" },
 			{ "<leader>av", "<cmd>Vocal<cr>", desc = "voice" },
-			{ "<leader>af", group = "file refs → builder" },
-			{ "<leader>afe", ref_from_buffers, desc = "ref buffers → builder" },
+			{ "<leader>af", group = "file refs → composition" },
+			{ "<leader>afe", ref_from_buffers, desc = "ref buffers → composition" },
 			{ "<leader>aff", function()
 				require(ai_context).add_current_buffer_to_chat()
-			end, desc = "ref current file (aff) → builder" },
+			end, desc = "ref current file (aff) → composition" },
 			{ "<leader>afp", function()
 				require(ai_context).add_parent_path_file_to_chat()
-			end, desc = "ref path file → builder" },
-			{ "<leader>afr", ref_from_repo_root, desc = "ref from repo → builder" },
-			{ "<leader>aft", ref_from_git_tracked, desc = "ref git files → builder" },
-			{ "<leader>afd", ref_from_git_changed, desc = "ref unstaged → builder" },
-			{ "<leader>afD", ref_from_git_branch_diff, desc = "ref vs base → builder" },
-			{ "<leader>afC", ref_from_git_conflicts, desc = "ref conflicts → builder" },
+			end, desc = "ref path file → composition" },
+			{ "<leader>afr", ref_from_repo_root, desc = "ref from repo → composition" },
+			{ "<leader>aft", ref_from_git_tracked, desc = "ref git files → composition" },
+			{ "<leader>afd", ref_from_git_changed, desc = "ref unstaged → composition" },
+			{ "<leader>afD", ref_from_git_branch_diff, desc = "ref vs base → composition" },
+			{ "<leader>afC", ref_from_git_conflicts, desc = "ref conflicts → composition" },
 			{ "<leader>ae", function()
-				snack_context_to_builder("n", "Instruction", "Instruction")
-			end, desc = "instruction (Snacks) → builder" },
+				context_to_composition("Instruction")
+			end, desc = "instruction → composition" },
 			{ "<leader>a?", function()
-				snack_context_to_builder("n", "Question", "Question")
-			end, desc = "question (Snacks) → builder" },
+				context_to_composition("Question")
+			end, desc = "question → composition" },
 			{ "<leader>as", function()
-				require("user.snacks.ai_skills").pick_to_prompt_builder()
-			end, desc = "skill → builder" },
-			{ "<leader>ap", pick_prompt, desc = "canned prompt → builder" },
+				require("user.snacks.ai_skills").pick_to_composition()
+			end, desc = "skill → composition" },
+			{ "<leader>ap", pick_prompt, desc = "canned prompt → composition" },
 			{ "<leader>am", function()
-				require("user.snacks.ai_actions").append_memo_to_prompt_builder({ mode = "n" })
-			end, desc = "instructions (Snacks) → builder" },
+				require("user.snacks.ai_actions").append_memo_to_composition()
+			end, desc = "instructions → composition" },
 			{ "<leader>aw", M.select_route, desc = "select route" },
 		},
 		visual = {
-			{ "<leader>a", group = "Wiremux + PromptBuilder" },
+			{ "<leader>a", group = "Wiremux + composition" },
 			{ "<leader>ai", function()
-				require("user.prompt_builder").open_or_focus()
-			end, desc = "open/focus PromptBuilder" },
+				require("vantage").compose()
+			end, desc = "open/focus composition" },
 			{ "<leader>av", "<cmd>Vocal<cr>", desc = "voice" },
-			{ "<leader>af", group = "file refs → builder" },
+			{ "<leader>af", group = "file refs → composition" },
 			{ "<leader>aff", function()
 				require(ai_context).add_visual_range_to_chat()
-			end, desc = "ref line range (aff) → builder" },
+			end, desc = "ref line range (aff) → composition" },
 			{ "<leader>ae", function()
-				snack_context_to_builder("v", "Instruction", "Instruction")
-			end, desc = "instruction (Snacks) + range → builder" },
+				context_to_composition("Instruction")
+			end, desc = "instruction + range → composition" },
 			{ "<leader>a?", function()
-				snack_context_to_builder("v", "Question", "Question")
-			end, desc = "question (Snacks) + range → builder" },
+				context_to_composition("Question")
+			end, desc = "question + range → composition" },
 			{ "<leader>am", function()
-				require("user.snacks.ai_actions").append_memo_to_prompt_builder({ mode = "v" })
-			end, desc = "instructions (Snacks) + range → builder" },
+				require("user.snacks.ai_actions").append_memo_to_composition()
+			end, desc = "instructions + range → composition" },
 		},
 		shared = {},
 	}

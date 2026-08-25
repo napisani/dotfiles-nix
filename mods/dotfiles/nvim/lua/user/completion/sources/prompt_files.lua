@@ -28,9 +28,11 @@ local function current_context(ctx)
 	return bufnr, row, col, ctx and ctx.line
 end
 
-local function is_prompt_builder(bufnr)
-	local ok, value = pcall(vim.api.nvim_buf_get_var, bufnr, "prompt_builder")
-	return ok and value == true
+local function is_composition(bufnr)
+	-- Guarded: this runs from blink's `enabled` on every completion trigger, so a
+	-- missing/broken vantage must disable the source, not raise into the picker.
+	local ok, vantage = pcall(require, "vantage")
+	return ok and vantage.is_composition_buffer(bufnr) or false
 end
 
 function source.file_token_range(ctx)
@@ -117,7 +119,7 @@ function source.new(opts)
 end
 
 function source:enabled()
-	return is_prompt_builder(vim.api.nvim_get_current_buf())
+	return is_composition(vim.api.nvim_get_current_buf())
 end
 
 function source:get_trigger_characters()
@@ -126,7 +128,7 @@ end
 
 function source:get_completions(ctx, callback)
 	local bufnr, range = source.file_token_range(ctx)
-	if not range or not is_prompt_builder(bufnr) then
+	if not range or not is_composition(bufnr) then
 		callback({ items = {}, is_incomplete_backward = false, is_incomplete_forward = false })
 		return
 	end

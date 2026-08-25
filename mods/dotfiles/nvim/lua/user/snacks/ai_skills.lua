@@ -84,12 +84,10 @@ function M.default_skill_dirs()
 	return dirs
 end
 
-function M.is_prompt_builder(bufnr)
-	if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
-		return false
-	end
-	local ok, value = pcall(vim.api.nvim_buf_get_var, bufnr, "prompt_builder")
-	return ok and value == true
+function M.is_composition(bufnr)
+	-- Guarded: reached from blink's `enabled` on every completion trigger.
+	local ok, vantage = pcall(require, "vantage")
+	return ok and vantage.is_composition_buffer(bufnr) or false
 end
 
 function M.current_provider()
@@ -259,7 +257,7 @@ local function picker_items(skills, opts)
 	return items
 end
 
-function M.pick_to_prompt_builder(opts)
+function M.pick_to_composition(opts)
 	opts = opts or {}
 	local provider = opts.provider or M.current_provider()
 	local items = picker_items(M.list(opts), { provider = provider })
@@ -268,14 +266,14 @@ function M.pick_to_prompt_builder(opts)
 		return
 	end
 
-	local prompt = opts.prompt or "Skills -> PromptBuilder"
+	local prompt = opts.prompt or "Skills -> composition"
 	local function on_choice(item)
 		if not item then
 			return
 		end
 		local invocation = item.label or M.skill_invocation(item, { provider = provider })
 		if invocation ~= "" then
-			require("user.prompt_builder").append_text(invocation)
+			require("vantage").compose_append(invocation, { separation = "blank" })
 		end
 	end
 
