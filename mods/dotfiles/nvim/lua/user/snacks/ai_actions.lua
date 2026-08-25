@@ -15,7 +15,7 @@ local M = {}
 -- not by a mode flag from the keymap.
 --
 -- opts: body_label (required), optional input_prompt used as the prompt float's
--- title, optional done_notify
+-- title
 function M.append_context_to_composition(opts)
 	opts = opts or {}
 	local body_label = opts.body_label
@@ -48,8 +48,9 @@ function M.append_context_to_composition(opts)
 			if entry == "" then
 				return
 			end
+			-- Vantage reports the staging itself, including the running entry
+			-- count, so notifying here too would double up.
 			vantage.compose_append(entry)
-			vim.notify(opts.done_notify or "Appended to Vantage composition", vim.log.levels.INFO)
 		end,
 	})
 end
@@ -61,7 +62,6 @@ function M.append_memo_to_composition(opts)
 	return M.append_context_to_composition({
 		input_prompt = opts.input_prompt or "Instructions",
 		body_label = opts.body_label or "Instructions",
-		done_notify = "Context appended to Vantage composition",
 	})
 end
 

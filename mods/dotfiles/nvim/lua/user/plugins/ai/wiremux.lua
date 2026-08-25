@@ -515,7 +515,7 @@ function M.get_keymaps()
 			{ "<leader>a", group = "Wiremux + composition" },
 			{ "<leader>ai", function()
 				require("vantage").compose()
-			end, desc = "open/focus composition" },
+			end, desc = "toggle composition" },
 			{ "<leader>ao", M.toggle_target, desc = "show/hide route target" },
 			{ "<leader>aq", M.close_target, desc = "close target" },
 			{ "<leader>av", "<cmd>Vocal<cr>", desc = "voice" },
@@ -551,7 +551,7 @@ function M.get_keymaps()
 			{ "<leader>a", group = "Wiremux + composition" },
 			{ "<leader>ai", function()
 				require("vantage").compose()
-			end, desc = "open/focus composition" },
+			end, desc = "toggle composition" },
 			{ "<leader>av", "<cmd>Vocal<cr>", desc = "voice" },
 			{ "<leader>af", group = "file refs → composition" },
 			{ "<leader>aff", function()
