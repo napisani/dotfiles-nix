@@ -3,12 +3,37 @@
 -- the primary discoverable bindings (which-key, tiny-code-action for `la`).
 local M = {}
 
+--- Filters out locations whose file is in a disabled scope category before
+--- populating the location list. See user.scope.category.
+local function filtered_on_list(list_ctx)
+	local category = require("user.scope.category")
+	list_ctx.items = vim.tbl_filter(function(item)
+		return category.is_visible(item.filename)
+	end, list_ctx.items)
+	vim.fn.setloclist(0, {}, " ", list_ctx)
+	vim.cmd.lopen()
+end
+
 M.base = {
 	{ key = "gd", action = vim.lsp.buf.definition, desc = "Go to definition", method = "textDocument/definition" },
 	-- { key = "gD", action = vim.lsp.buf.declaration, desc = "Go to declaration", method = "textDocument/declaration" },
 	-- { key = "K", action = vim.lsp.buf.hover, desc = "Hover", method = "textDocument/hover" },
-	-- { key = "gi", action = vim.lsp.buf.implementation, desc = "Go to implementation", method = "textDocument/implementation" },
-	{ key = "gr", action = vim.lsp.buf.references, desc = "References", method = "textDocument/references" },
+	{
+		key = "gi",
+		action = function()
+			vim.lsp.buf.implementation(nil, { on_list = filtered_on_list })
+		end,
+		desc = "Go to implementation",
+		method = "textDocument/implementation",
+	},
+	{
+		key = "gr",
+		action = function()
+			vim.lsp.buf.references(nil, { on_list = filtered_on_list })
+		end,
+		desc = "References",
+		method = "textDocument/references",
+	},
 	{
 		key = "<leader>K",
 		action = vim.lsp.buf.signature_help,

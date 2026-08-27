@@ -41,5 +41,45 @@ end
 
 assert(mapped.gd, "expected supported definition keymap")
 assert(not mapped["<leader>lf"], "expected unsupported formatting keymap to be skipped")
+assert(mapped.gi, "expected gi (go-to-implementation) to be mapped")
+
+do
+	local category = require("user.scope.category")
+	category.reset_all()
+	category.set_enabled("tests", false)
+
+	local original_references = vim.lsp.buf.references
+	local captured_on_list
+	vim.lsp.buf.references = function(_, opts)
+		captured_on_list = opts.on_list
+	end
+
+	mapped.gr.action()
+	assert(type(captured_on_list) == "function", "expected gr to pass an on_list callback")
+
+	local original_setloclist = vim.fn.setloclist
+	local original_lopen = vim.cmd.lopen
+	local captured_items
+	vim.fn.setloclist = function(_, _, _, list_ctx)
+		captured_items = list_ctx.items
+	end
+	vim.cmd.lopen = function() end
+
+	captured_on_list({
+		items = {
+			{ filename = "foo/bar.lua" },
+			{ filename = "foo/bar_test.lua" },
+		},
+	})
+
+	vim.fn.setloclist = original_setloclist
+	vim.cmd.lopen = original_lopen
+	vim.lsp.buf.references = original_references
+
+	assert(#captured_items == 1, "expected on_list to filter out the disabled-category location")
+	assert(captured_items[1].filename == "foo/bar.lua", "expected the visible location to survive filtering")
+
+	category.reset_all()
+end
 
 print("lsp_attach_spec: ok")

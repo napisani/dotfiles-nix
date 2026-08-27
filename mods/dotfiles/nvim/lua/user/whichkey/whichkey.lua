@@ -11,6 +11,7 @@ local snacks_find_files = require("user.snacks.find_files")
 local Snacks = require("snacks")
 local repl = require("user.whichkey.repl")
 local scopes = require("user.whichkey.scopes")
+local categories = require("user.whichkey.categories")
 local lsp = require("user.whichkey.lsp")
 local global_mappings = require("user.whichkey.global")
 local plugin_keymaps = require("user.whichkey.plugins")
@@ -154,6 +155,7 @@ local mapping_n = utils.extend_lists(
 	replace_mapping.mapping_n,
 	repl.mapping_n,
 	scopes.mapping_n,
+	categories.mapping_n,
 	lsp.mapping_n,
 	global_mappings.mapping_n,
 	plugin_keymaps.get_normal_keymaps(discovered_plugin_keymaps)
@@ -170,6 +172,7 @@ local mapping_v = {
 		replace_mapping.mapping_v,
 		repl.mapping_v,
 		scopes.mapping_v,
+		categories.mapping_v,
 		lsp.mapping_v,
 		global_mappings.mapping_v,
 		plugin_keymaps.get_visual_keymaps(discovered_plugin_keymaps)
@@ -189,6 +192,7 @@ local shared_mapping = {
 	buffers,
 	-- overseer,
 	scopes.mapping_shared,
+	categories.mapping_shared,
 	lsp.mapping_shared,
 	global_mappings.mapping_shared,
 }

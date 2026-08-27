@@ -41,7 +41,8 @@
 `<C-_>` → [nv] leaf: toggle comment on line or selection
 
 `gd` → leaf: jump to definition (LSP)  
-`gr` → leaf: show all references (LSP)  
+`gr` → leaf: show all references (LSP); hides references in disabled file categories (see `<leader><leader>t`)  
+`gi` → leaf: jump to implementation (LSP); hides implementations in disabled file categories (see `<leader><leader>t`)  
 `gl` → leaf: show inline diagnostics float for current line  
 `]d` → leaf: jump to next diagnostic  
 `]g` / `[g` → leaf: next / previous git hunk  
@@ -333,6 +334,18 @@ Merge conflict resolution (contextual inside a diff/merge view):
 
 `<leader><leader>sa` → leaf: add a search scope (pick a root path to restrict future searches)  
 `<leader><leader>sx` → leaf: clear all active search scopes
+
+---
+
+## `<leader><leader>t` — file categories
+
+`<leader><leader>t` → domain: enable/disable **file categories** (`tests`, `documentation`, `implementation`) — every disabled category disappears from file search, grep, changed-file search, `gr`/`gi` LSP results, the project tree, and Diffview, until re-enabled  
+`<leader><leader>t` → contract: independent of and composes with directory scope (`<leader><leader>s`) — narrowing both is an intersection, not a contradiction  
+`<leader><leader>t` → note: all categories start enabled on every Neovim launch; state does not persist across restarts  
+`<leader><leader>t` → note: `implementation` is the catch-all — any file not matching `tests` or `documentation` patterns belongs to it
+
+`<leader><leader>ta` → leaf: open a picker listing each category with its enabled/disabled state (`[x]`/`[ ]`); selecting one toggles it and reopens the picker  
+`<leader><leader>tx` → leaf: reset all categories to enabled
 
 ---
 

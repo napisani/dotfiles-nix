@@ -1,7 +1,7 @@
 local Snacks = require("snacks")
 local utils = require("user.utils")
 local common = require("user.snacks.common")
-local scope = require("user.snacks.scope")
+local scope_common = require("user.scope.common")
 local cmd = "rg"
 
 local M = {}
@@ -15,7 +15,7 @@ function M.live_grep_from_root(opts)
 		ignored = false,
 		cwd = utils.get_root_dir(),
 	})
-	all_opts = scope.apply_scopes_to_rg_picker(all_opts)
+	all_opts = scope_common.apply_to_picker(all_opts)
 	return Snacks.picker.grep(all_opts)
 end
 

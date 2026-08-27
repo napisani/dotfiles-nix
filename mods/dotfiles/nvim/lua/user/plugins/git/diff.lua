@@ -158,6 +158,33 @@ function M.hunk_prev()
 	diffview_prev_hunk_or_prev_file()
 end
 
+---Opens `:DiffviewOpen`, appending disabled-category pathspec args (see
+---user.scope.category.diffview_pathspec_args) after any caller-supplied args.
+---@param args_str? string
+local function diffview_open(args_str)
+	local category = require("user.scope.category")
+	local pathspec = category.diffview_pathspec_args()
+	local cmd = "DiffviewOpen"
+	if args_str and args_str ~= "" then
+		cmd = cmd .. " " .. args_str
+	end
+	if #pathspec > 0 then
+		cmd = cmd .. " -- " .. table.concat(pathspec, " ")
+	end
+	vim.cmd(cmd)
+end
+
+---Opens `:DiffviewFileHistory`, appending disabled-category pathspec args.
+local function diffview_file_history()
+	local category = require("user.scope.category")
+	local pathspec = category.diffview_pathspec_args()
+	local cmd = "DiffviewFileHistory"
+	if #pathspec > 0 then
+		cmd = cmd .. " -- " .. table.concat(pathspec, " ")
+	end
+	vim.cmd(cmd)
+end
+
 local function open_local_changes_tree()
 	require("user.snacks.git_files").git_changed_files_tree()
 end
@@ -378,15 +405,33 @@ function M.get_keymaps()
 				"<leader>cr",
 				function()
 					local ref = utils.get_git_ref()
-					vim.cmd("DiffviewOpen " .. ref)
+					diffview_open(ref)
 				end,
 				desc = "compare to ref",
 			},
 
 			{ "<leader>cB", "<Cmd>:G blame<CR>", desc = "Blame" },
-			{ "<leader>cH", "<Cmd>:DiffviewOpen HEAD<CR>", desc = "diff (H)ead" },
-			{ "<leader>ch", "<Cmd>:DiffviewFileHistory<CR>", desc = "(h)istory" },
-			{ "<leader>co", "<Cmd>:DiffviewOpen<CR>", desc = "Open" },
+			{
+				"<leader>cH",
+				function()
+					diffview_open("HEAD")
+				end,
+				desc = "diff (H)ead",
+			},
+			{
+				"<leader>ch",
+				function()
+					diffview_file_history()
+				end,
+				desc = "(h)istory",
+			},
+			{
+				"<leader>co",
+				function()
+					diffview_open()
+				end,
+				desc = "Open",
+			},
 			{ "<leader>cw", cycle_diff_layout, desc = "cycle inline/horizontal diff layout" },
 			{ "<leader>ct", open_local_changes_tree, desc = "local changes tree" },
 			{ "<leader>cT", open_branch_changes_tree, desc = "branch changes tree" },

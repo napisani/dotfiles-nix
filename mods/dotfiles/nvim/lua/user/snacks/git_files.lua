@@ -1,5 +1,6 @@
 local utils = require("user.utils")
 local common = require("user.snacks.common")
+local scope_common = require("user.scope.common")
 local Snacks = require("snacks")
 
 local M = {}
@@ -137,7 +138,7 @@ end
 function M.git_changed_files(opts)
 	opts = opts or {}
 	local cwd = utils.get_root_dir()
-	local file_list = utils.git_changed_files().get_files()
+	local file_list = scope_common.filter_paths(utils.git_changed_files().get_files())
 	local all_opts = vim.tbl_extend("force", opts, {
 		cwd = cwd,
 		items = file_list,
@@ -149,7 +150,7 @@ function M.git_changed_files_tree(opts)
 	opts = opts or {}
 	local cwd = utils.get_root_dir()
 	return changed_files_tree(
-		utils.git_changed_files().get_files(),
+		scope_common.filter_paths(utils.git_changed_files().get_files()),
 		vim.tbl_extend("force", opts, {
 			cwd = cwd,
 			title = "Local Changes",
@@ -171,7 +172,7 @@ M.git_changed_cmp_base_branch = function(opts)
 		table.insert(cmd, arg)
 	end
 
-	local files_list = vim.fn.systemlist(cmd)
+	local files_list = scope_common.filter_paths(vim.fn.systemlist(cmd))
 	local all_opts = vim.tbl_extend("force", opts, {
 		items = files_list,
 		cwd = cwd,
@@ -183,7 +184,7 @@ M.git_changed_cmp_base_branch_tree = function(opts)
 	opts = opts or {}
 	local cwd = utils.get_root_dir()
 	local base_branch = utils.get_git_ref()
-	local files_list = utils.git_changed_in_branch().get_files(base_branch)
+	local files_list = scope_common.filter_paths(utils.git_changed_in_branch().get_files(base_branch))
 
 	return changed_files_tree(
 		files_list,
@@ -206,7 +207,7 @@ M.git_conflicted_files = function(opts)
 		table.insert(cmd, arg)
 	end
 
-	local files_list = vim.fn.systemlist(cmd)
+	local files_list = scope_common.filter_paths(vim.fn.systemlist(cmd))
 	local all_opts = vim.tbl_extend("force", opts, {
 		items = files_list,
 		cwd = cwd,

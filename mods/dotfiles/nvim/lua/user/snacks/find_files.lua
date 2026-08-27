@@ -1,7 +1,8 @@
 local Snacks = require("snacks")
 local common = require("user.snacks.common")
 local refresh = require("user.refresh")
-local scope = require("user.snacks.scope")
+local scope_path = require("user.scope.path")
+local scope_common = require("user.scope.common")
 local utils = require("user.utils")
 
 local find_opts = {
@@ -20,12 +21,12 @@ function M.find_files_from_root(opts)
 	-- rather than the worktree root, causing .ignore files at the worktree
 	-- root to be silently skipped.
 	all_opts.cwd = all_opts.cwd or utils.get_root_dir()
-	all_opts = scope.apply_scopes_to_rg_picker(all_opts)
+	all_opts = scope_common.apply_to_picker(all_opts)
 	return Snacks.picker.files(all_opts)
 end
 
 M.toggle_explorer_tree = function()
-	Snacks.picker.explorer({
+	local opts = {
 		cmd = "rg",
 		tree = true,
 		follow_file = true,
@@ -54,7 +55,8 @@ M.toggle_explorer_tree = function()
 			list = { keys = refresh.explorer_keys() },
 			preview = { keys = refresh.explorer_keys() },
 		},
-	})
+	}
+	Snacks.picker.explorer(scope_common.apply_to_picker(opts))
 end
 
 function M.find_path_files(opts)
@@ -180,7 +182,7 @@ end
 
 function M.pick_scopes(opts)
 	M.find_directories_from_root(function(item)
-		scope.add_scope(item.text)
+		scope_path.add_scope(item.text)
 	end, opts)
 end
 return M

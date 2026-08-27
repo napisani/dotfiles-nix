@@ -3,6 +3,7 @@
 local M = {}
 
 local utils = require("user.utils")
+local scope_common = require("user.scope.common")
 
 local DEFAULT_GREP_MODE = "regex"
 local INDEX_WAIT_MS = 10000
@@ -160,6 +161,7 @@ function M.live_grep_from_root(opts)
 		cwd = cwd,
 		title = "Live Grep (fff)",
 	})
+	all_opts = scope_common.apply_to_picker(all_opts)
 
 	return Snacks.picker(all_opts)
 end

@@ -1,4 +1,4 @@
-local scopes = require("user.snacks.scope")
+local scopes = require("user.scope.path")
 local find_files = require("user.snacks.find_files")
 local normal_mappings = {
 	{
