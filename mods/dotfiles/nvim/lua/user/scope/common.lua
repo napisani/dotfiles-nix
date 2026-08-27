@@ -29,4 +29,78 @@ function M.filter_paths(paths)
 	return require("user.scope.category").filter_paths(paths)
 end
 
+local function normalize(p)
+	-- extra parens: gsub also returns a match count, which would leak into
+	-- table constructors and multi-value returns at the call sites.
+	return ((p or ""):gsub("\\", "/"):gsub("/+$", ""))
+end
+
+---@param dir string
+---@param target string
+---@return boolean
+local function is_under(dir, target)
+	dir, target = normalize(dir), normalize(target)
+	return target == dir or target:sub(1, #dir + 1) == dir .. "/"
+end
+
+--- Confines a positive category pathspec to the active directory scope,
+--- keeping its `:(glob)` magic prefix at the front where git expects it.
+---@param dir string
+---@param pathspec string
+---@return string
+local function scope_positive(dir, pathspec)
+	local category = require("user.scope.category")
+	local pattern = pathspec:sub(1 + #category.PATHSPEC_INCLUDE)
+	return category.PATHSPEC_INCLUDE .. normalize(dir) .. "/" .. pattern
+end
+
+--- Diffview's only seam is git pathspec args, so both scopes have to be
+--- expressed there rather than filtered per item. Git ORs positive
+--- pathspecs, which means directory scope cannot simply be appended
+--- alongside category patterns -- it has to be folded into each one.
+---@param target? string  -- optional single-file target, relative to cwd
+---@return string[]|nil    -- nil means nothing is visible under the active scopes
+function M.diffview_pathspec_args(target)
+	local category = require("user.scope.category")
+	local dir = require("user.scope.path").active_scope()
+
+	if target and target ~= "" then
+		-- A single file is narrower than any scope: it either survives both
+		-- scopes intact or there is nothing left to show.
+		if not category.is_visible(target) then
+			return nil
+		end
+		if dir and not is_under(dir, target) then
+			return nil
+		end
+		return { target }
+	end
+
+	local args = category.diffview_pathspec_args()
+	if not dir then
+		return args
+	end
+
+	local dir_all = category.PATHSPEC_INCLUDE .. normalize(dir) .. "/**"
+	if #args == 0 then
+		return { dir_all }
+	end
+
+	local out, has_positive = {}, false
+	for _, arg in ipairs(args) do
+		if arg:sub(1, #category.PATHSPEC_EXCLUDE) == category.PATHSPEC_EXCLUDE then
+			table.insert(out, arg)
+		else
+			has_positive = true
+			table.insert(out, scope_positive(dir, arg))
+		end
+	end
+	if not has_positive then
+		-- exclude mode contributes negatives only; the scope dir is what
+		-- narrows the search in the first place.
+		table.insert(out, dir_all)
+	end
+	return out
+end
+
 return M

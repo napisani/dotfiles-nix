@@ -163,7 +163,15 @@ let
     "npm:pi-fabric"
     "npm:pi-vim"
     "npm:pi-web-access"
-    "npm:claude-agent-sdk-pi"
+    # claude-agent-sdk-pi removed: its latest published version (1.0.22)
+    # still peer-deps on @earendil-works/pi-ai@^0.74.0, while every other
+    # declared extension here now needs pi-ai 0.84.x. Since `pi install`
+    # resolves the whole ~/.pi/agent/npm tree together, that one stale
+    # range makes npm give up auto-installing peers for ALL extensions —
+    # not just this one — which is what broke pi-vim with "Cannot find
+    # module '@earendil-works/pi-coding-agent'". Re-add once upstream
+    # bumps its pi-ai peer range (verify with
+    # `npm view claude-agent-sdk-pi peerDependencies`).
     "npm:pi-goal"
     "git:github.com/nicobailon/visual-explainer"
   ];

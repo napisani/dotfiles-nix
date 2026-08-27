@@ -146,6 +146,10 @@
       url = "git+https://github.com/napisani/lc-script";
       flake = false;
     };
+    patricio0312rev-skills = {
+      url = "github:patricio0312rev/skills";
+      flake = false;
+    };
 
   };
 

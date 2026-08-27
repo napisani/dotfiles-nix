@@ -3,7 +3,6 @@
   config,
   lib,
   homeManagerRelPath,
-  machineRoles ? [ ],
   useHomeManager26 ? false,
   ...
 }:
@@ -15,11 +14,6 @@ let
     source = mkSym path;
     force = true;
   };
-  npmrc =
-    "prefix=${config.home.homeDirectory}/.local\n"
-    + lib.optionalString (builtins.elem "loancrate" machineRoles) (
-      "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}\n"
-    );
 in
 {
   programs = {
@@ -29,7 +23,8 @@ in
       # historyWidget was added in home-manager after the 26.05 release;
       # maclab (x86_64-darwin) uses the 26.05 home-manager stack, which
       # doesn't support this option.
-    } // lib.optionalAttrs (!useHomeManager26) {
+    }
+    // lib.optionalAttrs (!useHomeManager26) {
       historyWidget.bash.command = "";
     };
     atuin = {
@@ -86,7 +81,6 @@ in
     starship.enable = true;
   };
   home.file = {
-    ".npmrc".text = npmrc;
     ".config/pet".source = ./dotfiles/pet;
     ".config/mcphub/servers.json" = mkForcedSym "mcphub-servers.json";
     ".aerospace.toml" = mkForcedSym ".aerospace.toml";

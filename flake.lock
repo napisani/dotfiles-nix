@@ -561,6 +561,22 @@
         "type": "github"
       }
     },
+    "patricio0312rev-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1768180442,
+        "narHash": "sha256-KHG90vO1DqLi2qmXY/OV/W8E3yvGBBFlLUwTP+grC+g=",
+        "owner": "patricio0312rev",
+        "repo": "skills",
+        "rev": "79ea6af485698b31060b63f0066f712560757b29",
+        "type": "github"
+      },
+      "original": {
+        "owner": "patricio0312rev",
+        "repo": "skills",
+        "type": "github"
+      }
+    },
     "playwright-cli-skills": {
       "flake": false,
       "locked": {
@@ -730,6 +746,7 @@
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "no-ai-slop": "no-ai-slop",
+        "patricio0312rev-skills": "patricio0312rev-skills",
         "playwright-cli-skills": "playwright-cli-skills",
         "private-skills": "private-skills",
         "procmux": "procmux",

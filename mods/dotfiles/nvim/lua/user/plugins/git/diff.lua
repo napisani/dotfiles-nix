@@ -174,15 +174,46 @@ local function diffview_open(args_str)
 	vim.cmd(cmd)
 end
 
----Opens `:DiffviewFileHistory`, appending disabled-category pathspec args.
-local function diffview_file_history()
-	local category = require("user.scope.category")
-	local pathspec = category.diffview_pathspec_args()
+---Escapes a pathspec for the Vim command line. Only real paths are escaped:
+---`fnameescape` would mangle the glob metacharacters in a magic pathspec
+---(`:(glob)**/*.md` -> `:(glob)\*\*/\*.md`), and user commands pass their
+---args through without undoing that.
+---@param pathspec string
+---@return string
+local function escape_pathspec(pathspec)
+	if pathspec:sub(1, 1) == ":" then
+		return pathspec
+	end
+	return vim.fn.fnameescape(pathspec)
+end
+
+---Opens `:DiffviewFileHistory`, constrained to the active directory and
+---category scopes (see user.scope.common.diffview_pathspec_args).
+---@param args_str? string  -- extra flags, e.g. "--max-count=20"
+---@param target? string    -- optional single-file target, relative to cwd
+local function diffview_file_history(args_str, target)
+	local pathspec = require("user.scope.common").diffview_pathspec_args(target)
+	if not pathspec then
+		vim.notify("Hidden by the active scope: " .. (target or ""), vim.log.levels.INFO)
+		return
+	end
 	local cmd = "DiffviewFileHistory"
+	if args_str and args_str ~= "" then
+		cmd = cmd .. " " .. args_str
+	end
 	if #pathspec > 0 then
-		cmd = cmd .. " -- " .. table.concat(pathspec, " ")
+		-- No `--` here, unlike DiffviewOpen: `lib.file_history` takes its path
+		-- args from the *pre*-`--` positionals (`argo.args`), so anything after
+		-- a `--` is silently dropped and the history comes back unfiltered.
+		cmd = cmd .. " " .. table.concat(vim.tbl_map(escape_pathspec, pathspec), " ")
 	end
 	vim.cmd(cmd)
+end
+
+---The path of the current buffer, relative to cwd -- the form git pathspec
+---and user.scope.category classification both expect.
+local function current_file()
+	return vim.fn.expand("%:.")
 end
 
 local function open_local_changes_tree()
@@ -462,7 +493,13 @@ function M.get_keymaps()
 				"<cmd>lua require('user.snacks.compare').find_file_from_root_to_compare_to()<CR>",
 				desc = "(f)ile",
 			},
-			{ "<leader>cfh", "<Cmd>:DiffviewFileHistory --max-count=20 %<CR>", desc = "(h)istory" },
+			{
+				"<leader>cfh",
+				function()
+					diffview_file_history("--max-count=20", current_file())
+				end,
+				desc = "(h)istory",
+			},
 			{ "<leader>cfc", "<cmd>CompareClipboard<cr>", desc = "compare (c)lipboard" },
 		},
 
@@ -472,7 +509,7 @@ function M.get_keymaps()
 			{
 				"<leader>ch",
 				function()
-					vim.cmd("DiffviewFileHistory --max-count=20 %")
+					diffview_file_history("--max-count=20", current_file())
 				end,
 				desc = "(h)istory",
 			},

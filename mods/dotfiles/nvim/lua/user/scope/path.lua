@@ -13,6 +13,11 @@ M.add_scope = function(scope)
 	table.insert(active_scopes, scope)
 end
 
+---@return string|nil  -- the single active directory scope, if any
+M.active_scope = function()
+	return active_scopes[1]
+end
+
 M.apply_to_picker = function(opts)
 	opts = opts or {}
 	if #active_scopes > 0 then

@@ -12,9 +12,14 @@ local function build_items()
 	return items
 end
 
+-- snacks.picker `format`: returns highlight chunks, not a string. Items here
+-- have no `file`, so the default file formatter/previewer errors out.
 local function format_item(item)
-	local mark = category.is_enabled(item.category) and "[x]" or "[ ]"
-	return mark .. " " .. item.category
+	local enabled = category.is_enabled(item.category)
+	return {
+		{ enabled and "[x] " or "[ ] ", enabled and "SnacksPickerToggle" or "SnacksPickerComment" },
+		{ item.category, "SnacksPickerLabel" },
+	}
 end
 
 local function open_picker()
@@ -26,18 +31,38 @@ local function open_picker()
 	Snacks.picker.pick({
 		source = "toggle categories",
 		items = build_items(),
-		format_item = format_item,
-		confirm = function(picker, item)
-			if item then
+		format = format_item,
+		preview = "none",
+		layout = { preset = "select" },
+		actions = {
+			-- Toggle the category under the cursor and re-render in place. The
+			-- item list is static, so `update` is enough to redraw the marks --
+			-- no finder re-run, no cursor jump, picker stays open.
+			toggle_category = function(picker, item)
+				if not item then
+					return
+				end
 				category.set_enabled(item.category, not category.is_enabled(item.category))
-			end
+				picker:update({ force = true })
+			end,
+		},
+		win = {
+			input = {
+				keys = {
+					["<Tab>"] = { "toggle_category", mode = { "i", "n" } },
+				},
+			},
+			list = {
+				keys = {
+					["<Tab>"] = { "toggle_category", mode = { "n", "x" } },
+				},
+			},
+		},
+		-- <CR> just dismisses: toggling is done with <Tab>.
+		confirm = function(picker)
 			if picker and picker.close then
 				picker:close()
 			end
-			-- No existing confirm action in this config redraws picker rows
-			-- without closing (see spec risks); close + reopen trades a little
-			-- flicker for reusing an already-known-working call shape.
-			open_picker()
 		end,
 	})
 end

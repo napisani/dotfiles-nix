@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs-unstable,
+  machineRoles ? [ ],
   ...
 }:
 
@@ -43,6 +44,20 @@ let
   nodeBin = "${pkgs-unstable.nodejs}/bin";
   gitBin = "${pkgs-unstable.git}/bin";
   npmPrefix = "${config.home.homeDirectory}/.local";
+
+  # ~/.npmrc used to be declared via home.file (mods/shell.nix), which Home
+  # Manager links as a read-only symlink into /nix/store. That's fine as
+  # long as nothing ever tries to write to it again later — but this module
+  # used to also run `npm config set prefix ... --location=user`, which
+  # always failed EACCES against that immutable target (npm's own error
+  # message misleadingly blamed a root-owned ~/.npm cache instead). Writing
+  # ~/.npmrc imperatively here, as a real file, keeps it colocated with the
+  # rest of this module's npm setup and keeps any future imperative
+  # `npm config` write actually usable. See WORKAROUNDS.md "npm config set
+  # prefix vs. immutable ~/.npmrc".
+  npmrcContent =
+    "prefix=${npmPrefix}\n"
+    + lib.optionalString (builtins.elem "loancrate" machineRoles) "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}\n";
 in
 {
   home.packages = [
@@ -54,46 +69,54 @@ in
     NPM_CONFIG_PREFIX = npmPrefix;
   };
 
-  home.activation.installNpmxTools = lib.hm.dag.entryAfter [ "writeBoundary" "agentsWarnReportInit" ] ''
-    export NPM_CONFIG_PREFIX="${npmPrefix}"
-    mkdir -p "$NPM_CONFIG_PREFIX/bin" "$NPM_CONFIG_PREFIX/lib"
-    export DISABLE_TELEMETRY=1
-    failed=0
-
-    # Persist npm's global prefix for tools such as Pi that shell out to
-    # `npm install -g` during normal interactive use.
-    if ! ${npm} config set prefix "$NPM_CONFIG_PREFIX" --location=user; then
-      echo "installNpmxTools: ERROR: npm config set prefix failed for: $NPM_CONFIG_PREFIX" >&2
-      failed=1
-    fi
-
-    # Home Manager activation runs with a minimal PATH; ensure npm scripts can
-    # find `node`.
-    export PATH="${gitBin}:${nodeBin}:$NPM_CONFIG_PREFIX/bin:$PATH"
-
-    for package in ${builtins.concatStringsSep " " removedNpmPackages}; do
-      if ${npm} list -g --depth=0 "$package" >/dev/null 2>&1; then
-        if ! ${npm} uninstall -g "$package"; then
-          echo "installNpmxTools: ERROR: npm uninstall -g failed for removed package: $package" >&2
-          failed=$((failed + 1))
-        fi
-      fi
-    done
-
-    for tool in ${builtins.concatStringsSep " " npmxTools}; do
-      if ! ${npm} install -g --no-fund --no-audit "$tool"; then
-        echo "installNpmxTools: ERROR: npm install -g failed for: $tool" >&2
-        failed=$((failed + 1))
-      fi
-    done
-
-    if [ "$failed" -gt 0 ]; then
-      echo "installNpmxTools: $failed install step(s) failed (Neovim agentic ACP CLIs need a successful install). Re-run with network and check the errors above." >&2
-      printf '%s\n' "npmx: $failed npm install step(s) failed" >> "''${AGENTS_WARN_FILE:-/dev/null}"
-    fi
-
-    # Some npm packages ship their bin entrypoints without the executable bit.
-    # Ensure anything linked into ~/.local/bin is runnable.
-    chmod -R u+rx "$NPM_CONFIG_PREFIX/bin" 2>/dev/null || true
+  # Writes ~/.npmrc directly (not via home.file) so it's a plain, writable
+  # file rather than a Home Manager-managed symlink into the read-only Nix
+  # store — see the npmrcContent comment above.
+  home.activation.writeNpmrc = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+        cat > "${config.home.homeDirectory}/.npmrc" <<'NPMRC_EOF'
+    ${npmrcContent}NPMRC_EOF
   '';
+
+  home.activation.installNpmxTools =
+    lib.hm.dag.entryAfter
+      [
+        "writeBoundary"
+        "agentsWarnReportInit"
+        "writeNpmrc"
+      ]
+      ''
+        export NPM_CONFIG_PREFIX="${npmPrefix}"
+        mkdir -p "$NPM_CONFIG_PREFIX/bin" "$NPM_CONFIG_PREFIX/lib"
+        export DISABLE_TELEMETRY=1
+        failed=0
+
+        # Home Manager activation runs with a minimal PATH; ensure npm scripts can
+        # find `node`.
+        export PATH="${gitBin}:${nodeBin}:$NPM_CONFIG_PREFIX/bin:$PATH"
+
+        for package in ${builtins.concatStringsSep " " removedNpmPackages}; do
+          if ${npm} list -g --depth=0 "$package" >/dev/null 2>&1; then
+            if ! ${npm} uninstall -g "$package"; then
+              echo "installNpmxTools: ERROR: npm uninstall -g failed for removed package: $package" >&2
+              failed=$((failed + 1))
+            fi
+          fi
+        done
+
+        for tool in ${builtins.concatStringsSep " " npmxTools}; do
+          if ! ${npm} install -g --no-fund --no-audit "$tool"; then
+            echo "installNpmxTools: ERROR: npm install -g failed for: $tool" >&2
+            failed=$((failed + 1))
+          fi
+        done
+
+        if [ "$failed" -gt 0 ]; then
+          echo "installNpmxTools: $failed install step(s) failed (Neovim agentic ACP CLIs need a successful install). Re-run with network and check the errors above." >&2
+          printf '%s\n' "npmx: $failed npm install step(s) failed" >> "''${AGENTS_WARN_FILE:-/dev/null}"
+        fi
+
+        # Some npm packages ship their bin entrypoints without the executable bit.
+        # Ensure anything linked into ~/.local/bin is runnable.
+        chmod -R u+rx "$NPM_CONFIG_PREFIX/bin" 2>/dev/null || true
+      '';
 }

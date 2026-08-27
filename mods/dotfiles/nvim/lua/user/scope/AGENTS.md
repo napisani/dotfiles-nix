@@ -49,7 +49,7 @@ one that matches the shape you have, don't force a different one to fit**:
 | Snacks picker (files, grep, explorer, custom `finder`) | `opts.transform` hook, fires per item regardless of backend (rg, fd, a Rust index, a hand-built Lua list) | `common.apply_to_picker(opts)` when building `opts`, before passing to `Snacks.picker.*` |
 | Already-materialized path list (e.g. `git status` output) | no Snacks finder exists to hook a `transform` into — pre-filter instead | `common.filter_paths(paths)` before building picker items |
 | `vim.lsp.buf.references` / `vim.lsp.buf.implementation` | the built-in `on_list` callback — the only point before Neovim renders results into a loclist | wrap `on_list`, filter `list_ctx.items` with `category.is_visible(item.filename)`, then `setloclist` + open (see `lua/user/lsp/keymaps.lua`) |
-| Diffview | no persistent config option and no item-level hook exists — pathspec CLI args are the *only* seam | `category.diffview_pathspec_args()` appended after `--` at every `:DiffviewOpen`/`:DiffviewFileHistory` call site (see `lua/user/plugins/git/diff.lua`) |
+| Diffview | no persistent config option and no item-level hook exists — pathspec CLI args are the *only* seam | `common.diffview_pathspec_args(target?)` appended after `--` at every `:DiffviewOpen`/`:DiffviewFileHistory` call site (see `lua/user/plugins/git/diff.lua`). Call the composed `common` version, never `category.diffview_pathspec_args()` directly — directory scope has to be folded *into* the category patterns, not appended beside them (see below) |
 
 If you find yourself needing a filtering point that isn't one of these
 four shapes, that's a sign the new surface's integration is genuinely
@@ -75,6 +75,28 @@ bypass the module.
   editing globs at runtime — if patterns need to change, that's a code
   change and a stylua/test pass, same as adding a category (below).
 
+## Two Diffview call-site traps — both cost a silent no-op
+
+Neither of these errors out; the panel just opens unfiltered, which reads
+as "scope filtering doesn't work".
+
+- **`:DiffviewFileHistory` takes its paths as pre-`--` positionals.**
+  `lib.file_history` reads `argo.args`, not `argo.post_args`, so a `--`
+  separator sends every pathspec into a void. Only `:DiffviewOpen` uses
+  `post_args` and therefore wants the `--`. This bit the original
+  category-scope wiring: `<leader>ch` looked wired up and filtered nothing.
+- **Diffview runs every path arg through `vim.fn.expand()`.** A bare glob
+  (`**/*.md`) gets expanded into a materialized list of on-disk matches
+  relative to nvim's cwd; anything starting with `:` is passed through
+  untouched. That's why `category.PATHSPEC_INCLUDE` / `PATHSPEC_EXCLUDE`
+  emit explicit `:(glob)` / `:(glob,exclude)` magic rather than bare
+  patterns and `:!`. The magic form also buys real glob semantics, where a
+  leading `**/` matches zero path segments — so `dir/**/x` matches `dir/x`
+  and directory scope can be folded in by simple prefixing.
+- Do not `fnameescape` a magic pathspec on the way to `vim.cmd` —
+  `:(glob)**/*.md` becomes `:(glob)\*\*/\*.md`, and user commands hand
+  their args on without undoing the escaping. Escape real paths only.
+
 ## Diffview's pathspec quirk — read before changing `diffview_pathspec_args`
 
 Git pathspec has no "everything except this named set" operator when the
@@ -87,6 +109,17 @@ two distinct modes depending on whether the catch-all is enabled:
 - **Catch-all disabled**: negation can't express "only what's left",
   so the function switches to positive-only mode — the pathspec becomes
   the union of enabled non-catch-all categories' patterns.
+- **A directory scope is active**: positive pathspecs are ORed by git, so
+  appending the scope dir next to a positive category pattern *widens* the
+  result instead of narrowing it. `common.diffview_pathspec_args` prefixes
+  each positive with the dir instead. In exclude mode the negatives compose
+  fine and `:(glob)<dir>/**` is added as the lone positive.
+- **A single-file target** (`<leader>cfh`, visual `<leader>ch`): a file path
+  is narrower than any scope, so the intersection is computed in Lua rather
+  than handed to git — the function returns `{ target }` if the file passes
+  both scopes, or `nil` if it doesn't. `nil` means "nothing is visible";
+  Diffview call sites notify and bail instead of opening an empty panel.
+
 - **Everything disabled** (catch-all included): the positive-mode union is
   empty, which to git means "no restriction" — the opposite of intent.
   `category.NOTHING_MATCHES_SENTINEL` is returned instead, a positive

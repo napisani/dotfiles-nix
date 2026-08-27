@@ -44,7 +44,10 @@ do
 	local tests_patterns = category.categories.tests.patterns
 	assert(#args == #tests_patterns, "expected one exclude arg per tests pattern")
 	for i, pattern in ipairs(tests_patterns) do
-		assert(args[i] == ":!" .. pattern, "expected exclude-mode arg to be :!-prefixed: " .. tostring(args[i]))
+		assert(
+			args[i] == category.PATHSPEC_EXCLUDE .. pattern,
+			"expected exclude-mode arg to carry exclude magic: " .. tostring(args[i])
+		)
 	end
 	category.reset_all()
 end
@@ -56,10 +59,13 @@ do
 	for _, pattern in ipairs(doc_patterns) do
 		local found = false
 		for _, arg in ipairs(args) do
-			if arg == pattern then
+			if arg == category.PATHSPEC_INCLUDE .. pattern then
 				found = true
 			end
-			assert(arg:sub(1, 2) ~= ":!", "expected include-mode args to be bare, not :!-prefixed: " .. arg)
+			assert(
+				arg:sub(1, #category.PATHSPEC_EXCLUDE) ~= category.PATHSPEC_EXCLUDE,
+				"expected include-mode args to carry include magic, not exclude: " .. arg
+			)
 		end
 		assert(found, "expected documentation pattern present in include-mode args: " .. pattern)
 	end
@@ -71,7 +77,10 @@ do
 		category.set_enabled(name, false)
 	end
 	local args = category.diffview_pathspec_args()
-	assert(#args == 1 and args[1] == category.NOTHING_MATCHES_SENTINEL, "expected match-nothing sentinel")
+	assert(
+		#args == 1 and args[1] == category.PATHSPEC_INCLUDE .. category.NOTHING_MATCHES_SENTINEL,
+		"expected match-nothing sentinel"
+	)
 	category.reset_all()
 end
 

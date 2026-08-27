@@ -12,7 +12,9 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 4. [tmux `extended-keys` vs. multi-line paste](#tmux-extended-keys-vs-multi-line-paste)
 5. [Neovim 0.12 `:checkhealth` remediation plan](#neovim-012-checkhealth-remediation-plan)
 6. [fff.nvim binary (lazy.nvim build hook)](#fffnvim-binary-lazyvim-build-hook)
-7. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
+7. [Pi extensions: `claude-agent-sdk-pi` peer-dep conflict](#pi-extensions-claude-agent-sdk-pi-peer-dep-conflict)
+8. [`npm config set prefix` vs. immutable `~/.npmrc`](#npm-config-set-prefix-vs-immutable-npmrc)
+9. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
 
 ---
 
@@ -163,6 +165,33 @@ cd "$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/nvim" && nvim -u init.vim "+checkhe
 
 ---
 
+## Pi extensions: `claude-agent-sdk-pi` peer-dep conflict
+
+| Item | Detail |
+|------|--------|
+| **Location** | `mods/agents/pi.nix` (`declaredPiPackages`) |
+| **Symptom** | `pi` fails to start with `Error: Failed to load extension ".../node_modules/pi-vim/index.ts": Failed to load extension: Cannot find module '@earendil-works/pi-coding-agent'`, `Require stack: - .../node_modules/pi-vim/clipboard-mirror.ts`. |
+| **Root cause** | `pi install` resolves the whole `~/.pi/agent/npm` package tree (all declared extensions) together via npm. `claude-agent-sdk-pi`'s latest published version (`1.0.22`) peer-deps on `@earendil-works/pi-ai@^0.74.0`, while every other declared extension (`pi-fabric`, `pi-web-access`, `pi-mcp-adapter`, `@juicesharp/rpiv-btw`) now needs `pi-ai@0.84.x`. `^0.74.0` on a `0.x` package only allows patch bumps (`>=0.74.0 <0.75.0`), so it's incompatible with `0.84.3` — a real `ERESOLVE` conflict, not a version-pinning choice on our side. That conflict makes npm silently skip auto-installing peer deps for **every** extension in the tree (not just `claude-agent-sdk-pi`'s own), which is what left `pi-vim`'s peer dep on `@earendil-works/pi-coding-agent` unmet. |
+| **How it was diagnosed** | Reproduced directly: ran `pi install npm:pi-vim` (via the real binary, `/Users/nick/.local/bin/pi`, bypassing the tmux shell wrapper — see below), confirmed `npm ls @earendil-works/pi-coding-agent` showed unmet, then ran `npm install ... --no-save` in `~/.pi/agent/npm` and got an explicit `ERESOLVE` error naming `claude-agent-sdk-pi@1.0.22` as the conflicting peer. Removing it from that project's `package.json` and reinstalling resolved cleanly and installed `@earendil-works/pi-coding-agent`; the extension-load error disappeared. |
+| **Workaround (current)** | Dropped `"npm:claude-agent-sdk-pi"` from `declaredPiPackages` in `pi.nix`. The diff-and-prune mechanism in `apply-pi-packages.js` runs `pi remove npm:claude-agent-sdk-pi` on the next `home-manager switch` since it's no longer declared. That alone was **not** sufficient, though: `pi install`/`pi remove` act on one package at a time and don't reconcile the shared `~/.pi/agent/npm` tree as a whole, so removing the conflicting peer range did not retroactively install the now-satisfiable peers — `pi-vim` still failed with the same error until a plain `npm install` was run in that directory by hand. `apply-pi-packages.js` now runs that `npm install` reconcile automatically after its per-package install/remove loop, so future activations self-heal this class of bug instead of leaving the tree half-fixed. |
+| **Unrelated red herring** | A concurrent `npm error EACCES` on `~/.npmrc` (root-owned `~/.npm` cache files from a past `sudo npm install`) was also present and broke `installNpmxTools` during activation. That's a real local-machine issue worth fixing (`sudo chown -R $(id -u):$(id -g) ~/.npm ~/.npmrc`), but it was **not** the cause of the `pi-vim` extension error — the peer-dep conflict above was. |
+| **Debugging gotcha** | Running `pi` directly through the Bash tool (or any non-interactive/non-`.bashrc.d`-sourcing shell) can hit `bash: command not found: _tmux_extended_keys_wrap` — the `pi()` shell function from [the tmux `extended-keys` workaround](#tmux-extended-keys-vs-multi-line-paste) gets inherited via an exported function without its helper. Use the real binary path (`/Users/nick/.local/bin/pi`) to bypass the wrapper when debugging in that kind of shell. |
+| **Revisit when** | Upstream bumps `claude-agent-sdk-pi`'s peer range off of `pi-ai@^0.74.0`. Check with `npm view claude-agent-sdk-pi peerDependencies`; re-add `"npm:claude-agent-sdk-pi"` to `declaredPiPackages` once it's compatible with the `pi-ai` version the other declared extensions need. |
+
+---
+
+## `npm config set prefix` vs. immutable `~/.npmrc`
+
+| Item | Detail |
+|------|--------|
+| **Location** | `mods/npmx.nix` — `~/.npmrc` content (`npmrcContent`) and the `writeNpmrc` activation script that writes it now both live here. Previously the file was declared in `mods/shell.nix` (`npmrc` let-binding, `home.file.".npmrc".text`). |
+| **Symptom** | `home-manager switch` fails during `Activating installNpmxTools` with `npm error code EACCES … npm error path /Users/nick/.npmrc … Your cache folder contains root-owned files … sudo chown -R 501:20 "/Users/nick/.npm"` followed by `installNpmxTools: ERROR: npm config set prefix failed for: /Users/nick/.local`. `chown`-ing `~/.npm` as suggested does **not** fix it — the error recurs on the very next switch. |
+| **Root cause** | `~/.npmrc` was Home Manager–managed (`mods/shell.nix`: `home.file.".npmrc".text = npmrc`, where `npmrc` already contained `prefix=$HOME/.local`). Home Manager links `home.file` entries as symlinks into the read-only `/nix/store` — confirmed via `readlink -f ~/.npmrc` → `/nix/store/…-hm_.npmrc`. `installNpmxTools` *also* ran `npm config set prefix "$NPM_CONFIG_PREFIX" --location=user`, which opens `~/.npmrc` for **writing** to persist the same value imperatively. That write always fails EACCES against the immutable Nix store target, no matter what `~/.npm`'s cache ownership is — npm's own error message just misattributes any EACCES during a config write to "root-owned cache files", which is a real and common npm failure mode in general, just not what was happening here. |
+| **Why it looked like the cache** | npm's EACCES error text is generic and always suggests the `sudo chown -R … ~/.npm` fix, regardless of which file it actually failed to open. `~/.npm` (the cache dir) and `~/.npmrc` (the config file) are easy to conflate by name; only `readlink -f ~/.npmrc` / `ls -la ~/.npmrc` reveals the real target is a Nix store symlink, not a plain writable file. |
+| **Workaround (current)** | Just deleting the `npm config set prefix` call (redundant with the declarative `~/.npmrc`) fixed the symptom, but left the underlying trap in place — `~/.npmrc` was still a read-only Nix store symlink, so anything that later needs to write to it (npm itself, `npm login`, `npm config set` for something else) would hit the exact same EACCES. Moved `~/.npmrc` management off `home.file` entirely: `mods/npmx.nix` now computes `npmrcContent` and writes it with a `home.activation.writeNpmrc` step (`cat > ~/.npmrc <<'NPMRC_EOF' … NPMRC_EOF`, `entryAfter [ "linkGeneration" ]` so it runs after Home Manager removes the old managed symlink, and before `installNpmxTools`, which now also depends on it). `~/.npmrc` is a plain, writable file again — colocated with the rest of this module's npm setup, and safe for any future imperative npm config write. `mods/shell.nix` no longer references `.npmrc` or `machineRoles` at all. |
+| **Revisit when** | N/A — this was a bug, not a temporary upstream workaround. If another module ever wants to own part of `~/.npmrc`, extend `npmrcContent` in `npmx.nix` rather than reintroducing a `home.file` declaration for the same path. |
+
+---
 
 ## Future improvements (consolidation and monitoring)
 
@@ -197,4 +226,8 @@ cd "$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/nvim" && nvim -u init.vim "+checkhe
 | 2026-08-13 | Removed `oxlint-darwin-ps-fix.nix` overlay; the fix is now in nixpkgs-unstable (oxlint 1.78.0), and the overlay was causing spurious substitution failures. |
 | 2026-08-20 | Defaulted tmux `extended-keys` off (`.tmux.conf`) and added `.bashrc.d/0069_tmux_extended_keys.bashrc` shell wrappers (`nvim`/`vim`/`claude`/`codex`/`pi`/`opencode`) to toggle it only while one of those programs is running, working around tmux/tmux#4663 corrupting multi-line pastes at the shell prompt. |
 | 2026-08-20 | Fixed the above: wrapper's active state must be `extended-keys always`, not `on` — `on`'s client-support detection doesn't re-trigger on a later switch, so Shift+Enter silently degraded to plain Enter until confirmed live and corrected to `always`. |
+| 2026-08-27 | Dropped `npm:claude-agent-sdk-pi` from `declaredPiPackages` (`pi.nix`): its peer dep on `@earendil-works/pi-ai@^0.74.0` conflicts with the `0.84.x` other declared Pi extensions need, which blocked npm from auto-installing peer deps for the whole tree and broke `pi-vim` with a missing-module error. |
+| 2026-08-27 | `apply-pi-packages.js` now runs a full `npm install` reconcile in `~/.pi/agent/npm` after its per-package `pi install`/`pi remove` loop — removing a conflicting package alone didn't retroactively install peers that became satisfiable, so `pi-vim` stayed broken until a manual `npm install` there. |
+| 2026-08-27 | Removed the redundant `npm config set prefix … --location=user` call from `installNpmxTools` (`npmx.nix`): it tried to write `~/.npmrc`, which is a Home Manager–managed read-only Nix store symlink that already declares the same `prefix` value (`shell.nix`), so it always failed EACCES — misdiagnosed by npm's own error text as a root-owned `~/.npm` cache problem, which `chown` couldn't actually fix. |
+| 2026-08-27 | Moved `~/.npmrc` off `home.file` (`shell.nix`) entirely: `npmx.nix` now owns its content (`npmrcContent`) and writes it imperatively via a new `writeNpmrc` activation script, so it's a plain writable file instead of a read-only Nix store symlink — closing the underlying trap the previous fix only patched around. |
 | *(add entries when adding/removing workarounds)* | |

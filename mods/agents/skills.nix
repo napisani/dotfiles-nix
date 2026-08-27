@@ -359,6 +359,16 @@ let
       ];
       condition = isLoancrateMac;
     }
+    {
+      input = inputs.patricio0312rev-skills;
+      skills = [
+        {
+          name = "rfc-generator";
+          path = "architecture/rfc-generator";
+          disableModelInvocation = true;
+        }
+      ];
+    }
   ];
 
   enabledSkillSources = builtins.filter (s: s.condition or true) agentSkillSources;

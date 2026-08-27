@@ -5,6 +5,14 @@ local M = {}
 
 M.NOTHING_MATCHES_SENTINEL = "zzz___scope_category_match_nothing___zzz"
 
+-- Explicit git pathspec magic, for two reasons. (1) Diffview runs every path
+-- arg through `vim.fn.expand()`, which turns a bare glob like `**/*.md` into a
+-- materialized list of on-disk matches -- anything starting with `:` is left
+-- alone. (2) `:(glob)` gives real glob semantics, where a leading `**/`
+-- matches zero path segments, so `dir/**/x` also matches `dir/x`.
+M.PATHSPEC_INCLUDE = ":(glob)"
+M.PATHSPEC_EXCLUDE = ":(glob,exclude)"
+
 -- order matters: checked top-to-bottom, first match wins; the entry with
 -- `catchall = true` is used when nothing else matches and MUST be exactly one
 M.order = { "tests", "documentation", "implementation" }
@@ -184,7 +192,7 @@ function M.diffview_pathspec_args()
 			local def = M.categories[name]
 			if not def.catchall and not def.enabled then
 				for _, pattern in ipairs(def.patterns) do
-					table.insert(args, ":!" .. pattern)
+					table.insert(args, M.PATHSPEC_EXCLUDE .. pattern)
 				end
 			end
 		end
@@ -197,7 +205,7 @@ function M.diffview_pathspec_args()
 		local def = M.categories[name]
 		if not def.catchall and def.enabled then
 			for _, pattern in ipairs(def.patterns) do
-				table.insert(args, pattern)
+				table.insert(args, M.PATHSPEC_INCLUDE .. pattern)
 			end
 		end
 	end
@@ -205,7 +213,7 @@ function M.diffview_pathspec_args()
 	if #args == 0 then
 		-- everything disabled: an empty positive pathspec means "no restriction"
 		-- to git, which is the opposite of intent, so match nothing instead.
-		return { M.NOTHING_MATCHES_SENTINEL }
+		return { M.PATHSPEC_INCLUDE .. M.NOTHING_MATCHES_SENTINEL }
 	end
 
 	return args
