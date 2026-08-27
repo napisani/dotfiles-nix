@@ -159,9 +159,12 @@
 
 ## `<leader>v` — inline AI assistance
 
-`<leader>v` → domain: request AI help for the current buffer — annotations, guided edits, questions, and guidance lens updates
+`<leader>v` → domain: request AI help for the current buffer — annotations, guided edits, questions, guidance lens updates, and watching for edits made outside this editor
 `<leader>v` → contract: normal-mode requests use the current line or visible window as their scope; visual-mode requests use the selected line range
+`<leader>ve` → exception: when a normal-mode edit request runs as a single one-shot model call, it scopes to the whole file rather than the current line, so the model may place changes anywhere in it; delegated-to-agent requests keep the current-line scope
 `<leader>v` → contract: annotation, question, status, search, and session-output commands do not change buffer text; edit commands may change only the requested scope
+`<leader>v` → contract: requests that accept a freeform prompt let the runtime be switched between the full tool-using agent and a single one-shot model call while composing, without re-invoking the command
+`<leader>ve` → contract: all changes from one request apply as a single undo step; a change that cannot be placed unambiguously is reported and skipped rather than guessed at, with the rest still applying; unsaved work is never discarded
 `<leader>v` → note: freeform prompt buffers support slash-skill completion when completion is available
 
 `<leader>va` → [n] leaf: annotate the current line  
@@ -169,7 +172,7 @@
 `<leader>vx` → [n] leaf: clear inline annotations from the current buffer  
 `<leader>vl` → [n] leaf: set or replace the guidance lens used by subsequent requests  
 `<leader>vL` → [n] leaf: clear the active guidance lens
-`<leader>ve` → [n] leaf: request an AI edit for the current line
+`<leader>ve` → [n] leaf: request an AI edit anywhere in the current file
 `<leader>vE` → [n] leaf: explain the current line without changing buffer text
 `<leader>v?` → [n] leaf: ask an ad hoc question about the current line without changing buffer text
 `<leader>vf` → [n] leaf: run an agentic project search and open curated locations in quickfix
@@ -177,6 +180,8 @@
 `<leader>vs` → [n] leaf: show combined inline AI status, including agent session and adjacent-agent context
 `<leader>vbc` → [n] leaf: cancel the active inline AI request
 `<leader>vbr` → [n] leaf: reset the inline AI agent session when idle
+`<leader>vm` → [n] leaf: toggle watching the workspace for edits made outside this editor; while on, each changed file opens in the current window with the cursor on its first change
+`<leader>vm` → note: opening a changed file is a normal jump, so the standard jump-back and jump-forward motions walk recent changes and watching binds no keys of its own; it never changes file contents, ignores edits you save yourself, and does not move while you are typing
 `<leader>va` → [v] leaf: annotate the selected line range
 `<leader>ve` → [v] leaf: request an AI edit for the selected line range
 `<leader>vE` → [v] leaf: explain the selected line range without changing buffer text

@@ -102,6 +102,9 @@ function M.get_keymaps()
 			{ "<leader>vf", with_vantage("search", command_opts()), desc = "search project" },
 			{ "<leader>vw", with_vantage("load_walkthrough"), desc = "load walkthrough" },
 			{ "<leader>vW", with_vantage("generate_walkthrough", command_opts()), desc = "generate walkthrough" },
+			-- Monitor mode binds nothing itself: each changed file opens as an
+			-- ordinary buffer, so <C-o>/<C-i> walk recent edits natively.
+			{ "<leader>vm", with_vantage("monitor"), desc = "listen for changes" },
 			{ "<leader>vo", with_vantage("session_output"), desc = "session output" },
 			{ "<leader>vs", with_vantage("status"), desc = "status" },
 			{ "<leader>vbc", with_vantage("agent_cancel"), desc = "cancel agent request" },
