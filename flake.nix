@@ -46,7 +46,7 @@
 
     proctmux.url = "github:napisani/proctmux";
     stackman = {
-      url = "git+https://github.com/napisani/monorepo.git?dir=pub/stackman";
+      url = "path:../stackman";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     secret_inject = {
@@ -98,7 +98,7 @@
       flake = false;
     };
     vantage-nvim-skills = {
-      url = "git+https://github.com/napisani/monorepo.git?dir=pub/vantage-nvim";
+      url = "path:../vantage-nvim";
       flake = false;
     };
     playwright-cli-skills = {

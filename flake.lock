@@ -845,20 +845,14 @@
         "nixpkgs-darwin": "nixpkgs-darwin"
       },
       "locked": {
-        "dir": "pub/stackman",
-        "lastModified": 1787337097,
-        "narHash": "sha256-6tSsvxhNGaoV6KEhIRiANHhqM4JWSHvjVVmTABQNs8w=",
-        "ref": "refs/heads/main",
-        "rev": "fe43443ab2928f16b5187cf116869fa6ad62ccce",
-        "revCount": 1383,
-        "type": "git",
-        "url": "https://github.com/napisani/monorepo.git"
+        "path": "../stackman",
+        "type": "path"
       },
       "original": {
-        "dir": "pub/stackman",
-        "type": "git",
-        "url": "https://github.com/napisani/monorepo.git"
-      }
+        "path": "../stackman",
+        "type": "path"
+      },
+      "parent": []
     },
     "superpowers": {
       "flake": false,
@@ -993,20 +987,14 @@
     "vantage-nvim-skills": {
       "flake": false,
       "locked": {
-        "dir": "pub/vantage-nvim",
-        "lastModified": 1787337097,
-        "narHash": "sha256-6tSsvxhNGaoV6KEhIRiANHhqM4JWSHvjVVmTABQNs8w=",
-        "ref": "refs/heads/main",
-        "rev": "fe43443ab2928f16b5187cf116869fa6ad62ccce",
-        "revCount": 1383,
-        "type": "git",
-        "url": "https://github.com/napisani/monorepo.git"
+        "path": "../vantage-nvim",
+        "type": "path"
       },
       "original": {
-        "dir": "pub/vantage-nvim",
-        "type": "git",
-        "url": "https://github.com/napisani/monorepo.git"
-      }
+        "path": "../vantage-nvim",
+        "type": "path"
+      },
+      "parent": []
     },
     "workmux-skills": {
       "flake": false,
