@@ -31,11 +31,6 @@
   tag = ['nix', 'search', 'package']
 
 [[snippets]]
-  description = "nix update home manager flake"
-  command = "nix-update-home-packages"
-  tag = ['nix', 'update', 'flake', 'lock', 'home manager']
-
-[[snippets]]
   description = "scrollbacktamer"
   command = "stame"
   tag = ['scrollback', 'tamer']

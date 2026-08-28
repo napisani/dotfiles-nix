@@ -25,6 +25,7 @@ function M.setup()
 
 	-- kanagawa
 	require("kanagawa").setup({
+		theme = "wave",
 		-- run :KanagawaCompile to compile the colorscheme
 		-- compile = true,
 		overrides = function(colors)

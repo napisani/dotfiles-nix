@@ -1,0 +1,14 @@
+# atuin — previously generated from programs.atuin.settings in mods/shell.nix.
+#
+# Self-hosted sync and AI server; see the kube-home-lab atuin.ts app definition
+# for the server side. The AI api_token is NOT set here: it comes from the
+# shared Doppler key ATUIN_AI_AUTH_TOKEN, which bash/rc.d/41-atuin-ai.sh maps
+# onto atuin's ATUIN_AI__API_TOKEN env override at shell startup. Keeping the
+# secret out of this file is what lets the file be tracked in a public repo.
+
+style = "compact"
+sync_address = "https://atuin.napisani.xyz"
+
+[ai]
+enabled = true
+endpoint = "https://atuin-ai.napisani.xyz"

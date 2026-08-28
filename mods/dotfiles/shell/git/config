@@ -1,0 +1,85 @@
+# ~/.config/git/config — previously generated from programs.git in mods/git.nix.
+#
+# Transcribed from the generated file so the settings are identical, with three
+# deliberate changes:
+#
+#   1. credential.helper pointed at an absolute /nix/store gh binary; it's now
+#      `!gh auth git-credential`, resolved from PATH. The `!` prefix is
+#      required, not cosmetic: git only treats a helper value as a shell command
+#      when it starts with `!` or contains a path separator, so a bare
+#      `gh auth git-credential` would be looked up as the binary
+#      `git-credential-gh` and silently fail to authenticate. The empty
+#      `helper =` line before each one resets any inherited helper list, and was
+#      in the generated file too — keep it.
+#   2. gpg.openpgp.program pointed at an absolute /nix/store gnupg; now bare.
+#   3. the includeIf path pointed into /nix/store; it now points at a tracked
+#      file in this repo, installed to ~/.config/git/local-include.
+#   4. init.templateDir is gone. Git uses its standard template; run
+#      git-local-ignore after git init when a repo needs private patterns.
+
+[user]
+	name = "Nick Pisani"
+	email = "napisani@yahoo.com"
+
+[core]
+	editor = "nvim"
+
+[init]
+	defaultBranch = "main"
+
+[push]
+	default = "simple"
+	autoSetupRemote = true
+	followTags = true
+
+[commit]
+	verbose = true
+
+[branch]
+	sort = "-committerdate"
+
+[column]
+	ui = "auto"
+
+[rebase]
+	updateRefs = true
+	autoSquash = true
+
+[diff]
+	algorithm = "histogram"
+	colorMoved = "plain"
+	mnemonicPrefix = true
+	renames = true
+
+[tag]
+	sort = "version:refname"
+
+[gpg]
+	format = "openpgp"
+
+[gpg "openpgp"]
+	program = "gpg"
+
+# `git dv [...args]` — diff with diffview in neovim
+[alias]
+	dv = "! args=$@; shift $#; nvim -c \"DiffviewOpen $args\""
+
+[filter "lfs"]
+	clean = "git-lfs clean -- %f"
+	smudge = "git-lfs smudge -- %f"
+	process = "git-lfs filter-process"
+	required = true
+
+# gh as the credential helper for GitHub. The empty assignment resets any
+# helper inherited from a system-level config before adding ours.
+[credential "https://github.com"]
+	helper = ""
+	helper = "!gh auth git-credential"
+
+[credential "https://gist.github.com"]
+	helper = ""
+	helper = "!gh auth git-credential"
+
+# Any repo under ~/ picks up a local .gitignore_local as its per-repo exclude.
+[includeIf "gitdir:~/"]
+	path = "~/.config/git/local-include"

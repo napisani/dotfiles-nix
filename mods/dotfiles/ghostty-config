@@ -1,8 +1,8 @@
 
 # examples https://github.com/search?q=path%3Aghostty%2Fconfig&type=code
-# Theme
+# Tokyo Night palette
+# Ghostty ships this theme; the terminal selects it directly.
 theme = tokyonight
-#theme = catppuccin-mocha
 
 # Font get available with `ghostty +list-fonts`
 #font-family = "Symbols Nerd Font Mono"

@@ -1,0 +1,7 @@
+# Included by git/config for any repo under ~/ (includeIf gitdir:~/).
+#
+# Makes every repo pick up a local .gitignore_local as its per-repo exclude
+# file. `git-local-ignore` creates it and adds its name to .git/info/exclude so
+# it remains private.
+[core]
+	excludesFile = .gitignore_local

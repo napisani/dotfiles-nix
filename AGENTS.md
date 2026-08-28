@@ -81,14 +81,22 @@ Temporary bug workarounds (Neovim, nvim-treesitter, Nix overlays/package overrid
 #### Symlink Strategy (User Preference)
 Dotfiles are symlinked from `mods/dotfiles/` using `mkOutOfStoreSymlink` for live editability. This is intentional -- edits to dotfiles take effect immediately without Nix rebuild. The `shell.nix` module uses a `mkSym` helper to create these symlinks concisely.
 
+Shell files and native atuin/git/gh configuration follow the same rule: `mods/shell.nix` declares each destination directly with `mkOutOfStoreSymlink`. Before touching anything under `mods/dotfiles/shell/`, or adding a `programs.<tool>` that would also generate shell config, read [`mods/dotfiles/shell/OWNERSHIP.md`](./mods/dotfiles/shell/OWNERSHIP.md). It records the ownership boundaries, fragment sequencing contract, and load-order hazards.
+
+Run `mods/dotfiles/shell/tests/smoke.sh` after shell-init changes; use `--simulate mods/dotfiles/shell` to check the checkout before activating Home Manager.
+
 When Nix rebuild IS needed:
 - Adding/removing packages
 - Changing module imports
 - Modifying Nix expressions
 
 When Nix rebuild is NOT needed:
-- Editing any dotfile in `mods/dotfiles/` (nvim config, tmux.conf, etc.)
-- Editing Karabiner TS sources (just rebuild with `deno task build`)
+- Editing an asset declared with `mkSym`/`mkForcedSym`
+- Editing Neovim configuration through its out-of-store link
+- Editing Karabiner TS sources (run `deno task build`, not a Nix rebuild)
+
+A raw `source = ./dotfiles/...` is store-backed and does require a rebuild;
+choose that form deliberately for immutable or machine-selected assets.
 
 #### Language Modules
 Language tooling in `mods/languages/` aggregated by `all.nix`. Imported by both `base-packages.nix` (shell use) and `neovim.nix` (extraPackages). Languages: JavaScript/TypeScript, Python, Go, Java, C++, Lua, Nix, Bash, Elixir.

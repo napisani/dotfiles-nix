@@ -1,0 +1,60 @@
+# ~/.bashrc — INTERACTIVE SETUP ONLY.
+#
+# Rules for this file (see ../OWNERSHIP.md):
+#   - the interactive guard is the first thing that runs, before anything else
+#   - environment and PATH belong in ~/.profile, not here
+#   - everything else lives in a numbered fragment under bash/rc.d/
+#
+# The guard placement is the fix for a real ordering bug in the previous
+# nix-generated .bashrc: home-manager emitted `bashrcExtra` (the .bashrc.d
+# loop) at the very TOP of the file, above its own `[[ $- == *i* ]] || return`.
+# Every fragment therefore ran in contexts that had no business running
+# interactive setup, and no fragment could rely on anything home-manager set up
+# below it — history options, aliases, or any tool init.
+
+# ── interactive guard ───────────────────────────────────────────────────────
+case $- in
+*i*) ;;
+*) return ;;
+esac
+
+# ── locate the dotfiles tree ────────────────────────────────────────────────
+# SHELL_DOTFILES_DIR lets tests point at a candidate checkout directly.
+# ~/.config/shell is the Home Manager-owned default.
+SHELL_DOTFILES_DIR="${SHELL_DOTFILES_DIR:-$HOME/.config/shell}"
+export SHELL_DOTFILES_DIR
+
+if [ ! -d "$SHELL_DOTFILES_DIR/bash/rc.d" ]; then
+	printf 'bashrc: no fragments found at %s/bash/rc.d\n' "$SHELL_DOTFILES_DIR" >&2
+	printf 'bashrc: rebuild Home Manager, or set SHELL_DOTFILES_DIR\n' >&2
+	return
+fi
+
+# ── helpers ─────────────────────────────────────────────────────────────────
+# shellcheck disable=SC1091
+. "$SHELL_DOTFILES_DIR/bash/lib/guards.sh"
+
+# ── fragments ───────────────────────────────────────────────────────────────
+# Lexical order is the contract. The decade a fragment lives in determines what
+# it may assume has already happened:
+#
+#   10-19  shell options, history, and early ble.sh load
+#   20-29  completion
+#   30-39  early tool init (fzf before atuin)
+#   40-49  secrets and environment derived from them
+#   50-59  aliases and functions
+#   60-69  command wrappers and keybindings
+#   70-79  version managers and late prompt hooks (starship, then direnv)
+#   80-89  machine-specific
+#   90-99  local overrides, then final ble.sh attach
+#
+# To disable a fragment, rename it so it doesn't end in .sh, or shadow it from
+# ~/.bashrc.local at stage 99. (This replaces the old excludes.txt mechanism,
+# which was an empty file and had no way to disable anything selectively short
+# of a rebuild, since ~/.bashrc.d was a read-only store copy.)
+for _rc_fragment in "$SHELL_DOTFILES_DIR"/bash/rc.d/*.sh; do
+	[ -r "$_rc_fragment" ] || continue
+	# shellcheck disable=SC1090
+	. "$_rc_fragment"
+done
+unset _rc_fragment

@@ -1,7 +1,6 @@
 #dot file management
 
 if command -v git &> /dev/null ; then
-  #source "$HOME/.bashrc.d/0058_git-completion.bashrc"
   function temp-git-clone() {
     GIT_REPO="$1"
     if [ -z "$GIT_REPO" ]; then
@@ -219,7 +218,9 @@ if command -v git &> /dev/null ; then
       done
 
   }
-  __git_complete git-checkout  _git_checkout
+  if type -t __git_complete >/dev/null 2>&1; then
+    __git_complete git-checkout _git_checkout
+  fi
 
   function git-rebase-onto() {
     if [ -z "$1" ]; then

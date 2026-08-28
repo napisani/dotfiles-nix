@@ -1,27 +1,21 @@
 {
   pkgs,
   rift,
-  homeManagerRelPath,
   ...
 }:
 let
   system = pkgs.stdenv.hostPlatform.system;
-  homeManagerDir = "~/${homeManagerRelPath}";
-  switchCommand = "sudo darwin-rebuild switch --show-trace --no-update-lock-file --flake ${homeManagerDir}/.#";
-  flakeUpdateCommand = "pushd ${homeManagerDir}; nix flake update --refresh && ${switchCommand}; popd";
 in
 {
   home.packages = [
     rift.packages.${system}.default
   ];
 
-  programs.bash = {
-    shellAliases = {
-      nixswitchup = "pushd ${homeManagerDir}; git pull && ${switchCommand}; popd";
-      nixswitch = "pushd ${homeManagerDir}; ${switchCommand}; popd";
-      nixflakeup = flakeUpdateCommand;
-      nixupgrade = flakeUpdateCommand;
-      nixclean = "echo 'Collecting garbage...'; nix-collect-garbage -d && echo 'Optimizing store...'; nix store optimise && echo 'Cleaning up old profiles...'; sudo nix-collect-garbage -d && echo 'Done! Space freed.'";
-    };
-  };
+  # The nix* rebuild aliases used to be generated here, interpolating
+  # homeManagerRelPath and the platform's rebuild command into
+  # programs.bash.shellAliases. They now live in
+  # mods/dotfiles/shell/bash/rc.d/55-nix-aliases.sh, which picks the rebuild
+  # command by probing for darwin-rebuild vs nixos-rebuild and takes the flake
+  # directory from $DOTFILES_HOME_MANAGER_DIR — so the same file works on both
+  # platforms and defines nothing at all on a host without nix.
 }

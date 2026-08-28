@@ -6,6 +6,7 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 
@@ -75,6 +76,19 @@ let
       notify "ERROR GitOps sync failed (exit ''${status}) (''${branch} ''${target:0:8})"
       exit "''${status}"
     fi
+  '';
+
+  secretInject = inputs.secret_inject.packages.${pkgs.stdenv.hostPlatform.system}.default;
+
+  # Services own their runtime environment. Do not couple unattended GitOps to
+  # interactive shell startup: fetch and evaluate secret_inject's shell-safe
+  # exports immediately before executing the Nix-managed bootstrap.
+  gitopsSyncEntrypoint = pkgs.writeShellScript "gitops-sync-with-secrets" ''
+    set -euo pipefail
+    _secret_exports="$(${secretInject}/bin/secret_inject)"
+    eval "$_secret_exports"
+    unset _secret_exports
+    exec ${gitopsSyncBootstrap}
   '';
 in
 {
@@ -248,7 +262,6 @@ in
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
-
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
   # accidentally delete configuration.nix.
@@ -320,9 +333,9 @@ in
   # -> prune (home only). The standalone napisani/kube-home-lab repo is retired;
   # this clones napisani/monorepo directly (see docs/contracts/gitops-sync.md).
   #
-  # Runs as `nick` through a login shell (bash -l) so DOPPLER_API_TOKEN and
-  # GITOPS_SYNC_GITHUB_API_KEY are picked up from nick's ~/.bash_profile — a
-  # systemd service does NOT source shell rc files on its own, hence the -l.
+  # Runs as `nick`, with credentials injected by the service-owned entrypoint
+  # immediately before the reconcile bootstrap. Shell startup remains strictly
+  # user-facing and is not an implicit dependency of this unattended unit.
   # As nick it uses ~/.kube/config (the k3s admin config) and the docker group,
   # so no root/kubeconfig-file wiring is needed. The reconcile toolchain is owned
   # by the kube-home-lab flake devShell (entered via `nix develop` on the
@@ -348,23 +361,21 @@ in
 
     serviceConfig = {
       Type = "oneshot";
-      User = "nick"; # so ~/.bash_profile + ~/.kube/config + docker group apply
+      User = "nick"; # ~/.kube/config, keyring, and docker group access
       # Persistent workspace: repo checkout, deno cache, helm cache.
       StateDirectory = "gitops-sync";
       Environment = [
         "WORKSPACE=/var/lib/gitops-sync" # deno cache, image-tags.env (persistent state)
         "REPO_DIR=/home/nick/code/monorepo-gitops-sync" # dedicated automated monorepo checkout (not ~/code/monorepo)
         "REPO_SUBDIR=priv/kube-home-lab" # project root within the checkout
-        "HOME=/home/nick" # needed for bash -l to source /home/nick/.bash_profile
+        "HOME=/home/nick" # secret_inject config/cache and user-scoped tool state
         "DENO_DIR=/var/lib/gitops-sync/deno"
         "REPO_URL=https://github.com/napisani/monorepo"
         "REPO_BRANCH=main"
         "GITOPS_SYNC_PRUNE_MODE=delete"
         "IMAGE_DELIVERY=push" # push to registry (import mode would require running as root)
       ];
-      # Login shell sources nick's ~/.bash_profile (injecting the two tokens),
-      # then hands off to the reconcile entrypoint.
-      ExecStart = "${pkgs.bash}/bin/bash -lc 'exec ${gitopsSyncBootstrap}'";
+      ExecStart = gitopsSyncEntrypoint;
     };
   };
 

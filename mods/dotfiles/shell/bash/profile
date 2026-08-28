@@ -1,0 +1,141 @@
+# ~/.profile — LOGIN-TIME ENVIRONMENT ONLY.
+#
+# Rules for this file (see ../OWNERSHIP.md):
+#   - environment variables and PATH, nothing else
+#   - no aliases, no functions meant for interactive use, no tool init,
+#     no keybindings, no output
+#   - must be safe to source from a non-interactive login shell
+#
+# Interactive setup lives in ~/.bashrc. Things that were in .bashrc.d but are
+# really login environment (PATH assembly, homebrew, EDITOR) moved here, which
+# also fixes PATH accumulating duplicate entries in nested shells.
+
+# ── nix bridge ──────────────────────────────────────────────────────────────
+# On a nix host, home-manager's session variables (MACHINE_NAME,
+# PET_ADDL_SNIPPETS, STARSHIP_CONFIG, NPM_CONFIG_PREFIX, TERMINFO_DIRS, ...)
+# arrive through this file. It guards itself against double-sourcing.
+# Off a nix host it simply isn't there, and the defaults below take over.
+for _hm_vars in \
+	"$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" \
+	"/etc/profiles/per-user/${USER:-$(id -un)}/etc/profile.d/hm-session-vars.sh"; do
+	if [ -r "$_hm_vars" ]; then
+		# shellcheck disable=SC1090
+		. "$_hm_vars"
+		break
+	fi
+done
+unset _hm_vars
+
+# ── shared helpers ──────────────────────────────────────────────────────────
+_shell_home="${SHELL_DOTFILES_DIR:-$HOME/.config/shell}"
+if [ -r "$_shell_home/bash/lib/guards.sh" ]; then
+	# shellcheck disable=SC1091
+	. "$_shell_home/bash/lib/guards.sh"
+else
+	# Degrade to inline equivalents rather than failing to log in.
+	sh_have() { command -v "$1" >/dev/null 2>&1; }
+	sh_path_prepend() {
+		[ -d "$1" ] || return 0
+		case ":$PATH:" in *":$1:"*) return 0 ;; esac
+		PATH="$1:$PATH"
+		export PATH
+	}
+fi
+
+# ── machine identity ────────────────────────────────────────────────────────
+# Set by home-manager on nix hosts; derived from the hostname elsewhere.
+# Fragments branch on this (45-ai.sh, 80-machine.sh), so it must always have a
+# value AND the value has to be the same one nix would have produced.
+#
+# The raw hostname is not that value: this machine reports
+# "Nicks-Loancrate-MacBook-Pro" while nix sets MACHINE_NAME=nicks-loancrate-mbp.
+# Without the mapping below, every `case "$MACHINE_NAME"` silently falls to its
+# default branch off a nix host — a difference that would be invisible until
+# some machine-specific setting quietly stopped applying.
+if [ -z "${MACHINE_NAME:-}" ]; then
+	_raw_host=$(hostname -s 2>/dev/null || hostname 2>/dev/null || echo unknown)
+	case "$_raw_host" in
+	Nicks-Loancrate-MacBook-Pro | nicks-loancrate-mbp) MACHINE_NAME=nicks-loancrate-mbp ;;
+	nicks-mbp | Nicks-MacBook-Pro) MACHINE_NAME=nicks-mbp ;;
+	maclab) MACHINE_NAME=maclab ;;
+	supermicro) MACHINE_NAME=supermicro ;;
+	*) MACHINE_NAME="$_raw_host" ;;
+	esac
+	unset _raw_host
+fi
+export MACHINE_NAME
+
+# ── homebrew ────────────────────────────────────────────────────────────────
+# Must run before the sh_path_prepend calls below: `brew shellenv` prepends its own
+# bin directories, so anything that has to outrank brew goes on afterwards.
+for _brew in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+	if [ -x "$_brew" ]; then
+		eval "$("$_brew" shellenv)"
+		break
+	fi
+done
+unset _brew
+
+# ── PATH ────────────────────────────────────────────────────────────────────
+# All three land ahead of homebrew and of macOS's path_helper.
+#
+# The ORDER OF THESE THREE LINES IS THE PRECEDENCE ORDER, REVERSED. Each call
+# prepends, so the last one called ends up first in PATH. These are listed to
+# reproduce the previous 0050_shell.bashrc exactly, which ran
+#   PATH="$HOME/.local/bin:$PATH"; PATH="$HOME/shell_scripts:$PATH"; PATH="$HOME/toolbox:$PATH"
+# and therefore resolved toolbox > shell_scripts > .local/bin. Writing them in
+# the intuitive reading order silently inverts that, which matters for any
+# command name present in more than one of them — caught by diffing PATH order
+# against a pre-change snapshot.
+sh_path_prepend "$HOME/.local/bin"
+sh_path_prepend "$HOME/shell_scripts"
+sh_path_prepend "$HOME/toolbox"
+
+# ── editor ──────────────────────────────────────────────────────────────────
+# Assigned unconditionally when nvim is present, matching home-manager's
+# unconditional `export EDITOR="nvim"`. An "only if unset" version looks tidier
+# but regresses: /etc/profile on macOS exports EDITOR=nano, and it runs before
+# this file, so a conditional assignment would leave EDITOR=nano on any host
+# where the nix session-vars bridge isn't there to overwrite it.
+if command -v nvim >/dev/null 2>&1; then
+	EDITOR=nvim
+elif [ -z "${EDITOR:-}" ]; then
+	if command -v vim >/dev/null 2>&1; then
+		EDITOR=vim
+	else
+		EDITOR=vi
+	fi
+fi
+export EDITOR
+export VISUAL="$EDITOR"
+
+# ── shell identity ──────────────────────────────────────────────────────────
+# supermicro used to get this from programs.bash.sessionVariables, pinned to the
+# bashInteractive store path. Resolving it at runtime is equivalent and portable.
+if [ -z "${SHELL:-}" ]; then
+	SHELL=$(command -v bash 2>/dev/null || echo /bin/sh)
+fi
+export SHELL
+
+# ── misc environment ────────────────────────────────────────────────────────
+# File descriptor ceiling: watchers and bundlers on large repos exhaust the
+# default 256 on macOS.
+ulimit -n 65536 2>/dev/null || true
+
+# scrollbacktamer: open scrollbacks in nvim, scrolled to the end.
+export SBTAMER_EDITOR='nvim +"term cat %s"  +"execute \":normal! G\""'
+export SBTAMER_TERMINATOR='.*❯.*'
+
+# Keep pnpm from self-managing its install — mise and nix own that.
+#
+# Deliberately NOT exported, matching the previous 0050_shell.bashrc exactly so
+# this migration stays behavior-neutral. Note that an unexported variable is
+# invisible to pnpm itself, so this line may never have done anything; changing
+# it is a separate decision, not part of a no-regression move.
+PNPM_MANAGE_INSTALLATION=false
+
+# ── local, untracked overrides ──────────────────────────────────────────────
+if [ -r "$HOME/.profile.local" ]; then
+	# shellcheck disable=SC1091
+	. "$HOME/.profile.local"
+fi

@@ -49,9 +49,26 @@ _tmux_extended_keys_wrap() {
 	return $status
 }
 
+# Alias expansion is turned off for the duration of the loop below, because the
+# function NAME in `eval "vim() { ... }"` is a candidate for alias expansion:
+# with `alias vim='nvim'` in effect (50-core-aliases.sh, which loads before this
+# file — the nix-generated shellAliases used to be emitted after every fragment,
+# so this couldn't happen before), the eval defines `nvim()` a second time and
+# `vim` never gets a wrapper at all. Caught by diffing the function list against
+# a pre-change snapshot.
+#
+# Quoting the name (`\vim() { ...; }`) does NOT work — bash rejects a quoted
+# word as a function name — so the expansion has to be disabled around it.
+_extkeys_aliases_were_on=0
+shopt -q expand_aliases && _extkeys_aliases_were_on=1
+shopt -u expand_aliases
+
 for _extkeys_cmd in nvim vim claude codex pi opencode; do
 	if command -v "$_extkeys_cmd" >/dev/null 2>&1; then
 		eval "${_extkeys_cmd}() { _tmux_extended_keys_wrap ${_extkeys_cmd} \"\$@\"; }"
 	fi
 done
 unset _extkeys_cmd
+
+[ "$_extkeys_aliases_were_on" -eq 1 ] && shopt -s expand_aliases
+unset _extkeys_aliases_were_on

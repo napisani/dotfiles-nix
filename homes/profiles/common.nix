@@ -15,7 +15,6 @@
     ../../mods/base-packages.nix
     ../../mods/shell.nix
     ../../mods/git.nix
-    ../../mods/gh.nix
     ../../mods/neovim.nix
     ../../mods/ui-packages.nix
     ../../mods/uvx.nix

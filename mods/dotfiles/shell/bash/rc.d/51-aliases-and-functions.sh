@@ -26,12 +26,47 @@ function cht() {
 alias chrome_insecure='open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/tmp/chrome_dev_test" --disable-web-security'
 alias LockScreen='open -a /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app'
 alias serve-directory='python3 -m http.server'
-alias password-lookup='pushd $(pwd) ; cd ~/scripts/password-lookup3; python password-lookup.py; popd'
 alias restart-karabiner='karabiner-reload.sh'
 
-alias dns-clear='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
+# flush the DNS resolver cache on whichever platform/resolver is in use
+function dns-clear() {
+  case "$(uname -s)" in
+    Darwin)
+      sudo dscacheutil -flushcache
+      sudo killall -HUP mDNSResponder
+      return 0
+      ;;
+  esac
+
+  # Linux: try each resolver that is actually present
+  local flushed=false
+  if command -v resolvectl >/dev/null 2>&1; then
+    sudo resolvectl flush-caches && flushed=true
+  elif command -v systemd-resolve >/dev/null 2>&1; then
+    sudo systemd-resolve --flush-caches && flushed=true
+  fi
+
+  if command -v systemctl >/dev/null 2>&1; then
+    local svc
+    for svc in nscd dnsmasq unbound named; do
+      if systemctl is-active --quiet "$svc" 2>/dev/null; then
+        sudo systemctl restart "$svc" && flushed=true
+      fi
+    done
+  fi
+
+  if [ "$flushed" = false ]; then
+    echo "dns-clear: no known DNS cache found to flush on this system" >&2
+    return 1
+  fi
+}
 alias cdhomeman='cd "${DOTFILES_HOME_MANAGER_DIR:-$HOME/.config/home-manager}"'
-alias nixupgrade='nix flake lock --update-input nixpkgs-unstable; nix flake lock --update-input nixpkgs'
+# `nixupgrade` was also defined here as
+#   nix flake lock --update-input nixpkgs-unstable; nix flake lock --update-input nixpkgs
+# but home-manager emitted its own shellAliases after this file, so that
+# definition has always been dead — the flake-update-and-switch version in
+# 55-nix-aliases.sh is what actually ran. Removed rather than carried forward;
+# `nixpkgup` below still does the lock-only update.
 
 # capture the output of a command so it can be retrieved with ret
 cap() { 
@@ -203,18 +238,6 @@ function color-test {
 alias wsdiff='function _wsdiff() { /Applications/WebStorm.app/Contents/MacOS/webstorm diff "$1" "$2"; }; _wsdiff'
 
 alias nixpkgup='cdhomeman && nix flake lock --update-input nixpkgs-unstable; nix flake lock --update-input nixpkgs'
-
-function nix-update-home-packages() {
-  cdhomeman
-  nix flake lock \
-  --update-input nixpkgs-unstable \
-  --update-input nixpkgs \
-  --update-input home-manager \
-  --update-input procmux \
-  --update-input secret_inject \
-  --update-input animal_rescue \
-  --update-input scrollbacktamer
-}
 
 # scrollbacktamer aliases
 alias stame='scrollbacktamer'

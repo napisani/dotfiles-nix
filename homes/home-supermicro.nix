@@ -1,18 +1,9 @@
 {
-  inputs,
-  lib,
-  config,
   pkgs,
   user,
   overlays,
-  homeManagerRelPath,
   ...
 }:
-let
-  homeManagerDir = "~/${homeManagerRelPath}";
-  switchCommand = "sudo nixos-rebuild --show-trace --no-update-lock-file --flake .#supermicro switch --impure";
-  flakeUpdateCommand = "pushd ${homeManagerDir}; nix flake update --refresh && ${switchCommand}; popd";
-in
 {
   imports = [
     # if you want to use home-manager modules from other flakes (such as nix-colors):
@@ -22,7 +13,6 @@ in
     ../mods/base-packages.nix
     ../mods/shell.nix
     ../mods/git.nix
-    ../mods/gh.nix
     ../mods/neovim.nix
   ];
 
@@ -60,22 +50,11 @@ in
   programs.home-manager.enable = true;
   # programs.git.enable = true;
 
-  programs.bash = {
-    enable = true;
-    sessionVariables = {
-      SHELL = "${pkgs.bashInteractive}/bin/bash";
-    };
-    shellAliases = {
-      backup-homelab = "sudo --preserve-env=HOMELAB_BACKUP_RESTIC_PASSWORD /home/nick/toolbox/homelab_backup.py backup";
-      tail-gitops-sync = "journalctl -fu gitops-sync.service";
-      nixswitchup = "pushd ${homeManagerDir}; git pull && ${switchCommand}; popd";
-      nixswitch = "pushd ${homeManagerDir}; ${switchCommand}; popd";
-      nixflakeup = flakeUpdateCommand;
-      nixupgrade = flakeUpdateCommand;
-      nixclean = "echo 'Collecting garbage...'; nix-collect-garbage -d && echo 'Optimizing store...'; nix store optimise && echo 'Cleaning up old profiles...'; sudo nix-collect-garbage -d && echo 'Done! Space freed.'";
-      tailscaleup = "sudo tailscale up --advertise-routes=192.168.1.0/24 --accept-routes";
-    };
-  };
+  # programs.bash is gone: ~/.bashrc and friends are native dotfiles now (see
+  # mods/dotfiles/shell/OWNERSHIP.md). The three supermicro-only aliases moved
+  # to bash/rc.d/80-machine.sh, keyed off MACHINE_NAME, and SHELL is resolved at
+  # runtime in bash/profile instead of being pinned to a bashInteractive store
+  # path.
 
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";

@@ -1,19 +1,23 @@
-export NVM_DIR="$HOME/.nvm"
-# Source nvm.sh: nixpkgs install → brew install → manual/curl install
-if command -v nvm-exec >/dev/null 2>&1; then
-    . "$(dirname "$(readlink -f "$(command -v nvm-exec)")")/nvm.sh" 2>/dev/null
-elif [ -s "/opt/homebrew/opt/nvm/nvm.sh" ]; then
-    . "/opt/homebrew/opt/nvm/nvm.sh"
-elif [ -s "$NVM_DIR/nvm.sh" ]; then
-    . "$NVM_DIR/nvm.sh"
-fi
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 
-# Bash completion (recommended by nvm docs)
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-# NPM_CONFIG_PREFIX (set globally by npmx.nix) is incompatible with nvm —
-# nvm manages its own prefix per node version. Unset it so nvm can activate.
+# NPM_CONFIG_PREFIX is incompatible with nvm and must be absent before nvm.sh
+# initializes, not removed afterward.
 unset NPM_CONFIG_PREFIX
+
+# The nvm docs source nvm.sh and then bash_completion. Probe the standard manual
+# install plus Homebrew prefixes; no package-manager-specific generated code is
+# needed.
+sh_source_first \
+	"$NVM_DIR/nvm.sh" \
+	"/opt/homebrew/opt/nvm/nvm.sh" \
+	"/usr/local/opt/nvm/nvm.sh" \
+	"/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh" >/dev/null 2>&1 || return 0
+
+sh_source_first \
+	"$NVM_DIR/bash_completion" \
+	"/opt/homebrew/opt/nvm/bash_completion" \
+	"/usr/local/opt/nvm/bash_completion" \
+	"/home/linuxbrew/.linuxbrew/opt/nvm/bash_completion" >/dev/null 2>&1 || true
 
 # Auto-switch node version on directory change — official cdnvm pattern from
 # nvm README. Aliases `cd` so it fires only on actual directory changes (unlike
