@@ -10,10 +10,10 @@
   self,
 }:
 rec {
-  # nixpkgs 26.11 dropped x86_64-darwin (Intel Macs). The main 26.05 stack
-  # is also the NixOS system baseline, while nixpkgs-unstable remains available
-  # explicitly as `pkgs-unstable` for user packages. maclab is the only
-  # x86_64-darwin host, so it gets nix-darwin-26 + home-manager release-26.05.
+  # nixpkgs 26.11 dropped x86_64-darwin (Intel Macs). maclab is the only
+  # x86_64-darwin host, so it stays on the 26.05 stack (nixpkgs + nix-darwin-26
+  # + home-manager release-26.05). NixOS hosts use the matching
+  # nixpkgs-unstable/Home Manager stack.
   isIntelMac = system: system == "x86_64-darwin";
   # The main nixpkgs input is already the 26.05-darwin branch; on non-Intel
   # systems, "unstable" for pkgs-unstable means the separate
@@ -21,9 +21,7 @@ rec {
   # nixpkgs-unstable dropped them).
   nixpkgsFor = system: if isIntelMac system then nixpkgs else nixpkgs-unstable;
   darwinFor = system: if isIntelMac system then darwin-26 else darwin;
-  isNixOS = system: lib.hasSuffix "-linux" system;
-  homeManagerFor =
-    system: if isIntelMac system || isNixOS system then home-manager-26 else home-manager;
+  homeManagerFor = system: if isIntelMac system then home-manager-26 else home-manager;
 
   # Where this flake checkout lives relative to $HOME, on every host that
   # doesn't override it in flake.nix. This is the ONE place that default
@@ -119,12 +117,10 @@ rec {
       homeModules ? [ ],
       homeManagerRelPath ? defaultHomeManagerRelPath,
     }:
-    nixpkgs.lib.nixosSystem {
+    nixpkgs-unstable.lib.nixosSystem {
       inherit system;
       # Keep the NixOS module set and system package set on the same release.
-      # User-facing modules can still opt into nixpkgs-unstable through the
-      # explicit `pkgs-unstable` specialArg.
-      pkgs = import nixpkgs {
+      pkgs = import nixpkgs-unstable {
         inherit system;
         config.allowUnfree = true;
         overlays = [ ];
