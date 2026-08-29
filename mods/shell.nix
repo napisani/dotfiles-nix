@@ -59,7 +59,10 @@ in
       # `programs.gh.extensions`, which can't be used without also letting the
       # gh module own ~/.config/gh/config.yml — and that file is native now.
       # gh expects <extensions>/<name>/ to contain the executable.
-      ".local/share/gh/extensions/gh-stack".source = "${pkgs-unstable.gh-stack}/bin";
+      ".local/share/gh/extensions/gh-stack" = {
+        source = "${pkgs-unstable.gh-stack}/bin";
+        force = true;
+      };
 
       ".config/pet".source = ./dotfiles/pet;
       ".config/mcphub/servers.json" = mkForcedSym "mcphub-servers.json";
