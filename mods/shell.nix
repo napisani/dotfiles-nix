@@ -58,9 +58,15 @@ in
       # gh-stack is a package, so nix keeps installing it. This replaces
       # `programs.gh.extensions`, which can't be used without also letting the
       # gh module own ~/.config/gh/config.yml — and that file is native now.
-      # gh expects <extensions>/<name>/ to contain the executable.
-      ".local/share/gh/extensions/gh-stack" = {
-        source = "${pkgs-unstable.gh-stack}/bin";
+      # Own the parent directory: the old gh module created this as a store
+      # symlink, so linking only gh-stack would follow that read-only parent.
+      ".local/share/gh/extensions" = {
+        source = pkgs.linkFarm "gh-extensions" [
+          {
+            name = "gh-stack";
+            path = "${pkgs-unstable.gh-stack}/bin";
+          }
+        ];
         force = true;
       };
 
