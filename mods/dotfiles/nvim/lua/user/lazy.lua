@@ -39,6 +39,11 @@ require("lazy").setup({
 		{ "tpope/vim-commentary" },
 		{ "JoosepAlviste/nvim-ts-context-commentstring" },
 		{ "nvim-tree/nvim-web-devicons", opts = {} },
+		{
+			"nvim-tree/nvim-tree.lua",
+			lazy = false,
+			dependencies = { "nvim-tree/nvim-web-devicons" },
+		},
 		{ "echasnovski/mini.icons" },
 		{ "akinsho/bufferline.nvim" },
 

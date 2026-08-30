@@ -9,8 +9,6 @@ M.opts = get_opts({
 
 	dashboard = { enabled = false },
 
-	explorer = { enabled = false },
-
 	indent = {
 		enabled = false,
 		indent = {

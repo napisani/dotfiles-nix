@@ -1,5 +1,4 @@
--- <leader><leader>t which-key group: pick which file categories are enabled,
--- mirroring the shape of <leader><leader>s (directory scope).
+-- Category picker implementation used by the <leader><leader>st scope action.
 local category = require("user.scope.category")
 
 local M = {}
@@ -22,7 +21,7 @@ local function format_item(item)
 	}
 end
 
-local function open_picker()
+local function open_picker(on_change)
 	local ok, Snacks = pcall(require, "snacks")
 	if not ok then
 		return
@@ -44,6 +43,9 @@ local function open_picker()
 				end
 				category.set_enabled(item.category, not category.is_enabled(item.category))
 				picker:update({ force = true })
+				if on_change then
+					on_change()
+				end
 			end,
 		},
 		win = {
@@ -67,33 +69,18 @@ local function open_picker()
 	})
 end
 
-function M.pick_categories()
-	open_picker()
+function M.pick_categories(on_change)
+	open_picker(on_change)
 end
 
 function M.reset_all()
 	category.reset_all()
 end
 
-local normal_mappings = {
-	{
-		"<leader><leader>ta",
-		function()
-			M.pick_categories()
-		end,
-		desc = "toggle c(a)tegories",
-	},
-	{
-		"<leader><leader>tx",
-		function()
-			M.reset_all()
-		end,
-		desc = "(x) reset categories",
-	},
-}
-
 return {
 	mapping_v = {},
-	mapping_n = normal_mappings,
+	mapping_n = {},
 	mapping_shared = {},
+	pick_categories = M.pick_categories,
+	reset_all = M.reset_all,
 }

@@ -1,55 +1,44 @@
 local M = {}
 
-local function snacks()
-	local ok, Snacks = pcall(require, "snacks")
+local function nvim_tree_api()
+	local ok, api = pcall(require, "nvim-tree.api")
 	if not ok then
-		vim.notify("snacks not available", vim.log.levels.WARN)
 		return nil
 	end
-
-	return Snacks
+	return api
 end
 
-local function refresh_explorer_picker(picker)
-	local ok, explorer_actions = pcall(require, "snacks.explorer.actions")
-	if not ok then
-		vim.notify("snacks explorer actions not available", vim.log.levels.WARN)
-		return false
+local function open_nvim_tree_buffers()
+	local buffers = {}
+	for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].filetype == "NvimTree" then
+			table.insert(buffers, bufnr)
+		end
 	end
-
-	explorer_actions.actions.explorer_update(picker)
-	return true
+	return buffers
 end
 
-function M.explorer_keys()
-	return {
-		["<Esc>"] = false,
-		["<leader>e"] = "explorer_update",
-		["<leader>E"] = "explorer_update",
-	}
-end
-
-function M.refresh_open_explorer_trees(opts)
+function M.refresh_open_nvim_trees(opts)
 	opts = opts or {}
-	local Snacks = snacks()
-	if not Snacks then
+	local api = nvim_tree_api()
+	if not api then
 		return 0
 	end
 
-	local refreshed = 0
-	for _, picker in ipairs(Snacks.picker.get({ source = "explorer" })) do
-		if not opts.focused_only or picker:is_focused() then
-			if refresh_explorer_picker(picker) then
-				refreshed = refreshed + 1
-			end
-		end
+	local buffers = open_nvim_tree_buffers()
+	if opts.focused_only and vim.bo.filetype ~= "NvimTree" then
+		return 0
+	end
+	if #buffers == 0 then
+		return 0
 	end
 
-	return refreshed
+	api.tree.reload()
+	return #buffers
 end
 
-function M.refresh_focused_explorer_tree()
-	return M.refresh_open_explorer_trees({ focused_only = true }) > 0
+function M.refresh_focused_nvim_tree()
+	return M.refresh_open_nvim_trees({ focused_only = true }) > 0
 end
 
 local function refresh_diffview()
@@ -127,7 +116,7 @@ local function reload_all_buffers()
 end
 
 function M.current()
-	if M.refresh_focused_explorer_tree() then
+	if M.refresh_focused_nvim_tree() then
 		return
 	end
 
@@ -139,7 +128,7 @@ function M.current()
 end
 
 function M.all()
-	if M.refresh_open_explorer_trees() > 0 then
+	if M.refresh_open_nvim_trees() > 0 then
 		return
 	end
 

@@ -27,10 +27,15 @@ fi
 
 # shellcheck disable=SC2139  # expansion at definition time is intended here
 {
+# pet: Rebuild and activate the current Nix configuration
 	alias nixswitch="pushd $_nix_dotfiles_dir; $_nix_switch; popd"
+# pet: Pull configuration changes and activate Nix
 	alias nixswitchup="pushd $_nix_dotfiles_dir; git pull && $_nix_switch; popd"
+# pet: Update flake inputs and activate Nix
 	alias nixflakeup="pushd $_nix_dotfiles_dir; nix flake update --refresh && $_nix_switch; popd"
+# pet: Update all flake inputs and activate Nix
 	alias nixupgrade="pushd $_nix_dotfiles_dir; nix flake update --refresh && $_nix_switch; popd"
+# pet: Collect garbage and optimize the Nix store
 	alias nixclean="echo 'Collecting garbage...'; nix-collect-garbage -d && echo 'Optimizing store...'; nix store optimise && echo 'Cleaning up old profiles...'; sudo nix-collect-garbage -d && echo 'Done! Space freed.'"
 }
 

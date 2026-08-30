@@ -1,4 +1,5 @@
 # keep retrying a command until it succeeds
+# pet: Retry a command until it succeeds or reaches the limit
 function keep_retrying {
   local n=1
   local max=10
@@ -18,17 +19,23 @@ function keep_retrying {
 }
 
 # lookup cheat sheet
+# pet: Look up a command or topic on cheat.sh
 function cht() {
   read -p "Enter query: " query
   curl -s "cht.sh/$query" | bat --pager "less -R"
 }
 
+# pet: Open Chrome with web security disabled for local testing
 alias chrome_insecure='open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/tmp/chrome_dev_test" --disable-web-security'
+# pet: Lock the macOS screen
 alias LockScreen='open -a /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app'
+# pet: Serve the current directory over HTTP
 alias serve-directory='python3 -m http.server'
+# pet: Reload Karabiner configuration
 alias restart-karabiner='karabiner-reload.sh'
 
 # flush the DNS resolver cache on whichever platform/resolver is in use
+# pet: Flush the DNS resolver cache
 function dns-clear() {
   case "$(uname -s)" in
     Darwin)
@@ -60,6 +67,7 @@ function dns-clear() {
     return 1
   fi
 }
+# pet: Change to the Home Manager configuration directory
 alias cdhomeman='cd "${DOTFILES_HOME_MANAGER_DIR:-$HOME/.config/home-manager}"'
 # `nixupgrade` was also defined here as
 #   nix flake lock --update-input nixpkgs-unstable; nix flake lock --update-input nixpkgs
@@ -69,20 +77,24 @@ alias cdhomeman='cd "${DOTFILES_HOME_MANAGER_DIR:-$HOME/.config/home-manager}"'
 # `nixpkgup` below still does the lock-only update.
 
 # capture the output of a command so it can be retrieved with ret
+# pet: Capture command output for later retrieval
 cap() { 
   tee /tmp/cmd_cap.out;
 }
 
 # return the output of the most recent command that was captured by cap
+# pet: Print the most recently captured command output
 ret() { 
   cat /tmp/cmd_cap.out;
 }
 
 # edit the output catpured from the most recent command that was captured by cap
+# pet: Edit the most recently captured command output
 eret() { 
   nvim /tmp/cmd_cap.out;
 }
 
+# pet: Show the process listening on a port
 function ls-on-port() {
   PORT="$1"
   if [ -z "$PORT" ]; then
@@ -92,6 +104,7 @@ function ls-on-port() {
   lsof -n -i :"$PORT"
 }
 
+# pet: Kill the process listening on a port
 function kill-on-port() {
   PORT="$1"
   if [ -z "$PORT" ]; then
@@ -101,6 +114,7 @@ function kill-on-port() {
   ls-on-port "$PORT" | grep -v ^COMMAND | awk '{print $2}' | xargs kill -9
 }
 
+# pet: Kill processes matching a name
 function kill-all() {
   WHAT="$1"
   if [ -z "$WHAT" ]; then
@@ -116,6 +130,7 @@ function kill-all() {
 #   env-expand <path/to/.env> <command> [args...]   # scoped to that command only
 #   env-expand -e|--export <path/to/.env>           # export into this shell session
 # Handles quoted values, strips 'export' prefix, skips comments and blank lines.
+# pet: Run a command with variables loaded from a dotenv file
 env-expand() {
   local do_export=false
   case "$1" in
@@ -171,6 +186,7 @@ env-expand() {
   env "${vars[@]}" "$@"
 }
 
+# pet: Open workmux review windows for pull requests
 function workmux-pr-review() {
   if [ $# -eq 0 ]; then
     echo "Usage: workmux-pr-review <pr-number> [pr-number...]" >&2
@@ -191,6 +207,7 @@ function workmux-pr-review() {
   fi
 }
 
+# pet: Restart and activate the Rift window manager
 rift-activate() {
   for cmd in rift rift-cli; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
@@ -210,6 +227,7 @@ rift-activate() {
   rift-cli execute space toggle-activated
 }
 
+# pet: Display a terminal color gradient
 function color-test {
   awk -v term_cols="${width:-$(tput cols || echo 80)}" -v term_lines="${height:-1}" 'BEGIN{
       s="/\\";
@@ -235,16 +253,21 @@ function color-test {
 #   gita  — 0070 defines gita='git add'; was alias 'git add .' — use: gita .   or   git add .
 
 # diff two files in WebStorm
+# pet: Compare two files in WebStorm
 alias wsdiff='function _wsdiff() { /Applications/WebStorm.app/Contents/MacOS/webstorm diff "$1" "$2"; }; _wsdiff'
 
+# pet: Update the nixpkgs flake inputs without switching
 alias nixpkgup='cdhomeman && nix flake lock --update-input nixpkgs-unstable; nix flake lock --update-input nixpkgs'
 
 # scrollbacktamer aliases
+# pet: Open the scrollback editor
 alias stame='scrollbacktamer'
+# pet: Open the most recent scrollback
 alias stame-last='scrollbacktamer -last 1'
 
 
 
+# pet: Clean old Nix generations and optimize the store
 nix_system_clean() {
     sudo nix-collect-garbage -d
     home-manager expire-generations -d

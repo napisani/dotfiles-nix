@@ -3,12 +3,13 @@
 -- the primary discoverable bindings (which-key, tiny-code-action for `la`).
 local M = {}
 
---- Filters out locations whose file is in a disabled scope category before
---- populating the location list. See user.scope.category.
+--- Filters out locations outside the active scope or in a disabled scope
+--- category before populating the location list.
 local function filtered_on_list(list_ctx)
+	local path = require("user.scope.path")
 	local category = require("user.scope.category")
 	list_ctx.items = vim.tbl_filter(function(item)
-		return category.is_visible(item.filename)
+		return path.is_visible(item.filename) and category.is_visible(item.filename)
 	end, list_ctx.items)
 	vim.fn.setloclist(0, {}, " ", list_ctx)
 	vim.cmd.lopen()

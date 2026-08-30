@@ -1,11 +1,14 @@
+# pet: Run kubectl against the homelab cluster
 labkubectl() {
   homelab.py run supermicro -- kubectl "$@"
 }
 
+# pet: Open k9s against the homelab cluster
 labk9s() {
   homelab.py tui supermicro -- k9s "$@"
 }
 
+# pet: Open a shell in the running OpenClaw homelab pod
 labopenclaw() {
   local pod
   pod="$(labkubectl get pods -n home -l app=openclaw --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}')"
@@ -24,9 +27,12 @@ labopenclaw() {
   homelab.py tui supermicro -- kubectl exec -it -n home "$pod" -c gateway -- env TERM=xterm-256color openclaw "$@"
 }
 
+# pet: Open the maclab iMessage helper
 macimessage() {
   homelab.py imessage maclab
 }
 
+# pet: Put the maclab machine to sleep
 alias macsleep='homelab.py run maclab -- pmset sleepnow'
+# pet: Wake the maclab machine
 alias macwake='homelab.py wake maclab'

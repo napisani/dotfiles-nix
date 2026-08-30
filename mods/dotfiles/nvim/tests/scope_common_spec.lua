@@ -99,4 +99,67 @@ do
 	path.clear_scopes()
 end
 
+-- Glob scopes replace directory scopes and filter every path-list/picker seam.
+do
+	path.add_scope("src/app")
+	local applied, err = path.set_glob_scope({ "lua/**/init?.lua", "lua/user/other.lua" })
+	assert(applied and not err, "expected valid glob scope: " .. tostring(err))
+	local active = path.active_scope()
+	assert(#active == 2 and active[1] == "lua/**/init?.lua", "expected glob array to be active")
+	assert(path.active_scope_kind() == "glob", "expected active scope kind to be glob")
+	assert(path.is_visible("lua/init1.lua"), "expected ** to match zero directories")
+	assert(path.is_visible("lua/user/init2.lua"), "expected ** to match nested directories")
+	assert(path.is_visible("lua/user/other.lua"), "expected the second glob to match")
+	assert(not path.is_visible("lua/user/unrelated.lua"), "expected glob scope to exclude non-matches")
+	assert(path.is_tree_visible("lua"), "expected a glob ancestor directory to remain visible")
+	assert(path.is_tree_visible("lua/user"), "expected a nested glob ancestor directory to remain visible")
+	assert(not path.is_tree_visible("pub"), "expected an unrelated tree directory to be hidden")
+
+	local picker = common.apply_to_picker({})
+	assert(picker.cwd == nil, "expected glob scope not to change picker cwd")
+	assert(picker.transform({ file = "lua/user/init2.lua" }, {}) ~= false, "expected in-scope picker item")
+	assert(picker.transform({ file = "lua/user/other.lua" }, {}) ~= false, "expected second glob item kept")
+	assert(
+		picker.transform({ file = "lua/user/unrelated.lua" }, {}) == false,
+		"expected out-of-scope picker item dropped"
+	)
+
+	local filtered = common.filter_paths({ "lua/init1.lua", "lua/user/other.lua", "README.md" })
+	assert(#filtered == 2, "expected path-list filtering to use all glob entries")
+	assert(filtered[1] == "lua/init1.lua" and filtered[2] == "lua/user/other.lua", "expected path-list order")
+
+	local args = common.diffview_pathspec_args()
+	assert(
+		#args == 2
+			and args[1] == category.PATHSPEC_INCLUDE .. "lua/**/init?.lua"
+			and args[2] == category.PATHSPEC_INCLUDE .. "lua/user/other.lua",
+		"expected one Diffview pathspec per glob"
+	)
+	assert(
+		common.diffview_pathspec_args("lua/user/unrelated.lua") == nil,
+		"expected target outside glob scope to be hidden"
+	)
+
+	-- Positive category pathspecs cannot be ORed with positive glob scopes:
+	-- Diffview needs the materialized intersection as exact file paths.
+	path.set_glob_scope("lua/**/*.lua")
+	category.set_enabled("implementation", false)
+	local exact = common.diffview_pathspec_args(nil, {
+		"lua/feature_test.lua",
+		"lua/implementation.lua",
+		"docs/guide.md",
+	})
+	assert(#exact == 1 and exact[1] == "lua/feature_test.lua", "expected exact glob/category intersection")
+	category.reset_all()
+
+	local unchanged = path.active_scope()
+	local invalid = path.set_glob_scope({ "../outside" })
+	local still_active = path.active_scope()
+	assert(
+		not invalid and #still_active == #unchanged and still_active[1] == unchanged[1],
+		"expected invalid glob not to replace active scope"
+	)
+	path.clear_scopes()
+end
+
 print("scope_common_spec: ok")

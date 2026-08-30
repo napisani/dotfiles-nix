@@ -158,22 +158,6 @@ function M.hunk_prev()
 	diffview_prev_hunk_or_prev_file()
 end
 
----Opens `:DiffviewOpen`, appending disabled-category pathspec args (see
----user.scope.category.diffview_pathspec_args) after any caller-supplied args.
----@param args_str? string
-local function diffview_open(args_str)
-	local category = require("user.scope.category")
-	local pathspec = category.diffview_pathspec_args()
-	local cmd = "DiffviewOpen"
-	if args_str and args_str ~= "" then
-		cmd = cmd .. " " .. args_str
-	end
-	if #pathspec > 0 then
-		cmd = cmd .. " -- " .. table.concat(pathspec, " ")
-	end
-	vim.cmd(cmd)
-end
-
 ---Escapes a pathspec for the Vim command line. Only real paths are escaped:
 ---`fnameescape` would mangle the glob metacharacters in a magic pathspec
 ---(`:(glob)**/*.md` -> `:(glob)\*\*/\*.md`), and user commands pass their
@@ -185,6 +169,21 @@ local function escape_pathspec(pathspec)
 		return pathspec
 	end
 	return vim.fn.fnameescape(pathspec)
+end
+
+---Opens `:DiffviewOpen`, appending disabled-category pathspec args (see
+---user.scope.category.diffview_pathspec_args) after any caller-supplied args.
+---@param args_str? string
+local function diffview_open(args_str)
+	local pathspec = require("user.scope.common").diffview_pathspec_args()
+	local cmd = "DiffviewOpen"
+	if args_str and args_str ~= "" then
+		cmd = cmd .. " " .. args_str
+	end
+	if #pathspec > 0 then
+		cmd = cmd .. " -- " .. table.concat(vim.tbl_map(escape_pathspec, pathspec), " ")
+	end
+	vim.cmd(cmd)
 end
 
 ---Opens `:DiffviewFileHistory`, constrained to the active directory and

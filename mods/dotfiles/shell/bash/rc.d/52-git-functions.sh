@@ -1,6 +1,7 @@
 #dot file management
 
 if command -v git &> /dev/null ; then
+# pet: Clone a Git repository into a temporary directory
   function temp-git-clone() {
     GIT_REPO="$1"
     if [ -z "$GIT_REPO" ]; then
@@ -19,6 +20,7 @@ if command -v git &> /dev/null ; then
   # Print the root of the git working tree containing DIR (or pwd).
   # Uses `git rev-parse --show-toplevel` so it works in git worktrees: in a worktree, `.git` is
   # usually a *file* (pointer), not a directory—do not implement this by walking up for `.git/`.
+# pet: Print the root directory of the current Git repository
   function project-root-dir() {
       local dir="${1:-$(pwd)}"
 
@@ -40,6 +42,7 @@ if command -v git &> /dev/null ; then
   # Change to the root of the current git checkout (repository or worktree).
   # From any subdirectory—including a linked worktree—cd to that checkout's top-level directory
   # (not the main repo path on disk unless you are in the primary worktree).
+# pet: Change to the current Git project root
   function cdpr() {
     local dir
     dir=$(project-root-dir "$1")
@@ -49,6 +52,7 @@ if command -v git &> /dev/null ; then
     cd "$dir"
   }
 
+# pet: Create or edit a repository-local Git ignore file
   function git-local-ignore() {
     local root
     root=$(project-root-dir)
@@ -81,12 +85,17 @@ if command -v git &> /dev/null ; then
   }
 
 
+# pet: Run Git against the home dotfiles repository
   alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
   export GIT_SSL_NO_VERIFY=true
+# pet: Print the current Git branch name
   alias git-current-branch='git rev-parse --abbrev-ref HEAD'
+# pet: Push the current branch and set its upstream
   alias git-push-first='git push --set-upstream origin $(git-current-branch)'
+# pet: Push Git changes
   alias gitp='git push'
 
+# pet: Commit changes with a prompted or supplied message
   function gitcm() {
       if [ $# -eq 0 ]; then
           read -p "Enter commit message: " message
@@ -96,11 +105,14 @@ if command -v git &> /dev/null ; then
       git commit -m "$message"
   }
 
+# pet: Stage files with Git
   alias gita='git add'
+# pet: Stage tracked file updates with Git
   alias gitau='git add -u '
 
 
   
+# pet: Copy Git content between repositories
   function gitscp() {
     local OPTIND
     OPTIND=1
@@ -185,17 +197,20 @@ if command -v git &> /dev/null ; then
   }
 
   
+# pet: List files changed in the current Git branch
   function git-changed-files() {
     # get only the file name (everything after the last space)
     git status --porcelain=v2  -u | sed -E 's/^.*[[:space:]]+([^[:space:]]+)$/\1/' 
   }
 
+# pet: Show changes introduced by the current Git branch
   function git-changed-in-branch() {
       COMAPRE_TO="$1"
       COMPARE_TO=${COMPARE_TO:-'main'}
       git diff --name-only  --relative "$COMPARE_TO"..."$(git-current-branch)"
   }
 
+# pet: Check out a Git branch safely
   function git-checkout() {
       root_dir=$(project-root-dir)
       if [ -z "$root_dir" ]; then
@@ -222,6 +237,7 @@ if command -v git &> /dev/null ; then
     __git_complete git-checkout _git_checkout
   fi
 
+# pet: Rebase the current Git branch onto another branch
   function git-rebase-onto() {
     if [ -z "$1" ]; then
       echo "Usage: git-rebase-onto <branch>"
@@ -230,6 +246,7 @@ if command -v git &> /dev/null ; then
     git rebase --onto "$1" "$(git log --oneline | fzf --reverse  --prompt='Select the commit BEFORE the first commit: ' | awk '{print $1}')"
   }
 
+# pet: Squash Git commits interactively
   function git-squash() {
     git rebase -i  "$(git log --oneline | fzf --reverse  --prompt='Select the commit BEFORE the first commit: ' | awk '{print $1}')"
   }

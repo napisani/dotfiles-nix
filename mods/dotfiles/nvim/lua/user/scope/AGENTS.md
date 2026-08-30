@@ -8,8 +8,9 @@
 This module answers one question, two independent ways: **"what subset of
 the project should currently be visible?"**
 
-- `path.lua` — directory scope. At most one active directory; narrows the
-  cwd a picker searches from.
+- `path.lua` — directory/glob scope. At most one active scope; a directory
+  narrows the cwd a picker searches from, while a glob filters root-relative
+  paths.
 - `category.lua` — file-category scope. Classifies every path into exactly
   one category (`tests`, `documentation`, or the `implementation`
   catch-all) and lets each category be toggled on/off at runtime.
@@ -46,10 +47,11 @@ one that matches the shape you have, don't force a different one to fit**:
 
 | Consumer shape | Seam | Call |
 |---|---|---|
-| Snacks picker (files, grep, explorer, custom `finder`) | `opts.transform` hook, fires per item regardless of backend (rg, fd, a Rust index, a hand-built Lua list) | `common.apply_to_picker(opts)` when building `opts`, before passing to `Snacks.picker.*` |
+| Snacks picker (files, grep, custom `finder`) | `opts.transform` hook, fires per item regardless of backend (rg, fd, a Rust index, a hand-built Lua list) | `common.apply_to_picker(opts)` when building `opts`, before passing to `Snacks.picker.*` |
 | Already-materialized path list (e.g. `git status` output) | no Snacks finder exists to hook a `transform` into — pre-filter instead | `common.filter_paths(paths)` before building picker items |
 | `vim.lsp.buf.references` / `vim.lsp.buf.implementation` | the built-in `on_list` callback — the only point before Neovim renders results into a loclist | wrap `on_list`, filter `list_ctx.items` with `category.is_visible(item.filename)`, then `setloclist` + open (see `lua/user/lsp/keymaps.lua`) |
 | Diffview | no persistent config option and no item-level hook exists — pathspec CLI args are the *only* seam | `common.diffview_pathspec_args(target?)` appended after `--` at every `:DiffviewOpen`/`:DiffviewFileHistory` call site (see `lua/user/plugins/git/diff.lua`). Call the composed `common` version, never `category.diffview_pathspec_args()` directly — directory scope has to be folded *into* the category patterns, not appended beside them (see below) |
+| NvimTree | `filters.custom` callback receives each absolute node path; directory nodes need ancestor-aware path-scope handling | `common.is_visible(path)` for files and `path.is_tree_visible(path)` for directories (see `lua/user/plugins/navigation/nvim-tree.lua`) |
 
 If you find yourself needing a filtering point that isn't one of these
 four shapes, that's a sign the new surface's integration is genuinely
@@ -70,7 +72,7 @@ bypass the module.
   revisit explicitly, not something to sneak in via a "helpful" default.
 - Category *patterns* are edited in code (`category.categories[name].patterns`),
   never exposed as a runtime-editable setting. Only *enabled/disabled* is a
-  runtime toggle (`<leader><leader>ta` / `<leader><leader>tx`, see
+  runtime toggle (`<leader><leader>st`, with reset via `<leader><leader>sx`, see
   `lua/user/whichkey/categories.lua`). Don't add a picker/prompt for
   editing globs at runtime — if patterns need to change, that's a code
   change and a stylua/test pass, same as adding a category (below).
@@ -114,6 +116,11 @@ two distinct modes depending on whether the catch-all is enabled:
   result instead of narrowing it. `common.diffview_pathspec_args` prefixes
   each positive with the dir instead. In exclude mode the negatives compose
   fine and `:(glob)<dir>/**` is added as the lone positive.
+- **A glob scope meets positive category patterns**: neither pattern can be
+  prefixed into the other generically, and passing both would widen the result.
+  `common.diffview_pathspec_args` therefore enumerates Git-visible workspace
+  files, applies `common.is_visible`, and returns exact paths. This synchronous
+  enumeration only runs when opening Diffview, never in per-item transforms.
 - **A single-file target** (`<leader>cfh`, visual `<leader>ch`): a file path
   is narrower than any scope, so the intersection is computed in Lua rather
   than handed to git — the function returns `{ target }` if the file passes
@@ -141,7 +148,7 @@ two distinct modes depending on whether the catch-all is enabled:
    `M.order`/`M.categories` and pick up new categories automatically.
 4. Add classify/visibility assertions to `tests/scope_category_spec.lua`
    for the new patterns (red/green, matching the existing style there).
-5. It will appear automatically in the `<leader><leader>ta` toggle picker
+5. It will appear automatically in the `<leader><leader>st` toggle picker
    (`whichkey/categories.lua` iterates `category.list_names()`) — no
    keymap or whichkey change needed.
 
@@ -158,8 +165,6 @@ two distinct modes depending on whether the catch-all is enabled:
 
 ## Known non-goals (don't "fix" these without discussing first)
 
-- `nvim-tree` is not filtered — only the Snacks explorer (the tree UI
-  actually wired into the which-key leader menu) is in scope.
 - Trouble's combined LSP list (`<leader>Tl` in `lua/user/trouble.lua`) is
   not filtered — a separate surface with its own filter API, deliberately
   left as a follow-up rather than bundled in here.

@@ -13,7 +13,9 @@ prev() {
 
 pet-select() {
 	local buffer config
-	config=$(animal-rescue --config "$HOME/.config/pet/config.toml") || return
+	config=$(animal-rescue \
+		--config "$HOME/.config/pet/config.toml" \
+		--shell-path "$SHELL_DOTFILES_DIR/bash/rc.d") || return
 	buffer=$(pet search --query "$READLINE_LINE" --config "$config") || return
 	READLINE_LINE=$buffer
 	READLINE_POINT=${#buffer}

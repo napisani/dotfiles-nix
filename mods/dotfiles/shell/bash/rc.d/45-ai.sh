@@ -30,6 +30,7 @@ unset _ai_ollama_base
 
 # Format a skill invocation for the current preferred agent.
 # Usage: ai_skill <skill-name>
+# pet: Print the configured agent syntax for a local skill
 ai_skill() {
 	local name="$1"
 	case "${PREFERRED_AGENT:-pi}" in
@@ -40,6 +41,7 @@ ai_skill() {
 	esac
 }
 
+# pet: Initialize the local Ollama model environment
 ollama-init() {
 	if [ -z "${AI_LOCAL_MODEL:-}" ]; then
 		echo "ollama-init: AI_LOCAL_MODEL is not set" >&2

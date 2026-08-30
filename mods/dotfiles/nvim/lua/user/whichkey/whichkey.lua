@@ -7,7 +7,7 @@ local replace_mapping = require("user.whichkey.replace")
 local find_mapping = require("user.whichkey.find_snacks")
 local search_mapping = require("user.whichkey.search_snacks")
 local refresh = require("user.refresh")
-local snacks_find_files = require("user.snacks.find_files")
+local nvim_tree = require("user.plugins.navigation.nvim-tree")
 local Snacks = require("snacks")
 local repl = require("user.whichkey.repl")
 local scopes = require("user.whichkey.scopes")
@@ -23,9 +23,7 @@ local root_mapping = {
 	{ "<leader>-", "<cmd>:Oil<cr>", desc = "(O)il" },
 	{
 		"<leader>t",
-		function()
-			snacks_find_files.toggle_explorer_tree()
-		end,
+		nvim_tree.toggle,
 		desc = "project (t)ree",
 	},
 	{ "<leader>q", "<cmd>q!<CR>", desc = "Quit" },
