@@ -91,8 +91,12 @@
     defaults = {
       finder = {
         AppleShowAllExtensions = true;
+        AppleShowAllFiles = true;
         _FXShowPosixPathInTitle = true;
+        _FXSortFoldersFirst = true;
         FXDefaultSearchScope = "SCcf";
+        FXPreferredViewStyle = "clmv";
+        FXRemoveOldTrashItems = true;
         ShowPathbar = true;
         QuitMenuItem = true;
         ShowStatusBar = true;
