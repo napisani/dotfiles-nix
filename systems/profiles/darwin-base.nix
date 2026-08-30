@@ -49,6 +49,7 @@
       "karabiner-elements"
       "claude-code"
       "codex"
+      "look"
     ];
 
     # Base brews that all Macs should have
@@ -63,6 +64,7 @@
     taps = [
       # "napisani/procmux"
       # "homebrew/cask-versions"
+      "kunkka19xx/tap"
       "mongodb/brew"
       "raine/workmux"
     ];

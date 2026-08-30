@@ -1,0 +1,5 @@
+# look configuration
+# Managed via dotfiles symlink — edit this file directly.
+
+ai_enabled=false
+ui_theme=tokyo-night

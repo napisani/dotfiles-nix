@@ -79,6 +79,8 @@ in
       ".config/tmux/tmux.conf" = mkForcedSym ".tmux.conf";
       ".config/karabiner/karabiner.json" = mkForcedSym "karabiner.json";
 
+      ".look/config" = mkForcedSym "look-config";
+
       # Frequently edited user-facing config stays live-editable.
       ".yabairc".source = mkSym "yabairc";
 

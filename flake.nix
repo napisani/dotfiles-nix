@@ -66,6 +66,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Look launcher — keyboard-first desktop launcher (macOS/Linux).
+    # The nix flake only builds for Linux; on macOS we install via brew cask.
+    look = {
+      url = "github:kunkka19xx/look?dir=apps/linows";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     # ── Community skill sources (content-only, pinned via flake.lock) ──────
     # Consumed by mods/agents/skills.nix's catalog; each is a plain content
     # repo (flake = false), not a Nix flake. Update one with:

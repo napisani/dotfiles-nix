@@ -35,22 +35,19 @@
     "animal_rescue": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "goflake": "goflake",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
-        "lastModified": 1730429247,
-        "narHash": "sha256-4W9klPJxG977m3Xx8QUGiYV/KwfZd0auAELrCMO9pwk=",
-        "owner": "napisani",
-        "repo": "animal-rescue",
-        "rev": "321b2e7de5a915d30526ee083fb23b98fbf10cb5",
-        "type": "github"
+        "path": "../animalcontrol",
+        "type": "path"
       },
       "original": {
-        "owner": "napisani",
-        "repo": "animal-rescue",
-        "type": "github"
-      }
+        "path": "../animalcontrol",
+        "type": "path"
+      },
+      "parent": []
     },
     "anthropic-skills": {
       "flake": false,
@@ -200,11 +197,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1710146030,
-        "narHash": "sha256-SZ5L6eA7HJ/nmkzGG7/ISclqe6oZdOZTNoesiInkXPQ=",
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "b1d9ab70662946ef0850d488da1c9019f3a9752a",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
         "type": "github"
       },
       "original": {
@@ -302,27 +299,6 @@
       }
     },
     "goflake": {
-      "inputs": {
-        "nixpkgs": [
-          "animal_rescue",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1680659771,
-        "narHash": "sha256-5Gli0PdnZh2rUQTDapyz0pDG+yzRq5AAPoMpZkdMaGQ=",
-        "owner": "sagikazarmark",
-        "repo": "go-flake",
-        "rev": "1a32d77792361575b617f7e52f107273ef4ba723",
-        "type": "github"
-      },
-      "original": {
-        "owner": "sagikazarmark",
-        "repo": "go-flake",
-        "type": "github"
-      }
-    },
-    "goflake_2": {
       "inputs": {
         "nixpkgs": [
           "scrollbacktamer",
@@ -433,6 +409,29 @@
         "url": "https://github.com/napisani/lc-script"
       }
     },
+    "look": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ],
+        "rust-overlay": "rust-overlay"
+      },
+      "locked": {
+        "dir": "apps/linows",
+        "lastModified": 1787902232,
+        "narHash": "sha256-5Ql5bS1WVF3lVx6G2FmxfrVYP5XY//bs7o7HQknNJrg=",
+        "owner": "kunkka19xx",
+        "repo": "look",
+        "rev": "c852295be5cfd3e60ca765624c67451088444be3",
+        "type": "github"
+      },
+      "original": {
+        "dir": "apps/linows",
+        "owner": "kunkka19xx",
+        "repo": "look",
+        "type": "github"
+      }
+    },
     "mattpocock-skills": {
       "flake": false,
       "locked": {
@@ -451,17 +450,17 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1707588924,
-        "narHash": "sha256-0e1ce6X5ghapv6cAF9rxLZKeNyFHHXsLbGxN2cQQE8U=",
+        "lastModified": 1786920013,
+        "narHash": "sha256-tlbRqzZ3suDUO3vyR0QFBk0TrxJiRP50t7VWfHhtVrw=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "10b813040df67c4039086db0f6eaf65c536886c6",
+        "rev": "33da5f36e599b50aa7dbbfacb718254423b18354",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
+        "ref": "nixpkgs-26.05-darwin",
         "repo": "nixpkgs",
-        "rev": "10b813040df67c4039086db0f6eaf65c536886c6",
         "type": "github"
       }
     },
@@ -499,22 +498,6 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1786920013,
-        "narHash": "sha256-tlbRqzZ3suDUO3vyR0QFBk0TrxJiRP50t7VWfHhtVrw=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "33da5f36e599b50aa7dbbfacb718254423b18354",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixpkgs-26.05-darwin",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_3": {
-      "locked": {
         "lastModified": 1771207753,
         "narHash": "sha256-b9uG8yN50DRQ6A7JdZBfzq718ryYrlmGgqkRm9OOwCE=",
         "owner": "NixOS",
@@ -529,7 +512,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_4": {
+    "nixpkgs_3": {
       "locked": {
         "lastModified": 1707588924,
         "narHash": "sha256-0e1ce6X5ghapv6cAF9rxLZKeNyFHHXsLbGxN2cQQE8U=",
@@ -637,7 +620,7 @@
       "inputs": {
         "agent-tui-src": "agent-tui-src",
         "flake-utils": "flake-utils_2",
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": "nixpkgs_2"
       },
       "locked": {
         "lastModified": 1787095434,
@@ -742,8 +725,9 @@
         "humanlayer-skills": "humanlayer-skills",
         "intellectronica-agent-skills": "intellectronica-agent-skills",
         "lc-script-skills": "lc-script-skills",
+        "look": "look",
         "mattpocock-skills": "mattpocock-skills",
-        "nixpkgs": "nixpkgs_2",
+        "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "no-ai-slop": "no-ai-slop",
         "patricio0312rev-skills": "patricio0312rev-skills",
@@ -779,11 +763,32 @@
         "type": "github"
       }
     },
+    "rust-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "look",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1778296574,
+        "narHash": "sha256-DVmg1JCjG0VJTa+FF6tH6tkQChaxzK1EzPL98RiRWU0=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "1d634a90dffb59ec9ba52652de311b15528c1595",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
     "scrollbacktamer": {
       "inputs": {
         "flake-utils": "flake-utils_3",
-        "goflake": "goflake_2",
-        "nixpkgs": "nixpkgs_4"
+        "goflake": "goflake",
+        "nixpkgs": "nixpkgs_3"
       },
       "locked": {
         "lastModified": 1739727115,
