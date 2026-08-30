@@ -59,7 +59,10 @@
       url = "path:../animalcontrol";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    scrollbacktamer.url = "github:napisani/scrollbacktamer";
+    scrollbacktamer = {
+      url = "path:../scrollbacktamer";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     rift = {
       url = "github:napisani/rift/main-nix";

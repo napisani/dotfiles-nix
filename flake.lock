@@ -233,11 +233,11 @@
         "systems": "systems_4"
       },
       "locked": {
-        "lastModified": 1710146030,
-        "narHash": "sha256-SZ5L6eA7HJ/nmkzGG7/ISclqe6oZdOZTNoesiInkXPQ=",
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "b1d9ab70662946ef0850d488da1c9019f3a9752a",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
         "type": "github"
       },
       "original": {
@@ -295,27 +295,6 @@
       "original": {
         "owner": "github",
         "repo": "gh-stack",
-        "type": "github"
-      }
-    },
-    "goflake": {
-      "inputs": {
-        "nixpkgs": [
-          "scrollbacktamer",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1680659771,
-        "narHash": "sha256-5Gli0PdnZh2rUQTDapyz0pDG+yzRq5AAPoMpZkdMaGQ=",
-        "owner": "sagikazarmark",
-        "repo": "go-flake",
-        "rev": "1a32d77792361575b617f7e52f107273ef4ba723",
-        "type": "github"
-      },
-      "original": {
-        "owner": "sagikazarmark",
-        "repo": "go-flake",
         "type": "github"
       }
     },
@@ -509,22 +488,6 @@
         "owner": "NixOS",
         "repo": "nixpkgs",
         "rev": "d1c15b7d5806069da59e819999d70e1cec0760bf",
-        "type": "github"
-      }
-    },
-    "nixpkgs_3": {
-      "locked": {
-        "lastModified": 1707588924,
-        "narHash": "sha256-0e1ce6X5ghapv6cAF9rxLZKeNyFHHXsLbGxN2cQQE8U=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "10b813040df67c4039086db0f6eaf65c536886c6",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "10b813040df67c4039086db0f6eaf65c536886c6",
         "type": "github"
       }
     },
@@ -787,22 +750,19 @@
     "scrollbacktamer": {
       "inputs": {
         "flake-utils": "flake-utils_3",
-        "goflake": "goflake",
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
-        "lastModified": 1739727115,
-        "narHash": "sha256-Nt6vOkBEPUp5bz+kXFgIiYBjg7KF/gfUBVVo/WvNi6U=",
-        "owner": "napisani",
-        "repo": "scrollbacktamer",
-        "rev": "b8d269d29f68e79983f18a18efd77016d1343e44",
-        "type": "github"
+        "path": "../scrollbacktamer",
+        "type": "path"
       },
       "original": {
-        "owner": "napisani",
-        "repo": "scrollbacktamer",
-        "type": "github"
-      }
+        "path": "../scrollbacktamer",
+        "type": "path"
+      },
+      "parent": []
     },
     "secret_inject": {
       "inputs": {
