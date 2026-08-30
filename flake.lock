@@ -97,21 +97,6 @@
         "type": "github"
       }
     },
-    "crane": {
-      "locked": {
-        "lastModified": 1766774972,
-        "narHash": "sha256-8qxEFpj4dVmIuPn9j9z6NTbU+hrcGjBOvaxTzre5HmM=",
-        "owner": "ipetkov",
-        "repo": "crane",
-        "rev": "01bc1d404a51a0a07e9d8759cd50a7903e218c82",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ipetkov",
-        "repo": "crane",
-        "type": "github"
-      }
-    },
     "darwin": {
       "inputs": {
         "nixpkgs": [
@@ -167,28 +152,6 @@
       "original": {
         "owner": "langchain-ai",
         "repo": "deepagents",
-        "type": "github"
-      }
-    },
-    "fenix": {
-      "inputs": {
-        "nixpkgs": [
-          "rift",
-          "nixpkgs"
-        ],
-        "rust-analyzer-src": "rust-analyzer-src"
-      },
-      "locked": {
-        "lastModified": 1766818130,
-        "narHash": "sha256-FeVBDk9H5OPynbG+4wx0j04Mz/F+/LUfAPr4bnSeu/8=",
-        "owner": "nix-community",
-        "repo": "fenix",
-        "rev": "3479aaf375090ede15fb623a84892f8597e00a25",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "fenix",
         "type": "github"
       }
     },
@@ -560,11 +523,11 @@
     "private-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1788045497,
-        "narHash": "sha256-9XNvOT66H2filBOD0fmUPpdUP5+qY0QpZiel4XckrnU=",
+        "lastModified": 1788101420,
+        "narHash": "sha256-/+uA/1K6zC/sMv0LRCDkyBKAiMujZnkQ6LYtd+uM8FA=",
         "ref": "refs/heads/main",
-        "rev": "8086f6ed55ddc6f9c60327c6aa4fa06390e90d51",
-        "revCount": 1440,
+        "rev": "a9a04da38a6764383d48f5b34e6fb1364654d8ce",
+        "revCount": 1464,
         "type": "git",
         "url": "https://github.com/napisani/monorepo.git"
       },
@@ -667,29 +630,6 @@
         "type": "github"
       }
     },
-    "rift": {
-      "inputs": {
-        "crane": "crane",
-        "fenix": "fenix",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1787843554,
-        "narHash": "sha256-JtpoYAk/s7AcSuILl/WpzDSnnSUi5+2KwRzfasQwijQ=",
-        "owner": "napisani",
-        "repo": "rift",
-        "rev": "bbb6e14e856801981120857f0375b8d562ff78e1",
-        "type": "github"
-      },
-      "original": {
-        "owner": "napisani",
-        "ref": "main-nix",
-        "repo": "rift",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "addyosmani-agent-skills": "addyosmani-agent-skills",
@@ -716,7 +656,6 @@
         "private-skills": "private-skills",
         "procmux": "procmux",
         "proctmux": "proctmux",
-        "rift": "rift",
         "scrollbacktamer": "scrollbacktamer",
         "secret_inject": "secret_inject",
         "softaworks-agent-toolkit": "softaworks-agent-toolkit",
@@ -726,23 +665,6 @@
         "vantage-nvim-skills": "vantage-nvim-skills",
         "workmux-skills": "workmux-skills",
         "wshobson-agents": "wshobson-agents"
-      }
-    },
-    "rust-analyzer-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1766755908,
-        "narHash": "sha256-1SBtDgvqG/tazoe3nyIfqhFgEI6RFSGBnh1Lnv0/Y6U=",
-        "owner": "rust-lang",
-        "repo": "rust-analyzer",
-        "rev": "8c5a68e214578d4ccbb65fa8c48a4efd5c82697f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "rust-lang",
-        "ref": "nightly",
-        "repo": "rust-analyzer",
-        "type": "github"
       }
     },
     "rust-overlay": {
