@@ -1,20 +1,12 @@
--- File category scope: classifies paths into a category (tests, documentation,
--- implementation catch-all) and lets categories be enabled/disabled at runtime.
--- Every disabled category is hidden across pickers, LSP lists, and Diffview.
+-- Built-in file-category scopes. Categories classify paths into exactly one
+-- category; selecting one category makes it the active mutually-exclusive scope.
 local M = {}
+local state = require("user.scope.state")
 
 M.NOTHING_MATCHES_SENTINEL = "zzz___scope_category_match_nothing___zzz"
-
--- Explicit git pathspec magic, for two reasons. (1) Diffview runs every path
--- arg through `vim.fn.expand()`, which turns a bare glob like `**/*.md` into a
--- materialized list of on-disk matches -- anything starting with `:` is left
--- alone. (2) `:(glob)` gives real glob semantics, where a leading `**/`
--- matches zero path segments, so `dir/**/x` also matches `dir/x`.
 M.PATHSPEC_INCLUDE = ":(glob)"
 M.PATHSPEC_EXCLUDE = ":(glob,exclude)"
 
--- order matters: checked top-to-bottom, first match wins; the entry with
--- `catchall = true` is used when nothing else matches and MUST be exactly one
 M.order = { "tests", "documentation", "implementation" }
 M.categories = {
 	tests = {
@@ -27,7 +19,6 @@ M.categories = {
 			"**/tests/**",
 			"**/__tests__/**",
 		},
-		enabled = true,
 	},
 	documentation = {
 		patterns = {
@@ -39,11 +30,9 @@ M.categories = {
 			"**/README*",
 			"**/CHANGELOG*",
 		},
-		enabled = true,
 	},
 	implementation = {
 		catchall = true,
-		enabled = true,
 	},
 }
 
@@ -54,33 +43,30 @@ for name, def in pairs(M.categories) do
 		catchall_name = name
 	end
 end
-assert(catchall_name, "user.scope.category: exactly one category must be marked catchall")
+assert(catchall_name, "user.scope.category: exactly one category must be catchall")
 
--- Compiles a small glob subset (`*`, `**`, `?`, literals) to an anchored Lua
--- pattern. `**` matches across path segments (including the empty string);
--- `*` matches within a single segment.
 local function glob_to_lua_pattern(glob)
 	local out = {}
-	local i, n = 1, #glob
-	while i <= n do
-		local c = glob:sub(i, i)
-		if c == "*" and glob:sub(i + 1, i + 1) == "*" then
+	local i = 1
+	while i <= #glob do
+		local char = glob:sub(i, i)
+		if char == "*" and glob:sub(i + 1, i + 1) == "*" then
 			table.insert(out, ".*")
 			i = i + 2
 			if glob:sub(i, i) == "/" then
 				i = i + 1
 			end
-		elseif c == "*" then
+		elseif char == "*" then
 			table.insert(out, "[^/]*")
 			i = i + 1
-		elseif c == "?" then
+		elseif char == "?" then
 			table.insert(out, ".")
 			i = i + 1
-		elseif c:match("[%(%)%.%%%+%-%[%]%^%$]") then
-			table.insert(out, "%" .. c)
+		elseif char:match("[%(%)%.%%%+%-%[%]%^%$]") then
+			table.insert(out, "%" .. char)
 			i = i + 1
 		else
-			table.insert(out, c)
+			table.insert(out, char)
 			i = i + 1
 		end
 	end
@@ -96,36 +82,36 @@ for _, def in pairs(M.categories) do
 	end
 end
 
+local function normalize_path(path)
+	return (path or ""):gsub("\\", "/")
+end
+
 ---@return string[]
 function M.list_names()
 	return vim.deepcopy(M.order)
 end
 
 ---@param name string
----@return boolean
-function M.is_enabled(name)
+---@return string[]?
+function M.patterns_for(name)
 	local def = M.categories[name]
-	return def ~= nil and def.enabled == true
+	return def and def.patterns and vim.deepcopy(def.patterns)
+end
+
+---@return string?
+function M.active_scope_name()
+	local active = state.get()
+	return active and active.kind == "category" and active.name or nil
 end
 
 ---@param name string
----@param enabled boolean
-function M.set_enabled(name, enabled)
-	local def = M.categories[name]
-	if def then
-		def.enabled = enabled
+---@return boolean, string?
+function M.select_scope(name)
+	if not M.categories[name] then
+		return false, "unknown built-in scope: " .. tostring(name)
 	end
-end
-
---- Resets every category's enabled flag to true.
-function M.reset_all()
-	for _, def in pairs(M.categories) do
-		def.enabled = true
-	end
-end
-
-local function normalize_path(path)
-	return (path or ""):gsub("\\", "/")
+	state.set({ kind = "category", name = name })
+	return true
 end
 
 ---@param path string
@@ -148,49 +134,61 @@ end
 ---@param path string
 ---@return boolean
 function M.is_visible(path)
-	return M.is_enabled(M.classify(path))
+	local active_name = M.active_scope_name()
+	return active_name == nil or M.classify(path) == active_name
 end
 
 ---@param paths string[]
 ---@return string[]
 function M.filter_paths(paths)
-	return vim.tbl_filter(function(p)
-		return M.is_visible(p)
-	end, paths or {})
+	return vim.tbl_filter(M.is_visible, paths or {})
 end
 
 ---@type snacks.picker.transform
---- Drops (returns false for) any item whose item.file is not visible.
 function M.transform(item, _)
 	local path = item and (item.file or item.text)
-	if not path then
-		return
-	end
-	if not M.is_visible(path) then
+	if path and not M.is_visible(path) then
 		return false
 	end
 end
 
----@return string[]
-function M.diffview_pathspec_args()
-	local any_disabled = false
-	for _, name in ipairs(M.order) do
-		if not M.categories[name].enabled then
-			any_disabled = true
-			break
+local function tree_prefix(pattern)
+	return (pattern:match("^[^*?]*") or ""):gsub("/+$", "")
+end
+
+---@param path string
+---@return boolean
+function M.is_tree_visible(path)
+	local active_name = M.active_scope_name()
+	if not active_name or active_name == catchall_name then
+		return true
+	end
+	local normalized = normalize_path(path)
+	for _, pattern in ipairs(M.categories[active_name].patterns) do
+		local prefix = tree_prefix(pattern)
+		if
+			prefix == ""
+			or normalized == prefix
+			or normalized:sub(1, #prefix + 1) == prefix .. "/"
+			or prefix:sub(1, #normalized + 1) == normalized .. "/"
+		then
+			return true
 		end
 	end
-	if not any_disabled then
+	return false
+end
+
+---@return string[]
+function M.diffview_pathspec_args()
+	local active_name = M.active_scope_name()
+	if not active_name then
 		return {}
 	end
-
-	local catchall_def = M.categories[catchall_name]
-	if catchall_def.enabled then
-		-- exclude mode: negative patterns for every disabled non-catch-all category
-		local args = {}
+	if active_name == catchall_name then
+		local args = { M.PATHSPEC_INCLUDE .. "**" }
 		for _, name in ipairs(M.order) do
 			local def = M.categories[name]
-			if not def.catchall and not def.enabled then
+			if not def.catchall then
 				for _, pattern in ipairs(def.patterns) do
 					table.insert(args, M.PATHSPEC_EXCLUDE .. pattern)
 				end
@@ -198,25 +196,17 @@ function M.diffview_pathspec_args()
 		end
 		return args
 	end
-
-	-- catch-all disabled: include mode, union of enabled non-catch-all categories
 	local args = {}
-	for _, name in ipairs(M.order) do
-		local def = M.categories[name]
-		if not def.catchall and def.enabled then
-			for _, pattern in ipairs(def.patterns) do
-				table.insert(args, M.PATHSPEC_INCLUDE .. pattern)
-			end
-		end
+	for _, pattern in ipairs(M.categories[active_name].patterns) do
+		table.insert(args, M.PATHSPEC_INCLUDE .. pattern)
 	end
-
-	if #args == 0 then
-		-- everything disabled: an empty positive pathspec means "no restriction"
-		-- to git, which is the opposite of intent, so match nothing instead.
-		return { M.PATHSPEC_INCLUDE .. M.NOTHING_MATCHES_SENTINEL }
-	end
-
 	return args
+end
+
+-- Compatibility name for callers that used the old reset operation. It now
+-- clears the single shared active scope rather than re-enabling categories.
+function M.reset_all()
+	state.clear()
 end
 
 return M

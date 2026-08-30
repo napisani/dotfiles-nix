@@ -1,11 +1,10 @@
 local M = {}
 
 local function scope_filter(absolute_path)
-	local path_scope = require("user.scope.path")
 	local common_scope = require("user.scope.common")
 
 	if vim.fn.isdirectory(absolute_path) == 1 then
-		return not path_scope.is_tree_visible(absolute_path)
+		return not common_scope.is_tree_visible(absolute_path)
 	end
 
 	return not common_scope.is_visible(absolute_path)

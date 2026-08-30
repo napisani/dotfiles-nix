@@ -1,190 +1,101 @@
 # Agent Guidelines for `lua/user/scope/`
 
-## Read this before touching any file in this directory or wiring a new
-## picker/list/LSP-list/Diffview surface into visibility filtering.
+Read this before changing scope behavior or wiring a new file-listing surface.
 
 ## Purpose
 
-This module answers one question, two independent ways: **"what subset of
-the project should currently be visible?"**
+This module answers which subset of the workspace is currently visible:
 
-- `path.lua` — directory/glob scope. At most one active scope; a directory
-  narrows the cwd a picker searches from, while a glob filters root-relative
-  paths.
-- `category.lua` — file-category scope. Classifies every path into exactly
-  one category (`tests`, `documentation`, or the `implementation`
-  catch-all) and lets each category be toggled on/off at runtime.
-- `common.lua` — the composition point. Combines both onto a picker's
-  `opts` in one call, or filters an already-materialized path list.
+- `path.lua` handles directory and glob scopes;
+- `category.lua` defines the built-in `tests`, `documentation`, and
+  `implementation` scopes;
+- `project.lua` validates named glob arrays from
+  `project_config.scopes` in the project `.nvim.lua`;
+- `state.lua` owns the one ephemeral active scope descriptor;
+- `common.lua` is the composition seam used by consumers.
 
-They are **orthogonal and additive**, not alternatives. Disabling a
-directory and disabling a category both apply at once — that's a feature
-(an intersection), never treat it as a conflict to resolve.
+Scopes are mutually exclusive. Selecting a built-in category, project glob,
+directory, or Vantage glob replaces the previous selection. Definitions in
+`.nvim.lua` persist; the active selection does not.
 
 ## The one rule that matters
 
-**Every surface that lists files must route through this module, not
-build its own filtering.** The whole point of centralizing classification
-and enabled-state here is that a user can hide "tests" once and have it
-disappear from file search, grep, changed-file pickers, `gr`/`gi` LSP
-results, the explorer tree, and Diffview simultaneously. The moment a
-consumer hand-rolls its own category check, that consumer silently drifts
-out of sync the next time a category's patterns change — this has already
-happened once by design intent (Option 2 in the original design was
-explicitly rejected for this reason). If you are adding a new
-file-listing surface anywhere in this Neovim config, wire it through
-`category.lua`/`common.lua` here rather than reimplementing pattern
-matching.
+Every surface that lists files must route through `common.lua`, not implement
+its own filtering. A selected scope must consistently affect file search, grep,
+changed-file pickers, `gr`/`gi` LSP results, NvimTree, and Diffview.
 
-Dependency direction is one-way: `path.lua` and `category.lua` never
-`require` a consumer module. `common.lua` depends on both. Everything
-else depends on one or more of these three, never the reverse.
+Dependency direction is one-way: `path.lua`, `category.lua`, `project.lua`, and
+`state.lua` do not require consumer modules. `common.lua` depends on the scope
+modules; pickers and plugins depend on `common.lua`.
 
-## Picking the right seam
+## Consumer seams
 
-Different consumer shapes need different integration points — **use the
-one that matches the shape you have, don't force a different one to fit**:
+| Consumer | Required seam |
+|---|---|
+| Snacks picker | Call `common.apply_to_picker(opts)` before opening it. |
+| Materialized path list | Call `common.filter_paths(paths)`. |
+| LSP references/implementations | Filter `list_ctx.items` with `common.is_visible`. |
+| Diffview | Use `common.diffview_pathspec_args(target?)` at every call site. |
+| NvimTree | Use `common.is_visible` for files and `common.is_tree_visible` for directories. |
 
-| Consumer shape | Seam | Call |
-|---|---|---|
-| Snacks picker (files, grep, custom `finder`) | `opts.transform` hook, fires per item regardless of backend (rg, fd, a Rust index, a hand-built Lua list) | `common.apply_to_picker(opts)` when building `opts`, before passing to `Snacks.picker.*` |
-| Already-materialized path list (e.g. `git status` output) | no Snacks finder exists to hook a `transform` into — pre-filter instead | `common.filter_paths(paths)` before building picker items |
-| `vim.lsp.buf.references` / `vim.lsp.buf.implementation` | the built-in `on_list` callback — the only point before Neovim renders results into a loclist | wrap `on_list`, filter `list_ctx.items` with `category.is_visible(item.filename)`, then `setloclist` + open (see `lua/user/lsp/keymaps.lua`) |
-| Diffview | no persistent config option and no item-level hook exists — pathspec CLI args are the *only* seam | `common.diffview_pathspec_args(target?)` appended after `--` at every `:DiffviewOpen`/`:DiffviewFileHistory` call site (see `lua/user/plugins/git/diff.lua`). Call the composed `common` version, never `category.diffview_pathspec_args()` directly — directory scope has to be folded *into* the category patterns, not appended beside them (see below) |
-| NvimTree | `filters.custom` callback receives each absolute node path; directory nodes need ancestor-aware path-scope handling | `common.is_visible(path)` for files and `path.is_tree_visible(path)` for directories (see `lua/user/plugins/navigation/nvim-tree.lua`) |
+Do not call `category.*` directly from a consumer when the full active scope is
+needed, and do not duplicate glob matching.
 
-If you find yourself needing a filtering point that isn't one of these
-four shapes, that's a sign the new surface's integration is genuinely
-novel — add a fifth row here documenting the seam you found, don't quietly
-bypass the module.
+## Invariants
 
-## Invariants — do not break these
+- Exactly one scope descriptor is active, or none.
+- Built-in names `tests`, `documentation`, and `implementation` are reserved
+  and cannot be project scope names.
+- Project scopes are non-empty arrays of workspace-relative globs. Supported
+  syntax is literals, `/`, `*`, `**`, and `?`; reject absolute paths, `..`,
+  braces, whitespace, empty arrays, and non-string entries.
+- Active scope state is in memory only and starts clear on launch.
+- Built-in patterns remain code-defined; project patterns are persistent data.
+- `common.is_visible` is the composition seam for file visibility.
 
-- Exactly one category in `category.categories` has `catchall = true`, and
-  it is checked last. A path that matches no other category's patterns
-  always belongs to it — there is no "unclassifiable" state.
-- `category.is_visible(path)` is pure: same enabled-state + same path
-  always returns the same answer, no I/O, no caching that can go stale.
-- Enabled state is **in-memory only** and always starts fully-enabled on
-  launch. Do not add persistence (a save-to-disk, a global var read at
-  require-time, etc.) — this deliberately mirrors `path.lua`'s existing
-  behavior. If a user wants persistence, that's a product decision to
-  revisit explicitly, not something to sneak in via a "helpful" default.
-- Category *patterns* are edited in code (`category.categories[name].patterns`),
-  never exposed as a runtime-editable setting. Only *enabled/disabled* is a
-  runtime toggle (`<leader><leader>st`, with reset via `<leader><leader>sx`, see
-  `lua/user/whichkey/categories.lua`). Don't add a picker/prompt for
-  editing globs at runtime — if patterns need to change, that's a code
-  change and a stylua/test pass, same as adding a category (below).
+## Diffview rules
 
-## Two Diffview call-site traps — both cost a silent no-op
+`common.diffview_pathspec_args` is the only Diffview filtering seam:
 
-Neither of these errors out; the panel just opens unfiltered, which reads
-as "scope filtering doesn't work".
+- a built-in category returns its include/exclude pathspecs;
+- a directory prefixes patterns or returns `:(glob)<dir>/**`;
+- a glob array returns one `:(glob)` pathspec per entry;
+- a target returns the literal target if visible, otherwise `nil`;
+- no active scope returns no restriction.
 
-- **`:DiffviewFileHistory` takes its paths as pre-`--` positionals.**
-  `lib.file_history` reads `argo.args`, not `argo.post_args`, so a `--`
-  separator sends every pathspec into a void. Only `:DiffviewOpen` uses
-  `post_args` and therefore wants the `--`. This bit the original
-  category-scope wiring: `<leader>ch` looked wired up and filtered nothing.
-- **Diffview runs every path arg through `vim.fn.expand()`.** A bare glob
-  (`**/*.md`) gets expanded into a materialized list of on-disk matches
-  relative to nvim's cwd; anything starting with `:` is passed through
-  untouched. That's why `category.PATHSPEC_INCLUDE` / `PATHSPEC_EXCLUDE`
-  emit explicit `:(glob)` / `:(glob,exclude)` magic rather than bare
-  patterns and `:!`. The magic form also buys real glob semantics, where a
-  leading `**/` matches zero path segments — so `dir/**/x` matches `dir/x`
-  and directory scope can be folded in by simple prefixing.
-- Do not `fnameescape` a magic pathspec on the way to `vim.cmd` —
-  `:(glob)**/*.md` becomes `:(glob)\*\*/\*.md`, and user commands hand
-  their args on without undoing the escaping. Escape real paths only.
+Magic pathspecs must not be `fnameescape`d before `vim.cmd`; escape literal
+paths only. `:DiffviewFileHistory` takes pathspecs before `--`, while
+`:DiffviewOpen` uses post-`--` arguments.
 
-## Diffview's pathspec quirk — read before changing `diffview_pathspec_args`
+## Project configuration
 
-Git pathspec has no "everything except this named set" operator when the
-named set isn't complementary to a single glob, so the function runs in
-two distinct modes depending on whether the catch-all is enabled:
+Project scopes are defined in `.nvim.lua` under `_G.EXRC_M.project_config`:
 
-- **Catch-all enabled**: disabled non-catch-all categories become
-  `:!<pattern>` negative args. Everything not explicitly excluded stays
-  visible (the catch-all's files included by default).
-- **Catch-all disabled**: negation can't express "only what's left",
-  so the function switches to positive-only mode — the pathspec becomes
-  the union of enabled non-catch-all categories' patterns.
-- **A directory scope is active**: positive pathspecs are ORed by git, so
-  appending the scope dir next to a positive category pattern *widens* the
-  result instead of narrowing it. `common.diffview_pathspec_args` prefixes
-  each positive with the dir instead. In exclude mode the negatives compose
-  fine and `:(glob)<dir>/**` is added as the lone positive.
-- **A glob scope meets positive category patterns**: neither pattern can be
-  prefixed into the other generically, and passing both would widen the result.
-  `common.diffview_pathspec_args` therefore enumerates Git-visible workspace
-  files, applies `common.is_visible`, and returns exact paths. This synchronous
-  enumeration only runs when opening Diffview, never in per-item transforms.
-- **A single-file target** (`<leader>cfh`, visual `<leader>ch`): a file path
-  is narrower than any scope, so the intersection is computed in Lua rather
-  than handed to git — the function returns `{ target }` if the file passes
-  both scopes, or `nil` if it doesn't. `nil` means "nothing is visible";
-  Diffview call sites notify and bail instead of opening an empty panel.
+```lua
+local project_config = {
+  scopes = {
+    frontend = { "src/**/*.ts", "src/**/*.tsx" },
+  },
+}
 
-- **Everything disabled** (catch-all included): the positive-mode union is
-  empty, which to git means "no restriction" — the opposite of intent.
-  `category.NOTHING_MATCHES_SENTINEL` is returned instead, a positive
-  pathspec guaranteed to match zero real files. Don't special-case this
-  at Diffview call sites — the sentinel already makes the returned args
-  list correct on its own; callers just append whatever comes back.
+_G.EXRC_M = {
+  project_config = project_config,
+  setup = function() end,
+}
+```
 
-## Extending: adding a new category
-
-1. Add an entry to `category.categories` in `category.lua` with a
-   `patterns` list (small hand-rolled glob subset: `*`, `**`, `?`,
-   literals — see `glob_to_lua_pattern`; no new dependency for a richer
-   glob syntax unless a real pattern shape genuinely requires it).
-2. Insert its name into `category.order` **before** the catch-all
-   (`implementation`) — order is match-priority, first hit wins, and the
-   catch-all must stay last.
-3. Do not touch `is_visible`, `transform`, `filter_paths`, or
-   `diffview_pathspec_args` — they're written generically over
-   `M.order`/`M.categories` and pick up new categories automatically.
-4. Add classify/visibility assertions to `tests/scope_category_spec.lua`
-   for the new patterns (red/green, matching the existing style there).
-5. It will appear automatically in the `<leader><leader>st` toggle picker
-   (`whichkey/categories.lua` iterates `category.list_names()`) — no
-   keymap or whichkey change needed.
-
-## Extending: wiring a new file-listing surface
-
-1. Identify which row of the seam table above matches its shape.
-2. Call the matching `common.*`/`category.*` function — don't copy
-   `glob_to_lua_pattern` or reimplement classification inline anywhere
-   outside `category.lua`.
-3. If a genuinely new seam shape shows up (not a Snacks picker, not a
-   materialized list, not `on_list`, not Diffview pathspec), add a row to
-   this file's seam table describing it before shipping the integration,
-   so the next person doesn't have to rediscover it by reading the diff.
-
-## Known non-goals (don't "fix" these without discussing first)
-
-- Trouble's combined LSP list (`<leader>Tl` in `lua/user/trouble.lua`) is
-  not filtered — a separate surface with its own filter API, deliberately
-  left as a follow-up rather than bundled in here.
-- `path.lua` (directory scope) and `category.lua` (file-category scope)
-  are intentionally kept as separate sibling modules, not merged into one
-  "active scope" value — see Purpose above. If a future change wants to
-  fold them together, that's a deliberate redesign, not a refactor.
+`scope/project.lua` is responsible for validation and deterministic ordering.
+The `<leader><leader>st` picker displays the three built-ins followed by valid
+project scopes. `<leader><leader>sx` clears the active selection.
 
 ## Testing
 
+From `mods/dotfiles/nvim`, use an isolated runtimepath so installed config does
+not shadow worktree changes:
+
 ```bash
-# From lua/user/scope/'s repo root (mods/dotfiles/nvim), run with an
-# isolated runtimepath so the live-installed config doesn't shadow local
-# edits under test:
+nvim --headless --clean -c "set rtp^=$(pwd)" -c "luafile tests/scope_project_spec.lua" -c "qa"
 nvim --headless --clean -c "set rtp^=$(pwd)" -c "luafile tests/scope_category_spec.lua" -c "qa"
 nvim --headless --clean -c "set rtp^=$(pwd)" -c "luafile tests/scope_common_spec.lua" -c "qa"
 nvim --headless --clean -c "set rtp^=$(pwd)" -c "luafile tests/lsp_attach_spec.lua" -c "qa"
 ```
-
-`--clean` plus an explicit `rtp^=` prepend matters: a bare `nvim
---headless -c "luafile ..."` picks up the *installed* (symlinked) config
-first, so edits made in a worktree or PR branch silently don't take
-effect and stale behavior passes.

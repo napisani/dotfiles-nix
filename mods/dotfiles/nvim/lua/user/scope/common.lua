@@ -10,6 +10,17 @@ function M.is_visible(path)
 	return require("user.scope.path").is_visible(path) and require("user.scope.category").is_visible(path)
 end
 
+--- Whether a tree node can contain a visible file under the active scope.
+---@param path string
+---@return boolean
+function M.is_tree_visible(path)
+	local active_kind = require("user.scope.path").active_scope_kind()
+	if active_kind == "category" then
+		return require("user.scope.category").is_tree_visible(path)
+	end
+	return require("user.scope.path").is_tree_visible(path)
+end
+
 --- Composes path-scope's cwd/transform with category-scope's per-item filter.
 ---@param opts table  -- snacks.picker.Config-shaped opts being built
 ---@return table       -- opts, mutated in place and returned
@@ -103,7 +114,7 @@ function M.diffview_pathspec_args(target, candidate_paths)
 	end
 
 	local args = category.diffview_pathspec_args()
-	if not scope then
+	if not scope or scope_kind == "category" then
 		return args
 	end
 

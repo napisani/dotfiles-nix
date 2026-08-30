@@ -2,6 +2,7 @@ local file_utils = require("user.utils.file_utils")
 local M = {}
 
 local default_config = {
+	scopes = {},
 	lint = {},
 	branches = {
 		main = nil,

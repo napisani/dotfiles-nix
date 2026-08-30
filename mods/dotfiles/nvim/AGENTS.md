@@ -64,7 +64,7 @@ Organized in `lua/user/whichkey/` directory by category. Aggregated in `whichkey
 **Leader keys**: Space (`<leader>`), semicolon (`<localleader>`)
 
 ### Project-Specific Config
-`.nvim.lua` files in project roots via `exrc_manager`. Loaded early (before plugins) and finalized late (after all setup). Expose config through `_G.EXRC_M` table. Can override lint config, add autocmds, etc.
+`.nvim.lua` files in project roots via `exrc_manager`. Loaded early (before plugins) and finalized late (after all setup). Expose structured settings through `_G.EXRC_M.project_config`; named glob scopes live under `project_config.scopes` and appear in `<leader><leader>st`. Preserve custom `_G.EXRC_M.setup` logic.
 
 ### Picker Framework
 Snacks.nvim (NOT telescope) -- custom pickers in `lua/user/snacks/` directory. Handles file finding, grep, git search, AI actions, commands, and more.

@@ -2,7 +2,7 @@
 -- Directory scopes narrow picker cwd; glob scopes filter paths relative to the
 -- workspace root. Both are intentionally ephemeral and replace one another.
 local M = {}
-local active_scope
+local state = require("user.scope.state")
 
 local function normalize(path)
 	return (path or ""):gsub("\\", "/"):gsub("^%./", ""):gsub("/+$", "")
@@ -72,7 +72,7 @@ local function valid_glob(glob)
 	return true, glob
 end
 
-local function valid_globs(globs)
+function M.validate_globs(globs)
 	if type(globs) == "string" then
 		globs = { globs }
 	end
@@ -92,13 +92,13 @@ local function valid_globs(globs)
 end
 
 function M.clear_scopes()
-	active_scope = nil
+	state.clear()
 end
 
 ---@param scope string|string[]
 ---@param kind "directory"|"glob"
 ---@return boolean, string? error
-function M.set_scope(scope, kind)
+function M.set_scope(scope, kind, name)
 	if kind ~= "directory" and kind ~= "glob" then
 		return false, "scope kind must be directory or glob"
 	end
@@ -108,11 +108,11 @@ function M.set_scope(scope, kind)
 		if type(scope) ~= "string" or normalize(scope) == "" then
 			return false, "scope cannot be empty"
 		end
-		active_scope = { value = normalize(scope), kind = kind, root = root }
+		state.set({ value = normalize(scope), kind = kind, name = name, root = root })
 		return true
 	end
 
-	local patterns, error_message = valid_globs(scope)
+	local patterns, error_message = M.validate_globs(scope)
 	if not patterns then
 		return false, error_message
 	end
@@ -120,7 +120,7 @@ function M.set_scope(scope, kind)
 	for _, pattern in ipairs(patterns) do
 		table.insert(compiled, glob_to_lua_pattern(pattern))
 	end
-	active_scope = { kind = kind, patterns = patterns, compiled = compiled, root = root }
+	state.set({ kind = kind, patterns = patterns, compiled = compiled, name = name, root = root })
 	return true
 end
 
@@ -128,40 +128,57 @@ function M.add_scope(scope)
 	return M.set_scope(scope, "directory")
 end
 
-function M.set_glob_scope(scope)
-	return M.set_scope(scope, "glob")
+function M.set_glob_scope(scope, name)
+	return M.set_scope(scope, "glob", name)
 end
 
 ---@return string|string[]|nil
 function M.active_scope()
+	local active_scope = state.get()
 	if not active_scope then
 		return nil
 	end
 	if active_scope.kind == "directory" then
 		return active_scope.value
 	end
-	return vim.deepcopy(active_scope.patterns)
+	if active_scope.kind == "glob" then
+		return vim.deepcopy(active_scope.patterns)
+	end
+	return active_scope.name
+end
+
+---@return string[]
+---@return string?
+function M.active_scope_name()
+	local active_scope = state.get()
+	return active_scope and active_scope.name
 end
 
 ---@return string[]
 function M.active_scope_patterns()
+	local active_scope = state.get()
 	if not active_scope then
 		return {}
 	end
 	if active_scope.kind == "directory" then
 		return { active_scope.value }
 	end
-	return vim.deepcopy(active_scope.patterns)
+	if active_scope.kind == "glob" then
+		return vim.deepcopy(active_scope.patterns)
+	end
+	return {}
 end
 
----@return "directory"|"glob"|nil
+---@return "directory"|"glob"|"category"|nil
 function M.active_scope_kind()
+	local active_scope = state.get()
 	return active_scope and active_scope.kind
 end
 
 --- Whether a root-relative or absolute path belongs to the active scope.
 function M.is_visible(path)
-	if not active_scope then
+	local active_scope = state.get()
+	if not active_scope or active_scope.kind == "category" then
 		return true
 	end
 
@@ -182,7 +199,8 @@ end
 --- Whether a directory should remain visible in a tree rooted at the workspace.
 --- A directory is visible when it is inside the scope or can contain a match.
 function M.is_tree_visible(path)
-	if not active_scope then
+	local active_scope = state.get()
+	if not active_scope or active_scope.kind == "category" then
 		return true
 	end
 
@@ -217,6 +235,7 @@ end
 
 --- Drops glob-scope items.
 function M.transform(item, _)
+	local active_scope = state.get()
 	if not active_scope or active_scope.kind ~= "glob" then
 		return
 	end
@@ -231,6 +250,7 @@ function M.filter_paths(paths)
 end
 
 function M.apply_to_picker(opts)
+	local active_scope = state.get()
 	opts = opts or {}
 	if active_scope and active_scope.kind == "directory" then
 		opts.cwd = active_scope.value

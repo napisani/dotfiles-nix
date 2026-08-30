@@ -82,7 +82,7 @@ local normal_mappings = {
 		function()
 			categories.pick_categories(refresh.refresh_open_nvim_trees)
 		end,
-		desc = "(t)oggle categories",
+		desc = "(t)oggle scopes",
 	},
 	{
 		"<leader><leader>sv",

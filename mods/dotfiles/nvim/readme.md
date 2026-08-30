@@ -89,6 +89,9 @@ zc - collapse expanded section
 ```lua
 -- this is a template for a project nvimrc.lua file
 local project_config = {
+	scopes = {
+		frontend = { "src/**/*.ts", "src/**/*.tsx" },
+	},
 	branches = {
 		main = "develop",
 		prod = "main",
@@ -125,6 +128,9 @@ _G.EXRC_M = {
 }
 ```
 
+Named project scopes appear in the `<leader><leader>st` picker alongside the
+built-in `tests`, `documentation`, and `implementation` scopes. Scope names
+cannot use those three reserved names.
 
 ## Configure project database connections
 create a file called `dbs.json`

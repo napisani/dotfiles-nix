@@ -1,67 +1,60 @@
--- Category picker implementation used by the <leader><leader>st scope action.
+-- Unified built-in and project scope picker used by <leader><leader>st.
+local path = require("user.scope.path")
 local category = require("user.scope.category")
+local project = require("user.scope.project")
 
 local M = {}
 
 local function build_items()
 	local items = {}
 	for _, name in ipairs(category.list_names()) do
-		table.insert(items, { category = name, text = name })
+		table.insert(items, { scope_name = name, scope_kind = "category", text = name })
+	end
+	local project_scopes, errors = project.list_scopes()
+	for _, error_message in ipairs(errors) do
+		vim.notify("Invalid project scope: " .. error_message, vim.log.levels.WARN)
+	end
+	for _, scope in ipairs(project_scopes) do
+		table.insert(items, { scope_name = scope.name, scope_kind = "project", text = scope.name })
 	end
 	return items
 end
 
--- snacks.picker `format`: returns highlight chunks, not a string. Items here
--- have no `file`, so the default file formatter/previewer errors out.
 local function format_item(item)
-	local enabled = category.is_enabled(item.category)
+	local active = path.active_scope_name() == item.scope_name
 	return {
-		{ enabled and "[x] " or "[ ] ", enabled and "SnacksPickerToggle" or "SnacksPickerComment" },
-		{ item.category, "SnacksPickerLabel" },
+		{ active and "(*) " or "( ) ", active and "SnacksPickerToggle" or "SnacksPickerComment" },
+		{ item.text, "SnacksPickerLabel" },
 	}
 end
 
-local function open_picker(on_change)
+function M.scope_items()
+	return build_items()
+end
+
+function M.pick_categories(on_change)
 	local ok, Snacks = pcall(require, "snacks")
 	if not ok then
 		return
 	end
 
 	Snacks.picker.pick({
-		source = "toggle categories",
-		items = build_items(),
+		source = "project scopes",
+		items = M.scope_items(),
 		format = format_item,
 		preview = "none",
 		layout = { preset = "select" },
-		actions = {
-			-- Toggle the category under the cursor and re-render in place. The
-			-- item list is static, so `update` is enough to redraw the marks --
-			-- no finder re-run, no cursor jump, picker stays open.
-			toggle_category = function(picker, item)
-				if not item then
-					return
+		confirm = function(picker, item)
+			if item then
+				local applied, err = project.select_scope(item.scope_name)
+				if not applied then
+					vim.notify("Could not select scope: " .. tostring(err), vim.log.levels.ERROR)
+				else
+					if on_change then
+						on_change()
+					end
 				end
-				category.set_enabled(item.category, not category.is_enabled(item.category))
-				picker:update({ force = true })
-				if on_change then
-					on_change()
-				end
-			end,
-		},
-		win = {
-			input = {
-				keys = {
-					["<Tab>"] = { "toggle_category", mode = { "i", "n" } },
-				},
-			},
-			list = {
-				keys = {
-					["<Tab>"] = { "toggle_category", mode = { "n", "x" } },
-				},
-			},
-		},
-		-- <CR> just dismisses: toggling is done with <Tab>.
-		confirm = function(picker)
+			end
 			if picker and picker.close then
 				picker:close()
 			end
@@ -69,12 +62,8 @@ local function open_picker(on_change)
 	})
 end
 
-function M.pick_categories(on_change)
-	open_picker(on_change)
-end
-
 function M.reset_all()
-	category.reset_all()
+	path.clear_scopes()
 end
 
 return {
@@ -82,5 +71,6 @@ return {
 	mapping_n = {},
 	mapping_shared = {},
 	pick_categories = M.pick_categories,
+	scope_items = M.scope_items,
 	reset_all = M.reset_all,
 }

@@ -46,7 +46,7 @@ assert(mapped.gi, "expected gi (go-to-implementation) to be mapped")
 do
 	local category = require("user.scope.category")
 	category.reset_all()
-	category.set_enabled("tests", false)
+	category.select_scope("tests")
 
 	local original_references = vim.lsp.buf.references
 	local captured_on_list
@@ -76,8 +76,11 @@ do
 	vim.cmd.lopen = original_lopen
 	vim.lsp.buf.references = original_references
 
-	assert(#captured_items == 1, "expected on_list to filter out the disabled-category location")
-	assert(captured_items[1].filename == "foo/bar.lua", "expected the visible location to survive filtering")
+	assert(#captured_items == 1, "expected on_list to filter out the non-selected-category location")
+	assert(
+		captured_items[1].filename == "foo/bar_test.lua",
+		"expected the selected-category location to survive filtering"
+	)
 
 	category.reset_all()
 end

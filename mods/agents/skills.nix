@@ -295,7 +295,28 @@ let
         }
       ];
     }
-    # Loancrate-only: private skills (from napisani/monorepo priv/skills/)
+    # Generic private skills (from napisani/monorepo priv/skills/)
+    {
+      input = inputs.private-skills;
+      skills = [
+        {
+          name = "multi-valued-review";
+          path = "priv/skills/multi-valued-review";
+          disableModelInvocation = true;
+        }
+        {
+          name = "mvr-suggestions";
+          path = "priv/skills/mvr-suggestions";
+          disableModelInvocation = true;
+        }
+        {
+          name = "neovim-project-config";
+          path = "priv/skills/neovim-project-config";
+          disableModelInvocation = true;
+        }
+      ];
+    }
+    # Loancrate-only: private skills
     {
       input = inputs.private-skills;
       skills = [
@@ -318,16 +339,6 @@ let
         {
           name = "loancrate-weekly-project-update-draft";
           path = "priv/skills/loancrate-weekly-project-update-draft";
-        }
-        {
-          name = "multi-valued-review";
-          path = "priv/skills/multi-valued-review";
-          disableModelInvocation = true;
-        }
-        {
-          name = "mvr-suggestions";
-          path = "priv/skills/mvr-suggestions";
-          disableModelInvocation = true;
         }
         {
           name = "loancrate-slack-relay";

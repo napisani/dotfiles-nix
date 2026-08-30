@@ -338,11 +338,11 @@ Merge conflict resolution (contextual inside a diff/merge view):
 ## `<leader><leader>s` — scopes
 
 `<leader><leader>sp` → leaf: add a directory/path scope (pick a root path to restrict future searches)
-`<leader><leader>st` → leaf: open a picker listing the file categories (`tests`, `documentation`, `implementation`) with their enabled/disabled state (`[x]`/`[ ]`); `<Tab>` toggles a category
+`<leader><leader>st` → leaf: open a mutually exclusive scope picker containing the built-in `tests`, `documentation`, and `implementation` scopes plus named project scopes from `.nvim.lua`; `<CR>` selects a scope
 `<leader><leader>sv` → leaf: describe an ad hoc file scope in natural language; Vantage agent translates it into a non-empty array of workspace-relative include globs and makes it the only active scope
-`<leader><leader>sx` → leaf: clear the active directory/glob scope and reset all categories to enabled
+`<leader><leader>sx` → leaf: clear the active directory/glob/category scope
 
-Scope paths and file categories compose as an intersection. All categories start enabled on every Neovim launch; state does not persist across restarts. `implementation` is the catch-all for paths not matching `tests` or `documentation` patterns.
+Scopes are mutually exclusive and active state is in-memory only. Named project scopes are stored under `.nvim.lua`'s `project_config.scopes`; `implementation` remains the catch-all for paths not matching `tests` or `documentation` patterns.
 
 ---
 
