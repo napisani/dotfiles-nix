@@ -65,6 +65,7 @@ rec {
       proctmux
       stackman
       secret_inject
+      tmux_picker
       animal_rescue
       scrollbacktamer
       rift

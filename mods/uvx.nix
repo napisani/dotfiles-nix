@@ -22,6 +22,11 @@ in
       ${pkgs.uv}/bin/uv tool uninstall stackman || true
     fi
 
+    # Remove the old Python picker so it cannot shadow the native Nix package.
+    if ${pkgs.uv}/bin/uv tool list | ${pkgs.gnugrep}/bin/grep -q '^tmux-picker '; then
+      ${pkgs.uv}/bin/uv tool uninstall tmux-picker || true
+    fi
+
     # Install sqlit-tui with the postgres dependency
     ${pkgs.uv}/bin/uv tool install --with psycopg2-binary 'sqlit-tui[postgres]' --force
 
