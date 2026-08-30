@@ -141,6 +141,15 @@ const riftPrimaryRules = rule("Tab: Rift Primary Actions")
       }],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
     },
+    {
+      type: "basic",
+      from: { key_code: "f" },
+      to: [to$("open -a '/Applications/Look.app'")],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 0 },
+      ],
+    },
   ]);
 
 const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
