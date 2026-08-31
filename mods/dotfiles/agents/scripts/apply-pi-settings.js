@@ -22,7 +22,7 @@ const managed = {
   defaultProvider: "openai-codex",
   defaultModel: "gpt-5.6-luna",
   defaultThinkingLevel: "high",
-  theme: "tokyonight",
+  theme: "kanagawa-dragon",
 };
 const managedSkills = [
   "~/code/*/apps/*/.agents/skills",
@@ -91,5 +91,5 @@ if (settings.providers !== undefined) {
 if (changed) {
   fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
   fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
-  console.log("agents: applied Pi defaults -> openai-codex/gpt-5.6-luna/high, fast:off, theme:tokyonight, monorepo app skills, managed Pi packages");
+  console.log("agents: applied Pi defaults -> openai-codex/gpt-5.6-luna/high, fast:off, theme:kanagawa-dragon, monorepo app skills, managed Pi packages");
 }

@@ -120,7 +120,8 @@ done
 
 [ -n "${BLE_VERSION:-}" ] || smoke_fail "ble.sh did not load"
 [ -n "${BLE_ATTACHED:-}" ] || smoke_fail "ble.sh did not attach"
-[ "${bleopt_color_scheme:-}" = tokyonight ] || smoke_fail "ble.sh Tokyo Night scheme is not enabled"
+[ "${bleopt_term_true_colors:-}" = semicolon ] || smoke_fail "ble.sh truecolor output is not enabled"
+[ "${bleopt_term_index_colors:-}" = 256 ] || smoke_fail "ble.sh 256-color fallback is not enabled"
 [ -z "${bleopt_complete_menu_complete:-}" ] || smoke_fail "ble.sh menu completion is still enabled"
 case "${PROMPT_COMMAND[0]:-}" in
 _direnv_hook*) ;;

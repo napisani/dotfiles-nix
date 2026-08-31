@@ -61,19 +61,19 @@ mods = "Control|Shift"
 # Specialty TUI key combos (CSI-u encoded) so apps can distinguish modified keys.
 # Format: ESC [ <keycode> ; <mods> u, where mods: 2=Shift, 3=Alt, 5=Ctrl, 6=Ctrl+Shift.
 
-# Shift+Enter: alternate "submit/accept" action in TUIs.
+# Shift+Enter: alternate submit/accept action in TUIs.
 [[keyboard.bindings]]
 chars = "\u001B[13;2u"
 key = "Return"
 mods = "Shift"
 
-# Ctrl+Enter: explicit "run/execute" chord separate from plain Enter.
+# Ctrl+Enter: explicit run/execute chord separate from plain Enter.
 [[keyboard.bindings]]
 chars = "\u001B[13;5u"
 key = "Return"
 mods = "Control"
 
-# Ctrl+Shift+Enter: power variant for actions like "run all" or "force submit".
+# Ctrl+Shift+Enter: power variant for actions like run all or force submit.
 [[keyboard.bindings]]
 chars = "\u001B[13;6u"
 key = "Return"
@@ -91,39 +91,47 @@ chars = "\u001B[127;3u"
 key = "Back"
 mods = "Alt"
 
-# Ctrl+Shift+Backspace: stronger backward-delete variant for editors/shells.
+# Ctrl+Shift+Backspace: stronger backward-delete variant.
 [[keyboard.bindings]]
 chars = "\u001B[127;6u"
 key = "Back"
 mods = "Control|Shift"
 
-# Tokyo Night palette from tokyonight.nvim.
+# Kanagawa Dragon vivid terminal palette.
 [colors.primary]
-background = '#1a1b26'
-foreground = '#c0caf5'
+background = '#1f1f28'
+foreground = '#dcd7ba'
+
+[colors.cursor]
+text = '#1f1f28'
+cursor = '#dcd7ba'
+
+[colors.selection]
+text = '#dcd7ba'
+background = '#2d4f67'
 
 [colors.normal]
-black = '#15161e'
-red = '#f7768e'
-green = '#9ece6a'
-yellow = '#e0af68'
-blue = '#7aa2f7'
-magenta = '#bb9af7'
-cyan = '#7dcfff'
-white = '#a9b1d6'
+black = '#1f1f28'
+red = '#ff5d62'
+green = '#98bb6c'
+yellow = '#ff9e3b'
+blue = '#7fb4ca'
+magenta = '#c4a7e7'
+cyan = '#a3d4d5'
+white = '#dcd7ba'
 
 [colors.bright]
-black = '#414868'
-red = '#ff899d'
-green = '#9fe044'
-yellow = '#faba4a'
-blue = '#8db0ff'
-magenta = '#c7a9ff'
-cyan = '#a4daff'
-white = '#c0caf5'
+black = '#a6a69c'
+red = '#ff5d62'
+green = '#98bb6c'
+yellow = '#ff9e3b'
+blue = '#7fb4ca'
+magenta = '#c4a7e7'
+cyan = '#a3d4d5'
+white = '#dcd7ba'
 
-[env]
-TERM = "xterm-256color"
+# Let Alacritty advertise its installed terminfo entry instead of
+# overriding TERM with a less-specific value.
 
 [font]
 size = 12

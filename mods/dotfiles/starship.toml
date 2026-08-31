@@ -1,6 +1,22 @@
-#format = "$all"
+# Starship prompt configuration.
+# Keep prompt colors explicit so they remain Kanagawa Dragon inside and outside tmux.
 
-# Which is equivalent to
+"$schema" = "https://starship.rs/config-schema.json"
+palette = "kanagawa_dragon"
+
+[palettes.kanagawa_dragon]
+ink = "#1f1f28"
+black = "#0d0c0c"
+gray = "#a6a69c"
+fg = "#dcd7ba"
+red = "#ff5d62"
+green = "#98bb6c"
+yellow = "#ff9e3b"
+blue = "#7fb4ca"
+magenta = "#c4a7e7"
+cyan = "#a3d4d5"
+orange = "#ffa066"
+
 format = """
 $username\
 $hostname\
@@ -69,14 +85,43 @@ $git_status\
 $hg_branch\
 $character"""
 
+[username]
+style_user = "bold fg:magenta"
+style_root = "bold fg:red"
+
+[hostname]
+style = "bold fg:cyan"
 
 [directory]
-style = "green"
-#format = "[:$path]($style)[$read_only]($read_only_style) "
+style = "bold fg:blue"
+read_only_style = "bold fg:red"
 truncate_to_repo = true
-truncation_length = 3 # parent directories to show; default is 3
+truncation_length = 3
 truncation_symbol = "…/"
 
+[cmd_duration]
+style = "bold fg:yellow"
+
+[git_branch]
+style = "bold fg:magenta"
+
+[git_commit]
+style = "fg:cyan"
+
+[git_state]
+style = "bold fg:yellow"
+
+[git_status]
+style = "bold fg:red"
+
+[status]
+style = "bold fg:red"
+
+[character]
+success_symbol = "[❯](bold fg:green)"
+error_symbol = "[❯](bold fg:red)"
+vimcmd_symbol = "[❮](bold fg:blue)"
 
 [gcloud]
 format = 'on [$symbol$project]($style) '
+style = "fg:cyan"

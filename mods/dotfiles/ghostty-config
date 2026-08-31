@@ -1,8 +1,28 @@
 
 # examples https://github.com/search?q=path%3Aghostty%2Fconfig&type=code
-# Tokyo Night palette
-# Ghostty ships this theme; the terminal selects it directly.
-theme = tokyonight
+# Kanagawa Dragon vivid terminal palette.
+palette = 0=#1f1f28
+palette = 1=#ff5d62
+palette = 2=#98bb6c
+palette = 3=#ff9e3b
+palette = 4=#7fb4ca
+palette = 5=#c4a7e7
+palette = 6=#a3d4d5
+palette = 7=#dcd7ba
+palette = 8=#a6a69c
+palette = 9=#ff5d62
+palette = 10=#98bb6c
+palette = 11=#ff9e3b
+palette = 12=#7fb4ca
+palette = 13=#c4a7e7
+palette = 14=#a3d4d5
+palette = 15=#dcd7ba
+background = #1f1f28
+foreground = #dcd7ba
+cursor-color = #dcd7ba
+cursor-text = #1f1f28
+selection-background = #2d4f67
+selection-foreground = #dcd7ba
 
 # Font get available with `ghostty +list-fonts`
 #font-family = "Symbols Nerd Font Mono"

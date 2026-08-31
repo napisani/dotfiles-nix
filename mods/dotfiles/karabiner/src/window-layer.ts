@@ -6,7 +6,7 @@ const TAB_WINDOW_MODE = "tab_window_mode_active";
 const TAB_Q_NESTED_MODE = "tab_q_nested_mode_active";
 
 const windowFocus = (direction: "left" | "right" | "up" | "down") =>
-  to$(`${riftBin} execute window focus --direction ${direction}`);
+  to$(`${riftBin} execute window focus ${direction}`);
 
 const workspaceSwitch = (direction: "next" | "prev") =>
   to$(`${riftBin} execute workspace ${direction}`);

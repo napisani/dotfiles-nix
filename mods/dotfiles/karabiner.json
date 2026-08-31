@@ -4440,7 +4440,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus --direction left"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus left"
                   }
                 ],
                 "conditions": [
@@ -4463,7 +4463,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus --direction down"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus down"
                   }
                 ],
                 "conditions": [
@@ -4486,7 +4486,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus --direction up"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus up"
                   }
                 ],
                 "conditions": [
@@ -4509,7 +4509,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus --direction right"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus right"
                   }
                 ],
                 "conditions": [
@@ -4574,29 +4574,6 @@
               {
                 "type": "basic",
                 "from": {
-                  "key_code": "f"
-                },
-                "to": [
-                  {
-                    "shell_command": "open -a '/Applications/Look.app'"
-                  }
-                ],
-                "conditions": [
-                  {
-                    "type": "variable_if",
-                    "name": "tab_window_mode_active",
-                    "value": 1
-                  },
-                  {
-                    "type": "variable_if",
-                    "name": "tab_q_nested_mode_active",
-                    "value": 0
-                  }
-                ]
-              },
-              {
-                "type": "basic",
-                "from": {
                   "key_code": "q"
                 },
                 "to": [
@@ -4620,6 +4597,29 @@
                     "type": "variable_if",
                     "name": "tab_window_mode_active",
                     "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "f"
+                },
+                "to": [
+                  {
+                    "shell_command": "open -a '/Applications/Look.app'"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
                   }
                 ]
               }
