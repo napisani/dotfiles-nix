@@ -22,12 +22,16 @@
       "wispr-flow"
       "yubico-authenticator"
       "ngrok"
+
+      # AWS Session Manager plugin for the AWS CLI. It's a cask, not a
+      # formula — homebrew/core has no session-manager-plugin, so listing it
+      # under brews fails `brew bundle` with "No formulae found".
+      "session-manager-plugin"
     ];
 
     brews = [
       "opencode"
       "actionlint"
-      "session-manager-plugin"
 
       # Loancrate dev-environment tooling (mirrors the repo Brewfile).
       # git/jq are provided by macOS; shfmt/uv come from the nix profile,
