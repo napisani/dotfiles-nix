@@ -80,6 +80,8 @@ in
       ".config/karabiner/karabiner.json" = mkForcedSym "karabiner.json";
 
       ".look/config" = mkForcedSym "look-config";
+      ".look/sources/window-management.toml" =
+        mkForcedSym "look-sources/window-management.toml";
 
       # Frequently edited user-facing config stays live-editable.
       ".yabairc".source = mkSym "yabairc";

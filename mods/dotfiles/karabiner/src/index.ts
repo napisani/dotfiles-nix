@@ -5,12 +5,19 @@ import { layerRules } from "./layers.ts";
 import { capsRules } from "./cap-modifier.ts";
 import { join } from "@std/path";
 import { tabWindowManagerRules } from "./window-layer.ts";
+import { windowManagerLookSource } from "./window-action-catalog.ts";
 
+const dotfilesHomeManagerDir = Deno.env.get("DOTFILES_HOME_MANAGER_DIR") ||
+  join(Deno.env.get("HOME") || "", ".config/home-manager");
 const karabinerJsonPath = join(
-  Deno.env.get("DOTFILES_HOME_MANAGER_DIR") ||
-    join(Deno.env.get("HOME") || "", ".config/home-manager"),
+  dotfilesHomeManagerDir,
   "mods/dotfiles/karabiner.json",
 );
+const lookSourceDir = join(
+  dotfilesHomeManagerDir,
+  "mods/dotfiles/look-sources",
+);
+const lookSourcePath = join(lookSourceDir, "window-management.toml");
 console.log("Writing to Karabiner profile at:", karabinerJsonPath);
 
 writeToProfile({
@@ -44,3 +51,7 @@ await Deno.symlink(karabinerJsonPath, karabinerConfigPath);
 console.log(
   `Created symlink from ${karabinerConfigPath} to ${karabinerJsonPath}`,
 );
+
+await Deno.mkdir(lookSourceDir, { recursive: true });
+await Deno.writeTextFile(lookSourcePath, windowManagerLookSource());
+console.log(`Wrote Look window-management source to ${lookSourcePath}`);

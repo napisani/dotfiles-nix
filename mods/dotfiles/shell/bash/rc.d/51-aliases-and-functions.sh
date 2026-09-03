@@ -34,6 +34,11 @@ alias serve-directory='python3 -m http.server'
 # pet: Reload Karabiner configuration
 alias restart-karabiner='karabiner-reload.sh'
 
+# pet: Trust a project-local Neovim config
+nvim-trust() {
+  nvim --headless -u NONE "${1:-.nvim.lua}" +'trust' +qa
+}
+
 # flush the DNS resolver cache on whichever platform/resolver is in use
 # pet: Flush the DNS resolver cache
 function dns-clear() {

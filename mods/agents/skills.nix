@@ -380,6 +380,16 @@ let
         }
       ];
     }
+    {
+      input = inputs.deepwiki-rs-skills;
+      skills = [
+        {
+          name = "smart-docs";
+          path = "skills/smart-docs";
+          disableModelInvocation = true;
+        }
+      ];
+    }
   ];
 
   enabledSkillSources = builtins.filter (s: s.condition or true) agentSkillSources;

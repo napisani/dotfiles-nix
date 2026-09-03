@@ -1,65 +1,33 @@
 import { rule, to$ } from "karabiner.ts";
-
-const riftBin = "/etc/profiles/per-user/nick/bin/rift-cli";
+import {
+  adjacentWorkspaceMoveCommand,
+  windowActionCommand,
+} from "./window-action-catalog.ts";
 
 const TAB_WINDOW_MODE = "tab_window_mode_active";
 const TAB_Q_NESTED_MODE = "tab_q_nested_mode_active";
 
-const windowFocus = (direction: "left" | "right" | "up" | "down") =>
-  to$(`${riftBin} execute window focus ${direction}`);
+type Direction = "left" | "right" | "up" | "down";
+
+const action = (id: string) => to$(windowActionCommand(id));
+
+const windowFocus = (direction: Direction) => action(`focus-${direction}`);
 
 const workspaceSwitch = (direction: "next" | "prev") =>
-  to$(`${riftBin} execute workspace ${direction}`);
+  action(`workspace-${direction}`);
 
-const withDirectionalFallback =
-  (subcommand: string) => (direction: "left" | "right" | "up" | "down") =>
-    to$(
-      `if ${riftBin} execute ${subcommand} --direction ${direction}; then
-  :
-else
-  ${riftBin} execute ${subcommand} ${direction}
-fi`,
-    );
+const layoutMoveNode = (direction: Direction) =>
+  action(`move-node-${direction}`);
 
-const layoutMoveNode = withDirectionalFallback("layout move-node");
-
-const layoutJoinWindow = withDirectionalFallback("layout join-window");
+const layoutJoinWindow = (direction: Direction) => action(`join-${direction}`);
 
 const workspaceMoveWindow = (direction: "next" | "prev") =>
-  to$(
-    `workspace_data=$(${riftBin} query workspaces)
-target=$(RIFT_DIRECTION=${direction} RIFT_WS_JSON="$workspace_data" /usr/bin/env python3 <<'PY'
-import json, os, sys
+  to$(adjacentWorkspaceMoveCommand(direction));
 
-direction = os.environ.get("RIFT_DIRECTION", "next")
-workspace_json = os.environ.get("RIFT_WS_JSON", "[]")
-
-data = json.loads(workspace_json)
-if not data:
-    raise SystemExit(1)
-
-ordered = sorted(data, key=lambda ws: ws.get("index", 0))
-active_idx = next((i for i, ws in enumerate(ordered) if ws.get("is_active")), 0)
-
-if direction == "next":
-    indices = list(range(active_idx + 1, len(ordered))) + list(range(0, active_idx))
-else:
-    indices = list(range(active_idx - 1, -1, -1)) + list(range(len(ordered) - 1, active_idx, -1))
-
-if indices:
-    target_idx = indices[0]
-else:
-    target_idx = active_idx
-
-target = ordered[target_idx].get("index")
-if target is not None:
-    print(target, end="")
-PY
-)
-if [ -n "$target" ]; then
-  ${riftBin} execute workspace move-window "$target"
-fi`,
-  );
+const windowResize = (
+  operation: "grow" | "shrink",
+  orientation: "horizontal" | "vertical",
+) => action(`resize-${operation}-${orientation}`);
 
 const tabKeyRule = rule("Tab Key: Dual Role (Tab/Rift Management)")
   .manipulators([
@@ -144,7 +112,7 @@ const riftPrimaryRules = rule("Tab: Rift Primary Actions")
     {
       type: "basic",
       from: { key_code: "f" },
-      to: [to$("open -a '/Applications/Look.app'")],
+      to: [action("open-look")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 0 },
@@ -247,7 +215,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "spacebar" },
-      to: [to$(`${riftBin} execute window toggle-float`)],
+      to: [action("toggle-float")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -256,7 +224,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "z" },
-      to: [to$(`${riftBin} execute window toggle-fullscreen-within-gaps`)],
+      to: [action("fullscreen-within-gaps")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -265,7 +233,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "b" },
-      to: [to$(`${riftBin} execute layout toggle-orientation`)],
+      to: [action("toggle-orientation")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -274,7 +242,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "s" },
-      to: [to$(`${riftBin} execute layout toggle-stack`)],
+      to: [action("toggle-stack")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -283,7 +251,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "c" },
-      to: [to$(`${riftBin} execute workspace create`)],
+      to: [action("create-workspace")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -306,12 +274,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "x" },
-      to: [
-        {
-          key_code: "w",
-          modifiers: ["left_command"],
-        },
-      ],
+      to: [action("close-window")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -319,8 +282,54 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     },
   ]);
 
+const riftResizeRules = rule("Tab+Q: Rift Resize").manipulators([
+  {
+    type: "basic",
+    from: { key_code: "hyphen" },
+    to: [windowResize("shrink", "horizontal")],
+    conditions: [
+      { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+      { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+    ],
+  },
+  {
+    type: "basic",
+    from: { key_code: "equal_sign" },
+    to: [windowResize("grow", "horizontal")],
+    conditions: [
+      { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+      { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+    ],
+  },
+  {
+    type: "basic",
+    from: {
+      key_code: "hyphen",
+      modifiers: { mandatory: ["left_shift"] },
+    },
+    to: [windowResize("shrink", "vertical")],
+    conditions: [
+      { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+      { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+    ],
+  },
+  {
+    type: "basic",
+    from: {
+      key_code: "equal_sign",
+      modifiers: { mandatory: ["left_shift"] },
+    },
+    to: [windowResize("grow", "vertical")],
+    conditions: [
+      { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+      { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+    ],
+  },
+]);
+
 export const tabWindowManagerRules = [
   tabKeyRule,
   riftPrimaryRules,
   riftNestedRules,
+  riftResizeRules,
 ];

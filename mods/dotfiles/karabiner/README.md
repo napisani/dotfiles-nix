@@ -18,6 +18,8 @@ deno run -A polyfill.ts > ../karabiner.json
 karabiner-reload.sh
 ```
 
+The build also regenerates `../look-sources/window-management.toml` from the shared window action catalog. Home Manager links that file into `~/.look/sources/`; reload Look with `Cmd+Shift+;` after rebuilding.
+
 Alternatively, use the full app restart method:
 ```bash
 osascript -e 'quit app "Karabiner-Elements"' && sleep 1 && open -a 'Karabiner-Elements'

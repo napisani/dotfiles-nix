@@ -167,6 +167,10 @@
       url = "github:patricio0312rev/skills";
       flake = false;
     };
+    deepwiki-rs-skills = {
+      url = "github:sopaco/deepwiki-rs";
+      flake = false;
+    };
 
   };
 

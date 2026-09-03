@@ -26,6 +26,8 @@
 
     brews = [
       "opencode"
+      "actionlint"
+      "session-manager-plugin"
 
       # Loancrate dev-environment tooling (mirrors the repo Brewfile).
       # git/jq are provided by macOS; shfmt/uv come from the nix profile,

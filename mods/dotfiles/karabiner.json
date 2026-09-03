@@ -4635,7 +4635,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node --direction left; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node left\nfi"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout move-node left"
                   }
                 ],
                 "conditions": [
@@ -4658,7 +4658,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node --direction down; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node down\nfi"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout move-node down"
                   }
                 ],
                 "conditions": [
@@ -4681,7 +4681,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node --direction up; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node up\nfi"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout move-node up"
                   }
                 ],
                 "conditions": [
@@ -4704,7 +4704,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node --direction right; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout move-node right\nfi"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout move-node right"
                   }
                 ],
                 "conditions": [
@@ -4727,7 +4727,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window --direction left; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window left\nfi"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout join-window left"
                   }
                 ],
                 "conditions": [
@@ -4750,7 +4750,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window --direction up; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window up\nfi"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout join-window up"
                   }
                 ],
                 "conditions": [
@@ -4773,7 +4773,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window --direction down; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window down\nfi"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout join-window down"
                   }
                 ],
                 "conditions": [
@@ -4796,7 +4796,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "if /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window --direction right; then\n  :\nelse\n  /etc/profiles/per-user/nick/bin/rift-cli execute layout join-window right\nfi"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout join-window right"
                   }
                 ],
                 "conditions": [
@@ -4819,7 +4819,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "workspace_data=$(/etc/profiles/per-user/nick/bin/rift-cli query workspaces)\ntarget=$(RIFT_DIRECTION=next RIFT_WS_JSON=\"$workspace_data\" /usr/bin/env python3 <<'PY'\nimport json, os, sys\n\ndirection = os.environ.get(\"RIFT_DIRECTION\", \"next\")\nworkspace_json = os.environ.get(\"RIFT_WS_JSON\", \"[]\")\n\ndata = json.loads(workspace_json)\nif not data:\n    raise SystemExit(1)\n\nordered = sorted(data, key=lambda ws: ws.get(\"index\", 0))\nactive_idx = next((i for i, ws in enumerate(ordered) if ws.get(\"is_active\")), 0)\n\nif direction == \"next\":\n    indices = list(range(active_idx + 1, len(ordered))) + list(range(0, active_idx))\nelse:\n    indices = list(range(active_idx - 1, -1, -1)) + list(range(len(ordered) - 1, active_idx, -1))\n\nif indices:\n    target_idx = indices[0]\nelse:\n    target_idx = active_idx\n\ntarget = ordered[target_idx].get(\"index\")\nif target is not None:\n    print(target, end=\"\")\nPY\n)\nif [ -n \"$target\" ]; then\n  /etc/profiles/per-user/nick/bin/rift-cli execute workspace move-window \"$target\"\nfi"
+                    "shell_command": "$HOME/shell_scripts/rift-workspace-move-adjacent.sh next"
                   }
                 ],
                 "conditions": [
@@ -4842,7 +4842,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "workspace_data=$(/etc/profiles/per-user/nick/bin/rift-cli query workspaces)\ntarget=$(RIFT_DIRECTION=prev RIFT_WS_JSON=\"$workspace_data\" /usr/bin/env python3 <<'PY'\nimport json, os, sys\n\ndirection = os.environ.get(\"RIFT_DIRECTION\", \"next\")\nworkspace_json = os.environ.get(\"RIFT_WS_JSON\", \"[]\")\n\ndata = json.loads(workspace_json)\nif not data:\n    raise SystemExit(1)\n\nordered = sorted(data, key=lambda ws: ws.get(\"index\", 0))\nactive_idx = next((i for i, ws in enumerate(ordered) if ws.get(\"is_active\")), 0)\n\nif direction == \"next\":\n    indices = list(range(active_idx + 1, len(ordered))) + list(range(0, active_idx))\nelse:\n    indices = list(range(active_idx - 1, -1, -1)) + list(range(len(ordered) - 1, active_idx, -1))\n\nif indices:\n    target_idx = indices[0]\nelse:\n    target_idx = active_idx\n\ntarget = ordered[target_idx].get(\"index\")\nif target is not None:\n    print(target, end=\"\")\nPY\n)\nif [ -n \"$target\" ]; then\n  /etc/profiles/per-user/nick/bin/rift-cli execute workspace move-window \"$target\"\nfi"
+                    "shell_command": "$HOME/shell_scripts/rift-workspace-move-adjacent.sh prev"
                   }
                 ],
                 "conditions": [
@@ -5006,10 +5006,114 @@
                 },
                 "to": [
                   {
-                    "key_code": "w",
-                    "modifiers": [
-                      "left_command"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window close"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "description": "Tab+Q: Rift Resize",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "hyphen"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window resize-shrink --orientation horizontal"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "equal_sign"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window resize-grow --orientation horizontal"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "hyphen",
+                  "modifiers": {
+                    "mandatory": [
+                      "left_shift"
                     ]
+                  }
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window resize-shrink --orientation vertical"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "equal_sign",
+                  "modifiers": {
+                    "mandatory": [
+                      "left_shift"
+                    ]
+                  }
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window resize-grow --orientation vertical"
                   }
                 ],
                 "conditions": [

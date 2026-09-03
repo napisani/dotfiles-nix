@@ -179,7 +179,18 @@ Simlayers activate when the trigger key and the action key are pressed at almost
 `Tab+Q+s` → leaf: toggle stack layout  
 `Tab+Q+c` → leaf: create a new workspace  
 `Tab+Q+m` → leaf: minimize current window (`Cmd+M`)  
-`Tab+Q+x` → leaf: close current window (`Cmd+W`)
+`Tab+Q+x` → leaf: close current window (Rift native close, equivalent to `Cmd+W`)
+
+### Tab+Q nested layer — resize
+
+`Tab+Q+-` → leaf: shrink the window horizontally
+`Tab+Q+=` → leaf: grow the window horizontally
+`Tab+Q+Shift+-` → leaf: shrink the window vertically
+`Tab+Q+Shift+=` → leaf: grow the window vertically
+
+### Look discoverability
+
+Every window-layer action is also generated as a searchable Look source. Open Look with `Tab+f`, search `w` (or the action/binding), and press Enter to execute it against the previously focused window. The generated source is `mods/dotfiles/look-sources/window-management.toml`; edit the catalog in `src/window-action-catalog.ts` instead.
 
 ---
 

@@ -160,7 +160,6 @@ let
     "npm:@datspike/pi-inline-slash-extension"
     "npm:@ff-labs/pi-fff"
     "npm:@juicesharp/rpiv-btw"
-    "npm:pi-fabric"
     "npm:pi-vim"
     "npm:pi-web-access"
     # claude-agent-sdk-pi removed: its latest published version (1.0.22)
@@ -222,7 +221,6 @@ in
   home.activation.writePiInstructions = lib.hm.dag.entryAfter [ "installPiRtkHooks" ] (
     instructions.writeAgentInstructions {
       target = instructionsTarget;
-      extraSourcePaths = [ "${dotfiles}/agents/pi/instructions.md" ];
     }
   );
 

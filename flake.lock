@@ -170,6 +170,22 @@
         "type": "github"
       }
     },
+    "deepwiki-rs-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786727003,
+        "narHash": "sha256-+NA4PCs2gSgM2Q49Xo5HdF7kBB02XE2UTZ5EEB1m5VQ=",
+        "owner": "sopaco",
+        "repo": "deepwiki-rs",
+        "rev": "7620742dba31d1d61b01b46c18d2329b584f4caa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sopaco",
+        "repo": "deepwiki-rs",
+        "type": "github"
+      }
+    },
     "fenix": {
       "inputs": {
         "nixpkgs": [
@@ -700,6 +716,7 @@
         "darwin": "darwin",
         "darwin-26": "darwin-26",
         "deepagents": "deepagents",
+        "deepwiki-rs-skills": "deepwiki-rs-skills",
         "gh-stack-skills": "gh-stack-skills",
         "home-manager": "home-manager",
         "home-manager-26": "home-manager-26",
