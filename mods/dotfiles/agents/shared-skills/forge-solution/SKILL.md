@@ -1,6 +1,6 @@
 ---
 name: forge-solution
-description: A guided design session that ends in an implementation-ready typed tech spec. Opens with brainstorm-style framing (a few high-leverage questions, one at a time), escalates to exhaustive grilling frontier rounds, and produces an ephemeral tech spec in .scratch/ as the handoff artifact. Project-agnostic — writes nothing to the repo but the throwaway spec, and leaves long-lived documentation to each project's own conventions.
+description: A guided design session that ends in an implementation-ready typed tech spec. Opens by asking the highest-leverage questions first, one at a time, favoring multiple-choice with a recommended answer, then escalates to exhaustive grilling frontier rounds, and produces an ephemeral tech spec in .scratch/ as the handoff artifact. Project-agnostic — writes nothing to the repo but the throwaway spec, and leaves long-lived documentation to each project's own conventions.
 disable-model-invocation: true
 ---
 
@@ -8,18 +8,19 @@ disable-model-invocation: true
 
 Turn an idea into an implementation-ready **tech spec** through a design session with two strands:
 
-1. **Interview** — brainstorm-style framing first, then exhaustive grilling. Gentle on-ramp, rigorous close.
+1. **Interview** — highest-leverage questions first, then exhaustive grilling. Gentle on-ramp, rigorous close.
 2. **Ephemeral spec** — the deliverable is a typed call-stack tech spec written to `.scratch/`, never committed. It exists to hand the design to an implementing agent, then die.
 
 This skill is **design-only** and **project-agnostic**. Do not implement, scaffold, or write production code at any point. The throwaway spec is the *only* thing this skill writes to the repo — long-lived documentation is deliberately out of scope, since doc conventions differ across projects and belong to each project, not to this skill. The session ends when the spec is approved.
 
-## Phase 1 — Frame (brainstorm cadence)
+## Phase 1 — Frame (highest-leverage questions first)
 
 Understand the problem before interrogating the design.
 
 - **Explore first, ask second.** Read the relevant code, docs, and recent commits before asking anything. Never ask the user for a fact you can look up — their time is for *decisions*, not facts.
 - **Scope check before detail.** If the request spans multiple independent subsystems, say so immediately and help decompose into sub-projects (what are the pieces, how do they relate, what order). Then forge the first sub-project; each gets its own session. Don't spend questions refining details of something that needs decomposition first.
 - **One question at a time**, and only the questions that most change the design: purpose, constraints, success criteria. Prefer multiple choice with a recommendation. Zoom out when an answer implies a broader concern than the question asked — surfacing that is the point of this phase.
+- **Use a structured question-asking tool when the agent has one** (e.g. Claude Code's `AskUserQuestion`) instead of asking in plain text — it renders the choices as selectable options and captures the answer unambiguously. Put your recommended option first and label it as recommended. Fall back to plain text (state the question, list the choices, mark your recommendation) only when no such tool is available or the question isn't a good fit for one (open-ended, needs a free-text answer).
 - **Propose 2–3 materially different approaches** once the problem is understood. Materially different means they differ in interface shape, seam placement, ownership, call stack, or module boundaries — not just names. Lead with your recommendation and why. YAGNI ruthlessly.
 
 When the user picks a direction, the shape is settled — switch to Phase 2. Don't linger here polishing; the grill will catch what framing missed.
@@ -28,7 +29,9 @@ When the user picks a direction, the shape is settled — switch to Phase 2. Don
 
 Now close every gap. Map the chosen design as a **design tree**: every decision branches into the decisions that hang off it. Work it in **rounds**.
 
-The **frontier** is every decision whose prerequisites are settled — askable *now* without guessing at unheard answers. Ask the whole frontier in one numbered round and wait for answers before the next:
+The **frontier** is every decision whose prerequisites are settled — askable *now* without guessing at unheard answers. Ask the whole frontier as one round and wait for answers before the next.
+
+- **Use a structured question-asking tool when the agent has one** (e.g. Claude Code's `AskUserQuestion`), batching frontier questions into it up to whatever limit the tool imposes (e.g. 4 per call) — split a larger frontier across consecutive calls in the same round rather than falling back to text. Put the recommended option first on each question and mark it recommended. Reserve plain text for a frontier question the tool can't express (open-ended, needs a free-text answer) or for agents with no such tool, using this format:
 
 ```
 ❓ **Q1** - **<question title>**: <question body, may include multiple choices>

@@ -135,10 +135,12 @@ let
         {
           name = "brainstorming";
           path = "skills/brainstorming";
+          disableModelInvocation = true;
         }
         {
           name = "systematic-debugging";
           path = "skills/systematic-debugging";
+          disableModelInvocation = true;
         }
       ];
     }
@@ -344,6 +346,11 @@ let
           name = "loancrate-slack-relay";
           path = "priv/skills/loancrate-slack-relay";
         }
+        {
+          name = "loancrate-pr-maintainer";
+          path = "priv/skills/loancrate-pr-maintainer";
+          disableModelInvocation = true;
+        }
       ];
       condition = isLoancrateMac;
     }
@@ -386,6 +393,16 @@ let
         {
           name = "smart-docs";
           path = "skills/smart-docs";
+          disableModelInvocation = true;
+        }
+      ];
+    }
+    {
+      input = inputs.openclaw-skills;
+      skills = [
+        {
+          name = "tmux";
+          path = "skills/tmux";
           disableModelInvocation = true;
         }
       ];

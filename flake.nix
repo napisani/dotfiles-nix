@@ -171,6 +171,10 @@
       url = "github:sopaco/deepwiki-rs";
       flake = false;
     };
+    openclaw-skills = {
+      url = "github:openclaw/openclaw";
+      flake = false;
+    };
 
   };
 
