@@ -541,22 +541,6 @@
         "type": "github"
       }
     },
-    "openclaw-skills": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1788457714,
-        "narHash": "sha256-9IRKALD66/OilAM3QAl2rDSGpYMukaJrP5IcIHe7+xY=",
-        "owner": "openclaw",
-        "repo": "openclaw",
-        "rev": "951c268db0cb80445264e64796578b6cbe3279b6",
-        "type": "github"
-      },
-      "original": {
-        "owner": "openclaw",
-        "repo": "openclaw",
-        "type": "github"
-      }
-    },
     "patricio0312rev-skills": {
       "flake": false,
       "locked": {
@@ -744,7 +728,6 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "no-ai-slop": "no-ai-slop",
-        "openclaw-skills": "openclaw-skills",
         "patricio0312rev-skills": "patricio0312rev-skills",
         "playwright-cli-skills": "playwright-cli-skills",
         "private-skills": "private-skills",

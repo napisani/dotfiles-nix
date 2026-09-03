@@ -397,16 +397,6 @@ let
         }
       ];
     }
-    {
-      input = inputs.openclaw-skills;
-      skills = [
-        {
-          name = "tmux";
-          path = "skills/tmux";
-          disableModelInvocation = true;
-        }
-      ];
-    }
   ];
 
   enabledSkillSources = builtins.filter (s: s.condition or true) agentSkillSources;
