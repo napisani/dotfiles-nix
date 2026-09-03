@@ -592,11 +592,11 @@
     "private-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1788460087,
-        "narHash": "sha256-bVxK0JSuMHKtcgokTfEoczdTUfZR0D2W8H8BrmUAHoE=",
+        "lastModified": 1788462348,
+        "narHash": "sha256-ppksdyep1biZaGjmx3NSrf/zXqb+o9b66sKMZ46f4EM=",
         "ref": "refs/heads/main",
-        "rev": "641ef746d6ea0ccf57ccbd2d712edc8e35de8a8a",
-        "revCount": 1495,
+        "rev": "b4a54556feeada88e230ecc3b9bdeb31b3461f8d",
+        "revCount": 1499,
         "type": "git",
         "url": "https://github.com/napisani/monorepo.git"
       },
