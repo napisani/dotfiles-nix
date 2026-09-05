@@ -49,65 +49,98 @@ local function trim_git_modification_indicator(cmd_output)
 	return cmd_output:match("[^%s]+$")
 end
 
--- Find the fork point of the current branch: the most recent commit shared
--- with any other local branch. Computed by merge-basing HEAD against every
--- other local branch, then picking whichever result is closest to HEAD
--- (i.e. the first of those SHAs encountered walking `git rev-list HEAD`).
--- This naturally prefers a stacked branch's immediate parent over a more
--- distant ancestor like `main`, with no branch-tracking metadata required.
+-- Find the reference commit for "everything this branch adds": the fork point
+-- from the branch's immediate stack parent when it's stacked, otherwise the
+-- fork point from the trunk. Pure git — no branch-tracking metadata.
+--
+-- The hard part is that in the commit graph a *diverged parent* and a
+-- *diverged child* are the same shape. Both share history with HEAD and then
+-- differ, so merge-basing HEAD against every branch and taking whichever
+-- result sits closest to HEAD (what this used to do) picks children and
+-- siblings just as happily as parents. When it picked a child, the fork point
+-- landed inside HEAD's own commits and the diff collapsed to the last commit
+-- or two — the "sometimes doesn't include any changes" symptom. Divergence is
+-- the normal state of a stack: rebase the child, then move the parent, and the
+-- child no longer contains the parent's tip.
+--
+-- What actually separates them is distance from the trunk: a parent has fewer
+-- commits since the trunk fork than HEAD does, a child has more. So candidates
+-- are filtered by:
+--   * not containing HEAD          — excludes children that haven't diverged
+--   * closer to the trunk than HEAD — excludes children that have
+--   * merge base strictly past the trunk fork — excludes siblings, which fork
+--     from the trunk at the same commit rather than from this branch
+-- and the winner is the one whose merge base sits deepest, i.e. the immediate
+-- parent rather than a grandparent.
+--
+-- `git branch --contains <trunk fork>` also keeps this fast by pruning to the
+-- stack region up front: 13 candidates instead of every local branch, which on
+-- a repo with 151 of them is the difference between ~0.4s and ~5s of blocking
+-- subprocesses.
+--
+-- Returns (sha, label) where label describes what was found, for the caller's
+-- notification. Returns nil when the trunk fork can't be resolved at all.
 function M.get_fork_point()
 	local root = file_utils.get_root_dir()
 	local function sys(cmd)
 		return vim.system(cmd, { cwd = root, text = true }):wait()
 	end
+	local function out(res)
+		return res.code == 0 and vim.trim(res.stdout) or nil
+	end
+	local function count(range)
+		return tonumber(out(sys({ "git", "rev-list", "--count", range })) or "") or 0
+	end
 
-	local head = sys({ "git", "symbolic-ref", "--short", "-q", "HEAD" })
-	local current_branch = head.code == 0 and head.stdout:gsub("\n", "") or nil
-
-	local refs = sys({ "git", "for-each-ref", "--format=%(refname:short)", "refs/heads/" })
-	if refs.code ~= 0 then
+	-- The trunk may only exist as a remote ref (a fresh clone that never
+	-- checked out main), so fall back to origin/<trunk> before giving up.
+	local trunk = M.get_primary_git_branch()
+	local trunk_fork = out(sys({ "git", "merge-base", "HEAD", trunk }))
+	if not trunk_fork then
+		trunk = "origin/" .. trunk
+		trunk_fork = out(sys({ "git", "merge-base", "HEAD", trunk }))
+	end
+	if not trunk_fork or trunk_fork == "" then
 		return nil
 	end
 
-	local merge_bases = {}
-	local seen = {}
-	for branch in vim.gsplit(refs.stdout, "\n", { trimempty = true }) do
-		if branch ~= current_branch then
-			-- Skip branches stacked on top of HEAD (i.e. HEAD is their
-			-- ancestor): merge-basing against a descendant branch trivially
-			-- returns a commit at-or-behind HEAD, which would win the
-			-- "closest to HEAD" ranking below and mask the real parent.
-			local is_descendant = sys({ "git", "merge-base", "--is-ancestor", "HEAD", branch })
-			if is_descendant.code ~= 0 then
-				local mb = sys({ "git", "merge-base", "HEAD", branch })
-				if mb.code == 0 then
-					local sha = mb.stdout:gsub("\n", "")
-					if sha ~= "" and not seen[sha] then
-						seen[sha] = true
-						table.insert(merge_bases, sha)
+	-- Detached HEAD (mid-rebase) has no branch name; nothing to exclude by
+	-- name, and any branch sitting at HEAD is caught by the --contains set.
+	local current_branch = out(sys({ "git", "symbolic-ref", "--short", "-q", "HEAD" }))
+	local head_dist = count(trunk_fork .. "..HEAD")
+
+	local contains_head = {}
+	local children = sys({ "git", "branch", "--contains", "HEAD", "--format=%(refname:short)" })
+	if children.code == 0 then
+		for branch in vim.gsplit(children.stdout, "\n", { trimempty = true }) do
+			contains_head[vim.trim(branch)] = true
+		end
+	end
+
+	local region = sys({ "git", "branch", "--contains", trunk_fork, "--format=%(refname:short)" })
+	local best_sha, best_branch, best_depth = nil, nil, 0
+	if region.code == 0 then
+		for raw in vim.gsplit(region.stdout, "\n", { trimempty = true }) do
+			local branch = vim.trim(raw)
+			if branch ~= "" and branch ~= current_branch and not contains_head[branch] then
+				local branch_dist = count(trunk_fork .. ".." .. branch)
+				if branch_dist > 0 and branch_dist < head_dist then
+					local mb = out(sys({ "git", "merge-base", "HEAD", branch }))
+					if mb and mb ~= "" and mb ~= trunk_fork then
+						local depth = count(trunk_fork .. ".." .. mb)
+						if depth > best_depth then
+							best_sha, best_branch, best_depth = mb, branch, depth
+						end
 					end
 				end
 			end
 		end
 	end
 
-	if #merge_bases == 0 then
-		return nil
+	if best_sha then
+		return best_sha, "fork point from stack parent " .. best_branch
 	end
-	if #merge_bases == 1 then
-		return merge_bases[1]
-	end
-
-	local rev_list = sys({ "git", "rev-list", "HEAD" })
-	if rev_list.code ~= 0 then
-		return merge_bases[1]
-	end
-	for sha in vim.gsplit(rev_list.stdout, "\n", { trimempty = true }) do
-		if seen[sha] then
-			return sha
-		end
-	end
-	return merge_bases[1]
+	return trunk_fork, "fork point from " .. trunk
 end
 
 function M.git_conflicted_files()

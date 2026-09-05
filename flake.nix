@@ -150,15 +150,34 @@
       url = "github:nicobailon/visual-explainer";
       flake = false;
     };
+    # private-skills lives in this same monorepo at priv/skills/, so it's a
+    # relative path input rather than a fetch of napisani/monorepo. The fetch
+    # made every skill edit a three-step round trip — commit, push to main,
+    # `nix flake update private-skills` — and rebuilding before the push failed
+    # with `cp: cannot stat .../priv/skills/<name>`, because the pinned tree
+    # genuinely didn't have the new skill yet.
+    #
+    # A path input is copied from the filesystem rather than the git tree, so
+    # authoring a skill and rebuilding are now the same step: edits land even
+    # unstaged, and no `nix flake update` is needed (the lock records no
+    # narHash for it, so `--no-update-lock-file` in the nixswitch aliases is
+    # fine). The trade is deliberate: this is the one skill input that is NOT
+    # pinned, so it's the working tree — not a reviewed commit — that decides
+    # what gets installed. Adding a *new* skill still needs its catalog entry
+    # in mods/agents/skills.nix staged, since the flake's own source is
+    # git-filtered.
+    #
+    # Scoped to priv/skills rather than the monorepo root to keep the store
+    # copy small. Two levels up is fine — path inputs resolve against the
+    # flake's directory in the repo, the same way `path:../stackman` does.
+    private-skills = {
+      url = "path:../../priv/skills";
+      flake = false;
+    };
     # Private napisani repos — fetched over HTTPS (gh auth token required to
     # update the lock; rebuilds use the pinned lock and need no network).
     # SSH URLs don't work here: darwin-rebuild runs as root via sudo, and
     # root's ssh can't see /Users/<user>/.ssh keys nor the (empty) agent.
-    # private-skills now lives in napisani/monorepo at priv/skills/.
-    private-skills = {
-      url = "git+https://github.com/napisani/monorepo.git";
-      flake = false;
-    };
     lc-script-skills = {
       url = "git+https://github.com/napisani/lc-script";
       flake = false;
@@ -310,5 +329,18 @@
       checks.aarch64-darwin.agent-config-resolved = mkAgentConfigResolvedCheck "aarch64-darwin";
       checks.x86_64-darwin.agent-config-resolved = mkAgentConfigResolvedCheck "x86_64-darwin";
       checks.x86_64-linux.agent-config-resolved = mkAgentConfigResolvedCheck "x86_64-linux";
+
+      checks.aarch64-darwin.native-install-contract = import ./checks/native-installs.nix {
+        inherit self lib;
+        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+      };
+      checks.x86_64-darwin.native-install-contract = import ./checks/native-installs.nix {
+        inherit self lib;
+        pkgs = nixpkgs.legacyPackages.x86_64-darwin;
+      };
+      checks.x86_64-linux.native-install-contract = import ./checks/native-installs.nix {
+        inherit self lib;
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      };
     };
 }

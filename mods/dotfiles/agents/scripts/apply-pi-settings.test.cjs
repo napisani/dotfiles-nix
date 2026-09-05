@@ -32,14 +32,13 @@ test("applies declared Pi settings and skill paths while preserving unmanaged va
       theme: "declared-theme",
     }),
     PI_SKILL_PATHS: JSON.stringify(["~/declared-skills"]),
-    PI_REMOVED_PACKAGES: JSON.stringify(["npm:pi-subagents"]),
   });
 
   assert.equal(result.status, 0, result.stderr);
   assert.deepEqual(JSON.parse(fs.readFileSync(settingsPath, "utf8")), {
     custom: true,
     openaiReasoningMode: { effort: "high", fast: false },
-    packages: ["manual-package"],
+    packages: ["manual-package", "npm:pi-subagents"],
     skills: ["~/manual-skills", "~/declared-skills"],
     defaultProvider: "declared-provider",
     theme: "declared-theme",

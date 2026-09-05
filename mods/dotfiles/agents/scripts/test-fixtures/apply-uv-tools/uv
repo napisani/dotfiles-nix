@@ -1,0 +1,102 @@
+#!/usr/bin/env node
+const fs = require("node:fs");
+const path = require("node:path");
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.CALL_LOG, args.join(" ") + "\n");
+const root = process.env.UV_FIXTURE_ROOT;
+const inventoryFile = path.join(root, "inventory.json");
+let inventory = fs.existsSync(inventoryFile)
+  ? JSON.parse(fs.readFileSync(inventoryFile, "utf8"))
+  : {};
+const save = () => fs.writeFileSync(inventoryFile, JSON.stringify(inventory));
+const command = args.filter((arg) => arg !== "--offline");
+const [group, action] = command;
+if (group === "tool" && action === "list") {
+  if (process.env.UV_LIST_INVALID) {
+    console.log("unexpected format");
+    process.exit(0);
+  }
+  for (const [name, dir] of Object.entries(inventory)) {
+    console.log(`${name} v1.0.0 (${dir})`);
+    console.log(`- ${name} (${root}/bin/${name})`);
+  }
+} else if (group === "tool" && action === "install") {
+  const editable = command.includes("--editable");
+  const source = command.at(-1);
+  const name = editable ? path.basename(source) : source.split("[")[0];
+  if (process.env.UV_FAIL_INSTALL === name) process.exit(1);
+  const dir = path.join(root, "tools", name);
+  fs.mkdirSync(path.join(dir, "bin"), { recursive: true });
+  fs.mkdirSync(path.join(root, "bin"), { recursive: true });
+  fs.writeFileSync(path.join(dir, "bin/python"), "fixture");
+  const bin = path.join(root, "bin", name);
+  fs.writeFileSync(bin, "fixture");
+  fs.chmodSync(bin, 0o755);
+  const deps = command.flatMap((arg, index) =>
+    arg === "--with" ? [command[index + 1]] : []
+  );
+  const extras = source.includes("[")
+    ? source.split("[")[1].slice(0, -1).split(",")
+    : [];
+  const requirement = `{ name = ${JSON.stringify(name)}, extras = ${
+    JSON.stringify(extras)
+  }${editable ? ", editable = " + JSON.stringify(source) : ""} }`;
+  fs.writeFileSync(
+    path.join(dir, "uv-receipt.toml"),
+    `[tool]\nrequirements = [${
+      [requirement, ...deps.map((dep) => `{ name = ${JSON.stringify(dep)} }`)]
+        .join(",")
+    }]\nentrypoints = [{ name = ${JSON.stringify(name)}, install-path = ${
+      JSON.stringify(bin)
+    } }]\n`,
+  );
+  fs.writeFileSync(
+    path.join(dir, "packages.json"),
+    JSON.stringify(
+      [name, ...deps].map((dep) => ({ name: dep, version: "1.0.0" })),
+    ),
+  );
+  inventory[name] = dir;
+  save();
+} else if (group === "tool" && action === "uninstall") {
+  const name = command.at(-1);
+  if (process.env.UV_FAIL_REMOVE === name) process.exit(1);
+  if (inventory[name]) {
+    fs.rmSync(inventory[name], { recursive: true, force: true });
+  }
+  delete inventory[name];
+  save();
+} else if (group === "venv") {
+  const dir = command.at(-1);
+  fs.mkdirSync(path.join(dir, "bin"), { recursive: true });
+  fs.writeFileSync(path.join(dir, "bin/python"), "fixture");
+  fs.writeFileSync(path.join(dir, "packages.json"), "[]");
+} else if (group === "pip") {
+  const interpreter = command[command.indexOf("--python") + 1];
+  const file = path.join(
+    path.dirname(path.dirname(interpreter)),
+    "packages.json",
+  );
+  if (action === "list") {
+    if (process.env.UV_PIP_INVALID) {
+      console.log("bad json");
+      process.exit(0);
+    }
+    console.log(fs.readFileSync(file, "utf8"));
+  } else if (action === "install") {
+    if (process.env.UV_FAIL_PIP) process.exit(1);
+    fs.writeFileSync(
+      file,
+      JSON.stringify([{ name: "requests", version: "1.0.0" }]),
+    );
+  } else if (action === "uninstall") {
+    fs.writeFileSync(
+      file,
+      JSON.stringify(
+        JSON.parse(fs.readFileSync(file)).filter((pkg) =>
+          pkg.name !== "requests"
+        ),
+      ),
+    );
+  } else process.exit(2);
+} else process.exit(2);

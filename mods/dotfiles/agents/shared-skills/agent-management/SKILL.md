@@ -191,13 +191,24 @@ Deleting desired state must remove only the corresponding managed asset:
 - Plugin/package: tracked ownership tells the reconciler what it may uninstall.
 
 Never prune all native inventory merely because it is absent from Nix; that
-would remove manually installed assets.
+would remove manually installed assets. Do not add a second list of removed
+packages: deleting the declaration is sufficient for previously tracked assets.
+Missing state starts with no ownership; legacy state formats retain their
+recorded ownership, but hard-coded migration seeds are not used.
 
 ## Convergence, repair, and update
 
 A normal switch converges declared state and must not query registries or invoke
 installers when local inventory is healthy and unchanged. Freshness is an
 explicit operation, not part of convergence.
+
+Pi/npm/uv share `scripts/lib/reconcile-installs.js`, which records success and
+retry state per asset. Adapters provide native local health probes; inspection
+uncertainty is not automatically treated as a missing installation. Keep
+activation code generation-bound through `mods/native-scripts.nix`; referencing
+`homeManagerRelPath` for these installers can silently run stale code from a
+different checkout. Runtime instructions and editable Python sources can still
+stay live; Python dependency metadata changes trigger reinstall.
 
 ```sh
 # Reinstall/repair the currently declared assets.
@@ -223,8 +234,10 @@ system=$(nix eval --impure --raw --expr builtins.currentSystem)
 nix build ".#checks.${system}.agent-config-resolved" --no-link
 ```
 
-The first check forces merged activation values. The second serializes the
-public desired state for every managed host.
+`nix flake check` forces merged activation values, serializes desired state,
+and runs `native-install-contract`: subprocess fixtures against the actual
+immutable script bundle plus generation-binding assertions for every host.
+The checks are exposed equally on all managed systems.
 
 For adapter scripts, run the adjacent Node test directly:
 

@@ -27,13 +27,13 @@ end
 
 function M.set_git_ref_to_parent()
 	local git_utils = require("user.utils.git_utils")
-	local fork_point = git_utils.get_fork_point()
+	local fork_point, label = git_utils.get_fork_point()
 	if not fork_point then
-		vim.notify("could not determine fork point (no other local branches found?)", vim.log.levels.WARN)
+		vim.notify("could not determine fork point (no trunk branch to compare against?)", vim.log.levels.WARN)
 		return
 	end
 	utils.set_git_ref(fork_point)
-	vim.notify("git ref set to fork point: " .. fork_point)
+	vim.notify("git ref set to " .. (label or "fork point") .. ": " .. fork_point:sub(1, 12))
 end
 
 function M.establish_git_ref(commit)

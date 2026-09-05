@@ -3,11 +3,8 @@
 # Owns everything specific to Pi: skills (community + Pi-local via home.file;
 # shared skills come from the global store ~/.agents/skills that Pi
 # auto-discovers, so they're deliberately not linked into ~/.pi/agent/skills),
-# RTK hooks, shared instructions, MCP servers (JSON), package installs (diff-
-# pruned via `pi install`/`pi remove`, replacing the old manually-maintained
-# removedPiPackages list in npmx.nix — including a one-time legacySeed for
-# npm:pi-skillful, which that old list used to actively remove every run),
-# extension/theme links, and settings.
+# RTK hooks, shared instructions, MCP servers (JSON), state-tracked package
+# installs/removals, extension/theme links, and settings.
 {
   config,
   lib,
@@ -57,7 +54,8 @@ let
     };
   };
 
-  scriptsDir = "${dotfiles}/agents/scripts";
+  nativeScripts = import ../native-scripts.nix { inherit lib; };
+  scriptsDir = "${nativeScripts}/agents/scripts";
   instructionsTarget = "${home}/.pi/agent/AGENTS.md";
   mcpTarget = "${home}/.pi/agent/mcp.json";
 
@@ -139,12 +137,6 @@ lib.mkIf (config.agents.enable && agentCfg.enable) {
     managedConfig.mkPiPackageInstall {
       declaredPackages = agentCfg.packages;
       stateId = "pi-packages";
-      # npmx.nix used to actively `pi remove npm:pi-skillful` every run via
-      # a manually-maintained removedPiPackages list. Seed it here once so
-      # the new diff-based mechanism still prunes it on its first run,
-      # instead of silently never pruning something that predates this
-      # tracking.
-      legacySeed = [ "npm:pi-skillful" ];
     }
   );
 
@@ -152,7 +144,6 @@ lib.mkIf (config.agents.enable && agentCfg.enable) {
     # ── Settings (provider defaults, model, skill paths) ──────────────────────
     PI_MANAGED_SETTINGS=${lib.escapeShellArg (builtins.toJSON agentCfg.settings)} \
     PI_SKILL_PATHS=${lib.escapeShellArg (builtins.toJSON agentCfg.skillPaths)} \
-    PI_REMOVED_PACKAGES=${lib.escapeShellArg (builtins.toJSON [ "npm:pi-subagents" ])} \
       ${nodeBin}/node ${scriptsDir}/apply-pi-settings.js
 
     # ── Custom providers/models → ~/.pi/agent/models.json (the file Pi reads) ─

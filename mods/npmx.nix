@@ -3,7 +3,6 @@
   lib,
   pkgs-unstable,
   machineRoles ? [ ],
-  homeManagerRelPath,
   ...
 }:
 
@@ -14,27 +13,13 @@ let
     inherit name version;
   }) config.agents.globalNpmTools;
 
-  removedNpmPackages = [
-    "@mariozechner/pi-coding-agent"
-    "pi-skillful"
-    # Duplicated `rtk init -g --opencode`'s own generated plugin
-    # (~/.config/opencode/plugins/rtk.ts) — keep just the one rtk source.
-    "openrtk"
-    "@agentmemory/mcp"
-    "@agentmemory/agentmemory"
-  ];
-
-  # Pi packages are declared in config.agents.pi.packages and diff-pruned by
-  # the Pi adapter's installPiPackages activation — not here. That mechanism tracks Nix-managed state and removes anything
-  # undeclared automatically, replacing this file's old manually-maintained
-  # removedPiPackages list.
-
   npm = "${pkgs-unstable.nodejs}/bin/npm";
   nodeBin = "${pkgs-unstable.nodejs}/bin";
   gitBin = "${pkgs-unstable.git}/bin";
   home = config.home.homeDirectory;
   npmPrefix = "${home}/.local";
-  scriptsDir = "${home}/${homeManagerRelPath}/mods/dotfiles/agents/scripts";
+  nativeScripts = import ./native-scripts.nix { inherit lib; };
+  scriptsDir = "${nativeScripts}/agents/scripts";
   stateFile = "${home}/.local/state/agents-nix/npmx-tools.json";
 
   # ~/.npmrc used to be declared via home.file (mods/shell.nix), which Home
@@ -102,11 +87,6 @@ in
         export PATH="${gitBin}:${nodeBin}:$NPM_CONFIG_PREFIX/bin:$PATH"
 
         if ! DECLARED_TOOLS=${lib.escapeShellArg (builtins.toJSON npmxTools)} \
-          LEGACY_SEED=${
-            lib.escapeShellArg (
-              builtins.toJSON (removedNpmPackages ++ builtins.attrNames config.agents.globalNpmTools)
-            )
-          } \
           NPM_COMMAND=${lib.escapeShellArg npm} \
           STATE_FILE=${lib.escapeShellArg stateFile} \
           FORCE_REPAIR="''${AGENTS_FORCE_REPAIR:-}" \

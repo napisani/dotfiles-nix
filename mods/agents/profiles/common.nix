@@ -134,6 +134,9 @@
         "npm:@juicesharp/rpiv-btw"
         "npm:pi-vim"
         "npm:pi-web-access"
+        # Routes Pi through the Claude Agent SDK without the stale pi-ai peer
+        # range and removed getModels call in claude-agent-sdk-pi.
+        "npm:pi-claude-bridge"
         "npm:pi-goal"
         "git:github.com/nicobailon/visual-explainer"
       ];

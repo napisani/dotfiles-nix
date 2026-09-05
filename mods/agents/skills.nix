@@ -48,16 +48,19 @@ in
   show-me = pinned inputs.humanlayer-skills "plugins/show-me/skills/show-me";
   visual-explainer = pinned inputs.builderio-skills "skills/visual-explainer";
 
-  multi-valued-review = pinned inputs.private-skills "priv/skills/multi-valued-review";
-  mvr-suggestions = pinned inputs.private-skills "priv/skills/mvr-suggestions";
-  neovim-project-config = pinned inputs.private-skills "priv/skills/neovim-project-config";
-  loancrate-with-workmux-stack-handoff = pinned inputs.private-skills "priv/skills/loancrate-with-workmux-stack-handoff";
-  loancrate-standup-prep = pinned inputs.private-skills "priv/skills/loancrate-standup-prep";
-  loancrate-analyze-agent-self-improve-trend = pinned inputs.private-skills "priv/skills/loancrate-analyze-agent-self-improve-trend";
-  loancrate-weekly-update-draft = pinned inputs.private-skills "priv/skills/loancrate-weekly-update-draft";
-  loancrate-weekly-project-update-draft = pinned inputs.private-skills "priv/skills/loancrate-weekly-project-update-draft";
-  loancrate-slack-relay = pinned inputs.private-skills "priv/skills/loancrate-slack-relay";
-  loancrate-pr-maintainer = pinned inputs.private-skills "priv/skills/loancrate-pr-maintainer";
+  # This input is a working-tree path rooted at priv/skills, so these paths are
+  # relative to that directory rather than the monorepo root.
+  multi-valued-review = pinned inputs.private-skills "multi-valued-review";
+  mvr-suggestions = pinned inputs.private-skills "mvr-suggestions";
+  neovim-project-config = pinned inputs.private-skills "neovim-project-config";
+  loancrate-with-workmux-stack-handoff = pinned inputs.private-skills "loancrate-with-workmux-stack-handoff";
+  loancrate-standup-prep = pinned inputs.private-skills "loancrate-standup-prep";
+  loancrate-analyze-agent-self-improve-trend = pinned inputs.private-skills "loancrate-analyze-agent-self-improve-trend";
+  loancrate-weekly-update-draft = pinned inputs.private-skills "loancrate-weekly-update-draft";
+  loancrate-weekly-project-update-draft = pinned inputs.private-skills "loancrate-weekly-project-update-draft";
+  loancrate-slack-relay = pinned inputs.private-skills "loancrate-slack-relay";
+  loancrate-pr-maintainer = pinned inputs.private-skills "loancrate-pr-maintainer";
+  loancrate-prepare-perf-impact = pinned inputs.private-skills "loancrate-prepare-perf-impact";
 
   loancrate-lc-script = pinned inputs.lc-script-skills "skills/loancrate-lc-script";
   loancrate-eval-model-candidates-ci = pinned inputs.lc-script-skills "skills/loancrate-eval-model-candidates-ci";

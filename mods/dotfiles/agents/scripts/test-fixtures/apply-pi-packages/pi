@@ -9,7 +9,14 @@ fs.appendFileSync(process.env.CALL_LOG, args.join(" ") + "\n");
 
 function artifactPath(spec) {
   if (spec.startsWith("npm:")) {
-    return path.join(process.env.HOME, ".pi", "agent", "npm", "node_modules", spec.slice(4));
+    return path.join(
+      process.env.HOME,
+      ".pi",
+      "agent",
+      "npm",
+      "node_modules",
+      spec.slice(4).replace(/@\d.*$/, ""),
+    );
   }
   if (spec.startsWith("git:")) {
     return path.join(process.env.HOME, ".pi", "agent", "git", spec.slice(4));
@@ -19,17 +26,22 @@ function artifactPath(spec) {
 
 function installedPackages() {
   if (!fs.existsSync(process.env.PI_INSTALL_STATE)) return [];
-  return fs.readFileSync(process.env.PI_INSTALL_STATE, "utf8").split("\n").filter(Boolean);
+  return fs.readFileSync(process.env.PI_INSTALL_STATE, "utf8").split("\n")
+    .filter(Boolean);
 }
 
 function writeInstalledPackages(packages) {
   fs.writeFileSync(
     process.env.PI_INSTALL_STATE,
-    packages.length ? packages.join("\n") + "\n" : ""
+    packages.length ? packages.join("\n") + "\n" : "",
   );
 }
 
 if (command === "list") {
+  if (process.env.PI_LIST_INVALID) {
+    console.log("unsupported output");
+    process.exit(0);
+  }
   console.log("User packages:");
   for (const installedPackage of installedPackages()) {
     console.log("  " + installedPackage);
@@ -39,14 +51,30 @@ if (command === "list") {
   process.exit(Number(process.env.PI_LIST_STATUS || 0));
 }
 
-if (command === "install" && process.env.PI_FAIL_INSTALL === packageSpec) process.exit(1);
-if (command === "remove" && process.env.PI_FAIL_REMOVE === packageSpec) process.exit(1);
+if (command === "install" && process.env.PI_FAIL_INSTALL === packageSpec) {
+  process.exit(1);
+}
+if (command === "remove" && process.env.PI_FAIL_REMOVE === packageSpec) {
+  process.exit(1);
+}
 
 if (command === "install") {
   const packages = installedPackages();
-  if (!packages.includes(packageSpec)) writeInstalledPackages([...packages, packageSpec]);
+  if (!packages.includes(packageSpec)) {
+    writeInstalledPackages([...packages, packageSpec]);
+  }
   fs.mkdirSync(artifactPath(packageSpec), { recursive: true });
+  if (packageSpec.startsWith("npm:")) {
+    fs.writeFileSync(
+      path.join(artifactPath(packageSpec), "package.json"),
+      JSON.stringify({
+        version: packageSpec.match(/@(\d.*)$/)?.[1] || "1.0.0",
+      }),
+    );
+  }
 } else if (command === "remove") {
-  writeInstalledPackages(installedPackages().filter((spec) => spec !== packageSpec));
+  writeInstalledPackages(
+    installedPackages().filter((spec) => spec !== packageSpec),
+  );
   fs.rmSync(artifactPath(packageSpec), { recursive: true, force: true });
 }

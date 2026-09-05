@@ -29,6 +29,7 @@ let
   inherit (shared) dotfiles nodeBin home;
 
   scriptsDir = "${dotfiles}/agents/scripts";
+  nativeScripts = import ../native-scripts.nix { inherit lib; };
 
   # Where the "previously managed" name set for one (target, key) pair is
   # tracked across activations. `stateId` is a caller-supplied stable name
@@ -110,7 +111,7 @@ let
         STATE_FILE=${lib.escapeShellArg (mkStateFile stateId)} \
         FORCE_REPAIR="''${AGENTS_FORCE_REPAIR:-}" \
         UPDATE="''${AGENTS_UPDATE:-}" \
-          ${nodeBin}/node ${scriptsDir}/apply-claude-plugins.js \
+          ${nodeBin}/node ${nativeScripts}/agents/scripts/apply-claude-plugins.js \
           || ${shared.mkWarn "Claude plugin reconciliation failed; retry with network access or force repair"}
       else
         ${shared.mkWarn "'claude' CLI not found — skipping Claude plugin installs"}
@@ -123,28 +124,20 @@ let
   # the user installed outside of Nix (they never enter the tracked
   # managed-set, so they're never pruned).
   #
-  # `legacySeed` is an optional one-time bootstrap: package specs that used
-  # to be actively removed by an older, differently-tracked mechanism (see
-  # npmx.nix's now-deleted removedPiPackages). Seeding them into the state
-  # file only when it doesn't exist yet ensures they're still pruned on the
-  # very first run of this mechanism, instead of silently persisting forever
-  # just because they predate this tracking.
-  #
   # Same trusted-path-first PATH rationale as mkClaudePluginInstall above.
   mkPiPackageInstall =
     {
       declaredPackages,
       stateId,
-      legacySeed ? [ ],
     }:
     ''
       export PATH="/opt/homebrew/bin:/run/current-system/sw/bin:$HOME/.local/bin:$PATH"
       if command -v pi >/dev/null 2>&1; then
         DECLARED_PACKAGES=${lib.escapeShellArg (builtins.toJSON declaredPackages)} \
-        LEGACY_SEED=${lib.escapeShellArg (builtins.toJSON legacySeed)} \
         STATE_FILE=${lib.escapeShellArg (mkStateFile stateId)} \
         FORCE_REPAIR="''${AGENTS_FORCE_REPAIR:-''${AGENTS_UPDATE:-}}" \
-          ${nodeBin}/node ${scriptsDir}/apply-pi-packages.js
+          ${nodeBin}/node ${nativeScripts}/agents/scripts/apply-pi-packages.js \
+          || ${shared.mkWarn "Pi package reconciliation failed; inspect the reported reason before retrying"}
       else
         ${shared.mkWarn "'pi' CLI not found — skipping Pi package installs"}
       fi

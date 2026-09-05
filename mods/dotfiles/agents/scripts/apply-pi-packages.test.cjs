@@ -3,317 +3,150 @@ const test = require("node:test");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
-const { execFileSync } = require("node:child_process");
-
-const SCRIPT = path.join(__dirname, "apply-pi-packages.js");
-const STUB_BIN = path.join(__dirname, "test-fixtures", "apply-pi-packages");
-
-function mkTmpDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "apply-pi-packages-test-"));
-}
-
-function run(dir, env) {
-  const home = path.join(dir, "home");
-  fs.mkdirSync(path.join(home, ".pi", "agent", "npm"), { recursive: true });
-  fs.writeFileSync(path.join(home, ".pi", "agent", "npm", "package.json"), '{}\n');
-  const callLog = env.CALL_LOG || path.join(dir, "calls.log");
-  const npmCallLog = env.NPM_CALL_LOG || path.join(dir, "npm-calls.log");
-  return execFileSync(process.execPath, [SCRIPT], {
-    env: {
-      ...process.env,
-      HOME: home,
-      PATH: `${STUB_BIN}:${process.env.PATH}`,
-      CALL_LOG: callLog,
-      NPM_CALL_LOG: npmCallLog,
-      PI_INSTALL_STATE: path.join(dir, "installed-packages"),
-      ...env,
+const { spawnSync } = require("node:child_process");
+function fixture(t) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pi-reconcile-"));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const npmDir = path.join(dir, ".pi/agent/npm");
+  fs.mkdirSync(npmDir, { recursive: true });
+  fs.writeFileSync(path.join(npmDir, "package.json"), "{}");
+  const log = path.join(dir, "calls");
+  const npmLog = path.join(dir, "npm-calls");
+  const state = path.join(dir, "state.json");
+  const run = (packages = ["npm:pi-vim"], extra = {}) =>
+    spawnSync(
+      process.execPath,
+      [path.join(__dirname, "apply-pi-packages.js")],
+      {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          HOME: dir,
+          FORCE_REPAIR: "",
+          PATH: `${
+            path.join(__dirname, "test-fixtures/apply-pi-packages")
+          }:${process.env.PATH}`,
+          STATE_FILE: state,
+          DECLARED_PACKAGES: JSON.stringify(packages),
+          CALL_LOG: log,
+          NPM_CALL_LOG: npmLog,
+          PI_INSTALL_STATE: path.join(dir, "installed"),
+          ...extra,
+        },
+      },
+    );
+  const calls = (file) =>
+    fs.existsSync(file)
+      ? fs.readFileSync(file, "utf8").trim().split("\n").filter(Boolean)
+      : [];
+  return {
+    dir,
+    npmDir,
+    state,
+    run,
+    calls: () => calls(log),
+    npmCalls: () => calls(npmLog),
+    clear: () => {
+      fs.writeFileSync(log, "");
+      fs.writeFileSync(npmLog, "");
     },
-    encoding: "utf8",
-  });
+  };
 }
-
-function readCalls(logFile) {
-  if (!fs.existsSync(logFile)) return [];
-  return fs.readFileSync(logFile, "utf8").trim().split("\n").filter(Boolean);
-}
-
-test("a declared package is installed", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const state = path.join(dir, "state.json");
-
-  run(dir, { CALL_LOG: log, DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]), STATE_FILE: state });
-
-  const calls = readCalls(log);
-  assert.ok(calls.includes("install npm:pi-vim"));
+test("unchanged healthy Pi runs perform no installs or npm calls", (t) => {
+  const h = fixture(t);
+  const first = h.run();
+  assert.equal(first.status, 0, first.stderr);
+  h.clear();
+  assert.equal(h.run().status, 0);
+  assert.deepEqual(h.calls(), ["list --no-approve"]);
+  assert.deepEqual(h.npmCalls(), []);
 });
-
-test("a package removed from declared is pruned on the next run", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const state = path.join(dir, "state.json");
-
-  run(dir, { CALL_LOG: log, DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim", "npm:pi-web-access"]), STATE_FILE: state });
-  fs.writeFileSync(log, "");
-  run(dir, { CALL_LOG: log, DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]), STATE_FILE: state });
-
-  const calls = readCalls(log);
-  assert.ok(calls.includes("remove npm:pi-web-access"));
-  assert.ok(!calls.includes("install npm:pi-web-access"));
+test("one failed package does not reinstall successful siblings on retry", (t) => {
+  const h = fixture(t);
+  const declared = ["npm:pi-vim", "npm:other"];
+  assert.equal(h.run(declared, { PI_FAIL_INSTALL: "npm:other" }).status, 1);
+  h.clear();
+  assert.equal(h.run(declared).status, 0);
+  assert.deepEqual(h.calls().filter((c) => c.startsWith("install")), [
+    "install npm:other",
+  ]);
 });
-
-test("a package never managed by Nix is never touched", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const state = path.join(dir, "state.json");
-  const unmanagedArtifact = path.join(dir, "home/.pi/agent/npm/node_modules/@ayulab/pi-rewind");
-  fs.writeFileSync(path.join(dir, "installed-packages"), "npm:@ayulab/pi-rewind\n");
-  fs.mkdirSync(unmanagedArtifact, { recursive: true });
-
-  run(dir, { CALL_LOG: log, DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]), STATE_FILE: state });
-
-  const calls = readCalls(log);
-  assert.ok(!calls.some((c) => c.includes("remove npm:@ayulab/pi-rewind")));
-  assert.ok(fs.existsSync(unmanagedArtifact));
+test("benign warnings and unrelated npm tree problems do not trigger installs", (t) => {
+  const h = fixture(t);
+  h.run();
+  h.clear();
+  assert.equal(
+    h.run(undefined, {
+      PI_LIST_WARNING: "update available",
+      NPM_HEALTH: "invalid",
+    }).status,
+    0,
+  );
+  assert.deepEqual(h.calls(), ["list --no-approve"]);
+  assert.deepEqual(h.npmCalls(), []);
 });
-
-test("an exact version change removes the old managed spec and installs the new one", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const state = path.join(dir, "state.json");
-
-  run(dir, { CALL_LOG: log, DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim@1.0.0"]), STATE_FILE: state });
-  fs.writeFileSync(log, "");
-  run(dir, { CALL_LOG: log, DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim@2.0.0"]), STATE_FILE: state });
-
-  assert.ok(readCalls(log).includes("remove npm:pi-vim@1.0.0"));
-  assert.ok(readCalls(log).includes("install npm:pi-vim@2.0.0"));
+test("unknown inventory refuses mutations", (t) => {
+  const h = fixture(t);
+  h.run();
+  h.clear();
+  assert.equal(h.run(undefined, { PI_LIST_INVALID: "1" }).status, 1);
+  assert.ok(h.calls().every((c) => c === "list --no-approve"));
+  assert.deepEqual(h.npmCalls(), []);
 });
-
-test("unchanged healthy declarations skip Pi installers and npm reconciliation", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const npmLog = path.join(dir, "npm-calls.log");
-  const state = path.join(dir, "state.json");
-  const env = {
-    CALL_LOG: log,
-    NPM_CALL_LOG: npmLog,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    STATE_FILE: state,
-  };
-
-  run(dir, env);
-  fs.writeFileSync(log, "");
-  fs.writeFileSync(npmLog, "");
-  run(dir, env);
-
-  assert.ok(!readCalls(log).some((call) => /^(install|remove) /.test(call)));
-  assert.ok(!readCalls(npmLog).some((call) => call.startsWith("install ")));
+test("missing artifact repairs only that package", (t) => {
+  const h = fixture(t);
+  const declared = ["npm:pi-vim", "npm:other"];
+  h.run(declared);
+  fs.rmSync(path.join(h.npmDir, "node_modules/other"), { recursive: true });
+  h.clear();
+  assert.equal(h.run(declared).status, 0);
+  assert.deepEqual(h.calls().filter((c) => c.startsWith("install")), [
+    "install npm:other",
+  ]);
 });
-
-test("forced repair reconciles an otherwise healthy declaration", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const state = path.join(dir, "state.json");
-
-  const env = {
-    CALL_LOG: log,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    STATE_FILE: state,
-  };
-  run(dir, env);
-  fs.writeFileSync(log, "");
-  run(dir, { ...env, FORCE_REPAIR: "1" });
-
-  assert.ok(readCalls(log).includes("install npm:pi-vim"));
+test("exact version changes remove old spec and install new one", (t) => {
+  const h = fixture(t);
+  h.run(["npm:pi-vim@1.0.0"]);
+  h.clear();
+  assert.equal(h.run(["npm:pi-vim@2.0.0"]).status, 0);
+  assert.ok(h.calls().includes("remove npm:pi-vim@1.0.0"));
+  assert.ok(h.calls().includes("install npm:pi-vim@2.0.0"));
 });
-
-test("a failed install does not record success and is retried", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const state = path.join(dir, "state.json");
-
-  assert.doesNotThrow(() => run(dir, {
-    CALL_LOG: log,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    PI_FAIL_INSTALL: "npm:pi-vim",
-    STATE_FILE: state,
-  }));
-  assert.equal(JSON.parse(fs.readFileSync(state, "utf8")).converged, false);
-
-  run(dir, {
-    CALL_LOG: log,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    STATE_FILE: state,
-  });
-  assert.ok(readCalls(log).filter((call) => call === "install npm:pi-vim").length >= 2);
+test("legacy array migrates without blindly reinstalling healthy packages", (t) => {
+  const h = fixture(t);
+  h.run();
+  fs.writeFileSync(h.state, '["npm:pi-vim"]');
+  h.clear();
+  assert.equal(h.run().status, 0);
+  assert.deepEqual(h.calls(), ["list --no-approve"]);
+  assert.deepEqual(h.npmCalls(), []);
 });
-
-test("a failed forced repair invalidates prior success so the next run retries", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const state = path.join(dir, "state.json");
-  const env = {
-    CALL_LOG: log,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    STATE_FILE: state,
-  };
-
-  run(dir, env);
-  run(dir, { ...env, FORCE_REPAIR: "1", PI_FAIL_INSTALL: "npm:pi-vim" });
-  assert.equal(JSON.parse(fs.readFileSync(state, "utf8")).converged, false);
-
-  fs.writeFileSync(log, "");
-  run(dir, env);
-  assert.ok(readCalls(log).includes("install npm:pi-vim"));
+test("failed removal retains ownership and is retried", (t) => {
+  const h = fixture(t);
+  h.run();
+  h.clear();
+  assert.equal(h.run([], { PI_FAIL_REMOVE: "npm:pi-vim" }).status, 1);
+  assert.equal(h.run([]).status, 0);
+  assert.equal(h.calls().filter((c) => c === "remove npm:pi-vim").length, 2);
 });
-
-test("a failed removal keeps old ownership so pruning is retried", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const state = path.join(dir, "state.json");
-  const initial = JSON.stringify(["npm:pi-vim", "npm:pi-web-access"]);
-
-  run(dir, { CALL_LOG: log, DECLARED_PACKAGES: initial, STATE_FILE: state });
-  fs.writeFileSync(log, "");
-  run(dir, {
-    CALL_LOG: log,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    PI_FAIL_REMOVE: "npm:pi-web-access",
-    STATE_FILE: state,
-  });
-  assert.deepEqual(JSON.parse(fs.readFileSync(state, "utf8")).managed, ["npm:pi-vim", "npm:pi-web-access"]);
-
-  fs.writeFileSync(log, "");
-  run(dir, {
-    CALL_LOG: log,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    STATE_FILE: state,
-  });
-  assert.ok(readCalls(log).includes("remove npm:pi-web-access"));
+test("failed batch npm reconciliation is retried", (t) => {
+  const h = fixture(t);
+  assert.equal(h.run(undefined, { NPM_FAIL_INSTALL: "1" }).status, 1);
+  h.clear();
+  assert.equal(h.run().status, 0);
+  assert.ok(h.calls().includes("install npm:pi-vim"));
 });
-
-test("a missing declared artifact forces reconciliation", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const npmLog = path.join(dir, "npm-calls.log");
-  const state = path.join(dir, "state.json");
-
-  run(dir, {
-    CALL_LOG: log,
-    NPM_CALL_LOG: npmLog,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    STATE_FILE: state,
-  });
-  fs.rmSync(path.join(dir, "home/.pi/agent/npm/node_modules/pi-vim"), { recursive: true });
-  fs.writeFileSync(log, "");
-  fs.writeFileSync(npmLog, "");
-  run(dir, {
-    CALL_LOG: log,
-    NPM_CALL_LOG: npmLog,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    STATE_FILE: state,
-  });
-
-  assert.ok(readCalls(log).includes("install npm:pi-vim"));
-  assert.ok(readCalls(npmLog).some((call) => call.startsWith("install ")));
+test("corrupt state never authorizes mutations", (t) => {
+  const h = fixture(t);
+  fs.writeFileSync(h.state, "not-json");
+  assert.equal(h.run().status, 1);
+  assert.deepEqual(h.calls(), []);
+  assert.equal(fs.readFileSync(h.state, "utf8"), "not-json");
 });
-
-test("Pi list warnings force reconciliation", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const state = path.join(dir, "state.json");
-
-  run(dir, { CALL_LOG: log, DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]), STATE_FILE: state });
-  fs.writeFileSync(log, "");
-  run(dir, {
-    CALL_LOG: log,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    PI_LIST_WARNING: "Failed to load extension",
-    STATE_FILE: state,
-  });
-
-  assert.ok(readCalls(log).includes("install npm:pi-vim"));
-});
-
-test("an invalid npm tree forces reconciliation", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const npmLog = path.join(dir, "npm-calls.log");
-  const state = path.join(dir, "state.json");
-
-  run(dir, { CALL_LOG: log, NPM_CALL_LOG: npmLog, DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]), STATE_FILE: state });
-  fs.writeFileSync(log, "");
-  fs.writeFileSync(npmLog, "");
-  run(dir, {
-    CALL_LOG: log,
-    NPM_CALL_LOG: npmLog,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    NPM_HEALTH: "invalid",
-    STATE_FILE: state,
-  });
-
-  assert.ok(readCalls(log).includes("install npm:pi-vim"));
-  assert.ok(readCalls(npmLog).some((call) => call.startsWith("install ")));
-});
-
-test("failed npm reconciliation records an unsuccessful run and retries", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const state = path.join(dir, "state.json");
-  const env = {
-    CALL_LOG: log,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    STATE_FILE: state,
-  };
-
-  run(dir, { ...env, NPM_FAIL_INSTALL: "1" });
-  assert.equal(JSON.parse(fs.readFileSync(state, "utf8")).converged, false);
-
-  fs.writeFileSync(log, "");
-  run(dir, env);
-  assert.ok(readCalls(log).includes("install npm:pi-vim"));
-});
-
-test("corrupt state skips unknown pruning and remains available for recovery", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const state = path.join(dir, "state.json");
-  fs.writeFileSync(state, "not json");
-  fs.writeFileSync(path.join(dir, "installed-packages"), "npm:unknown\\n");
-
-  run(dir, {
-    CALL_LOG: log,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    STATE_FILE: state,
-  });
-
-  assert.ok(!readCalls(log).some((call) => call === "remove npm:unknown"));
-  assert.equal(fs.readFileSync(state, "utf8"), "not json");
-  assert.ok(readCalls(log).includes("install npm:pi-vim"));
-});
-
-test("legacySeed removes a legacy package on first run, but only once", () => {
-  const dir = mkTmpDir();
-  const log = path.join(dir, "calls.log");
-  const state = path.join(dir, "state.json");
-
-  run(dir, {
-    CALL_LOG: log,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    LEGACY_SEED: JSON.stringify(["npm:pi-skillful"]),
-    STATE_FILE: state,
-  });
-  const firstRunCalls = readCalls(log);
-  assert.ok(firstRunCalls.includes("remove npm:pi-skillful"), "legacy package should be removed on first run");
-
-  fs.writeFileSync(log, "");
-  run(dir, {
-    CALL_LOG: log,
-    DECLARED_PACKAGES: JSON.stringify(["npm:pi-vim"]),
-    LEGACY_SEED: JSON.stringify(["npm:pi-skillful"]),
-    STATE_FILE: state,
-  });
-  const secondRunCalls = readCalls(log);
-  assert.ok(!secondRunCalls.some((c) => c.includes("pi-skillful")), "legacy seed should not re-trigger once state file exists");
+test("explicit repair reconciles healthy packages", (t) => {
+  const h = fixture(t);
+  h.run();
+  h.clear();
+  assert.equal(h.run(undefined, { FORCE_REPAIR: "1" }).status, 0);
+  assert.ok(h.calls().includes("install npm:pi-vim"));
 });

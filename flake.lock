@@ -576,18 +576,14 @@
     "private-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1788465369,
-        "narHash": "sha256-0sCF5wGtunOVHkXmTw15rRcONSeTVA8yidQhRGNiYQQ=",
-        "ref": "refs/heads/main",
-        "rev": "e593ef701d20c96e485f76f5d8af4e7052801f18",
-        "revCount": 1507,
-        "type": "git",
-        "url": "https://github.com/napisani/monorepo.git"
+        "path": "../../priv/skills",
+        "type": "path"
       },
       "original": {
-        "type": "git",
-        "url": "https://github.com/napisani/monorepo.git"
-      }
+        "path": "../../priv/skills",
+        "type": "path"
+      },
+      "parent": []
     },
     "procmux": {
       "inputs": {

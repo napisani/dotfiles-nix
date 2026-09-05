@@ -21,6 +21,10 @@
           name = "loancrate-pr-maintainer";
           manualOnly = true;
         }
+        {
+          name = "loancrate-prepare-perf-impact";
+          manualOnly = true;
+        }
         "loancrate-lc-script"
         "loancrate-eval-model-candidates-ci"
         "loancrate-ob-pricing-regression-test"

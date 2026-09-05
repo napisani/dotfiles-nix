@@ -5,7 +5,6 @@
 // Env vars:
 //   PI_MANAGED_SETTINGS — JSON object of settings to enforce
 //   PI_SKILL_PATHS      — JSON array of skill search paths to ensure
-//   PI_REMOVED_PACKAGES — JSON array of legacy package specs to remove
 
 const fs = require("node:fs");
 const path = require("node:path");
@@ -31,7 +30,6 @@ const isStringArray = (value) => Array.isArray(value) && value.every((item) => t
 
 const managedSettings = parseDeclaration("PI_MANAGED_SETTINGS", {}, isObject);
 const managedSkillPaths = parseDeclaration("PI_SKILL_PATHS", [], isStringArray);
-const removedPackages = new Set(parseDeclaration("PI_REMOVED_PACKAGES", [], isStringArray));
 
 let settings = {};
 if (fs.existsSync(settingsPath)) {
@@ -56,10 +54,6 @@ function mergeManaged(target, desired) {
 }
 
 mergeManaged(settings, managedSettings);
-
-if (Array.isArray(settings.packages)) {
-  settings.packages = settings.packages.filter((pkg) => !removedPackages.has(pkg));
-}
 
 if (managedSkillPaths.length > 0) {
   const skills = Array.isArray(settings.skills) ? [...settings.skills] : [];

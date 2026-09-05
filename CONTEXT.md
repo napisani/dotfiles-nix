@@ -96,10 +96,26 @@ choose the appropriate remote or local endpoint.
 
 ## Reconciliation and update modes
 
-Global npm tools, Pi packages, and Claude plugins use state-aware reconcilers.
-A healthy unchanged activation performs local inventory checks but no install,
-uninstall, marketplace, or registry operation. Declaration changes reconcile
-only affected managed assets; failed or unhealthy state is retried.
+Global npm tools, Pi packages, uv tools/venvs, and Claude plugins use state-aware
+reconcilers. Pi/npm/uv share the agent-blind per-asset engine in
+`mods/dotfiles/scripts/lib/reconcile-installs.js`; their adapters own native
+commands and health probes. Each successful asset retains its own progress, so
+one failed sibling does not reinstall everything. Removed declarations are
+pruned from recorded ownership, without a separately maintained removal list.
+Missing state never grants ownership of undeclared native installations.
+
+Healthy unchanged activation uses only local inspection: npm package metadata
+and executable links, Pi's user inventory and package artifacts, and offline uv
+receipts/interpreter inventories. These are installation-integrity checks, not
+exhaustive transitive dependency validation. Unknown inspection fails visibly
+instead of triggering an install loop; explicit repair can reinstall declared
+assets, but cannot override corrupt ownership state. Atomic, content-aware
+state writes and per-state-file locks protect progress and avoid mtime churn.
+
+Editable Python tools hash dependency metadata (`pyproject.toml` and `uv.lock`),
+not source files. Code edits stay live without reinstalling. Claude/Pi installers,
+Pi settings, npm and uv activation use the immutable `mods/native-scripts.nix`
+bundle belonging to the evaluated generation—not an unrelated mutable checkout.
 
 `AGENTS_FORCE_REPAIR=1` forces reinstall/repair without changing desired state.
 `AGENTS_UPDATE=1` explicitly refreshes Claude marketplaces/plugins and reruns
