@@ -85,6 +85,16 @@
     pkgs.nerd-fonts.symbols-only
   ];
 
+  system.activationScripts.postActivation.text = lib.mkAfter ''
+    # Disable Spotlight Cmd+Space (64) and Cmd+Option+Space (65)
+    # so they don't conflict with app launchers (e.g. Look, Alfred, Raycast).
+    USER_HOME="$(dscl . -read /Users/${config.system.primaryUser} NFSHomeDirectory | awk '{print $2}')"
+    /usr/bin/plutil -replace AppleSymbolicHotKeys.64.enabled -bool NO \
+      "$USER_HOME/Library/Preferences/com.apple.symbolichotkeys.plist" 2>/dev/null || true
+    /usr/bin/plutil -replace AppleSymbolicHotKeys.65.enabled -bool NO \
+      "$USER_HOME/Library/Preferences/com.apple.symbolichotkeys.plist" 2>/dev/null || true
+  '';
+
   system = {
     primaryUser = "nick";
 
