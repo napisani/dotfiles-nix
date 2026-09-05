@@ -199,6 +199,54 @@
           self
           ;
       };
+      mkAgentConfigResolvedCheck =
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          darwinAgentConfigs = map (name: {
+            inherit name;
+            value = self.darwinConfigurations.${name}.config.home-manager.users.nick.agents;
+          }) (builtins.attrNames self.darwinConfigurations);
+          nixosAgentConfigs = map (name: {
+            inherit name;
+            value = self.nixosConfigurations.${name}.config.home-manager.users.nick.agents;
+          }) (builtins.attrNames self.nixosConfigurations);
+          resolved = builtins.listToAttrs (darwinAgentConfigs ++ nixosAgentConfigs);
+          skillSelections =
+            cfg: cfg.skills.shared ++ lib.concatLists (builtins.attrValues cfg.skills.perAgent);
+          validSkillSelection =
+            selection:
+            builtins.isAttrs selection
+            && builtins.isString selection.name
+            && builtins.isBool selection.manualOnly;
+        in
+        assert lib.all (cfg: lib.all validSkillSelection (skillSelections cfg)) (
+          builtins.attrValues resolved
+        );
+        pkgs.writeText "resolved-agent-config.json" (builtins.toJSON resolved);
+      mkActivationMergeForcedCheck =
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          darwinNames = builtins.attrNames self.darwinConfigurations;
+          forceDarwinScript =
+            name:
+            builtins.stringLength self.darwinConfigurations.${name}.config.system.activationScripts.script.text;
+          forceHomeActivation =
+            cfg:
+            let
+              acts = cfg.config.home-manager.users.nick.home.activation;
+            in
+            lib.foldl' (sum: n: sum + builtins.stringLength acts.${n}.data) 0 (builtins.attrNames acts);
+          total = lib.foldl' (a: b: a + b) 0 (
+            map forceDarwinScript darwinNames
+            ++ map (name: forceHomeActivation self.darwinConfigurations.${name}) darwinNames
+            ++ map (name: forceHomeActivation self.nixosConfigurations.${name}) (
+              builtins.attrNames self.nixosConfigurations
+            )
+          );
+        in
+        pkgs.runCommand "activation-merge-forced-${toString total}" { } "echo ${toString total} > $out";
     in
     {
       darwinConfigurations = {
@@ -244,39 +292,23 @@
         };
       };
 
-      # Force every merged activation value that `darwin-rebuild switch` itself
-      # evaluates, so `nix flake check` catches option-merge conflicts (two
+      # Force every merged Darwin and Home Manager activation value, so each
+      # system's `nix flake check` catches option-merge conflicts (two
       # files defining home.activation.<sameName> differently) at eval time
       # instead of at switch time. builtins.attrNames alone does NOT force the
       # merged values — only forcing the actual string does. See
       # mods/dotfiles/agents/shared-skills/agent-management/SKILL.md
       # ("Verifying a change actually works") for the reasoning.
-      checks.aarch64-darwin.activation-merge-forced =
-        let
-          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-          # maclab is x86_64-darwin, which nixpkgs 26.11 has dropped support
-          # for — forcing anything about it throws unconditionally, for a
-          # reason unrelated to the activation-name-collision class this check
-          # exists to catch. Exclude it so the check stays green on the
-          # machines that actually build.
-          darwinNames = builtins.filter (n: n != "maclab") (builtins.attrNames self.darwinConfigurations);
-          forceDarwinScript =
-            name:
-            builtins.stringLength self.darwinConfigurations.${name}.config.system.activationScripts.script.text;
-          forceHomeActivation =
-            cfg:
-            let
-              acts = cfg.config.home-manager.users.nick.home.activation;
-            in
-            lib.foldl' (sum: n: sum + builtins.stringLength acts.${n}.data) 0 (builtins.attrNames acts);
-          total = lib.foldl' (a: b: a + b) 0 (
-            map forceDarwinScript darwinNames
-            ++ map (n: forceHomeActivation self.darwinConfigurations.${n}) darwinNames
-            ++ map (n: forceHomeActivation self.nixosConfigurations.${n}) (
-              builtins.attrNames self.nixosConfigurations
-            )
-          );
-        in
-        pkgs.runCommand "activation-merge-forced-${toString total}" { } "echo ${toString total} > $out";
+      checks.aarch64-darwin.activation-merge-forced = mkActivationMergeForcedCheck "aarch64-darwin";
+      checks.x86_64-darwin.activation-merge-forced = mkActivationMergeForcedCheck "x86_64-darwin";
+      checks.x86_64-linux.activation-merge-forced = mkActivationMergeForcedCheck "x86_64-linux";
+
+      # Keep the public desired-state interface equally evaluable and
+      # inspectable from every managed host system. Each check validates every
+      # host's resolved value; only the trivial output derivation is native to
+      # the system under which `nix flake check` runs.
+      checks.aarch64-darwin.agent-config-resolved = mkAgentConfigResolvedCheck "aarch64-darwin";
+      checks.x86_64-darwin.agent-config-resolved = mkAgentConfigResolvedCheck "x86_64-darwin";
+      checks.x86_64-linux.agent-config-resolved = mkAgentConfigResolvedCheck "x86_64-linux";
     };
 }

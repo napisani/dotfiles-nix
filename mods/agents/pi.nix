@@ -20,15 +20,33 @@
 }:
 let
   shared = import ./lib.nix {
-    inherit config lib pkgs-unstable hostname machineRoles inputs homeManagerRelPath;
+    inherit
+      config
+      lib
+      pkgs-unstable
+      hostname
+      machineRoles
+      inputs
+      homeManagerRelPath
+      ;
   };
-  inherit (shared) home dotfiles nodeBin callAgentLib;
+  inherit (shared)
+    home
+    dotfiles
+    nodeBin
+    callAgentLib
+    ;
 
-  skills = callAgentLib ./skills.nix;
+  skillFiles = callAgentLib ./skill-files.nix;
   instructions = callAgentLib ./instructions.nix;
   managedConfig = callAgentLib ./managed-config-lib.nix;
 
-  ollamaProvider = import ./ollama-provider.nix { inherit (shared) isLoancrateMac; };
+  agentCfg = config.agents.pi;
+  selectedSkillNames =
+    skillFiles.skillNamesByKind "pinned" skillFiles.sharedSkillNames
+    ++ skillFiles.perAgentSkillNamesFor "pi";
+
+  ollamaProvider = config.agents.providers.ollama;
 
   managedPiProviders = {
     ollama = {
@@ -43,108 +61,19 @@ let
   instructionsTarget = "${home}/.pi/agent/AGENTS.md";
   mcpTarget = "${home}/.pi/agent/mcp.json";
 
-  mcpSources = [
-    {
-      name = "linear";
-      condition = shared.isLoancrateMac;
-      config = {
-        url = "https://mcp.linear.app/mcp";
-        lifecycle = "lazy";
-      };
-    }
-    {
-      name = "figma";
-      condition = shared.isLoancrateMac;
-      config = {
-        url = "https://mcp.figma.com/mcp";
-        auth = "oauth";
-        oauth = {
-          clientName = "Codex";
-          clientUri = "https://github.com/openai/codex";
-          scope = "mcp:connect";
-        };
-        lifecycle = "lazy";
-      };
-    }
-    {
-      name = "bde";
-      condition = shared.isLoancrateMac;
-      config = {
-        url = "https://bde.dsci.loancrate.dev/mcp";
-        lifecycle = "lazy";
-      };
-    }
-    # Loancrate org connectors — mirrors the claude.ai account-linked MCP
-    # connectors already authenticated in Claude Code on this machine. Pi has
-    # no equivalent auto-discovered connector directory, so each is declared
-    # here explicitly with its own OAuth handshake (same clientName/clientUri
-    # pattern as the figma entry above).
-    {
-      name = "datadog";
-      condition = shared.isLoancrateMac;
-      config = {
-        url = "https://mcp.datadoghq.com/api/unstable/mcp-server/mcp";
-        auth = "oauth";
-        oauth = {
-          clientName = "Codex";
-          clientUri = "https://github.com/openai/codex";
-        };
-        lifecycle = "lazy";
-      };
-    }
-    {
-      name = "gmail";
-      condition = shared.isLoancrateMac;
-      config = {
-        url = "https://gmailmcp.googleapis.com/mcp/v1";
-        auth = "oauth";
-        oauth = {
-          clientName = "Codex";
-          clientUri = "https://github.com/openai/codex";
-        };
-        lifecycle = "lazy";
-      };
-    }
-    {
-      name = "notion";
-      condition = shared.isLoancrateMac;
-      config = {
-        url = "https://mcp.notion.com/mcp";
-        auth = "oauth";
-        oauth = {
-          clientName = "Codex";
-          clientUri = "https://github.com/openai/codex";
-        };
-        lifecycle = "lazy";
-      };
-    }
-    {
-      name = "sentry";
-      condition = shared.isLoancrateMac;
-      config = {
-        url = "https://mcp.sentry.dev/mcp";
-        auth = "oauth";
-        oauth = {
-          clientName = "Codex";
-          clientUri = "https://github.com/openai/codex";
-        };
-        lifecycle = "lazy";
-      };
-    }
-    # slack omitted: its OAuth server doesn't support dynamic client
-    # registration, so Pi (unlike Claude Code's own registered client) has no
-    # way to obtain a client_id for it.
-  ];
-  declaredMcpEntries = shared.mkDeclaredEntriesFromSources mcpSources;
-
   # Pi natively honors `disable-model-invocation: true` in a skill's own
   # SKILL.md frontmatter, but catalog skills are read-only pinned store
-  # paths — so for a skill with disableModelInvocation = true, splice that
-  # key into a patched copy instead of editing the vendored file.
+  # paths — so for a skill selected with manualOnly = true, splice that key
+  # into a patched copy instead of editing the vendored file.
   patchPiSkillSource =
     s: src:
-    if skills.isSkillManualOnlyFor { inherit s; agentId = "pi"; } then
-      skills.mkPatchedSkillSource {
+    if
+      skillFiles.isSkillManualOnlyFor {
+        skillName = s.name;
+        agentId = "pi";
+      }
+    then
+      skillFiles.mkPatchedSkillSource {
         name = s.name;
         sourcePath = src;
         insertAfterLine = {
@@ -156,42 +85,15 @@ let
     else
       src;
 
-  declaredPiPackages = [
-    "npm:@datspike/pi-inline-slash-extension"
-    "npm:@ff-labs/pi-fff"
-    "npm:@juicesharp/rpiv-btw"
-    "npm:pi-vim"
-    "npm:pi-web-access"
-    # claude-agent-sdk-pi removed: its latest published version (1.0.22)
-    # still peer-deps on @earendil-works/pi-ai@^0.74.0, while every other
-    # declared extension here now needs pi-ai 0.84.x. Since `pi install`
-    # resolves the whole ~/.pi/agent/npm tree together, that one stale
-    # range makes npm give up auto-installing peers for ALL extensions —
-    # not just this one — which is what broke pi-vim with "Cannot find
-    # module '@earendil-works/pi-coding-agent'". Re-add once upstream
-    # bumps its pi-ai peer range (verify with
-    # `npm view claude-agent-sdk-pi peerDependencies`).
-    "npm:pi-goal"
-    "git:github.com/nicobailon/visual-explainer"
-  ];
-
 in
-{
-  # Layer 0 links. Pi skills: community + Pi-local only — shared skills are
-  # deliberately NOT linked here because Pi auto-discovers ~/.agents/skills
-  # (the global store, owned by shared-store.nix), so linking them here too
-  # would double them up. This replaces the old install-then-dedupe dance.
-  # Extensions (.js/.ts) and themes (.json) are live-editable out-of-store
-  # links. See docs/adr/0002-layered-asset-management.md.
+lib.mkIf (config.agents.enable && agentCfg.enable) {
+  # Pi discovers repo-local shared skills through ~/.agents/skills, so only
+  # pinned shared skills and explicit Pi-only additions are linked here.
   home.file =
-    skills.mkCommunitySkillFiles {
-      agentId = "pi";
-      skillDirRelPath = ".pi/agent/skills";
-      patchSource = patchPiSkillSource;
-    }
-    // skills.mkLocalSkillFiles {
-      sourceRelPath = "agents/pi/skills";
+    skillFiles.mkSkillFiles {
+      skillNames = selectedSkillNames;
       targetDirRelPath = ".pi/agent/skills";
+      patchSource = patchPiSkillSource;
     }
     // shared.mkLocalFileLinks {
       sourceRelPath = "agents/pi/extensions";
@@ -221,6 +123,7 @@ in
   home.activation.writePiInstructions = lib.hm.dag.entryAfter [ "installPiRtkHooks" ] (
     instructions.writeAgentInstructions {
       target = instructionsTarget;
+      source = config.agents.instructions;
     }
   );
 
@@ -228,13 +131,13 @@ in
     managedConfig.mkJsonManagedMerge {
       targetFile = mcpTarget;
       managedKey = "mcpServers";
-      declaredEntries = declaredMcpEntries;
+      declaredEntries = agentCfg.mcpServers;
     }
   );
 
   home.activation.installPiPackages = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     managedConfig.mkPiPackageInstall {
-      declaredPackages = declaredPiPackages;
+      declaredPackages = agentCfg.packages;
       stateId = "pi-packages";
       # npmx.nix used to actively `pi remove npm:pi-skillful` every run via
       # a manually-maintained removedPiPackages list. Seed it here once so
@@ -246,8 +149,11 @@ in
   );
 
   home.activation.installPiConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-    # ── Settings (provider defaults, model, packages, skill paths) ────────────
-    ${nodeBin}/node ${scriptsDir}/apply-pi-settings.js
+    # ── Settings (provider defaults, model, skill paths) ──────────────────────
+    PI_MANAGED_SETTINGS=${lib.escapeShellArg (builtins.toJSON agentCfg.settings)} \
+    PI_SKILL_PATHS=${lib.escapeShellArg (builtins.toJSON agentCfg.skillPaths)} \
+    PI_REMOVED_PACKAGES=${lib.escapeShellArg (builtins.toJSON [ "npm:pi-subagents" ])} \
+      ${nodeBin}/node ${scriptsDir}/apply-pi-settings.js
 
     # ── Custom providers/models → ~/.pi/agent/models.json (the file Pi reads) ─
     MANAGED_PROVIDERS=${lib.escapeShellArg (builtins.toJSON managedPiProviders)} \

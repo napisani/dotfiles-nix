@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+
+const fs = require("node:fs");
+const path = require("node:path");
+
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.CALL_LOG, args.join(" ") + "\n");
+
+const stateFile = process.env.CLAUDE_INSTALL_STATE;
+const readInstalled = () => {
+  if (!stateFile || !fs.existsSync(stateFile)) return [];
+  return JSON.parse(fs.readFileSync(stateFile, "utf8"));
+};
+const writeInstalled = (entries) => {
+  fs.mkdirSync(path.dirname(stateFile), { recursive: true });
+  fs.writeFileSync(stateFile, JSON.stringify(entries));
+};
+const artifactPath = (id) => path.join(path.dirname(stateFile), "artifacts", encodeURIComponent(id));
+
+if (args[0] !== "plugin") process.exit(0);
+
+if (args[1] === "list" && args.includes("--json")) {
+  if (process.env.CLAUDE_LIST_INVALID) {
+    process.stdout.write("not-json");
+    process.exit(0);
+  }
+  const entries = readInstalled().map((id) => ({
+    id,
+    scope: "user",
+    enabled: true,
+    installPath: artifactPath(id),
+  }));
+  process.stdout.write(JSON.stringify(entries));
+  process.exit(0);
+}
+
+const id = args[2];
+if (args[1] === "install") {
+  if (process.env.CLAUDE_FAIL_INSTALL === id) process.exit(1);
+  const entries = readInstalled();
+  if (!entries.includes(id)) entries.push(id);
+  fs.mkdirSync(artifactPath(id), { recursive: true });
+  writeInstalled(entries);
+} else if (args[1] === "uninstall") {
+  if (process.env.CLAUDE_FAIL_UNINSTALL === id) process.exit(1);
+  writeInstalled(readInstalled().filter((entry) => entry !== id));
+  fs.rmSync(artifactPath(id), { recursive: true, force: true });
+} else if (args[1] === "update") {
+  if (process.env.CLAUDE_FAIL_UPDATE === id) process.exit(1);
+}

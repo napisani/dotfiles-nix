@@ -1,11 +1,10 @@
-// Shared "previously Nix-managed name set" state-file handling, used by
-// every diff-and-prune script (apply-managed-json-keys.js,
-// apply-managed-toml-keys.js, apply-claude-plugins.js,
-// apply-pi-packages.js). See docs/adr/0001-per-agent-modules.md.
+// Shared atomic file writing plus the simple "previously Nix-managed name
+// set" state format used by generic diff-and-prune scripts. Pi packages reuse
+// the atomic writer but keep an installer-owned convergence-aware state schema.
+// See docs/adr/0001-per-agent-modules.md.
 //
-// Also provides a generic atomic file writer used by all of the above for
-// both their state file and their target config file, so a process
-// interruption mid-write can never leave either file truncated.
+// Atomic replacement ensures a process interruption mid-write leaves either
+// the old file or the complete new file, never a truncated target or state.
 
 const fs = require("node:fs");
 const path = require("node:path");

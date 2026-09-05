@@ -2,6 +2,8 @@
 
 **Status:** accepted
 
+**Partially superseded by:** [ADR 0003](0003-declarative-agent-configuration-interface.md), which retains the ownership layers as adapter internals but reverses this ADR's decision against typed `agents.*` options.
+
 ADR 0001 gave each agent its own module. This ADR settles *how* each asset is
 installed, once per asset class, by a single question: **who else writes to
 this path?** It supersedes the earlier assumption (see the original

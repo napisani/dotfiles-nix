@@ -3,26 +3,16 @@
   lib,
   pkgs-unstable,
   machineRoles ? [ ],
+  homeManagerRelPath,
   ...
 }:
 
 let
-  # List npm packages to install globally into $HOME/.local.
-  # Examples: [ "eslint" "@biomejs/biome" "typescript@5" ]
-  #
-  # ACP CLIs for agentic.nvim: bins land in ~/.local/bin (e.g. claude-agent-acp, codex-acp).
-  # Neovim from Dock/Finder often lacks ~/.local/bin on PATH; mods/dotfiles/nvim/lua/user/plugins/ai/agentic.lua
-  # sets explicit command paths so :checkhealth agentic and spawning still work.
-  #
-  # OpenCode community skills are declared in mods/agents/skills.nix's catalog.
-  npmxTools = [
-    "@ellery/terminal-mcp@latest"
-    "@napisani/scute@latest"
-    "@earendil-works/pi-coding-agent"
-    "@agentclientprotocol/claude-agent-acp"
-    "@zed-industries/codex-acp"
-    "@playwright/cli"
-  ];
+  # The public desired state uses a name -> exact-version map. This adapter
+  # translates it to the reconciler's ordered native declaration shape.
+  npmxTools = lib.mapAttrsToList (name: version: {
+    inherit name version;
+  }) config.agents.globalNpmTools;
 
   removedNpmPackages = [
     "@mariozechner/pi-coding-agent"
@@ -34,16 +24,18 @@ let
     "@agentmemory/agentmemory"
   ];
 
-  # Pi packages are declared and diff-pruned in mods/agents/pi.nix
-  # (installPiPackages, via managed-config-lib.nix's mkPiPackageInstall) —
-  # not here. That mechanism tracks Nix-managed state and removes anything
+  # Pi packages are declared in config.agents.pi.packages and diff-pruned by
+  # the Pi adapter's installPiPackages activation — not here. That mechanism tracks Nix-managed state and removes anything
   # undeclared automatically, replacing this file's old manually-maintained
   # removedPiPackages list.
 
   npm = "${pkgs-unstable.nodejs}/bin/npm";
   nodeBin = "${pkgs-unstable.nodejs}/bin";
   gitBin = "${pkgs-unstable.git}/bin";
-  npmPrefix = "${config.home.homeDirectory}/.local";
+  home = config.home.homeDirectory;
+  npmPrefix = "${home}/.local";
+  scriptsDir = "${home}/${homeManagerRelPath}/mods/dotfiles/agents/scripts";
+  stateFile = "${home}/.local/state/agents-nix/npmx-tools.json";
 
   # ~/.npmrc used to be declared via home.file (mods/shell.nix), which Home
   # Manager links as a read-only symlink into /nix/store. That's fine as
@@ -58,26 +50,43 @@ let
   npmrcContent =
     "prefix=${npmPrefix}\n"
     + lib.optionalString (builtins.elem "loancrate" machineRoles) "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}\n";
+
+  agentsCheckUpdates = pkgs-unstable.writeShellApplication {
+    name = "agents-check-updates";
+    text = ''
+      DECLARED_TOOLS=${lib.escapeShellArg (builtins.toJSON npmxTools)} \
+      NPM_COMMAND=${lib.escapeShellArg npm} \
+        ${nodeBin}/node ${scriptsDir}/check-npm-tool-updates.js
+    '';
+  };
 in
 {
   home.packages = [
     pkgs-unstable.nodejs
     pkgs-unstable.git
+    agentsCheckUpdates
   ];
 
   home.sessionVariables = {
     NPM_CONFIG_PREFIX = npmPrefix;
   };
 
-  # Writes ~/.npmrc directly (not via home.file) so it's a plain, writable
-  # file rather than a Home Manager-managed symlink into the read-only Nix
-  # store — see the npmrcContent comment above.
+  # Keep ~/.npmrc a plain writable file, but avoid changing its mtime when the
+  # desired content already matches. A legacy Home Manager symlink is always
+  # replaced even if its contents happen to match.
   home.activation.writeNpmrc = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-        cat > "${config.home.homeDirectory}/.npmrc" <<'NPMRC_EOF'
+    npmrc_target="${home}/.npmrc"
+    npmrc_tmp="$npmrc_target.tmp.$$"
+        cat > "$npmrc_tmp" <<'NPMRC_EOF'
     ${npmrcContent}NPMRC_EOF
+    if [ ! -L "$npmrc_target" ] && [ -f "$npmrc_target" ] && cmp -s "$npmrc_tmp" "$npmrc_target"; then
+      rm -f "$npmrc_tmp"
+    else
+      mv -f "$npmrc_tmp" "$npmrc_target"
+    fi
   '';
 
-  home.activation.installNpmxTools =
+  home.activation.installNpmxTools = lib.mkIf config.agents.enable (
     lib.hm.dag.entryAfter
       [
         "writeBoundary"
@@ -88,35 +97,27 @@ in
         export NPM_CONFIG_PREFIX="${npmPrefix}"
         mkdir -p "$NPM_CONFIG_PREFIX/bin" "$NPM_CONFIG_PREFIX/lib"
         export DISABLE_TELEMETRY=1
-        failed=0
-
         # Home Manager activation runs with a minimal PATH; ensure npm scripts can
-        # find `node`.
+        # find `node` and git while preserving the managed prefix's executables.
         export PATH="${gitBin}:${nodeBin}:$NPM_CONFIG_PREFIX/bin:$PATH"
 
-        for package in ${builtins.concatStringsSep " " removedNpmPackages}; do
-          if ${npm} list -g --depth=0 "$package" >/dev/null 2>&1; then
-            if ! ${npm} uninstall -g "$package"; then
-              echo "installNpmxTools: ERROR: npm uninstall -g failed for removed package: $package" >&2
-              failed=$((failed + 1))
-            fi
-          fi
-        done
-
-        for tool in ${builtins.concatStringsSep " " npmxTools}; do
-          if ! ${npm} install -g --no-fund --no-audit "$tool"; then
-            echo "installNpmxTools: ERROR: npm install -g failed for: $tool" >&2
-            failed=$((failed + 1))
-          fi
-        done
-
-        if [ "$failed" -gt 0 ]; then
-          echo "installNpmxTools: $failed install step(s) failed (Neovim agentic ACP CLIs need a successful install). Re-run with network and check the errors above." >&2
-          printf '%s\n' "npmx: $failed npm install step(s) failed" >> "''${AGENTS_WARN_FILE:-/dev/null}"
+        if ! DECLARED_TOOLS=${lib.escapeShellArg (builtins.toJSON npmxTools)} \
+          LEGACY_SEED=${
+            lib.escapeShellArg (
+              builtins.toJSON (removedNpmPackages ++ builtins.attrNames config.agents.globalNpmTools)
+            )
+          } \
+          NPM_COMMAND=${lib.escapeShellArg npm} \
+          STATE_FILE=${lib.escapeShellArg stateFile} \
+          FORCE_REPAIR="''${AGENTS_FORCE_REPAIR:-}" \
+          ${nodeBin}/node ${scriptsDir}/apply-npmx-tools.js; then
+          echo "installNpmxTools: npm tool reconciliation failed; retry with network access or run a forced repair." >&2
+          printf '%s\n' "npmx: npm tool reconciliation failed" >> "''${AGENTS_WARN_FILE:-/dev/null}"
         fi
 
         # Some npm packages ship their bin entrypoints without the executable bit.
         # Ensure anything linked into ~/.local/bin is runnable.
         chmod -R u+rx "$NPM_CONFIG_PREFIX/bin" 2>/dev/null || true
-      '';
+      ''
+  );
 }

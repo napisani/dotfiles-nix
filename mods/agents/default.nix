@@ -1,32 +1,82 @@
 # agents/default.nix — Declarative multi-agent configuration
 #
-# Each of claude.nix, codex.nix, opencode.nix, pi.nix owns its complete
-# installation story end to end (skills, MCP servers, capability/plugin
-# installs via whatever mechanism is native to that agent, RTK hooks, shared
-# instructions) — see docs/adr/0001-per-agent-modules.md for why this isn't
-# split across cross-agent shared files.
-#
-# What's still shared, deliberately agent-blind (no per-agent branching):
-#   lib.nix                 — paths, allAgents enumeration, machine roles,
-#                              mkFixPathConflicts, mkLocalFileLinks
-#   skills.nix               — the skill catalog (DRY data, not behavior) +
-#                              the home.file skill-link generators
-#   shared-store.nix         — the cross-agent global store (~/.agents/skills)
-#   instructions.nix         — the shared AGENTS.md source + writeAgentInstructions
-#   managed-config-lib.nix   — JSON/TOML managed-key merge, and the CLI-driven
-#                              diff+prune shape (Claude plugins, Pi packages)
-#
-# All source lists (skill catalog, MCP entries, plugin/package lists) support
-# an optional `condition` attribute (boolean). When false the entry is
-# skipped. Defaults to true (installed everywhere).
-{ ... }:
+# `config.agents` is the public desired-state interface. Common and role
+# profiles declare policy; the per-agent modules consume that data and own its
+# native realization. Catalog and adapter support modules contain no machine
+# selection policy. See ADR 0003.
+{
+  config,
+  inputs,
+  lib,
+  machineRoles ? [ ],
+  ...
+}:
+let
+  skillCatalog = import ./skills.nix { inherit inputs; };
+  skillSelectionsByAgent = lib.mapAttrs (
+    _agent: selections: config.agents.skills.shared ++ selections
+  ) config.agents.skills.perAgent;
+  selectionNames = selections: map (selection: selection.name) selections;
+  configuredSkillNames = selectionNames (
+    config.agents.skills.shared ++ lib.concatLists (builtins.attrValues config.agents.skills.perAgent)
+  );
+  unknownSkillNames = builtins.filter (
+    name: !(builtins.hasAttr name skillCatalog)
+  ) configuredSkillNames;
+  duplicateSkillSelections = lib.filterAttrs (
+    _agent: selections:
+    let
+      names = selectionNames selections;
+    in
+    builtins.length names != builtins.length (lib.unique names)
+  ) skillSelectionsByAgent;
+  opencodeManualOnlySelections = builtins.filter (
+    selection: selection.manualOnly
+  ) skillSelectionsByAgent.opencode;
+  invalidNpmTools = lib.filterAttrs (
+    _name: version: builtins.match "^[0-9]+\\.[0-9]+\\.[0-9]+([+-][0-9A-Za-z.-]+)?$" version == null
+  ) config.agents.globalNpmTools;
+in
 {
   imports = [
+    ./options.nix
+    ./profiles/common.nix
     ./claude.nix
     ./codex.nix
     ./opencode.nix
     ./pi.nix
     ./shared-store.nix
     ./report.nix
+  ]
+  ++ lib.optionals (builtins.elem "loancrate" machineRoles) [
+    ./profiles/loancrate.nix
+  ];
+
+  warnings =
+    lib.optional
+      (config.agents.enable && config.agents.opencode.enable && opencodeManualOnlySelections != [ ])
+      "agents: OpenCode cannot enforce manualOnly skill selections; those skills remain implicitly invocable there";
+
+  assertions = [
+    {
+      assertion = unknownSkillNames == [ ];
+      message = "agents: unknown skill catalog entries: ${builtins.concatStringsSep ", " unknownSkillNames}";
+    }
+    {
+      assertion = duplicateSkillSelections == { };
+      message = "agents: duplicate skill selections for: ${builtins.concatStringsSep ", " (builtins.attrNames duplicateSkillSelections)}";
+    }
+    {
+      assertion = !config.agents.enable || config.agents.instructions != null;
+      message = "agents: instructions must be declared when agent configuration is enabled";
+    }
+    {
+      assertion = invalidNpmTools == { };
+      message = "agents: global npm tools require exact semantic versions: ${builtins.concatStringsSep ", " (builtins.attrNames invalidNpmTools)}";
+    }
+    {
+      assertion = config.agents.codex.settings == { };
+      message = "agents: Codex settings declarations are not supported by the adapter yet";
+    }
   ];
 }

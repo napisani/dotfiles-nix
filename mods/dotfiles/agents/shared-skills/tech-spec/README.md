@@ -3,7 +3,8 @@
 This skill was forked from [dmmulroy/skills/tech-spec](https://github.com/dmmulroy/skills/tree/main/tech-spec).
 
 It lives in `shared-skills/` so it's automatically available to every agent
-without depending on an external flake input. See `mods/agents/skills.nix`
-for the `mkLocalSkillFiles` mechanism.
+without depending on an external flake input. Register it in
+`mods/agents/skills.nix`; `mods/agents/skill-files.nix` realizes the selected
+catalog name as an out-of-store link.
 
 Upstream changes may diverge. To update, re-copy from the source repo.

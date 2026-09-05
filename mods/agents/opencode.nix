@@ -4,9 +4,9 @@
 # the dotfile symlink layout (config.json, commands, agents, modes, themes,
 # plugins, local skills) that used to live in the separate mods/opencode.nix.
 #
-# OpenCode MCP servers do not need an activation-time merge: common entries
-# live in mods/dotfiles/opencode-config.json, while machine-role-specific
-# entries are merged into the generated config below during Nix evaluation.
+# OpenCode MCP servers do not need an activation-time merge: the adapter
+# merges declared settings, MCP servers, plugins, and provider policy into the
+# generated config during Nix evaluation.
 # See docs/adr/0002-layered-asset-management.md.
 {
   config,
@@ -20,12 +20,27 @@
 }:
 let
   shared = import ./lib.nix {
-    inherit config lib pkgs-unstable hostname machineRoles inputs homeManagerRelPath;
+    inherit
+      config
+      lib
+      pkgs-unstable
+      hostname
+      machineRoles
+      inputs
+      homeManagerRelPath
+      ;
   };
-  inherit (shared) home dotfiles isLoancrateMac callAgentLib;
+  inherit (shared)
+    home
+    dotfiles
+    callAgentLib
+    ;
 
-  skills = callAgentLib ./skills.nix;
+  skillFiles = callAgentLib ./skill-files.nix;
   instructions = callAgentLib ./instructions.nix;
+
+  agentCfg = config.agents.opencode;
+  selectedSkillNames = skillFiles.skillNamesFor "opencode";
 
   instructionsTarget = "${home}/.config/opencode/AGENTS.md";
 
@@ -37,62 +52,39 @@ let
     force = true;
   };
 
-  # config.json is generated so this route (Loancrate Mac local vs. shared
-  # remote provider — see ollama-provider.nix) is evaluated per machine.
-  ollamaProvider = import ./ollama-provider.nix { inherit isLoancrateMac; };
-  mkOpencodeModels = ids: builtins.listToAttrs (map (id: {
-    name = id;
-    value.name = id;
-  }) ids);
-  baseOpencodeConfig = builtins.fromJSON (builtins.readFile ../dotfiles/opencode-config.json);
-  loancrateMcpServers = {
-    linear = {
-      type = "remote";
-      url = "https://mcp.linear.app/mcp";
-    };
-    figma = {
-      type = "remote";
-      url = "https://mcp.figma.com/mcp";
-    };
-    bde = {
-      type = "remote";
-      url = "https://bde.dsci.loancrate.dev/mcp";
-    };
-  };
-  opencodeConfig = baseOpencodeConfig // {
-    mcp = (baseOpencodeConfig.mcp or { }) // lib.optionalAttrs isLoancrateMac loancrateMcpServers;
-    provider = {
-      ollama = {
-        npm = "@ai-sdk/openai-compatible";
-        name = "ollama";
-        options.baseURL = ollamaProvider.baseUrl;
-        models = mkOpencodeModels ollamaProvider.models;
+  ollamaProvider = config.agents.providers.ollama;
+  mkOpencodeModels =
+    ids:
+    builtins.listToAttrs (
+      map (id: {
+        name = id;
+        value.name = id;
+      }) ids
+    );
+  baseOpencodeConfig = agentCfg.settings;
+  opencodeConfig =
+    baseOpencodeConfig
+    // {
+      mcp = (baseOpencodeConfig.mcp or { }) // agentCfg.mcpServers;
+      provider = {
+        ollama = {
+          npm = "@ai-sdk/openai-compatible";
+          name = "ollama";
+          options.baseURL = ollamaProvider.baseUrl;
+          models = mkOpencodeModels ollamaProvider.models;
+        };
       };
+    }
+    // lib.optionalAttrs ((baseOpencodeConfig.plugin or [ ]) != [ ] || agentCfg.plugins != [ ]) {
+      plugin = (baseOpencodeConfig.plugin or [ ]) ++ agentCfg.plugins;
     };
-  };
 in
-{
-  # Skills are Layer 0: home.file links (community = store symlinks, shared =
-  # out-of-store). config.json is Nix-generated (its ollama provider comes from
-  # the shared source); the other OpenCode dotfiles (commands, agents, modes,
-  # themes, plugins, local skills) stay live out-of-store symlinks.
-  # `.config/opencode/skills/local` sits beside the community/shared skill
-  # links; names don't collide.
-  # A skill's disableModelInvocation flag (skills.nix) is a no-op for
-  # OpenCode: it's excluded from manualOnlyCapableAgents since OpenCode has no
-  # manual-only mechanism upstream (anomalyco/opencode#11972 is still open, no
-  # workaround exists). Revisit once that lands.
+lib.mkIf (config.agents.enable && agentCfg.enable) {
+  # Skills resolve from config.agents; config.json remains Nix-generated and
+  # the other OpenCode dotfiles remain live out-of-store links.
   home.file =
-    skills.mkCommunitySkillFiles {
-      agentId = "opencode";
-      skillDirRelPath = ".config/opencode/skills";
-    }
-    // skills.mkLocalSkillFiles {
-      sourceRelPath = "agents/shared-skills";
-      targetDirRelPath = ".config/opencode/skills";
-    }
-    // skills.mkLocalSkillFiles {
-      sourceRelPath = "agents/opencode/skills";
+    skillFiles.mkSkillFiles {
+      skillNames = selectedSkillNames;
       targetDirRelPath = ".config/opencode/skills";
     }
     // {
@@ -128,9 +120,9 @@ in
     ''
   );
 
-  home.activation.prepareOpencodeInstructionsForRtk =
-    lib.hm.dag.entryBefore [ "installOpencodeRtkHooks" ]
-      (instructions.removeStaleInstructionSymlink { target = instructionsTarget; });
+  home.activation.prepareOpencodeInstructionsForRtk = lib.hm.dag.entryBefore [
+    "installOpencodeRtkHooks"
+  ] (instructions.removeStaleInstructionSymlink { target = instructionsTarget; });
 
   home.activation.installOpencodeRtkHooks = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     shared.mkRtkHookInstall {
@@ -140,7 +132,10 @@ in
   );
 
   home.activation.writeOpencodeInstructions = lib.hm.dag.entryAfter [ "installOpencodeRtkHooks" ] ''
-    ${instructions.writeAgentInstructions { target = instructionsTarget; }}
+    ${instructions.writeAgentInstructions {
+      target = instructionsTarget;
+      source = config.agents.instructions;
+    }}
 
     ${shared.mkRtkHookInstall {
       rtkArgs = "--opencode";

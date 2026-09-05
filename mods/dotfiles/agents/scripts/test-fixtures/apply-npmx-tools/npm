@@ -1,0 +1,64 @@
+#!/usr/bin/env node
+
+const fs = require("node:fs");
+
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.CALL_LOG, args.join(" ") + "\n");
+
+if (args[0] === "view") {
+  const latest = JSON.parse(process.env.NPM_LATEST || "{}");
+  const name = args[1];
+  if (process.env.NPM_FAIL_VIEW === name || !latest[name]) process.exit(1);
+  process.stdout.write(JSON.stringify(latest[name]));
+  process.exit(0);
+}
+
+const inventoryFile = process.env.NPM_INVENTORY;
+const inventory = fs.existsSync(inventoryFile)
+  ? JSON.parse(fs.readFileSync(inventoryFile, "utf8"))
+  : {};
+
+function saveInventory() {
+  fs.writeFileSync(inventoryFile, JSON.stringify(inventory));
+}
+
+if (args[0] === "ls") {
+  if (process.env.NPM_LS_CORRUPT === "1") {
+    console.log("not json");
+    process.exit(1);
+  }
+
+  const dependencies = Object.fromEntries(
+    Object.entries(inventory).map(([name, version]) => [name, { version }])
+  );
+  const invalid = process.env.NPM_TREE_INVALID === "1";
+  console.log(JSON.stringify({
+    name: "lib",
+    dependencies,
+    ...(invalid ? { problems: ["invalid dependency tree"] } : {}),
+  }));
+  process.exit(invalid ? 1 : 0);
+}
+
+if (args[0] === "install") {
+  const spec = args.at(-1);
+  const versionSeparator = spec.lastIndexOf("@");
+  const name = versionSeparator > 0 ? spec.slice(0, versionSeparator) : spec;
+  const version = versionSeparator > 0 ? spec.slice(versionSeparator + 1) : "latest";
+  if (process.env.NPM_FAIL_INSTALL === name || process.env.NPM_FAIL_INSTALL === spec) {
+    process.exit(1);
+  }
+  inventory[name] = version;
+  saveInventory();
+  process.exit(0);
+}
+
+if (args[0] === "uninstall") {
+  const name = args.at(-1);
+  if (process.env.NPM_FAIL_UNINSTALL === name) process.exit(1);
+  delete inventory[name];
+  saveInventory();
+  process.exit(0);
+}
+
+process.exit(2);

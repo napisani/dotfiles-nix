@@ -1,37 +1,29 @@
-// Installs declared Pi packages via `pi install`, and removes any package
-// this same mechanism previously installed but is no longer declared — true
-// revocation, without touching packages installed by other means (Pi's own
-// defaults, or manually via `pi install` outside of Nix): those never enter
-// the tracked managed-set, so they're never pruned. (Confirmed via `pi list`
-// that packages like npm:@ayulab/pi-rewind exist outside any Nix
-// declaration — blindly pruning "anything not declared" would wrongly
-// remove those.)
+// Reconciles declared Pi packages through `pi install`/`pi remove`.
 //
-// `pi install`/`pi remove` operate one package at a time and don't
-// reconcile the shared ~/.pi/agent/npm tree as a whole — removing a package
-// whose stale peerDependency range (e.g. an old @earendil-works/pi-ai pin)
-// was blocking npm's peer-dep auto-install for every OTHER extension does
-// not, by itself, retroactively install those now-satisfiable peers. Confirmed
-// directly: after `pi remove npm:claude-agent-sdk-pi` ran (removing the
-// conflicting peer range), pi-vim's `@earendil-works/pi-coding-agent` peer
-// dep was still missing until a plain `npm install` in that directory
-// re-resolved the whole tree. So a final `npm install` reconcile runs after
-// the per-package loop below, every time, to catch this — see
-// WORKAROUNDS.md "Pi extensions: claude-agent-sdk-pi peer-dep conflict".
+// A successful state stamp records both the declaration fingerprint and the
+// fact that the installed Pi package inventory and npm tree were healthy. An
+// unchanged declaration can therefore skip the expensive installers, while a
+// broken installation is repaired rather than frozen behind a matching hash.
+//
+// `pi install`/`pi remove` operate one package at a time and don't reconcile
+// the shared ~/.pi/agent/npm tree as a whole. The npm install below runs only
+// when package reconciliation is needed, so peer dependencies that become
+// satisfiable after a remove/install are repaired without adding a network
+// round trip to healthy activations.
 //
 // Env vars:
 //   DECLARED_PACKAGES — JSON array of package source strings (e.g. ["npm:pi-vim"])
-//   STATE_FILE        — path to a small JSON file recording the previously-
-//                        managed package set
+//   STATE_FILE        — path to the Pi package convergence state file
 //   LEGACY_SEED       — JSON array of package specs to seed into the state
-//                        file only if it doesn't exist yet (one-time
-//                        migration bootstrap — see mods/agents/pi.nix)
+//                        file only if it doesn't exist yet
+//   FORCE_REPAIR      — truthy value forces reconciliation even when healthy
 
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
-const { execFileSync } = require("node:child_process");
-const { readManagedState, writeManagedState } = require("../../scripts/lib/managed-state.js");
+const { execFileSync, spawnSync } = require("node:child_process");
+const { atomicWriteFileSync } = require("../../scripts/lib/managed-state.js");
 
 const declaredPackages = JSON.parse(process.env.DECLARED_PACKAGES || "[]");
 const stateFile = process.env.STATE_FILE;
@@ -44,24 +36,203 @@ function run(args) {
   execFileSync("pi", args, { stdio: "inherit", timeout: EXEC_TIMEOUT_MS });
 }
 
-// First-run migration: if no state file exists yet, seed it with
-// legacySeed so specs that used to be actively removed by an older,
-// differently-tracked mechanism are still pruned once, instead of silently
-// persisting forever just because they predate this tracking.
-if (!fs.existsSync(stateFile) && legacySeed.length) {
-  writeManagedState(stateFile, new Set(legacySeed));
+function canonicalPackages(packages) {
+  return [...new Set(packages)].sort();
 }
 
-const { ok: stateOk, managed: previouslyManaged } = readManagedState(stateFile);
-const currentManaged = new Set(declaredPackages);
+function declarationFingerprint(packages) {
+  return crypto
+    .createHash("sha256")
+    .update(JSON.stringify(canonicalPackages(packages)))
+    .digest("hex");
+}
 
-if (stateOk) {
-  for (const pkg of previouslyManaged) {
+// Pi's state file used to be a plain array. Read that format as a legacy
+// state so the first successful run upgrades it without losing ownership.
+// Invalid state is deliberately not replaced: without knowing the old
+// managed set, pruning could remove assets owned by somebody else.
+function readPiState(file) {
+  if (!fs.existsSync(file)) {
+    return { ok: true, managed: new Set(), fingerprint: null, converged: false };
+  }
+
+  try {
+    const parsed = JSON.parse(fs.readFileSync(file, "utf8"));
+    if (Array.isArray(parsed) && parsed.every((pkg) => typeof pkg === "string")) {
+      return { ok: true, managed: new Set(parsed), fingerprint: null, converged: false };
+    }
+    if (
+      parsed &&
+      typeof parsed.converged === "boolean" &&
+      typeof parsed.declarationFingerprint === "string" &&
+      Array.isArray(parsed.managed) &&
+      parsed.managed.every((pkg) => typeof pkg === "string")
+    ) {
+      const managed = new Set(parsed.managed);
+      if (parsed.converged && parsed.declarationFingerprint !== declarationFingerprint([...managed])) {
+        throw new Error("declaration fingerprint does not match managed packages");
+      }
+      return {
+        ok: true,
+        managed,
+        fingerprint: parsed.declarationFingerprint,
+        converged: parsed.converged,
+      };
+    }
+    throw new Error("unrecognized Pi state format");
+  } catch (e) {
+    console.error(
+      "agents: refusing to prune against unreadable state file " + file + ": " + e.message +
+      ". Skipping prune this run — fix or remove the file to resume tracking."
+    );
+    return { ok: false, managed: new Set(), fingerprint: null, converged: false };
+  }
+}
+
+function writePiState(file, managed, fingerprint, converged) {
+  atomicWriteFileSync(file, JSON.stringify({
+    converged,
+    declarationFingerprint: fingerprint,
+    managed: canonicalPackages([...managed]),
+  }) + "\n");
+}
+
+function capture(args) {
+  const result = spawnSync("pi", args, {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    timeout: EXEC_TIMEOUT_MS,
+  });
+  if (result.error || result.status !== 0) {
+    throw result.error || new Error("exited with status " + result.status);
+  }
+  return { stdout: result.stdout, stderr: result.stderr };
+}
+
+function piPackageInventory() {
+  let result;
+  try {
+    result = capture(["list", "--no-approve"]);
+  } catch (e) {
+    console.error("agents: Pi package health check failed: " + e.message);
+    return null;
+  }
+  if (result.stderr.trim()) {
+    console.error("agents: Pi package health check reported warnings: " + result.stderr.trim());
+    return null;
+  }
+
+  const entries = new Map();
+  let currentPackage = null;
+  for (const line of result.stdout.split("\n")) {
+    const packageMatch = line.match(/^  (\S+)\s*$/);
+    if (packageMatch) {
+      currentPackage = packageMatch[1];
+      entries.set(currentPackage, null);
+      continue;
+    }
+    const artifactMatch = line.match(/^    (.+?)\s*$/);
+    if (currentPackage && artifactMatch) {
+      entries.set(currentPackage, artifactMatch[1]);
+      currentPackage = null;
+    }
+  }
+  return entries;
+}
+
+function installedPiPackagesAreHealthy() {
+  const entries = piPackageInventory();
+  if (!entries) return false;
+
+  for (const pkg of declaredPackages) {
+    const artifact = entries.get(pkg);
+    if (!artifact || !fs.existsSync(artifact)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function npmTreeIsHealthy(piNpmDir) {
+  if (!declaredPackages.length) return true;
+  if (!fs.existsSync(path.join(piNpmDir, "package.json"))) return false;
+
+  const result = spawnSync("npm", ["ls", "--prefix", piNpmDir, "--all", "--json"], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    timeout: EXEC_TIMEOUT_MS,
+  });
+  if (result.error || result.status !== 0 || result.stderr.trim()) {
+    console.error(
+      "agents: Pi npm tree health check failed: " +
+      (result.error ? result.error.message : result.stderr.trim() || "exited with status " + result.status)
+    );
+    return false;
+  }
+
+  try {
+    const parsed = JSON.parse(result.stdout);
+    return !Array.isArray(parsed.problems) || parsed.problems.length === 0;
+  } catch (e) {
+    console.error("agents: Pi npm tree health check returned invalid JSON: " + e.message);
+    return false;
+  }
+}
+
+function installedStateIsHealthy() {
+  const piNpmDir = path.join(os.homedir(), ".pi", "agent", "npm");
+  return installedPiPackagesAreHealthy() && npmTreeIsHealthy(piNpmDir);
+}
+
+function reconcileNpmTree() {
+  const piNpmDir = path.join(os.homedir(), ".pi", "agent", "npm");
+  if (!fs.existsSync(path.join(piNpmDir, "package.json"))) {
+    return declaredPackages.length === 0;
+  }
+
+  try {
+    console.log("agents: npm install (peer-dep reconcile) in " + piNpmDir);
+    execFileSync("npm", ["install", "--no-audit", "--no-fund"], {
+      cwd: piNpmDir,
+      stdio: "inherit",
+      timeout: EXEC_TIMEOUT_MS,
+    });
+    return true;
+  } catch (e) {
+    console.error("agents: WARNING: npm install reconcile failed in " + piNpmDir + ": " + e.message);
+    return false;
+  }
+}
+
+// First-run migration: if no state file exists yet, seed it with
+// legacySeed so specs that used to be actively removed by an older,
+// differently-tracked mechanism are still pruned once.
+if (!fs.existsSync(stateFile) && legacySeed.length) {
+  atomicWriteFileSync(stateFile, JSON.stringify(legacySeed) + "\n");
+}
+
+const state = readPiState(stateFile);
+const currentManaged = new Set(declaredPackages);
+const fingerprint = declarationFingerprint(declaredPackages);
+const forceRepair = /^(1|true|yes)$/i.test(process.env.FORCE_REPAIR || "");
+
+const canSkip = !forceRepair && state.ok && state.converged && state.fingerprint === fingerprint;
+if (canSkip && installedStateIsHealthy()) {
+  console.log("agents: Pi packages already converged; skipping reconciliation");
+  process.exit(0);
+}
+
+let operationsSucceeded = true;
+const managedAfterOperations = new Set(state.managed);
+if (state.ok) {
+  for (const pkg of state.managed) {
     if (!currentManaged.has(pkg)) {
       try {
         run(["remove", pkg]);
+        managedAfterOperations.delete(pkg);
         console.log("agents: removed undeclared Pi package '" + pkg + "'");
       } catch (e) {
+        operationsSucceeded = false;
         console.error("agents: WARNING: failed to remove undeclared Pi package '" + pkg + "': " + e.message);
       }
     }
@@ -71,31 +242,21 @@ if (stateOk) {
 for (const pkg of declaredPackages) {
   try {
     run(["install", pkg]);
+    managedAfterOperations.add(pkg);
   } catch (e) {
+    operationsSucceeded = false;
     console.error("agents: WARNING: failed to install Pi package '" + pkg + "': " + e.message);
   }
 }
 
-if (stateOk) {
-  writeManagedState(stateFile, currentManaged);
-}
+const npmReconcileSucceeded = reconcileNpmTree();
+const healthAfterReconcile = installedStateIsHealthy();
+const converged = operationsSucceeded && npmReconcileSucceeded && healthAfterReconcile;
 
-// Reconcile the whole tree so any peer dependency that only became
-// satisfiable after this run's install/remove calls (e.g. a conflicting
-// package was just removed) actually gets installed, rather than staying
-// missing until someone runs `npm install` there by hand.
-if (declaredPackages.length) {
-  const piNpmDir = path.join(os.homedir(), ".pi", "agent", "npm");
-  if (fs.existsSync(path.join(piNpmDir, "package.json"))) {
-    try {
-      console.log("agents: npm install (peer-dep reconcile) in " + piNpmDir);
-      execFileSync("npm", ["install", "--no-audit", "--no-fund"], {
-        cwd: piNpmDir,
-        stdio: "inherit",
-        timeout: EXEC_TIMEOUT_MS,
-      });
-    } catch (e) {
-      console.error("agents: WARNING: npm install reconcile failed in " + piNpmDir + ": " + e.message);
-    }
-  }
+// Never replace unreadable state. For known state, record operation failures
+// as unconverged while retaining every package still owned by this mechanism;
+// that preserves failed removals for pruning and guarantees the next run
+// retries instead of trusting an older success stamp.
+if (state.ok) {
+  writePiState(stateFile, converged ? currentManaged : managedAfterOperations, fingerprint, converged);
 }

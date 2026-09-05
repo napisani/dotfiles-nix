@@ -17,12 +17,21 @@
 }:
 let
   shared = import ./lib.nix {
-    inherit config lib pkgs-unstable hostname machineRoles inputs homeManagerRelPath;
+    inherit
+      config
+      lib
+      pkgs-unstable
+      hostname
+      machineRoles
+      inputs
+      homeManagerRelPath
+      ;
   };
-  skills = shared.callAgentLib ./skills.nix;
+  skillFiles = shared.callAgentLib ./skill-files.nix;
+  localSharedSkillNames = skillFiles.skillNamesByKind "local" skillFiles.sharedSkillNames;
   storeDir = "${shared.home}/.agents/skills";
 in
-{
+lib.mkIf (config.agents.enable && config.agents.pi.enable) {
   # If the store dir is a stale symlink (e.g. left by the old wipe-and-rebuild
   # bridge), clear it so linkGeneration can populate it with home.file links.
   # A real directory is left untouched.
@@ -30,8 +39,8 @@ in
     shared.mkFixPathConflicts [ storeDir ]
   );
 
-  home.file = skills.mkLocalSkillFiles {
-    sourceRelPath = "agents/shared-skills";
+  home.file = skillFiles.mkSkillFiles {
+    skillNames = localSharedSkillNames;
     targetDirRelPath = ".agents/skills";
   };
 }

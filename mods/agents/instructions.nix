@@ -5,23 +5,8 @@
 # module calls `writeAgentInstructions` itself for its own instruction path,
 # deciding its own ordering (e.g. Codex chains an RTK-reference reapply step
 # immediately after, in the same file — see docs/adr/0001-per-agent-modules.md).
-{
-  config,
-  lib,
-  pkgs-unstable,
-  hostname ? "",
-  machineRoles ? [ ],
-  homeManagerRelPath,
-  ...
-}:
+{ lib, ... }:
 let
-  shared = import ./lib.nix {
-    inherit config lib pkgs-unstable hostname machineRoles homeManagerRelPath;
-  };
-  inherit (shared) dotfiles;
-
-  sharedAgentInstructionsSource = "${dotfiles}/agents/AGENTS.md";
-
   # Write repo-managed instruction content to one agent's instruction path.
   # Uses a temp-file rename for atomicity (avoids partial writes). Agent-
   # blind: takes a target path plus an optional list of extra source paths
@@ -31,10 +16,11 @@ let
   writeAgentInstructions =
     {
       target,
+      source,
       extraSourcePaths ? [ ],
     }:
     let
-      allSources = [ sharedAgentInstructionsSource ] ++ extraSourcePaths;
+      allSources = [ source ] ++ extraSourcePaths;
       catArgs = lib.concatMapStringsSep " " lib.escapeShellArg allSources;
     in
     ''

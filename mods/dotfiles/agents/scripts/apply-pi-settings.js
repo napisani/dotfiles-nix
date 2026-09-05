@@ -1,12 +1,37 @@
-// Applies managed Pi agent settings to ~/.pi/agent/settings.json.
-// Non-destructive: merges only the managed keys/entries, preserving user config.
-// (Custom providers/models are NOT here — Pi reads those from models.json; see
-// apply-pi-models.js.)
+// Applies declarative Pi settings to ~/.pi/agent/settings.json.
+// Managed object values are deep-merged, and declared skill paths are added
+// without removing user-managed paths.
+//
+// Env vars:
+//   PI_MANAGED_SETTINGS — JSON object of settings to enforce
+//   PI_SKILL_PATHS      — JSON array of skill search paths to ensure
+//   PI_REMOVED_PACKAGES — JSON array of legacy package specs to remove
 
 const fs = require("node:fs");
 const path = require("node:path");
+const { atomicWriteFileSync } = require("../../scripts/lib/managed-state.js");
 
 const settingsPath = path.join(process.env.HOME, ".pi", "agent", "settings.json");
+
+function parseDeclaration(name, fallback, validate) {
+  const raw = process.env[name];
+  if (raw === undefined) return fallback;
+  try {
+    const value = JSON.parse(raw);
+    if (!validate(value)) throw new Error("unexpected value shape");
+    return value;
+  } catch (error) {
+    console.error(`agents: invalid ${name}: ${error.message}`);
+    process.exit(1);
+  }
+}
+
+const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+const isStringArray = (value) => Array.isArray(value) && value.every((item) => typeof item === "string");
+
+const managedSettings = parseDeclaration("PI_MANAGED_SETTINGS", {}, isObject);
+const managedSkillPaths = parseDeclaration("PI_SKILL_PATHS", [], isStringArray);
+const removedPackages = new Set(parseDeclaration("PI_REMOVED_PACKAGES", [], isStringArray));
 
 let settings = {};
 if (fs.existsSync(settingsPath)) {
@@ -18,78 +43,38 @@ if (fs.existsSync(settingsPath)) {
   }
 }
 
-const managed = {
-  defaultProvider: "openai-codex",
-  defaultModel: "gpt-5.6-luna",
-  defaultThinkingLevel: "high",
-  theme: "kanagawa-dragon",
-};
-const managedSkills = [
-  "~/code/*/apps/*/.agents/skills",
-];
-const managedPackages = [
-  "npm:@ayulab/pi-rewind",
-  "npm:pi-mcp-adapter",
-];
-const removedPackages = new Set([
-  "npm:pi-subagents",
-]);
+const before = JSON.stringify(settings);
 
-let changed = false;
-for (const [key, value] of Object.entries(managed)) {
-  if (settings[key] !== value) {
-    settings[key] = value;
-    changed = true;
+function mergeManaged(target, desired) {
+  for (const [key, value] of Object.entries(desired)) {
+    if (isObject(value) && isObject(target[key])) {
+      mergeManaged(target[key], value);
+    } else {
+      target[key] = value;
+    }
   }
 }
 
-const currentOpenAI = settings.openaiReasoningMode && typeof settings.openaiReasoningMode === "object"
-  ? settings.openaiReasoningMode
-  : {};
-if (currentOpenAI.fast !== false) {
-  settings.openaiReasoningMode = { ...currentOpenAI, fast: false };
-  changed = true;
+mergeManaged(settings, managedSettings);
+
+if (Array.isArray(settings.packages)) {
+  settings.packages = settings.packages.filter((pkg) => !removedPackages.has(pkg));
 }
 
-const currentPackages = Array.isArray(settings.packages) ? settings.packages : [];
-const nextPackages = currentPackages.filter((pkg) => !removedPackages.has(pkg));
-let packagesChanged = !Array.isArray(settings.packages) || nextPackages.length !== currentPackages.length;
-for (const pkg of managedPackages) {
-  if (!nextPackages.includes(pkg)) {
-    nextPackages.push(pkg);
-    packagesChanged = true;
+if (managedSkillPaths.length > 0) {
+  const skills = Array.isArray(settings.skills) ? [...settings.skills] : [];
+  for (const skillPath of managedSkillPaths) {
+    if (!skills.includes(skillPath)) skills.push(skillPath);
   }
-}
-if (packagesChanged) {
-  settings.packages = nextPackages;
-  changed = true;
+  settings.skills = skills;
 }
 
-const currentSkills = Array.isArray(settings.skills) ? settings.skills : [];
-const nextSkills = [...currentSkills];
-let skillsChanged = !Array.isArray(settings.skills);
-for (const skillPath of managedSkills) {
-  if (!nextSkills.includes(skillPath)) {
-    nextSkills.push(skillPath);
-    skillsChanged = true;
-  }
-}
-if (skillsChanged) {
-  settings.skills = nextSkills;
-  changed = true;
-}
+// An earlier adapter wrote a plural providers map here. Pi reads custom
+// providers from models.json, so remove that known-stale managed value.
+if (settings.providers !== undefined) delete settings.providers;
 
-// Stale cleanup: an earlier version wrongly wrote a `providers` map here; Pi
-// reads custom providers from models.json (see apply-pi-models.js), and
-// settings.json only uses `provider` (singular) for retry tuning. Strip the
-// bad plural key if a prior run left it.
-if (settings.providers !== undefined) {
-  delete settings.providers;
-  changed = true;
-}
-
-if (changed) {
+if (JSON.stringify(settings) !== before) {
   fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
-  fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
-  console.log("agents: applied Pi defaults -> openai-codex/gpt-5.6-luna/high, fast:off, theme:kanagawa-dragon, monorepo app skills, managed Pi packages");
+  atomicWriteFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
+  console.log("agents: applied declared Pi settings");
 }

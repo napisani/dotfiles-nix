@@ -17,7 +17,14 @@
 }:
 let
   shared = import ./lib.nix {
-    inherit config lib pkgs-unstable hostname machineRoles homeManagerRelPath;
+    inherit
+      config
+      lib
+      pkgs-unstable
+      hostname
+      machineRoles
+      homeManagerRelPath
+      ;
   };
   inherit (shared) dotfiles nodeBin home;
 
@@ -81,9 +88,9 @@ let
   # of merging a config file. Uninstalls anything this mechanism previously
   # installed but is no longer declared; never touches plugins Claude itself
   # or the user installed outside of Nix (they never enter the tracked
-  # managed-set, so they're never pruned). Every declared marketplace is
-  # registered before plugin installation so one agent can consume plugins
-  # from independent sources.
+  # managed-set, so they're never pruned). Healthy unchanged declarations use
+  # only local inventory; marketplaces and installers run for changes, repair,
+  # or explicit updates.
   #
   # Trusted-path-first PATH: Homebrew/system before $HOME/.local/bin, so a
   # file planted in the user-writable npm-global bin dir (where ~9 packages
@@ -101,7 +108,10 @@ let
         MARKETPLACES=${lib.escapeShellArg (builtins.toJSON marketplaces)} \
         DECLARED_PLUGINS=${lib.escapeShellArg (builtins.toJSON declaredPlugins)} \
         STATE_FILE=${lib.escapeShellArg (mkStateFile stateId)} \
-          ${nodeBin}/node ${scriptsDir}/apply-claude-plugins.js
+        FORCE_REPAIR="''${AGENTS_FORCE_REPAIR:-}" \
+        UPDATE="''${AGENTS_UPDATE:-}" \
+          ${nodeBin}/node ${scriptsDir}/apply-claude-plugins.js \
+          || ${shared.mkWarn "Claude plugin reconciliation failed; retry with network access or force repair"}
       else
         ${shared.mkWarn "'claude' CLI not found — skipping Claude plugin installs"}
       fi
@@ -111,8 +121,7 @@ let
   # merging a config file. Removes anything this mechanism previously
   # installed but is no longer declared; never touches packages Pi itself or
   # the user installed outside of Nix (they never enter the tracked
-  # managed-set, so they're never pruned — confirmed via `pi list` showing
-  # packages like npm:@ayulab/pi-rewind that aren't Nix-declared).
+  # managed-set, so they're never pruned).
   #
   # `legacySeed` is an optional one-time bootstrap: package specs that used
   # to be actively removed by an older, differently-tracked mechanism (see
@@ -134,6 +143,7 @@ let
         DECLARED_PACKAGES=${lib.escapeShellArg (builtins.toJSON declaredPackages)} \
         LEGACY_SEED=${lib.escapeShellArg (builtins.toJSON legacySeed)} \
         STATE_FILE=${lib.escapeShellArg (mkStateFile stateId)} \
+        FORCE_REPAIR="''${AGENTS_FORCE_REPAIR:-''${AGENTS_UPDATE:-}}" \
           ${nodeBin}/node ${scriptsDir}/apply-pi-packages.js
       else
         ${shared.mkWarn "'pi' CLI not found — skipping Pi package installs"}

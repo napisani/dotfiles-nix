@@ -5,8 +5,8 @@
 # helper functions (never branching on "which agent is this").
 #
 # Usage: let shared = import ./lib.nix { inherit config lib pkgs-unstable hostname machineRoles; };
-#        inherit (shared) dotfiles home allAgents nodeBin gitBin isLoancrateMac
-#          mkFixPathConflicts mkRtkHookInstall mkDeclaredEntriesFromSources callAgentLib;
+#        inherit (shared) dotfiles home nodeBin mkFixPathConflicts
+#          mkRtkHookInstall callAgentLib;
 #
 # `hostname` and `machineRoles` must be forwarded by the caller from its own
 # module arguments (both are specialArgs set in lib/builders.nix from
@@ -30,38 +30,19 @@ let
   dotfiles = "${config.home.homeDirectory}/${homeManagerRelPath}/mods/dotfiles";
   home = config.home.homeDirectory;
 
-  # Skill catalog (skills.nix) still targets all four agents by default;
-  # this enumeration has no per-agent branching behavior of its own.
-  allAgents = [
-    "claude-code"
-    "opencode"
-    "codex"
-    "pi"
-  ];
-
   nodeBin = "${pkgs-unstable.nodejs}/bin";
-  gitBin = "${pkgs-unstable.git}/bin";
-
-  # Machine gating: derived from the flake-declared roles list (passed as a
-  # specialArg from flake.nix's own machine definitions), not a hostname
-  # string equality and not the hand-duplicated MACHINE_NAME sessionVariable.
-  # Role-based so renaming a machine in flake.nix can't silently turn every
-  # gated asset off — the roles travel with the machine.
-  isLoancrateMac = builtins.elem "loancrate" machineRoles;
 
   # Remove a stale non-directory (symlink, or a plain file left behind by a
   # tool that expects a real dir) at each of `paths`, before linkGeneration
   # runs. Agent-blind: just a list of paths, no identity of its own.
-  mkFixPathConflicts =
-    paths:
-    ''
-      for p in ${builtins.concatStringsSep " " (map lib.escapeShellArg paths)}; do
-        if [ -L "$p" ] || { [ -e "$p" ] && [ ! -d "$p" ]; }; then
-          echo "agents: removing stale non-directory at $p"
-          rm -rf "$p"
-        fi
-      done
-    '';
+  mkFixPathConflicts = paths: ''
+    for p in ${builtins.concatStringsSep " " (map lib.escapeShellArg paths)}; do
+      if [ -L "$p" ] || { [ -e "$p" ] && [ ! -d "$p" ]; }; then
+        echo "agents: removing stale non-directory at $p"
+        rm -rf "$p"
+      fi
+    done
+  '';
 
   # Emit a warning: to stderr (visible in switch output) AND appended to the
   # activation warning file so report.nix can summarize it at the end. Uses
@@ -87,20 +68,6 @@ let
         ${mkWarn "rtk not found on PATH — skipping RTK hook for ${label} (install via: brew install rtk)"}
       fi
     '';
-
-  # Filter `sources` (a list of { name, config, condition ? true }) down to
-  # enabled entries and reshape into a { name = config; ... } attrset. Pure
-  # data transform, no agent identity involved — used to turn an agent
-  # module's own MCP-source list into the attrset managed-config-lib.nix's
-  # merge utilities expect.
-  mkDeclaredEntriesFromSources =
-    sources:
-    builtins.listToAttrs (
-      map (s: {
-        inherit (s) name;
-        value = s.config;
-      }) (builtins.filter (s: s.condition or true) sources)
-    );
 
   # Link every regular file with one of `extensions` under a dotfiles subdir
   # into targetDirRelPath as an out-of-store symlink (live-editable), skipping
@@ -158,15 +125,11 @@ in
   inherit
     dotfiles
     home
-    allAgents
     nodeBin
-    gitBin
-    isLoancrateMac
     mkFixPathConflicts
     mkRtkHookInstall
     mkWarn
     mkLocalFileLinks
-    mkDeclaredEntriesFromSources
     callAgentLib
     ;
 }

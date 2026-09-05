@@ -17,13 +17,29 @@
 }:
 let
   shared = import ./lib.nix {
-    inherit config lib pkgs-unstable hostname machineRoles inputs homeManagerRelPath;
+    inherit
+      config
+      lib
+      pkgs-unstable
+      hostname
+      machineRoles
+      inputs
+      homeManagerRelPath
+      ;
   };
-  inherit (shared) home dotfiles nodeBin callAgentLib;
+  inherit (shared)
+    home
+    dotfiles
+    nodeBin
+    callAgentLib
+    ;
 
-  skills = callAgentLib ./skills.nix;
+  skillFiles = callAgentLib ./skill-files.nix;
   instructions = callAgentLib ./instructions.nix;
   managedConfig = callAgentLib ./managed-config-lib.nix;
+
+  agentCfg = config.agents.codex;
+  selectedSkillNames = skillFiles.skillNamesFor "codex";
 
   instructionsTarget = "${home}/.codex/AGENTS.md";
   configTomlFile = "${home}/.codex/config.toml";
@@ -31,35 +47,21 @@ let
   scriptsDir = "${dotfiles}/agents/scripts";
   workmuxStatusDir = "${dotfiles}/agents/workmux-status";
 
-  mcpSources = [
-    {
-      name = "linear";
-      condition = shared.isLoancrateMac;
-      config.url = "https://mcp.linear.app/mcp";
-    }
-    {
-      name = "figma";
-      condition = shared.isLoancrateMac;
-      config.url = "https://mcp.figma.com/mcp";
-    }
-    {
-      name = "bde";
-      condition = shared.isLoancrateMac;
-      config.url = "https://bde.dsci.loancrate.dev/mcp";
-    }
-  ];
-  declaredMcpEntries = shared.mkDeclaredEntriesFromSources mcpSources;
-
   # Codex's real manual-only control isn't the `disable-model-invocation`
   # frontmatter field — it's a sibling `agents/openai.yaml` with
   # `policy.allow_implicit_invocation: false` (see
   # github.com/mattpocock/skills#516). Catalog skills are read-only pinned
-  # store paths, so a skill with disableModelInvocation = true gets that
-  # file injected into a patched copy instead.
+  # store paths, so a skill selected with manualOnly = true gets that file
+  # injected into a patched copy instead.
   patchCodexSkillSource =
     s: src:
-    if skills.isSkillManualOnlyFor { inherit s; agentId = "codex"; } then
-      skills.mkPatchedSkillSource {
+    if
+      skillFiles.isSkillManualOnlyFor {
+        skillName = s.name;
+        agentId = "codex";
+      }
+    then
+      skillFiles.mkPatchedSkillSource {
         name = s.name;
         sourcePath = src;
         addFiles."agents/openai.yaml" = ''
@@ -70,25 +72,13 @@ let
     else
       src;
 in
-{
-  # Skills are Layer 0 (only Nix writes ~/.codex/skills): home.file links, not
-  # an activation script. Codex's own hidden .system dir under ~/.codex/skills
-  # is left untouched — home.file manages only the named skill entries beside
-  # it. See docs/adr/0002-layered-asset-management.md.
-  home.file =
-    skills.mkCommunitySkillFiles {
-      agentId = "codex";
-      skillDirRelPath = ".codex/skills";
-      patchSource = patchCodexSkillSource;
-    }
-    // skills.mkLocalSkillFiles {
-      sourceRelPath = "agents/shared-skills";
-      targetDirRelPath = ".codex/skills";
-    }
-    // skills.mkLocalSkillFiles {
-      sourceRelPath = "agents/codex/skills";
-      targetDirRelPath = ".codex/skills";
-    };
+lib.mkIf (config.agents.enable && agentCfg.enable) {
+  # Codex's hidden .system directory is outside the named links managed here.
+  home.file = skillFiles.mkSkillFiles {
+    skillNames = selectedSkillNames;
+    targetDirRelPath = ".codex/skills";
+    patchSource = patchCodexSkillSource;
+  };
 
   home.activation.prepareCodexInstructionsForRtk = lib.hm.dag.entryBefore [ "installCodexRtkHooks" ] (
     instructions.removeStaleInstructionSymlink { target = instructionsTarget; }
@@ -106,7 +96,10 @@ in
   # since it's not part of the shared source file. Same-file, same-module
   # sequence now instead of a cross-file dependency on a shared step name.
   home.activation.writeCodexInstructions = lib.hm.dag.entryAfter [ "installCodexRtkHooks" ] ''
-    ${instructions.writeAgentInstructions { target = instructionsTarget; }}
+    ${instructions.writeAgentInstructions {
+      target = instructionsTarget;
+      source = config.agents.instructions;
+    }}
 
     ${shared.mkRtkHookInstall {
       rtkArgs = "--codex";
@@ -118,7 +111,7 @@ in
     managedConfig.mkTomlManagedMerge {
       targetFile = configTomlFile;
       managedKey = "mcp_servers";
-      declaredEntries = declaredMcpEntries;
+      declaredEntries = agentCfg.mcpServers;
     }
   );
 

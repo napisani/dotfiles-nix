@@ -2,6 +2,8 @@
 
 **Status:** accepted
 
+**Partially superseded by:** [ADR 0003](0003-declarative-agent-configuration-interface.md), which moves desired-state declarations above the per-agent modules while retaining those modules as independent native adapters.
+
 Skills, MCP servers, plugin installs, and RTK hooks used to each live in one
 shared cross-agent file (`skills.nix`, `mcp.nix`, `plugins.nix`, `hooks.nix`),
 each holding a declared list with an `agents = [...]` field and one script

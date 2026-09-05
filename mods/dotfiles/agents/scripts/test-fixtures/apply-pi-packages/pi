@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+
+const fs = require("node:fs");
+const path = require("node:path");
+
+const args = process.argv.slice(2);
+const [command, packageSpec = ""] = args;
+fs.appendFileSync(process.env.CALL_LOG, args.join(" ") + "\n");
+
+function artifactPath(spec) {
+  if (spec.startsWith("npm:")) {
+    return path.join(process.env.HOME, ".pi", "agent", "npm", "node_modules", spec.slice(4));
+  }
+  if (spec.startsWith("git:")) {
+    return path.join(process.env.HOME, ".pi", "agent", "git", spec.slice(4));
+  }
+  throw new Error("unsupported Pi package spec: " + spec);
+}
+
+function installedPackages() {
+  if (!fs.existsSync(process.env.PI_INSTALL_STATE)) return [];
+  return fs.readFileSync(process.env.PI_INSTALL_STATE, "utf8").split("\n").filter(Boolean);
+}
+
+function writeInstalledPackages(packages) {
+  fs.writeFileSync(
+    process.env.PI_INSTALL_STATE,
+    packages.length ? packages.join("\n") + "\n" : ""
+  );
+}
+
+if (command === "list") {
+  console.log("User packages:");
+  for (const installedPackage of installedPackages()) {
+    console.log("  " + installedPackage);
+    console.log("    " + artifactPath(installedPackage));
+  }
+  if (process.env.PI_LIST_WARNING) console.error(process.env.PI_LIST_WARNING);
+  process.exit(Number(process.env.PI_LIST_STATUS || 0));
+}
+
+if (command === "install" && process.env.PI_FAIL_INSTALL === packageSpec) process.exit(1);
+if (command === "remove" && process.env.PI_FAIL_REMOVE === packageSpec) process.exit(1);
+
+if (command === "install") {
+  const packages = installedPackages();
+  if (!packages.includes(packageSpec)) writeInstalledPackages([...packages, packageSpec]);
+  fs.mkdirSync(artifactPath(packageSpec), { recursive: true });
+} else if (command === "remove") {
+  writeInstalledPackages(installedPackages().filter((spec) => spec !== packageSpec));
+  fs.rmSync(artifactPath(packageSpec), { recursive: true, force: true });
+}

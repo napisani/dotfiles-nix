@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+
+const fs = require("node:fs");
+
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.NPM_CALL_LOG, args.join(" ") + "\n");
+
+if (args[0] === "ls") {
+  if (process.env.NPM_HEALTH === "invalid") process.exit(1);
+  console.log(JSON.stringify({ name: "pi-extensions", dependencies: {} }));
+} else if (args[0] === "install" && process.env.NPM_FAIL_INSTALL === "1") {
+  process.exit(1);
+}
