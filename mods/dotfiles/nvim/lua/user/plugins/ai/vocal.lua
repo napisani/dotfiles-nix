@@ -1,16 +1,13 @@
 local M = {}
 
--- Dedicated venv for vocal.nvim with `requests` pre-installed.
--- Created by home-manager activation hook in uvx.nix.
--- Prepended to PATH so vocal.nvim always finds this python first,
--- regardless of any project-specific venv that may be active.
-local VOCAL_VENV_BIN = vim.fn.expand("~/.local/share/nvim/vocal-venv/bin")
+-- Nix-provided Python + requests, linked by Home Manager in neovim.nix.
+-- Keep this ahead of project interpreters, which may not have requests.
+local VOCAL_PYTHON_BIN = vim.fn.expand("~/.local/share/nvim/vocal-python/bin")
 
 function M.setup()
-	-- Prepend vocal venv to PATH before requiring vocal so its python3
-	-- (with requests) is always discovered first by vocal.nvim's api module.
-	if vim.fn.isdirectory(VOCAL_VENV_BIN) == 1 then
-		vim.env.PATH = VOCAL_VENV_BIN .. ":" .. vim.env.PATH
+	-- The plugin discovers python3 from PATH when launching its uploader.
+	if vim.fn.isdirectory(VOCAL_PYTHON_BIN) == 1 then
+		vim.env.PATH = VOCAL_PYTHON_BIN .. ":" .. vim.env.PATH
 	end
 
 	local ok, vocal = pcall(require, "vocal")

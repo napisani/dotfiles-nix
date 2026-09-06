@@ -20,8 +20,13 @@ in
     withNodeJs = false;
     withPython3 = true;
     extraPackages = with pkgs-unstable; langPackages ++ [ ];
-    withRuby= true;
+    withRuby = true;
   };
+  # Vocal only needs Python + requests. Home Manager owns this immutable
+  # runtime link; no mutable venv, pip install, or reconciliation state.
+  nativeManagedFiles = [ ".local/share/nvim/vocal-python" ];
+  home.file.".local/share/nvim/vocal-python".source = pkgs.python3.withPackages (ps: [ ps.requests ]);
+
   # home.file.".config/nvim".source = config.lib.file.mkOutOfStoreSymlink ./dotfiles/nvim;
 
   # xdg.configFile.nvim = {

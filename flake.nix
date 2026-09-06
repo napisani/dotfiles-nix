@@ -55,6 +55,11 @@
       # follow the main nixpkgs (26.05-darwin) so maclab can evaluate it.
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    scute = {
+      url = "path:../scute";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs-darwin.follows = "nixpkgs";
+    };
     tmux_picker = {
       url = "path:../tmux-picker";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -318,29 +323,43 @@
       # merged values — only forcing the actual string does. See
       # mods/dotfiles/agents/shared-skills/agent-management/SKILL.md
       # ("Verifying a change actually works") for the reasoning.
-      checks.aarch64-darwin.activation-merge-forced = mkActivationMergeForcedCheck "aarch64-darwin";
-      checks.x86_64-darwin.activation-merge-forced = mkActivationMergeForcedCheck "x86_64-darwin";
-      checks.x86_64-linux.activation-merge-forced = mkActivationMergeForcedCheck "x86_64-linux";
+      checks = lib.genAttrs [ "aarch64-darwin" "x86_64-darwin" "x86_64-linux" ] (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          activation-merge-forced = mkActivationMergeForcedCheck system;
 
-      # Keep the public desired-state interface equally evaluable and
-      # inspectable from every managed host system. Each check validates every
-      # host's resolved value; only the trivial output derivation is native to
-      # the system under which `nix flake check` runs.
-      checks.aarch64-darwin.agent-config-resolved = mkAgentConfigResolvedCheck "aarch64-darwin";
-      checks.x86_64-darwin.agent-config-resolved = mkAgentConfigResolvedCheck "x86_64-darwin";
-      checks.x86_64-linux.agent-config-resolved = mkAgentConfigResolvedCheck "x86_64-linux";
+          # Validate every host's desired state using a native output derivation.
+          agent-config-resolved = mkAgentConfigResolvedCheck system;
+          native-tools-resolved = pkgs.writeText "resolved-native-tools.json" (
+            builtins.toJSON (
+              lib.mapAttrs (_: host: host.config.home-manager.users.nick.nativeTools) (
+                self.darwinConfigurations // self.nixosConfigurations
+              )
+            )
+          );
 
-      checks.aarch64-darwin.native-install-contract = import ./checks/native-installs.nix {
-        inherit self lib;
-        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-      };
-      checks.x86_64-darwin.native-install-contract = import ./checks/native-installs.nix {
-        inherit self lib;
-        pkgs = nixpkgs.legacyPackages.x86_64-darwin;
-      };
-      checks.x86_64-linux.native-install-contract = import ./checks/native-installs.nix {
-        inherit self lib;
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-      };
+          native-install-contract = import ./checks/native-installs.nix {
+            inherit self lib pkgs;
+          };
+          global-tools = import ./checks/global-tools.nix {
+            inherit self lib pkgs;
+          };
+          operation-plan = import ./checks/operation-plan.nix {
+            inherit lib pkgs;
+          };
+          global-tools-config = import ./checks/global-tools-config.nix {
+            inherit self lib pkgs;
+          };
+          rtk-runtime = import ./checks/rtk-runtime.nix {
+            inherit self lib pkgs;
+          };
+          vocal-runtime = import ./checks/vocal-runtime.nix {
+            inherit self lib pkgs;
+          };
+        }
+      );
     };
 }

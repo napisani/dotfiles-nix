@@ -59,14 +59,21 @@ Sort every asset by who writes its path, and give each layer one mechanism:
   per-key state files are deleted. Hand-added entries under the managed key no
   longer survive — the deliberate trade for removing the state machinery.
 - **Layer 2 — the tool's installer owns opaque state** → CLI driver +
-  tracked-state diff (unchanged from before). Claude plugins, Pi packages, RTK
-  hooks keep `~/.local/state/agents-nix/<stateId>.json`.
+  tracked-state diff. Claude plugins, Pi packages, npm tools, and uv tools
+  keep `~/.local/state/agents-nix/<stateId>.json`.
+
+Implementation refinement: RTK resources and composed instructions now belong
+in Layer 0. RTK generates assets in an isolated Nix build; Home Manager links
+them, while the Claude settings fragment uses Layer 1. No `rtk init` runs on
+activation. Vocal's dependency-only Python environment is likewise a Nix
+runtime, not a native-tool installation. This removes lifecycle machinery
+rather than introducing more caches.
 
 Supporting changes: a `nix flake check` that forces every merged activation
 value (catches the option-merge collisions a real switch would hit); machine
 gating via a flake-declared `roles` list (`machineRoles` specialArg) instead
-of hostname strings; `mods/opencode.nix` merged into `mods/agents/opencode.nix`
-so OpenCode stops spanning two files; and `report.nix`, which aggregates
+of hostname strings; `mods/opencode.nix` merged into `mods/internal/agents/opencode.nix`
+so OpenCode stops spanning two files; and the agent-blind `mods/internal/global-tools-report.nix`, which aggregates
 soft-fail warnings into one end-of-activation summary.
 
 ## Considered options

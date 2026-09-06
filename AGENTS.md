@@ -67,7 +67,19 @@ Temporary bug workarounds (Neovim, nvim-treesitter, Nix overlays/package overrid
 
 ### Architecture Patterns
 
-#### Builder Pattern
+#### Maintenance layout
+
+- Shared selections: public `mods/` modules (`native-tools.nix`, `agents/default.nix`, `model-runtimes.nix`).
+- Host differences: `homes/home-*.nix`, or data modules explicitly imported there.
+- `homes/profiles/` composes common/platform modules, not hidden tool selections.
+- `mods/internal/` contains option schemas, adapters, installer scripts and tests.
+  Do not put machine-selection policy there or add installer code to `mods/dotfiles/`.
+- `mods/dotfiles/` contains authored shell/editor/agent files; intentionally live links remain live.
+- Installer implementation changes require a rebuild/switch because execution is generation-bound.
+
+Start with the [README editing guide](./README.md#where-to-edit-your-setup).
+
+### Builder Pattern
 `lib/builders.nix` provides `mkDarwinSystem` and `mkNixOSSystem` that automatically wire up:
 - Base system profiles (e.g., `darwin-base.nix`)
 - Home-manager with `extraSpecialArgs` (pkgs-unstable, custom flake inputs)
@@ -102,7 +114,7 @@ choose that form deliberately for immutable or machine-selected assets.
 Language tooling in `mods/languages/` aggregated by `all.nix`. Imported by both `base-packages.nix` (shell use) and `neovim.nix` (extraPackages). Languages: JavaScript/TypeScript, Python, Go, Java, C++, Lua, Nix, Bash, Elixir.
 
 #### Activation Hooks
-`mods/uvx.nix` and `mods/npmx.nix` use home-manager activation hooks to install tools via `uv tool install` and `npm install -g` for packages not easily packaged in Nix.
+`mods/internal/uv.nix` and `mods/internal/npm.nix` use home-manager activation hooks to install tools via `uv tool install` and `npm install -g` for packages not easily packaged in Nix.
 
 #### Custom Flake Inputs
 Several of the user's own projects are consumed as flake inputs: `procmux`, `proctmux`, `stackman`, `secret_inject`, `animal_rescue`, `scrollbacktamer`, `rift`. Stackman is sourced from the `pub/stackman` subdirectory of the monorepo rather than a standalone repository.

@@ -56,7 +56,6 @@
     brews = [
       # "procmux"
       "opencode"
-      "rtk"
       "raine/workmux/workmux"
       "ollama"
     ];

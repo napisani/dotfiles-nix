@@ -4,7 +4,7 @@ This skill was forked from [dmmulroy/skills/tech-spec](https://github.com/dmmulr
 
 It lives in `shared-skills/` so it's automatically available to every agent
 without depending on an external flake input. Register it in
-`mods/agents/skills.nix`; `mods/agents/skill-files.nix` realizes the selected
+`mods/agents/skills.nix`; `mods/internal/agents/skill-files.nix` realizes the selected
 catalog name as an out-of-store link.
 
 Upstream changes may diverge. To update, re-copy from the source repo.

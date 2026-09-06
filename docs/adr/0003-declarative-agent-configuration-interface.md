@@ -79,6 +79,7 @@ The implemented interface is:
 agents = {
   enable = true;
   instructions = ./AGENTS.md;
+  rtkPackage = pkgs.rtk;
 
   skills = {
     shared = [
@@ -95,11 +96,6 @@ agents = {
     };
   };
 
-  globalNpmTools = {
-    "@ellery/terminal-mcp" = "0.5.1";
-    "@playwright/cli" = "0.1.19";
-  };
-
   providers.ollama = {
     baseUrl = "https://ollama.example/v1";
     models = [ "qwen3:1.7b" ];
@@ -107,6 +103,7 @@ agents = {
 
   claude = {
     enable = true;
+    rtk.enable = true;
     mcpServers = { };
     pluginMarketplaces = [ ];
     plugins = [ ];
@@ -116,12 +113,14 @@ agents = {
 
   codex = {
     enable = true;
+    rtk.enable = true;
     mcpServers = { };
     settings = { };
   };
 
   pi = {
     enable = true;
+    rtk.enable = true;
     mcpServers = { };
     packages = [ ];
     settings = { };
@@ -130,6 +129,7 @@ agents = {
 
   opencode = {
     enable = true;
+    rtk.enable = true;
     mcpServers = { };
     plugins = [ ];
     settings = { };
@@ -188,17 +188,17 @@ of the catalog and into adapter support code.
 
 ### Machine-specific policy uses module composition
 
-Baseline declarations live in a common agent profile. Work, personal, and other
-role-specific profiles add declarations through ordinary Nix module merging.
-The profile selection is driven by the existing flake-declared machine roles.
+Baseline declarations live in `mods/agents/default.nix`. Host modules add
+or explicitly import their differences through ordinary Nix module merging.
+Private adapters do not inspect machine roles or select policy modules.
 
 For example:
 
 ```nix
-# Common profile
+# mods/agents/default.nix
 agents.skills.shared = [ "tdd" "context7" ];
 
-# Loancrate profile
+# homes/nicks-loancrate-mbp/agents.nix, explicitly imported by its host
 agents.skills.shared = [
   "loancrate-standup-prep"
   "loancrate-lc-script"
@@ -211,8 +211,8 @@ agents.claude.mcpServers.linear = {
 ```
 
 This replaces repeated entry-level `condition = isLoancrateMac` fields with a
-small number of visible profile overlays. Host modules may still override or
-extend the merged options when a machine genuinely differs from its role.
+explicit imports visible in each host's home configuration. Shared configuration
+files can be reused, but their selection never happens inside installer modules.
 
 ### Per-agent adapters remain independent
 
@@ -256,29 +256,40 @@ than defining that interface.
 
 ## Module layout
 
-The implemented layout keeps the existing filenames while making their roles
-explicit:
+Maintenance layout: shared choices live in public modules; host files explicitly
+select overrides. Installer mechanics are private, not another place to edit
+package lists or machine policy.
 
 ```text
-mods/agents/
-  default.nix                 orchestration and cross-option assertions
-  options.nix                 typed public interface
-  skills.nix                  pure skill name → source catalog
-  skill-files.nix             agent-blind skill resolution/rendering support
-  profiles/
-    common.nix                baseline desired state
-    loancrate.nix             work-role desired-state overlay
-  claude.nix                  Claude native adapter
-  codex.nix                   Codex native adapter
-  pi.nix                      Pi native adapter
-  opencode.nix                OpenCode native adapter
-  managed-config-lib.nix      ownership/reconciliation utilities
+mods/
+  native-tools.nix            shared npm/uv selections
+  agents/default.nix         shared agent selections/settings
+  agents/skills.nix          skill name → source catalog
+  model-runtimes.nix          shared model selection
+  internal/
+    agents/                  options, validation and independent native adapters
+      scripts/               agent installer/config code and tests
+    npm.nix, uv.nix          native tool adapters
+    npm/scripts/, uv/scripts/
+    model-runtimes.nix       generic model execution
+    model-runtimes/scripts/
+    global-tools.nix         activation/CLI dispatch
+    native-scripts.nix       immutable code bundle
+    scripts/                 CLI and shared reconciliation helpers/tests
+  dotfiles/                  authored shell/editor/agent assets, not installers
+homes/
+  home-*.nix                 machine differences and explicit imports
+  nicks-loancrate-mbp/agents.nix
+  profiles/                  shared/platform composition only
 ```
 
-`mods/npmx.nix` is currently the adapter for `agents.globalNpmTools`; native
-reconciler scripts remain under `mods/dotfiles/agents/scripts/`. Physical
-location is secondary to the boundary: declarations live above adapters and
-reconciliation mechanics live below them.
+Refinement, 2026-09-06: npm and uv are peer native-tool domains, not agent
+configuration. `nativeTools.npm.tools` and `nativeTools.uv` are selected in
+`mods/native-tools.nix`; `mods/internal/{npm,uv}.nix` and scripts under
+`mods/internal/{npm,uv}/scripts/` realize them. Some npm packages are agent CLIs,
+but disabling agent configuration must not uninstall those tools.
+`mods/internal/global-tools.nix` owns the agent-blind execution plane. Installation
+strategies remain shared; declarations and native policy do not.
 
 ## Migration
 
@@ -292,14 +303,38 @@ Migrate incrementally without changing installed state:
 4. Convert one agent module at a time into an adapter consuming
    `config.agents.<agent>`, comparing generated activation/file outputs during
    each step.
-5. Move global npm declarations and the existing state-aware reconciler behind
-   the same public interface.
+5. Move npm declarations behind the peer `nativeTools.npm` interface, retaining
+   the shared state-aware reconciliation strategy.
 6. Remove old declaration lists only after every consumer uses the options.
 7. Resume Claude plugin, RTK, and explicit update/repair optimization behind the
    adapter interfaces.
 
 During migration, avoid a second source of truth. A declaration moves to
 `config.agents` in the same change that removes its old list.
+
+## Operational interface
+
+Each adapter registers native commands in the private `globalToolOperations` module
+option. A single dispatcher builds the executable commands, activation entries,
+and `global-tools {status,apply,repair,check-updates,update}` manifest. Ordering and
+warning-report dependencies derive from validated named `after` edges in the
+same registry. One deterministic plan drives both sequential execution surfaces;
+ordering does not imply a success prerequisite. Independent config files have
+separate operations so drift/failure in one does not hide the others. Exact
+adapter-declared file keys register link inspection, never path-prefix scans.
+No agent IDs are
+interpreted by the dispatcher, and it never owns a second convergence ledger.
+
+All activation code and its TOML runtime dependency belong to the evaluated
+Nix generation. Shared instructions are composed as Home Manager files. RTK
+resources are generated at build time from the selected Nix package, not
+rewritten by native initialization on every activation. Local skills and
+editable source code retain their intentional live-link behavior.
+
+The npm and uv adapters follow the same split through `nativeTools.npm` and
+`nativeTools.uv`, selected in `mods/native-tools.nix`. They can be
+configured without importing agent modules. Persistent ownership-state paths
+remain unchanged for compatibility.
 
 ## Verification
 

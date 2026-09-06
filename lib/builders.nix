@@ -27,7 +27,7 @@ rec {
   # doesn't override it in flake.nix. This is the ONE place that default
   # lives — mkDarwinSystem/mkNixOSSystem forward whatever's passed (or this
   # default) as the `homeManagerRelPath` specialArg, and every downstream
-  # module (mods/shell.nix, mods/agents/lib.nix, etc.) just declares
+  # module (mods/shell.nix, mods/internal/agents/lib.nix, etc.) just declares
   # `homeManagerRelPath` as a required arg rather than re-declaring a
   # default of its own — don't add `? "..."` fallbacks elsewhere. A machine
   # applying a standalone clone of the public repo (not from the monorepo)
@@ -45,8 +45,8 @@ rec {
   mkSpecialArgs = system: hostname: roles: homeManagerRelPath: {
     inherit inputs hostname homeManagerRelPath;
     # Machine roles declared per-machine in flake.nix (e.g. [ "work"
-    # "loancrate" ]). Agent modules gate on these instead of hostname string
-    # equality, so renaming a machine can't silently disable gated assets.
+    # "loancrate" ]). Tooling overrides are explicit in the host's home module;
+    # these roles remain available for other shared/platform configuration.
     machineRoles = roles;
     # macOS Intel Macs (x86_64-darwin) use the nixpkgs-26.05-darwin stack
     # (nixpkgs 26.11 dropped Intel support). Modules can use this flag to
@@ -66,6 +66,7 @@ rec {
       stackman
       secret_inject
       tmux_picker
+      scute
       animal_rescue
       scrollbacktamer
       rift

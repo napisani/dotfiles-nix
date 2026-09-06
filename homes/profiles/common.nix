@@ -12,13 +12,12 @@
   home.sessionVariables.DOTFILES_HOME_MANAGER_DIR = "${config.home.homeDirectory}/${homeManagerRelPath}";
 
   imports = [
+    ../../mods/native-tools.nix
     ../../mods/base-packages.nix
     ../../mods/shell.nix
     ../../mods/git.nix
     ../../mods/neovim.nix
     ../../mods/ui-packages.nix
-    ../../mods/uvx.nix
-    ../../mods/npmx.nix
     ../../mods/agents
     ../../mods/model-runtimes.nix
   ];

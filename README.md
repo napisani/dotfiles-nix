@@ -2,6 +2,34 @@
 
 Dotfiles, powered by [Nix](https://nixos.org/nix/) and [home-manager](https://github.com/rycee/home-manager).
 
+## Where to edit your setup
+
+**Shared choices go in `mods/`; machine differences go in `homes/`.
+You do not need to read installer code to change your setup.**
+
+- **npm/uv packages:** [`mods/native-tools.nix`](mods/native-tools.nix).
+- **Shared agent skills, settings, MCP and packages:** [`mods/agents/default.nix`](mods/agents/default.nix).
+  Add skill sources to [`mods/agents/skills.nix`](mods/agents/skills.nix).
+- **Common local models:** [`mods/model-runtimes.nix`](mods/model-runtimes.nix).
+- **One machine:** its `homes/home-*.nix`. The Loancrate home explicitly imports
+  [`homes/nicks-loancrate-mbp/agents.nix`](homes/nicks-loancrate-mbp/agents.nix)
+  and declares its npm authentication and model overrides itself.
+- **Nix-installed programs, including Scute:** [`mods/base-packages.nix`](mods/base-packages.nix);
+  sibling flake inputs are wired in `flake.nix` and `lib/builders.nix`.
+- **Shell/editor configuration and authored agent assets:** `mods/dotfiles/`.
+  Intentionally live links remain live; store-backed content requires a switch.
+
+`homes/profiles/` composes shared/platform modules; it no longer hides package,
+agent or model selections. `mods/internal/` contains option schemas, native
+adapters, installer scripts/tests, and shared `global-tools` machinery. Edit it
+only to change **how** configuration is realized. Installer code is bound to the
+installed generation, not executed from your mutable checkout.
+
+Routine workflow: edit configuration → validate → switch. Use `global-tools status`
+to inspect the installed generation, or `global-tools repair [component]` for
+native repair. Neither reads unswitched configuration edits or repairs Nix-owned
+links. See the [lifecycle contract](docs/contracts/declarative-tooling.md) for details.
+
 ## How to use (Linux)
 
 

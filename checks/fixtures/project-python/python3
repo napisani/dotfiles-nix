@@ -1,0 +1,4 @@
+#!/bin/sh
+# A project's Python need not contain Vocal's dependencies.
+echo 'wrong interpreter: project Python has no requests' >&2
+exit 42
