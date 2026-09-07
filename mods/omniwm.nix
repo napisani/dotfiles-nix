@@ -3,8 +3,6 @@
   programs.omniwm = {
     enable = true;
     package = pkgs-unstable.omniwm;
-    settings = {
-      general.ipcEnabled = true;
-    };
+    settings = ./dotfiles/omniwm-settings.toml;
   };
 }
