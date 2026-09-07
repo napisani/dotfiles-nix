@@ -357,6 +357,7 @@ in
       pkgs.git # clone/fetch the repo before entering the dev shell
       pkgs.curl # ntfy notifications
       pkgs.doppler # secret_inject fetches GitOps credentials from Doppler
+      pkgs.gh # Git's configured credential helper authenticates the bootstrap fetch
       config.nix.package # `nix develop` to run inside the project's devShell
     ];
 
