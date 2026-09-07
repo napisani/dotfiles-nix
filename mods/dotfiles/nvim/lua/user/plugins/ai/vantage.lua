@@ -55,6 +55,9 @@ M.opts = {
 		end,
 	},
 	agent = {
+		-- Detect adjacent Pi once on the first backend command; otherwise use
+		-- the configured model below for Vantage's own Pi session.
+		runtime = "adjacent-or-pi",
 		models = {
 			{
 				name = "default",

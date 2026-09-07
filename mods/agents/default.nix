@@ -1,5 +1,6 @@
 # Shared agent choices. Host-specific overrides are explicit imports in homes/.
 {
+  config,
   pkgs-unstable,
   lib,
   ...
@@ -126,6 +127,11 @@
         defaultThinkingLevel = "high";
         theme = "kanagawa-dragon";
         openaiReasoningMode.fast = false;
+        # Use the same local Vantage checkout as Neovim, not a second copy of
+        # its bridge implementation or a temporary feature worktree.
+        extensions = [
+          "${config.home.homeDirectory}/code/monorepo/pub/vantage-nvim/server/src/neovim/runtime/adjacent/extension.ts"
+        ];
       };
       skillPaths = [ "~/code/*/apps/*/.agents/skills" ];
       packages = [
