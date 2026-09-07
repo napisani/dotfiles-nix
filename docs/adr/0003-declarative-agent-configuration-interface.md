@@ -98,7 +98,7 @@ agents = {
 
   providers.ollama = {
     baseUrl = "https://ollama.example/v1";
-    models = [ "qwen3:1.7b" ];
+    models = [ "example-small:latest" ];
   };
 
   claude = {

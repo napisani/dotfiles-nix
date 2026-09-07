@@ -14,7 +14,8 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 6. [fff.nvim binary (lazy.nvim build hook)](#fffnvim-binary-lazyvim-build-hook)
 7. [Pi extensions: `claude-agent-sdk-pi` peer-dep conflict](#pi-extensions-claude-agent-sdk-pi-peer-dep-conflict)
 8. [`npm config set prefix` vs. immutable `~/.npmrc`](#npm-config-set-prefix-vs-immutable-npmrc)
-9. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
+9. [OmniWM focused-border rendering](#omniwm-focused-border-rendering)
+10. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
 
 ---
 
@@ -208,6 +209,18 @@ a symlink to the same source directory.
 | **Why it looked like the cache** | npm's EACCES error text is generic and always suggests the `sudo chown -R … ~/.npm` fix, regardless of which file it actually failed to open. `~/.npm` (the cache dir) and `~/.npmrc` (the config file) are easy to conflate by name; only `readlink -f ~/.npmrc` / `ls -la ~/.npmrc` reveals the real target is a Nix store symlink, not a plain writable file. |
 | **Workaround (current)** | Just deleting the `npm config set prefix` call (redundant with the declarative `~/.npmrc`) fixed the symptom, but left the underlying trap in place — `~/.npmrc` was still a read-only Nix store symlink, so anything that later needs to write to it (npm itself, `npm login`, `npm config set` for something else) would hit the exact same EACCES. Moved `~/.npmrc` management off `home.file` entirely: `mods/internal/npm.nix` now computes `npmrcContent` and applies it with a content-aware `globalToolOperations.npm-config` command (ordered before npm installs, shared by activation and the `global-tools` CLI). It atomically replaces a legacy symlink or changed file but leaves an unchanged plain file untouched. `~/.npmrc` is a plain, writable file again — colocated with the rest of this module's npm setup, and safe for any future imperative npm config write. `mods/shell.nix` no longer references `.npmrc` or `machineRoles` at all. |
 | **Revisit when** | N/A — this was a bug, not a temporary upstream workaround. If another module ever wants to own part of `~/.npmrc`, extend `npmrcContent` in `npmx.nix` rather than reintroducing a `home.file` declaration for the same path. |
+
+---
+
+## OmniWM focused-border rendering
+
+| Item | Detail |
+|------|--------|
+| **Location** | `mods/omniwm.nix` |
+| **What** | Override the nixpkgs OmniWM package with the upstream 0.6.8 release. |
+| **Why** | The nixpkgs 0.6.3 build renders the focused-border surface over the managed window; 0.6.8 renders it as an exterior surface below the focused window. |
+| **Remove when** | nixpkgs ships an OmniWM version with the corrected focused-border behavior. |
+| **How to verify** | Run OmniWM with a focused window and confirm the border does not cover its content; remove the override and compare after upgrading nixpkgs. |
 
 ---
 

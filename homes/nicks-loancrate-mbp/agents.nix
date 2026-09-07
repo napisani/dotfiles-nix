@@ -1,13 +1,7 @@
 { config, lib, ... }:
 {
   agents = {
-    providers.ollama = {
-      baseUrl = "http://localhost:11434/v1";
-      models = [
-        "qwen3:1.7b"
-        "qwen3.6-coding"
-      ];
-    };
+    providers.ollama.baseUrl = "http://localhost:11434/v1";
 
     skills = {
       shared = [

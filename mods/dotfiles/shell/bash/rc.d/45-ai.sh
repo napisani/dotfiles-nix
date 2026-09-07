@@ -18,9 +18,7 @@ else
 fi
 
 # Shared across all machines
-export AI_LOCAL_MODEL="${AI_LOCAL_MODEL:-qwen3:1.7b}"
 export AI_LOCAL_BASE_URL="${AI_LOCAL_BASE_URL:-https://ollama.napisani.xyz/v1}"
-export AI_GIT_COMMIT_MODEL="${AI_GIT_COMMIT_MODEL:-qwen3:1.7b}"
 
 # Native ollama API base — derived from AI_LOCAL_BASE_URL (strip /v1 suffix) when set,
 # otherwise falls back to localhost. Set OLLAMA_API_BASE explicitly to override.
@@ -43,12 +41,53 @@ ai_skill() {
 
 # pet: Initialize the local Ollama model environment
 ollama-init() {
-	if [ -z "${AI_LOCAL_MODEL:-}" ]; then
-		echo "ollama-init: AI_LOCAL_MODEL is not set" >&2
+	local model="${1:-${AI_LOCAL_MODEL:-}}"
+	if [ -z "$model" ]; then
+		echo "ollama-init: pass a model name or set AI_LOCAL_MODEL" >&2
 		return 1
 	fi
-	echo "Pulling ollama model: $AI_LOCAL_MODEL"
-	ollama pull "$AI_LOCAL_MODEL"
+	echo "Pulling ollama model: $model"
+	ollama pull "$model"
+}
+
+function _pi_completion() {
+	if ! command -v pi >/dev/null 2>&1; then
+		echo "_pi_completion: pi is required" >&2
+		return 1
+	fi
+
+	local instruction="$1"
+	local context="${2-}"
+	local model="${3:-gpt-5.6-luna}"
+	local prompt="$instruction"
+
+	if [ -n "$context" ]; then
+		prompt+=$'\n\nContext:\n'
+		prompt+="$context"
+	fi
+
+	local response
+	if ! response=$(pi \
+		--model "$model" \
+		--thinking low \
+		--no-session \
+		--no-tools \
+		--no-extensions \
+		--no-skills \
+		--no-context-files \
+		--no-themes \
+		--print \
+		"$prompt"); then
+		echo "_pi_completion: pi request failed" >&2
+		return 1
+	fi
+
+	if [ -z "$response" ]; then
+		echo "_pi_completion: empty response from pi" >&2
+		return 1
+	fi
+
+	printf '%s\n' "$response" | sed -e 's/[[:space:]]*$//'
 }
 
 function _ollama_completion() {
@@ -64,9 +103,14 @@ function _ollama_completion() {
 
 	local instruction="$1"
 	local context="${2-}"
-	local model="${3:-${AI_LOCAL_MODEL:-qwen3:1.7b}}"
+	local model="${3:-${AI_LOCAL_MODEL:-}}"
 	local base="${OLLAMA_API_BASE:-http://127.0.0.1:11434}"
 	local prompt="$instruction"
+
+	if [ -z "$model" ]; then
+		echo "_ollama_completion: a model is required" >&2
+		return 1
+	fi
 
 	if [ -n "$context" ]; then
 		prompt+=$'\n\nContext:\n'

@@ -356,6 +356,7 @@ in
     path = [
       pkgs.git # clone/fetch the repo before entering the dev shell
       pkgs.curl # ntfy notifications
+      pkgs.doppler # secret_inject fetches GitOps credentials from Doppler
       config.nix.package # `nix develop` to run inside the project's devShell
     ];
 

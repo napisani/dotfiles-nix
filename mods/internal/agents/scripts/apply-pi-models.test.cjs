@@ -24,22 +24,22 @@ function mkHome() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "pi-models-test-"));
 }
 
-const ollama = { baseUrl: "https://o/v1", api: "openai-completions", apiKey: "ollama", models: ["qwen3:1.7b"] };
+const ollama = { baseUrl: "https://o/v1", api: "openai-completions", apiKey: "ollama", models: ["example-small:latest"] };
 const mlx = {
   baseUrl: "http://localhost:8080/v1",
   api: "openai-completions",
   apiKey: "mlx",
   models: [
-    "mlx-community/Qwen3-1.7B-4bit",
+    "mlx-community/example-small",
     {
-      id: "unsloth/Qwen3.6-35B-A3B-UD-MLX-4bit",
+      id: "unsloth/example-large",
       contextWindow: 262144,
       maxTokens: 32768,
       reasoning: true,
       compat: {
         maxTokensField: "max_tokens",
         supportsReasoningEffort: false,
-        thinkingFormat: "qwen-chat-template",
+        thinkingFormat: "example-chat-template",
       },
     },
   ],
@@ -49,19 +49,19 @@ test("normalizes model IDs and preserves per-model settings", () => {
   const home = mkHome();
   run(home, { ollama, mlx });
   const d = modelsOf(home);
-  assert.deepEqual(d.providers.ollama, { ...ollama, models: [{ id: "qwen3:1.7b" }] });
+  assert.deepEqual(d.providers.ollama, { ...ollama, models: [{ id: "example-small:latest" }] });
   assert.deepEqual(d.providers.mlx.baseUrl, "http://localhost:8080/v1");
   assert.deepEqual(d.providers.mlx.models, [
-    { id: "mlx-community/Qwen3-1.7B-4bit" },
+    { id: "mlx-community/example-small" },
     {
-      id: "unsloth/Qwen3.6-35B-A3B-UD-MLX-4bit",
+      id: "unsloth/example-large",
       contextWindow: 262144,
       maxTokens: 32768,
       reasoning: true,
       compat: {
         maxTokensField: "max_tokens",
         supportsReasoningEffort: false,
-        thinkingFormat: "qwen-chat-template",
+        thinkingFormat: "example-chat-template",
       },
     },
   ]);
@@ -82,8 +82,8 @@ test("preserves other providers and top-level keys", () => {
 test("updating a provider's model set rewrites its models", () => {
   const home = mkHome();
   run(home, { mlx });
-  run(home, { mlx: { ...mlx, models: ["mlx-community/Qwen3-1.7B-4bit"] } });
-  assert.deepEqual(modelsOf(home).providers.mlx.models, [{ id: "mlx-community/Qwen3-1.7B-4bit" }]);
+  run(home, { mlx: { ...mlx, models: ["mlx-community/example-small"] } });
+  assert.deepEqual(modelsOf(home).providers.mlx.models, [{ id: "mlx-community/example-small" }]);
 });
 
 test("empty MANAGED_PROVIDERS leaves models.json uncreated", () => {

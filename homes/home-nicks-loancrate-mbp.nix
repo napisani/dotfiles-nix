@@ -20,21 +20,6 @@
     postgresql
   ];
 
-  modelRuntimes = {
-    declaredModels.ollama = [
-      "qwen3:1.7b"
-      "qwen3.6:35b-a3b-mxfp8"
-    ];
-    customModels."qwen3.6-coding" = {
-      from = "qwen3.6:35b-a3b-mxfp8";
-      parameters = {
-        num_ctx = 16384;
-        presence_penalty = 0;
-        temperature = 0.7;
-      };
-    };
-  };
-
   home.sessionVariables = {
     MACHINE_NAME = "nicks-loancrate-mbp";
     PET_ADDL_SNIPPETS = "/Users/nick/.config/pet/loancrate-mbp-snippets.toml";

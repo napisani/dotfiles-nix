@@ -246,7 +246,7 @@ let
     ollama = {
       probe = "ollama";
       # `ollama list` is a `NAME ID SIZE MODIFIED` table; take col-1 NAME.
-      # NAMES include the tag (qwen3:1.7b) — declare ids with explicit tags.
+      # NAMES include the tag (for example, example-small:latest) — declare ids with explicit tags.
       list = "ollama list | tail -n +2 | awk '{print $1}'";
       install = "ollama pull";
       remove = "ollama rm";
@@ -349,8 +349,8 @@ rtk git commit -m "feat(model-runtimes): backend option, adapters, soft-failing 
 Seed from the models already referenced in the scute configs, mapped per backend:
 ```nix
 modelRuntimes.declaredModels = {
-  ollama = [ "qwen3:1.7b" "qwen2.5-coder:14b" ];
-  mlx-lm = [ "mlx-community/Qwen3-1.7B-4bit" ];  # confirm exact repo ids exist
+  ollama = [ "example-small:latest" "example-coder:latest" ];
+  mlx-lm = [ "mlx-community/example-small" ];  # confirm exact repo ids exist
 };
 ```
 Verify each mlx-lm repo id resolves on the Hub before declaring (a wrong id fails at `hf download` time, not eval time).

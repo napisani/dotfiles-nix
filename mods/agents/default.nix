@@ -93,10 +93,7 @@
 
     providers.ollama = {
       baseUrl = lib.mkDefault "https://ollama.napisani.xyz/v1";
-      models = lib.mkDefault [
-        "qwen3:1.7b"
-        "qwen3:0.6b"
-      ];
+      models = lib.mkDefault [ ];
     };
 
     claude = {

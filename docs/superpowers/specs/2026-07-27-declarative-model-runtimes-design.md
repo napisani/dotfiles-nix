@@ -50,8 +50,8 @@ policy."
   package behavior. Hand-pulled models survive. State in
   `~/.local/state/nix-models/<backend>.json`.
 - **Model declaration**: per-backend lists (ids differ across runtimes —
-  `qwen3:1.7b` vs `mlx-community/Qwen3-1.7B-4bit`), optionally machine-gated the
-  same way agent assets use `isLoancrateMac`. The module manages only
+  `example-small:latest` vs `mlx-community/example-small`), optionally machine-gated
+  the same way agent assets use `isLoancrateMac`. The module manages only
   `declaredModels.${backend}`.
 - **Shared state lib**: promote `managed-state.js` from
   `mods/dotfiles/agents/scripts/lib/` to `mods/dotfiles/scripts/lib/` so both
@@ -80,7 +80,7 @@ guessed:
   `yes | …`.
 - **ollama**: `ollama pull`/`ollama rm`; `ollama list` is a
   `NAME ID SIZE MODIFIED` table → `tail -n +2 | awk '{print $1}'`. NAMEs carry
-  the tag (`qwen3:1.7b`), so declare ids with explicit tags.
+  the tag, so declare ids with explicit tags.
 
 The one remaining on-device unknown is whether `hf`/`huggingface-cli` is on
 PATH from the mlx-lm brew (a Task 3 check; add a brew if not).

@@ -2,9 +2,10 @@
 #
 # Nix already owns everything declared in this flake; `nixupgrade` (55) covers
 # that half. What's left are the tools that manage their own versions inside a
-# nix-managed home: lazy.nvim's plugin clones, Homebrew on the Darwin hosts, and
-# pi's npm-installed extensions. `pi.nix` declares *which* extensions exist, not
-# which versions, so bumping them is a runtime operation.
+# nix-managed home: lazy.nvim's plugin clones, Homebrew on the Darwin hosts,
+# pi's npm-installed extensions, and the mutable Claude/Pi state managed by
+# global-tools. `pi.nix` declares *which* extensions exist, not which versions,
+# so bumping them is a runtime operation.
 #
 # Each updater no-ops with a message rather than failing when its tool is absent
 # — that's what lets `update-all` run unchanged on both the Darwin laptops and
@@ -51,10 +52,32 @@ update-pi() {
 	pi update --extensions
 }
 
-# pet: Run every out-of-band updater (neovim plugins, system packages, pi extensions)
+# pet: Refresh mutable Claude and Pi state managed by global-tools.
+# With no component, global-tools updates every operation that explicitly opts
+# into updates (currently Claude plugins and Pi packages).
+update-global-tools() {
+	if ! sh_have global-tools; then
+		echo "update-global-tools: global-tools is not installed — skipping" >&2
+		return 0
+	fi
+	echo "==> Updating mutable global tools"
+	global-tools update "$@"
+}
+
+# pet: Refresh Claude's installed plugins through global-tools.
+update-claude-plugins() {
+	update-global-tools claude-plugins
+}
+
+# pet: Refresh Pi packages declared by the agent configuration through global-tools.
+update-pi-packages() {
+	update-global-tools pi-packages
+}
+
+# pet: Run every out-of-band updater (including global-tools-managed state).
 update-all() {
 	local step failed=()
-	for step in update-packages update-nvim update-pi; do
+	for step in update-packages update-nvim update-pi update-global-tools; do
 		# Deliberately keep going after a failure: a broken Homebrew tap
 		# shouldn't stop the nvim plugins from updating. Failures are
 		# collected and reported together at the end.
