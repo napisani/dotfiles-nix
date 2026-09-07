@@ -146,6 +146,9 @@
         # range and removed getModels call in claude-agent-sdk-pi.
         "npm:pi-claude-bridge"
         "npm:pi-goal"
+        # Direct dependency for local extensions; Pi's package root is not an
+        # ancestor of individually linked extension files during Node resolution.
+        "npm:@earendil-works/pi-tui@0.85.0"
         "git:github.com/nicobailon/visual-explainer"
       ];
     };
