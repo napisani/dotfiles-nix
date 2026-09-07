@@ -9,7 +9,10 @@
 }:
 {
 
-  imports = [ ./nicks-loancrate-mbp/agents.nix ];
+  imports = [
+    ./nicks-loancrate-mbp/agents.nix
+    ../mods/omniwm.nix
+  ];
 
   nativeTools.npm.extraNpmrc = "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}\n";
 

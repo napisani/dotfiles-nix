@@ -5,7 +5,7 @@
     # nixpkgs 26.11 dropped x86_64-darwin (Intel Macs). The main nixpkgs
     # input is the 26.05-darwin branch — the last release supporting Intel
     # Macs — and every input that follows nixpkgs (procmux, animal_rescue,
-    # rift, stackman, nix-darwin-26, home-manager-26) stays on it so
+    # stackman, nix-darwin-26, home-manager-26) stays on it so
     # everything evaluates on all systems. Arm64 Macs get bleeding-edge
     # packages via the separate nixpkgs-unstable input (pkgs-unstable in
     # specialArgs); Intel Macs (maclab) get 26.05 there instead, since
@@ -70,11 +70,6 @@
     };
     scrollbacktamer = {
       url = "path:../scrollbacktamer";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    rift = {
-      url = "github:napisani/rift/main-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

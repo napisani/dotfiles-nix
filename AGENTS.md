@@ -117,7 +117,7 @@ Language tooling in `mods/languages/` aggregated by `all.nix`. Imported by both 
 `mods/internal/uv.nix` and `mods/internal/npm.nix` use home-manager activation hooks to install tools via `uv tool install` and `npm install -g` for packages not easily packaged in Nix.
 
 #### Custom Flake Inputs
-Several of the user's own projects are consumed as flake inputs: `procmux`, `proctmux`, `stackman`, `secret_inject`, `animal_rescue`, `scrollbacktamer`, `rift`. Stackman is sourced from the `pub/stackman` subdirectory of the monorepo rather than a standalone repository.
+Several of the user's own projects are consumed as flake inputs: `procmux`, `proctmux`, `stackman`, `secret_inject`, `animal_rescue`, and `scrollbacktamer`. Stackman is sourced from the `pub/stackman` subdirectory of the monorepo rather than a standalone repository.
 
 ### Common Gotchas
 - The `nil` flake input was recently removed -- the Nix LSP comes from `pkgs-unstable.nil` in `languages/nix.nix`
@@ -161,7 +161,7 @@ osascript -e 'quit app "Karabiner-Elements"' && sleep 1 && open -a 'Karabiner-El
 1. `cap-modifier.ts` -- Caps Lock as variable-based layer (hjkl arrows, Ctrl+key, screenshots)
 2. `modifier-swap.ts` -- Per-app Cmd/Ctrl/Fn swapping (terminal vs GUI apps)
 3. `layers.ts` -- Simlayers: `a`=delimiters, `d`=arrows, `l`=symbols, `n`=numbers, `s`=ctrl
-4. `window-layer.ts` -- Tab as dual-role window manager key (rift-cli tiling)
+4. `window-layer.ts` -- Tab as dual-role window manager key (OmniWM)
 5. Inline escape->grave rule in `index.ts`
 
 ### Support Files

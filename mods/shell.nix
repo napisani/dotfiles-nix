@@ -86,7 +86,6 @@ in
       # Frequently edited user-facing config stays live-editable.
       ".yabairc".source = mkSym "yabairc";
 
-      ".config/rift/config.toml" = mkForcedSym "riftrc";
       ".config/alacritty/alacritty.toml" = mkForcedSym "alacritty.toml";
       ".config/scute/config.yaml" =
         let

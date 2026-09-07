@@ -16,20 +16,19 @@ const windowFocus = (direction: Direction) => action(`focus-${direction}`);
 const workspaceSwitch = (direction: "next" | "prev") =>
   action(`workspace-${direction}`);
 
-const layoutMoveNode = (direction: Direction) =>
-  action(`move-node-${direction}`);
+const windowMove = (direction: Direction) => action(`move-${direction}`);
 
-const layoutJoinWindow = (direction: Direction) => action(`join-${direction}`);
+const windowJoin = (direction: Direction) => action(`join-${direction}`);
 
 const workspaceMoveWindow = (direction: "next" | "prev") =>
   to$(adjacentWorkspaceMoveCommand(direction));
 
 const windowResize = (
   operation: "grow" | "shrink",
-  orientation: "horizontal" | "vertical",
-) => action(`resize-${operation}-${orientation}`);
+  span: "primary" | "secondary",
+) => action(`resize-${operation}-${span}`);
 
-const tabKeyRule = rule("Tab Key: Dual Role (Tab/Rift Management)")
+const tabKeyRule = rule("Tab Key: Dual Role (Tab/OmniWM Management)")
   .manipulators([
     {
       type: "basic",
@@ -42,7 +41,7 @@ const tabKeyRule = rule("Tab Key: Dual Role (Tab/Rift Management)")
     },
   ]);
 
-const riftPrimaryRules = rule("Tab: Rift Primary Actions")
+const omniwmPrimaryRules = rule("Tab: OmniWM Primary Actions")
   .manipulators([
     {
       type: "basic",
@@ -120,12 +119,12 @@ const riftPrimaryRules = rule("Tab: Rift Primary Actions")
     },
   ]);
 
-const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
+const omniwmNestedRules = rule("Tab+Q: OmniWM Nested Actions")
   .manipulators([
     {
       type: "basic",
       from: { key_code: "h" },
-      to: [layoutMoveNode("left")],
+      to: [windowMove("left")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -134,7 +133,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "j" },
-      to: [layoutMoveNode("down")],
+      to: [windowMove("down")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -143,7 +142,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "k" },
-      to: [layoutMoveNode("up")],
+      to: [windowMove("up")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -152,7 +151,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "l" },
-      to: [layoutMoveNode("right")],
+      to: [windowMove("right")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -161,7 +160,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "y" },
-      to: [layoutJoinWindow("left")],
+      to: [windowJoin("left")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -170,7 +169,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "u" },
-      to: [layoutJoinWindow("up")],
+      to: [windowJoin("up")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -179,7 +178,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "i" },
-      to: [layoutJoinWindow("down")],
+      to: [windowJoin("down")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -188,7 +187,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "o" },
-      to: [layoutJoinWindow("right")],
+      to: [windowJoin("right")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -224,7 +223,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "z" },
-      to: [action("fullscreen-within-gaps")],
+      to: [action("toggle-fullscreen")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -233,7 +232,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "b" },
-      to: [action("toggle-orientation")],
+      to: [action("toggle-column-tabbed")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -242,7 +241,7 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "s" },
-      to: [action("toggle-stack")],
+      to: [action("toggle-workspace-layout")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -251,7 +250,43 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     {
       type: "basic",
       from: { key_code: "c" },
-      to: [action("create-workspace")],
+      to: [action("command-palette")],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
+    },
+    {
+      type: "basic",
+      from: { key_code: "a" },
+      to: [action("focus-previous")],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
+    },
+    {
+      type: "basic",
+      from: { key_code: "v" },
+      to: [action("toggle-overview")],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
+    },
+    {
+      type: "basic",
+      from: { key_code: "t" },
+      to: [action("toggle-quake-terminal")],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
+      ],
+    },
+    {
+      type: "basic",
+      from: { key_code: "g" },
+      to: [action("balance-sizes")],
       conditions: [
         { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
         { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -282,11 +317,11 @@ const riftNestedRules = rule("Tab+Q: Rift Nested Actions")
     },
   ]);
 
-const riftResizeRules = rule("Tab+Q: Rift Resize").manipulators([
+const omniwmResizeRules = rule("Tab+Q: OmniWM Resize").manipulators([
   {
     type: "basic",
     from: { key_code: "hyphen" },
-    to: [windowResize("shrink", "horizontal")],
+    to: [windowResize("shrink", "primary")],
     conditions: [
       { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
       { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -295,7 +330,7 @@ const riftResizeRules = rule("Tab+Q: Rift Resize").manipulators([
   {
     type: "basic",
     from: { key_code: "equal_sign" },
-    to: [windowResize("grow", "horizontal")],
+    to: [windowResize("grow", "primary")],
     conditions: [
       { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
       { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -307,7 +342,7 @@ const riftResizeRules = rule("Tab+Q: Rift Resize").manipulators([
       key_code: "hyphen",
       modifiers: { mandatory: ["left_shift"] },
     },
-    to: [windowResize("shrink", "vertical")],
+    to: [windowResize("shrink", "secondary")],
     conditions: [
       { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
       { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -319,7 +354,7 @@ const riftResizeRules = rule("Tab+Q: Rift Resize").manipulators([
       key_code: "equal_sign",
       modifiers: { mandatory: ["left_shift"] },
     },
-    to: [windowResize("grow", "vertical")],
+    to: [windowResize("grow", "secondary")],
     conditions: [
       { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
       { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 1 },
@@ -329,7 +364,7 @@ const riftResizeRules = rule("Tab+Q: Rift Resize").manipulators([
 
 export const tabWindowManagerRules = [
   tabKeyRule,
-  riftPrimaryRules,
-  riftNestedRules,
-  riftResizeRules,
+  omniwmPrimaryRules,
+  omniwmNestedRules,
+  omniwmResizeRules,
 ];

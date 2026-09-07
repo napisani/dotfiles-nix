@@ -1,15 +1,5 @@
+{ ... }:
 {
-  pkgs,
-  rift,
-  ...
-}:
-let
-  system = pkgs.stdenv.hostPlatform.system;
-in
-{
-  home.packages = [
-    rift.packages.${system}.default
-  ];
 
   # The nix* rebuild aliases used to be generated here, interpolating
   # homeManagerRelPath and the platform's rebuild command into

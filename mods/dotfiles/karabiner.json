@@ -4399,7 +4399,7 @@
             ]
           },
           {
-            "description": "Tab Key: Dual Role (Tab/Rift Management)",
+            "description": "Tab Key: Dual Role (Tab/OmniWM Management)",
             "manipulators": [
               {
                 "type": "basic",
@@ -4431,7 +4431,7 @@
             ]
           },
           {
-            "description": "Tab: Rift Primary Actions",
+            "description": "Tab: OmniWM Primary Actions",
             "manipulators": [
               {
                 "type": "basic",
@@ -4440,7 +4440,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus left"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command focus left"
                   }
                 ],
                 "conditions": [
@@ -4463,7 +4463,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus down"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command focus down"
                   }
                 ],
                 "conditions": [
@@ -4486,7 +4486,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus up"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command focus up"
                   }
                 ],
                 "conditions": [
@@ -4509,7 +4509,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window focus right"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command focus right"
                   }
                 ],
                 "conditions": [
@@ -4532,7 +4532,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute workspace next"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace next"
                   }
                 ],
                 "conditions": [
@@ -4555,7 +4555,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute workspace prev"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace prev"
                   }
                 ],
                 "conditions": [
@@ -4626,7 +4626,7 @@
             ]
           },
           {
-            "description": "Tab+Q: Rift Nested Actions",
+            "description": "Tab+Q: OmniWM Nested Actions",
             "manipulators": [
               {
                 "type": "basic",
@@ -4635,7 +4635,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout move-node left"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move left"
                   }
                 ],
                 "conditions": [
@@ -4658,7 +4658,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout move-node down"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move down"
                   }
                 ],
                 "conditions": [
@@ -4681,7 +4681,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout move-node up"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move up"
                   }
                 ],
                 "conditions": [
@@ -4704,7 +4704,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout move-node right"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move right"
                   }
                 ],
                 "conditions": [
@@ -4727,7 +4727,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout join-window left"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move left"
                   }
                 ],
                 "conditions": [
@@ -4750,7 +4750,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout join-window up"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move up"
                   }
                 ],
                 "conditions": [
@@ -4773,7 +4773,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout join-window down"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move down"
                   }
                 ],
                 "conditions": [
@@ -4796,7 +4796,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout join-window right"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move right"
                   }
                 ],
                 "conditions": [
@@ -4819,7 +4819,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "$HOME/shell_scripts/rift-workspace-move-adjacent.sh next"
+                    "shell_command": "$HOME/shell_scripts/omniwm-workspace-move-adjacent.sh next"
                   }
                 ],
                 "conditions": [
@@ -4842,7 +4842,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "$HOME/shell_scripts/rift-workspace-move-adjacent.sh prev"
+                    "shell_command": "$HOME/shell_scripts/omniwm-workspace-move-adjacent.sh prev"
                   }
                 ],
                 "conditions": [
@@ -4865,7 +4865,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window toggle-float"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command toggle-focused-window-floating"
                   }
                 ],
                 "conditions": [
@@ -4888,7 +4888,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window toggle-fullscreen-within-gaps"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command toggle-fullscreen"
                   }
                 ],
                 "conditions": [
@@ -4911,7 +4911,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout toggle-orientation"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command toggle-column-tabbed"
                   }
                 ],
                 "conditions": [
@@ -4934,7 +4934,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute layout toggle-stack"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command toggle-workspace-layout"
                   }
                 ],
                 "conditions": [
@@ -4957,7 +4957,99 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute workspace create"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command open-command-palette"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "a"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command focus previous"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "v"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command toggle-overview"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "t"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command toggle-quake-terminal"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "g"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command balance-sizes"
                   }
                 ],
                 "conditions": [
@@ -5006,7 +5098,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window close"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command close-focused-window"
                   }
                 ],
                 "conditions": [
@@ -5025,7 +5117,7 @@
             ]
           },
           {
-            "description": "Tab+Q: Rift Resize",
+            "description": "Tab+Q: OmniWM Resize",
             "manipulators": [
               {
                 "type": "basic",
@@ -5034,7 +5126,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window resize-shrink --orientation horizontal"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command set-container-primary-span -10%"
                   }
                 ],
                 "conditions": [
@@ -5057,7 +5149,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window resize-grow --orientation horizontal"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command set-container-primary-span +10%"
                   }
                 ],
                 "conditions": [
@@ -5085,7 +5177,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window resize-shrink --orientation vertical"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command set-window-secondary-span -10%"
                   }
                 ],
                 "conditions": [
@@ -5113,7 +5205,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/rift-cli execute window resize-grow --orientation vertical"
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command set-window-secondary-span +10%"
                   }
                 ],
                 "conditions": [

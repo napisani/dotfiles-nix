@@ -69,7 +69,6 @@ rec {
       scute
       animal_rescue
       scrollbacktamer
-      rift
       ;
     overlays = [ ];
     user = "nick";

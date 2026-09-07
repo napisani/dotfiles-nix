@@ -4,7 +4,7 @@
 **Chord spelling:** `Caps+h` means hold Caps Lock and press h; `Tab+Q+h` means hold Tab, then hold Q, then press h  
 **Context:** Some rules are app-context-aware (dev apps vs. standard apps)  
 **Config:** `mods/dotfiles/karabiner/src/`  
-**Cross-reference:** Window management targets the rift-cli tiling manager; tmux prefix key relies on the `Caps+Space` mapping here
+**Cross-reference:** Window management targets OmniWM through `omniwmctl`; tmux prefix key relies on the `Caps+Space` mapping here
 
 ---
 
@@ -167,30 +167,34 @@ Simlayers activate when the trigger key and the action key are pressed at almost
 `Tab+Q+j` → leaf: move current window down in the layout  
 `Tab+Q+k` → leaf: move current window up in the layout  
 `Tab+Q+l` → leaf: move current window right in the layout  
-`Tab+Q+y` → leaf: join current window into the container to the left  
-`Tab+Q+u` → leaf: join current window into the container above  
-`Tab+Q+i` → leaf: join current window into the container below  
-`Tab+Q+o` → leaf: join current window into the container to the right  
-`Tab+Q+n` → leaf: move current window to the next workspace  
-`Tab+Q+p` → leaf: move current window to the previous workspace  
-`Tab+Q+Space` → leaf: toggle float for current window  
-`Tab+Q+z` → leaf: toggle fullscreen within gaps for current window  
-`Tab+Q+b` → leaf: toggle layout orientation (horizontal ↔ vertical)  
-`Tab+Q+s` → leaf: toggle stack layout  
-`Tab+Q+c` → leaf: create a new workspace  
-`Tab+Q+m` → leaf: minimize current window (`Cmd+M`)  
-`Tab+Q+x` → leaf: close current window (Rift native close, equivalent to `Cmd+W`)
+`Tab+Q+y` → leaf: join or expel current window to the left
+`Tab+Q+u` → leaf: join or expel current window above
+`Tab+Q+i` → leaf: join or expel current window below
+`Tab+Q+o` → leaf: join or expel current window to the right
+`Tab+Q+n` → leaf: move current window to the next workspace
+`Tab+Q+p` → leaf: move current window to the previous workspace
+`Tab+Q+Space` → leaf: toggle float for current window
+`Tab+Q+z` → leaf: toggle fullscreen for current window
+`Tab+Q+b` → leaf: toggle the focused Niri column's tabbed mode
+`Tab+Q+s` → leaf: toggle the workspace between Niri and Dwindle
+`Tab+Q+c` → leaf: open the OmniWM command palette
+`Tab+Q+a` → leaf: focus the previously focused window
+`Tab+Q+v` → leaf: toggle OmniWM Overview
+`Tab+Q+t` → leaf: toggle the OmniWM Quake terminal
+`Tab+Q+g` → leaf: balance window sizes
+`Tab+Q+m` → leaf: minimize current window (`Cmd+M`)
+`Tab+Q+x` → leaf: close current window
 
 ### Tab+Q nested layer — resize
 
-`Tab+Q+-` → leaf: shrink the window horizontally
-`Tab+Q+=` → leaf: grow the window horizontally
-`Tab+Q+Shift+-` → leaf: shrink the window vertically
-`Tab+Q+Shift+=` → leaf: grow the window vertically
+`Tab+Q+-` → leaf: shrink the focused container's primary span
+`Tab+Q+=` → leaf: grow the focused container's primary span
+`Tab+Q+Shift+-` → leaf: shrink the focused window's secondary span
+`Tab+Q+Shift+=` → leaf: grow the focused window's secondary span
 
 ### Look discoverability
 
-Every window-layer action is also generated as a searchable Look source. Open Look with `Tab+f`, search `w` (or the action/binding), and press Enter to execute it against the previously focused window. The generated source is `mods/dotfiles/look-sources/window-management.toml`; edit the catalog in `src/window-action-catalog.ts` instead.
+Every window-layer action is also generated as a searchable Look source. Open Look with `Tab+f`, search `w` (or the action/binding), and press Enter to execute it through OmniWM. The generated source is `mods/dotfiles/look-sources/window-management.toml`; edit the catalog in `src/window-action-catalog.ts` instead.
 
 ---
 

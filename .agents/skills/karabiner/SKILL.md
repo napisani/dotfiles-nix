@@ -1,6 +1,6 @@
 ---
 name: karabiner
-description: Karabiner-Elements keyboard configuration using karabiner.ts TypeScript DSL. Use when modifying keyboard layers, shortcuts, modifier swaps, or window management keybindings. Covers simlayers, variable-based layers, and the rift-cli window manager integration.
+description: Karabiner-Elements keyboard configuration using karabiner.ts TypeScript DSL. Use when modifying keyboard layers, shortcuts, modifier swaps, or window management keybindings. Covers simlayers, variable-based layers, and the OmniWM integration.
 ---
 
 # Karabiner Keyboard Configuration
@@ -37,7 +37,7 @@ mods/dotfiles/karabiner/
     cap-modifier.ts        # Caps Lock variable-based layer
     modifier-swap.ts       # Per-app Cmd/Ctrl/Fn swapping
     layers.ts              # Simlayers (a, d, l, n, s)
-    window-layer.ts        # Tab dual-role for rift-cli window management
+    window-layer.ts        # Tab dual-role for OmniWM window management
     leader-utils.ts        # exitLeader() helper
 mods/dotfiles/karabiner.json  # Generated output (committed to repo)
 ```
@@ -109,11 +109,11 @@ Uses `simlayer("key", "name")` from karabiner.ts. Hold the trigger key and press
 
 **`s` -- Control Layer:** h/j/k/l = Ctrl+h/j/k/l
 
-### 4. window-layer.ts -- Tab Dual-Role for rift-cli Window Management
+### 4. window-layer.ts -- Tab Dual-Role for OmniWM Window Management
 
 Uses two variables: `"tab_window_mode_active"` and `"tab_q_nested_mode_active"`. Tab held activates primary mode; Tab+Q held activates nested mode. Tab alone = Tab.
 
-Calls `rift-cli` at `/etc/profiles/per-user/nick/bin/rift-cli` via `to$()` shell commands.
+Calls OmniWM's `/etc/profiles/per-user/nick/bin/omniwmctl` via `to$()` shell commands. IPC is enabled by the Home Manager OmniWM module.
 
 **Primary Mode (Tab held):**
 
@@ -133,10 +133,14 @@ Calls `rift-cli` at `/etc/profiles/per-user/nick/bin/rift-cli` via `to$()` shell
 | Space | Toggle float |
 | z | Toggle fullscreen (within gaps) |
 | b | Toggle layout orientation |
-| s | Toggle stack layout |
-| c | Create workspace |
+| s | Toggle Niri/Dwindle workspace layout |
+| c | Open OmniWM command palette |
+| a | Focus previous window |
+| v | Toggle Overview |
+| t | Toggle Quake terminal |
+| g | Balance sizes |
 | m | Cmd+M (minimize) |
-| x | Cmd+W (close window) |
+| x | Close window |
 
 ### 5. Inline Rule (in index.ts)
 

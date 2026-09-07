@@ -2,141 +2,161 @@
 
 [window-manager-focus-left]
 name = "Tab + H — Focus window left"
-aliases = ["window manager","rift","w","Tab + H","focus","left"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute window focus left"]
+aliases = ["window manager","omniwm","w","Tab + H","focus","left"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command focus left"]
 
 [window-manager-focus-down]
 name = "Tab + J — Focus window down"
-aliases = ["window manager","rift","w","Tab + J","focus","down"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute window focus down"]
+aliases = ["window manager","omniwm","w","Tab + J","focus","down"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command focus down"]
 
 [window-manager-focus-up]
 name = "Tab + K — Focus window up"
-aliases = ["window manager","rift","w","Tab + K","focus","up"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute window focus up"]
+aliases = ["window manager","omniwm","w","Tab + K","focus","up"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command focus up"]
 
 [window-manager-focus-right]
 name = "Tab + L — Focus window right"
-aliases = ["window manager","rift","w","Tab + L","focus","right"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute window focus right"]
+aliases = ["window manager","omniwm","w","Tab + L","focus","right"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command focus right"]
 
 [window-manager-workspace-next]
 name = "Tab + N — Switch to next workspace"
-aliases = ["window manager","rift","w","Tab + N","workspace","next"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute workspace next"]
+aliases = ["window manager","omniwm","w","Tab + N","workspace","next"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace next"]
 
 [window-manager-workspace-prev]
 name = "Tab + P — Switch to previous workspace"
-aliases = ["window manager","rift","w","Tab + P","workspace","previous"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute workspace prev"]
+aliases = ["window manager","omniwm","w","Tab + P","workspace","previous"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace prev"]
 
 [window-manager-open-look]
 name = "Tab + F — Open Look launcher"
-aliases = ["window manager","rift","w","Tab + F","launcher","look"]
+aliases = ["window manager","omniwm","w","Tab + F","launcher","look"]
 do = ["open -a '/Applications/Look.app'"]
 
-[window-manager-move-node-left]
-name = "Tab + Q + H — Move window node left"
-aliases = ["window manager","rift","w","Tab + Q + H","move","node","layout","left"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute layout move-node left"]
+[window-manager-move-left]
+name = "Tab + Q + H — Move window left"
+aliases = ["window manager","omniwm","w","Tab + Q + H","move","window","left"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move left"]
 
-[window-manager-move-node-down]
-name = "Tab + Q + J — Move window node down"
-aliases = ["window manager","rift","w","Tab + Q + J","move","node","layout","down"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute layout move-node down"]
+[window-manager-move-down]
+name = "Tab + Q + J — Move window down"
+aliases = ["window manager","omniwm","w","Tab + Q + J","move","window","down"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move down"]
 
-[window-manager-move-node-up]
-name = "Tab + Q + K — Move window node up"
-aliases = ["window manager","rift","w","Tab + Q + K","move","node","layout","up"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute layout move-node up"]
+[window-manager-move-up]
+name = "Tab + Q + K — Move window up"
+aliases = ["window manager","omniwm","w","Tab + Q + K","move","window","up"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move up"]
 
-[window-manager-move-node-right]
-name = "Tab + Q + L — Move window node right"
-aliases = ["window manager","rift","w","Tab + Q + L","move","node","layout","right"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute layout move-node right"]
+[window-manager-move-right]
+name = "Tab + Q + L — Move window right"
+aliases = ["window manager","omniwm","w","Tab + Q + L","move","window","right"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move right"]
 
 [window-manager-join-left]
-name = "Tab + Q + Y — Join window to the left"
-aliases = ["window manager","rift","w","Tab + Q + Y","join","window","layout","left"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute layout join-window left"]
+name = "Tab + Q + Y — Join or expel window to the left"
+aliases = ["window manager","omniwm","w","Tab + Q + Y","join","window","left"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move left"]
 
 [window-manager-join-up]
-name = "Tab + Q + U — Join window above"
-aliases = ["window manager","rift","w","Tab + Q + U","join","window","layout","up"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute layout join-window up"]
+name = "Tab + Q + U — Join or expel window above"
+aliases = ["window manager","omniwm","w","Tab + Q + U","join","window","up"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move up"]
 
 [window-manager-join-down]
-name = "Tab + Q + I — Join window below"
-aliases = ["window manager","rift","w","Tab + Q + I","join","window","layout","down"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute layout join-window down"]
+name = "Tab + Q + I — Join or expel window below"
+aliases = ["window manager","omniwm","w","Tab + Q + I","join","window","down"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move down"]
 
 [window-manager-join-right]
-name = "Tab + Q + O — Join window to the right"
-aliases = ["window manager","rift","w","Tab + Q + O","join","window","layout","right"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute layout join-window right"]
+name = "Tab + Q + O — Join or expel window to the right"
+aliases = ["window manager","omniwm","w","Tab + Q + O","join","window","right"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move right"]
 
 [window-manager-move-workspace-next]
 name = "Tab + Q + N — Move window to next workspace"
-aliases = ["window manager","rift","w","Tab + Q + N","workspace","move","next"]
-do = ["$HOME/shell_scripts/rift-workspace-move-adjacent.sh next"]
+aliases = ["window manager","omniwm","w","Tab + Q + N","workspace","move","next"]
+do = ["$HOME/shell_scripts/omniwm-workspace-move-adjacent.sh next"]
 
 [window-manager-move-workspace-prev]
 name = "Tab + Q + P — Move window to previous workspace"
-aliases = ["window manager","rift","w","Tab + Q + P","workspace","move","previous"]
-do = ["$HOME/shell_scripts/rift-workspace-move-adjacent.sh prev"]
+aliases = ["window manager","omniwm","w","Tab + Q + P","workspace","move","previous"]
+do = ["$HOME/shell_scripts/omniwm-workspace-move-adjacent.sh prev"]
 
 [window-manager-toggle-float]
 name = "Tab + Q + Space — Toggle floating window"
-aliases = ["window manager","rift","w","Tab + Q + Space","float","floating","window"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute window toggle-float"]
+aliases = ["window manager","omniwm","w","Tab + Q + Space","float","floating","window"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command toggle-focused-window-floating"]
 
-[window-manager-fullscreen-within-gaps]
-name = "Tab + Q + Z — Toggle fullscreen within gaps"
-aliases = ["window manager","rift","w","Tab + Q + Z","fullscreen","gaps","window"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute window toggle-fullscreen-within-gaps"]
+[window-manager-toggle-fullscreen]
+name = "Tab + Q + Z — Toggle fullscreen"
+aliases = ["window manager","omniwm","w","Tab + Q + Z","fullscreen","window"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command toggle-fullscreen"]
 
-[window-manager-toggle-orientation]
-name = "Tab + Q + B — Toggle layout orientation"
-aliases = ["window manager","rift","w","Tab + Q + B","layout","orientation","split"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute layout toggle-orientation"]
+[window-manager-toggle-column-tabbed]
+name = "Tab + Q + B — Toggle Niri column tabbed"
+aliases = ["window manager","omniwm","w","Tab + Q + B","layout","column","tabbed"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command toggle-column-tabbed"]
 
-[window-manager-toggle-stack]
-name = "Tab + Q + S — Toggle stack layout"
-aliases = ["window manager","rift","w","Tab + Q + S","layout","stack"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute layout toggle-stack"]
+[window-manager-toggle-workspace-layout]
+name = "Tab + Q + S — Toggle workspace layout"
+aliases = ["window manager","omniwm","w","Tab + Q + S","layout","niri","dwindle"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command toggle-workspace-layout"]
 
-[window-manager-create-workspace]
-name = "Tab + Q + C — Create workspace"
-aliases = ["window manager","rift","w","Tab + Q + C","workspace","create","new"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute workspace create"]
+[window-manager-command-palette]
+name = "Tab + Q + C — Open OmniWM command palette"
+aliases = ["window manager","omniwm","w","Tab + Q + C","command","palette"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command open-command-palette"]
+
+[window-manager-focus-previous]
+name = "Tab + Q + A — Focus previous window"
+aliases = ["window manager","omniwm","w","Tab + Q + A","focus","previous","last"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command focus previous"]
+
+[window-manager-toggle-overview]
+name = "Tab + Q + V — Toggle window overview"
+aliases = ["window manager","omniwm","w","Tab + Q + V","overview","windows"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command toggle-overview"]
+
+[window-manager-toggle-quake-terminal]
+name = "Tab + Q + T — Toggle Quake terminal"
+aliases = ["window manager","omniwm","w","Tab + Q + T","terminal","quake","ghostty"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command toggle-quake-terminal"]
+
+[window-manager-balance-sizes]
+name = "Tab + Q + G — Balance window sizes"
+aliases = ["window manager","omniwm","w","Tab + Q + G","layout","balance","sizes"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command balance-sizes"]
 
 [window-manager-minimize-window]
 name = "Tab + Q + M — Minimize window"
-aliases = ["window manager","rift","w","Tab + Q + M","window","minimize"]
+aliases = ["window manager","omniwm","w","Tab + Q + M","window","minimize"]
 do = ["osascript -e 'tell application \"System Events\" to keystroke \"m\" using {command down}'"]
 
 [window-manager-close-window]
 name = "Tab + Q + X — Close window"
-aliases = ["window manager","rift","w","Tab + Q + X","window","close","quit"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute window close"]
+aliases = ["window manager","omniwm","w","Tab + Q + X","window","close","quit"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command close-focused-window"]
 
-[window-manager-resize-shrink-horizontal]
-name = "Tab + Q + - — Shrink window horizontally"
-aliases = ["window manager","rift","w","Tab + Q + -","resize","shrink","horizontal"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute window resize-shrink --orientation horizontal"]
+[window-manager-resize-shrink-primary]
+name = "Tab + Q + - — Shrink container primary span"
+aliases = ["window manager","omniwm","w","Tab + Q + -","resize","shrink","primary","span"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command set-container-primary-span -10%"]
 
-[window-manager-resize-grow-horizontal]
-name = "Tab + Q + = — Grow window horizontally"
-aliases = ["window manager","rift","w","Tab + Q + =","resize","grow","horizontal"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute window resize-grow --orientation horizontal"]
+[window-manager-resize-grow-primary]
+name = "Tab + Q + = — Grow container primary span"
+aliases = ["window manager","omniwm","w","Tab + Q + =","resize","grow","primary","span"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command set-container-primary-span +10%"]
 
-[window-manager-resize-shrink-vertical]
-name = "Tab + Q + Shift + - — Shrink window vertically"
-aliases = ["window manager","rift","w","Tab + Q + Shift + -","resize","shrink","vertical"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute window resize-shrink --orientation vertical"]
+[window-manager-resize-shrink-secondary]
+name = "Tab + Q + Shift + - — Shrink window secondary span"
+aliases = ["window manager","omniwm","w","Tab + Q + Shift + -","resize","shrink","secondary","span"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command set-window-secondary-span -10%"]
 
-[window-manager-resize-grow-vertical]
-name = "Tab + Q + Shift + = — Grow window vertically"
-aliases = ["window manager","rift","w","Tab + Q + Shift + =","resize","grow","vertical"]
-do = ["/etc/profiles/per-user/nick/bin/rift-cli execute window resize-grow --orientation vertical"]
+[window-manager-resize-grow-secondary]
+name = "Tab + Q + Shift + = — Grow window secondary span"
+aliases = ["window manager","omniwm","w","Tab + Q + Shift + =","resize","grow","secondary","span"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command set-window-secondary-span +10%"]
 
