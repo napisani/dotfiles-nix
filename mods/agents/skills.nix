@@ -66,6 +66,7 @@ in
   loancrate-eval-model-candidates-ci = pinned inputs.lc-script-skills "skills/loancrate-eval-model-candidates-ci";
   loancrate-ob-pricing-regression-test = pinned inputs.lc-script-skills "skills/loancrate-ob-pricing-regression-test";
   loancrate-run-local-agent-eval = pinned inputs.lc-script-skills "skills/loancrate-run-local-agent-eval";
+  loancrate-download-documents = pinned inputs.lc-script-skills "skills/loancrate-download-documents";
 
   rfc-generator = pinned inputs.patricio0312rev-skills "architecture/rfc-generator";
   smart-docs = pinned inputs.deepwiki-rs-skills "skills/smart-docs";

@@ -23,6 +23,7 @@
         "loancrate-eval-model-candidates-ci"
         "loancrate-ob-pricing-regression-test"
         "loancrate-run-local-agent-eval"
+        "loancrate-download-documents"
       ];
     };
 
