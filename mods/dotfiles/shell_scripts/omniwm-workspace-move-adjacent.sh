@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-omniwmctl="/etc/profiles/per-user/nick/bin/omniwmctl"
+omniwmctl="${OMNIWMCTL:-/etc/profiles/per-user/nick/bin/omniwmctl}"
 direction="${1:?usage: omniwm-workspace-move-adjacent.sh next|prev}"
 workspace_data="$($omniwmctl query workspaces --format json --fields number,is-current)"
 target="$({
@@ -12,7 +12,7 @@ import os
 
 direction = os.environ["OMNIWM_DIRECTION"]
 data = json.loads(os.environ["OMNIWM_WS_JSON"])
-workspaces = data.get("workspaces", data) if isinstance(data, dict) else data
+workspaces = data["result"]["payload"]["workspaces"]
 ordered = sorted(
     (workspace for workspace in workspaces if workspace.get("number") is not None),
     key=lambda workspace: workspace["number"],
