@@ -61,6 +61,15 @@ if [ -n "${BLE_VERSION:-}" ]; then
 
 	bleopt complete_menu_complete=
 
+	# Submit pasted multi-line commands with Enter instead of inserting another
+	# newline. ble.sh otherwise treats Enter as newline while bracketed paste
+	# handling is active; Ctrl-J remains the explicit newline key.
+	for _blesh_accept_mode in emacs vi_imap vi_nmap; do
+		ble-bind -m "$_blesh_accept_mode" -f 'C-m' accept-line
+		ble-bind -m "$_blesh_accept_mode" -f 'RET' accept-line
+	done
+	unset _blesh_accept_mode
+
 	# Match Readline: abandon the current command and start a fresh prompt.
 	ble-bind -m vi_imap -f 'C-c' discard-line
 	ble-bind -m vi_nmap -f 'C-c' discard-line
