@@ -119,10 +119,9 @@ the declarations, generation-bound scripts and activation trigger, while native
 adapters own installation mechanics. Nix-owned resources such as RTK files and
 Vocal's Python runtime remain unchanged.
 
-Scute is an explicit exception: like tmux-picker, it comes from its sibling
-monorepo flake through `home.packages`, not the npm registry. Source changes are
-picked up by rebuilding/switching the monorepo flake. The former managed npm
-installation is pruned through the existing ownership ledger.
+Scute is installed from the npm registry as the exact version declared in
+`mods/native-tools.nix`. Its Bun launcher uses the Nix-provided Bun runtime, while
+the npm reconciler owns installation, repair, updates, and revocation.
 
 SQLit is no longer selected. Its previously recorded uv ownership is sufficient
 for uninstall on the next convergence of the new generation; no special removal

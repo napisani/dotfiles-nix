@@ -55,11 +55,6 @@
       # follow the main nixpkgs (26.05-darwin) so maclab can evaluate it.
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    scute = {
-      url = "path:../scute";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.nixpkgs-darwin.follows = "nixpkgs";
-    };
     tmux_picker = {
       url = "path:../tmux-picker";
       inputs.nixpkgs.follows = "nixpkgs";

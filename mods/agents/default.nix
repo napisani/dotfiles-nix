@@ -137,6 +137,8 @@
         "npm:@datspike/pi-inline-slash-extension"
         "npm:@ff-labs/pi-fff"
         "npm:@juicesharp/rpiv-btw"
+        "npm:@juicesharp/rpiv-ask-user-question"
+        "npm:@lincoln504/pi-research"
         "npm:pi-vim"
         "npm:pi-web-access"
         # Routes Pi through the Claude Agent SDK without the stale pi-ai peer

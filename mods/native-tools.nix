@@ -18,6 +18,7 @@
       "@agentclientprotocol/claude-agent-acp" = "0.74.0";
       "@zed-industries/codex-acp" = "0.16.0";
       "@playwright/cli" = "0.1.19";
+      "@napisani/scute" = "0.0.19";
     };
   };
   nativeTools.uv = {

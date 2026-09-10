@@ -6,7 +6,6 @@
   procmux,
   secret_inject,
   tmux_picker,
-  scute,
   animal_rescue,
   scrollbacktamer,
   proctmux,
@@ -44,14 +43,15 @@ in
       git-lfs
       # ngrok
       fd
-    ] ++ lib.optionals (system != "x86_64-darwin") [ fff ] ++ [
+    ]
+    ++ lib.optionals (system != "x86_64-darwin") [ fff ]
+    ++ [
 
       # search for packages on nixos
       nix-search-cli
 
       secret_inject.packages.${system}.default
       tmux_picker.packages.${system}.default
-      scute.packages.${system}.default
       animal_rescue.packages.${system}.default
       scrollbacktamer.packages.${system}.default
       proctmux.packages.${system}.default

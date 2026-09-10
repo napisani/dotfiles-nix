@@ -66,7 +66,6 @@ rec {
       stackman
       secret_inject
       tmux_picker
-      scute
       animal_rescue
       scrollbacktamer
       ;

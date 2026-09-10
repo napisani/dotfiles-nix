@@ -7,14 +7,14 @@ Dotfiles, powered by [Nix](https://nixos.org/nix/) and [home-manager](https://gi
 **Shared choices go in `mods/`; machine differences go in `homes/`.
 You do not need to read installer code to change your setup.**
 
-- **npm/uv packages:** [`mods/native-tools.nix`](mods/native-tools.nix).
+- **npm/uv packages, including Scute:** [`mods/native-tools.nix`](mods/native-tools.nix).
 - **Shared agent skills, settings, MCP and packages:** [`mods/agents/default.nix`](mods/agents/default.nix).
   Add skill sources to [`mods/agents/skills.nix`](mods/agents/skills.nix).
 - **Common local models:** [`mods/model-runtimes.nix`](mods/model-runtimes.nix).
 - **One machine:** its `homes/home-*.nix`. The Loancrate home explicitly imports
   [`homes/nicks-loancrate-mbp/agents.nix`](homes/nicks-loancrate-mbp/agents.nix)
   and declares its npm authentication and model overrides itself.
-- **Nix-installed programs, including Scute:** [`mods/base-packages.nix`](mods/base-packages.nix);
+- **Nix-installed programs:** [`mods/base-packages.nix`](mods/base-packages.nix);
   sibling flake inputs are wired in `flake.nix` and `lib/builders.nix`.
 - **Shell/editor configuration and authored agent assets:** `mods/dotfiles/`.
   Intentionally live links remain live; store-backed content requires a switch.
