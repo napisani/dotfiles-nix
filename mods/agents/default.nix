@@ -134,6 +134,7 @@
       packages = [
         "npm:@ayulab/pi-rewind"
         "npm:pi-mcp-adapter"
+        "git:github.com/nicobailon/pi-subagents"
         "npm:@datspike/pi-inline-slash-extension"
         "npm:@ff-labs/pi-fff"
         "npm:@juicesharp/rpiv-btw"
