@@ -21,6 +21,7 @@ if (args[0] !== "plugin") process.exit(2);
 if (args[1] === "marketplace") {
   if (args[2] === "list") console.log(JSON.stringify([
     { name: "marketplace", repo: "owner/marketplace" },
+    { name: "branched", repo: "owner/branched", ref: "feature" },
     { name: "manual", repo: "other/manual" },
   ]));
   process.exit(0);

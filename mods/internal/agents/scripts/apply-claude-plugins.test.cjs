@@ -139,6 +139,25 @@ test("explicit update refreshes marketplaces and updates plugins", () => {
   assert.ok(!calls.includes("plugin install plugin@m --scope user"));
 });
 
+test("explicit update resolves a marketplace's declared git ref", () => {
+  const dir = mkTmpDir();
+  const log = path.join(dir, "calls.log");
+  const state = path.join(dir, "state.json");
+  const env = {
+    CALL_LOG: log,
+    ...declarations(["plugin@m"], state, {
+      MARKETPLACES: '["owner/branched#feature"]',
+    }),
+  };
+  run(dir, env);
+  fs.writeFileSync(log, "");
+
+  const result = run(dir, { ...env, UPDATE: "1" });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.ok(readCalls(log).includes("plugin marketplace update branched"));
+});
+
 test("a failed install records non-convergence and retries", () => {
   const dir = mkTmpDir();
   const log = path.join(dir, "calls.log");

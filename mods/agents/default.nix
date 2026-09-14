@@ -154,6 +154,21 @@
         ];
       };
       skillPaths = [ "~/code/*/apps/*/.agents/skills" ];
+      # These packages provide native binaries or package-specific setup used by
+      # the declared Pi extensions. Name-level approval intentionally follows
+      # extension updates; adding a new script-owning dependency still produces
+      # npm's review warning until it is added here.
+      allowScripts = [
+        "@google/genai"
+        "@lincoln504/pi-research"
+        "better-sqlite3"
+        "esbuild"
+        "koffi"
+        "onnxruntime-node"
+        "protobufjs"
+        "sharp"
+        "webgpu"
+      ];
       packages = [
         "npm:@ayulab/pi-rewind"
         "npm:pi-mcp-adapter"

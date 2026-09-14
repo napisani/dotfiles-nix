@@ -22,6 +22,14 @@ function run(args, capture = false) {
   }
   return result.stdout;
 }
+function marketplaceMatches(entry, source) {
+  const locations = [entry.repo, entry.url, entry.path].filter(Boolean);
+  if (locations.includes(source)) return !entry.ref;
+  if (!entry.ref) return false;
+  return locations.some((location) =>
+    [`${location}#${entry.ref}`, `${location}@${entry.ref}`].includes(source)
+  );
+}
 let inventory;
 function plugins() {
   if (!inventory) {
@@ -70,7 +78,7 @@ try {
       }
       for (const source of marketplaces) {
         const entry = sources.find((entry) =>
-          [entry.repo, entry.url, entry.path].includes(source)
+          marketplaceMatches(entry, source)
         );
         if (!entry?.name) {
           throw new Error(`cannot resolve declared marketplace ${source}`);

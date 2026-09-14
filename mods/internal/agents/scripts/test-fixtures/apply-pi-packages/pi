@@ -51,14 +51,17 @@ if (command === "list") {
   process.exit(Number(process.env.PI_LIST_STATUS || 0));
 }
 
-if (command === "install" && process.env.PI_FAIL_INSTALL === packageSpec) {
+if (
+  (command === "install" || command === "update") &&
+  process.env.PI_FAIL_INSTALL === packageSpec
+) {
   process.exit(1);
 }
 if (command === "remove" && process.env.PI_FAIL_REMOVE === packageSpec) {
   process.exit(1);
 }
 
-if (command === "install") {
+if (command === "install" || command === "update") {
   const packages = installedPackages();
   if (!packages.includes(packageSpec)) {
     writeInstalledPackages([...packages, packageSpec]);

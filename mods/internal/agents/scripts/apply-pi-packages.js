@@ -1,6 +1,6 @@
 // Pi adapter for per-asset native reconciliation. Only user-scoped inventory
 // and declared artifacts determine routine health, not the entire npm tree.
-// Env: DECLARED_PACKAGES, STATE_FILE, FORCE_REPAIR.
+// Env: DECLARED_PACKAGES, ALLOW_SCRIPTS, STATE_FILE, FORCE_REPAIR.
 const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
@@ -24,6 +24,17 @@ const run = (command, args, capture = false, cwd = home) => {
   return result.stdout;
 };
 let inventory;
+function applyAllowScripts(allowScripts) {
+  const file = path.join(home, ".pi/agent/npm/package.json");
+  if (!fs.existsSync(file)) return;
+  const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+  const desired = Object.fromEntries(allowScripts.map((name) => [name, true]));
+  if (JSON.stringify(pkg.allowScripts || {}) === JSON.stringify(desired)) return;
+  pkg.allowScripts = desired;
+  const temporary = `${file}.tmp-${process.pid}`;
+  fs.writeFileSync(temporary, `${JSON.stringify(pkg, null, 2)}\n`);
+  fs.renameSync(temporary, file);
+}
 function inspect() {
   if (inventory) return inventory;
   const text = run("pi", ["list", "--no-approve"], true);
@@ -57,6 +68,7 @@ function inspect() {
 }
 try {
   const declared = JSON.parse(process.env.DECLARED_PACKAGES || "[]");
+  const allowScripts = JSON.parse(process.env.ALLOW_SCRIPTS || "[]");
   if (
     !Array.isArray(declared) ||
     !declared.every((spec) =>
@@ -66,12 +78,21 @@ try {
   if (new Set(declared).size !== declared.length) {
     throw new Error("duplicate Pi declarations");
   }
+  if (
+    !Array.isArray(allowScripts) ||
+    !allowScripts.every((name) => typeof name === "string" && name.length > 0)
+  ) throw new Error("invalid Pi npm script approvals");
+  if (new Set(allowScripts).size !== allowScripts.length) {
+    throw new Error("duplicate Pi npm script approvals");
+  }
+  const mode = process.env.RECONCILE_MODE || "apply";
+  if (mode !== "status") applyAllowScripts(allowScripts);
   const desired = Object.fromEntries(
     declared.map((spec) => [spec, { source: spec }]),
   );
   const ok = reconcileInstalls({
     stateFile: process.env.STATE_FILE,
-    mode: process.env.RECONCILE_MODE || "apply",
+    mode,
     desired,
     force: /^(1|true|yes)$/i.test(process.env.FORCE_REPAIR || ""),
     observe(spec, desiredSpec) {
@@ -100,8 +121,9 @@ try {
       return { status: "healthy" };
     },
     install(spec) {
+      const command = inspect().has(spec) ? "update" : "install";
       inventory = null;
-      run("pi", ["install", spec]);
+      run("pi", [command, spec]);
     },
     remove(spec) {
       inventory = null;

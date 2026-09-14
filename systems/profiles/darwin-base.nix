@@ -63,9 +63,18 @@
     taps = [
       # "napisani/procmux"
       # "homebrew/cask-versions"
-      "kunkka19xx/tap"
-      "mongodb/brew"
-      "raine/workmux"
+      {
+        name = "kunkka19xx/tap";
+        trusted = true;
+      }
+      {
+        name = "mongodb/brew";
+        trusted = true;
+      }
+      {
+        name = "raine/workmux";
+        trusted = true;
+      }
     ];
   };
 

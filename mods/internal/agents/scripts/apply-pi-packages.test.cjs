@@ -28,6 +28,7 @@ function fixture(t) {
           }:${process.env.PATH}`,
           STATE_FILE: state,
           DECLARED_PACKAGES: JSON.stringify(packages),
+          ALLOW_SCRIPTS: "[]",
           CALL_LOG: log,
           NPM_CALL_LOG: npmLog,
           PI_INSTALL_STATE: path.join(dir, "installed"),
@@ -61,15 +62,45 @@ test("unchanged healthy Pi runs perform no installs or npm calls", (t) => {
   assert.deepEqual(h.calls(), ["list --no-approve"]);
   assert.deepEqual(h.npmCalls(), []);
 });
-test("status does not install or finalize missing packages", (t) => {
+test("status does not install, finalize, or write script approvals", (t) => {
   const h = fixture(t);
   assert.equal(
-    h.run(undefined, { RECONCILE_MODE: "status", FORCE_REPAIR: "1" }).status,
+    h.run(undefined, {
+      RECONCILE_MODE: "status",
+      FORCE_REPAIR: "1",
+      ALLOW_SCRIPTS: '["esbuild"]',
+    }).status,
     1,
   );
   assert.deepEqual(h.calls(), ["list --no-approve"]);
   assert.deepEqual(h.npmCalls(), []);
   assert.equal(fs.existsSync(h.state), false);
+  assert.deepEqual(JSON.parse(fs.readFileSync(
+    path.join(h.npmDir, "package.json"),
+    "utf8",
+  )), {});
+});
+test("script approvals are declaratively reconciled", (t) => {
+  const h = fixture(t);
+  fs.writeFileSync(
+    path.join(h.npmDir, "package.json"),
+    JSON.stringify({ allowScripts: { stale: true } }),
+  );
+  const result = h.run(undefined, {
+    ALLOW_SCRIPTS: '["esbuild","sharp"]',
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(
+    JSON.parse(fs.readFileSync(path.join(h.npmDir, "package.json"), "utf8"))
+      .allowScripts,
+    { esbuild: true, sharp: true },
+  );
+});
+test("invalid script approvals refuse mutations", (t) => {
+  const h = fixture(t);
+  assert.equal(h.run(undefined, { ALLOW_SCRIPTS: '["esbuild",42]' }).status, 1);
+  assert.deepEqual(h.calls(), []);
+  assert.deepEqual(h.npmCalls(), []);
 });
 test("one failed package does not reinstall successful siblings on retry", (t) => {
   const h = fixture(t);
@@ -110,8 +141,8 @@ test("missing artifact repairs only that package", (t) => {
   fs.rmSync(path.join(h.npmDir, "node_modules/other"), { recursive: true });
   h.clear();
   assert.equal(h.run(declared).status, 0);
-  assert.deepEqual(h.calls().filter((c) => c.startsWith("install")), [
-    "install npm:other",
+  assert.deepEqual(h.calls().filter((c) => c.startsWith("update")), [
+    "update npm:other",
   ]);
 });
 test("exact version changes remove old spec and install new one", (t) => {
@@ -144,7 +175,7 @@ test("failed batch npm reconciliation is retried", (t) => {
   assert.equal(h.run(undefined, { NPM_FAIL_INSTALL: "1" }).status, 1);
   h.clear();
   assert.equal(h.run().status, 0);
-  assert.ok(h.calls().includes("install npm:pi-vim"));
+  assert.ok(h.calls().includes("update npm:pi-vim"));
 });
 test("corrupt state never authorizes mutations", (t) => {
   const h = fixture(t);
@@ -153,10 +184,11 @@ test("corrupt state never authorizes mutations", (t) => {
   assert.deepEqual(h.calls(), []);
   assert.equal(fs.readFileSync(h.state, "utf8"), "not-json");
 });
-test("explicit repair reconciles healthy packages", (t) => {
+test("explicit repair updates healthy packages individually", (t) => {
   const h = fixture(t);
   h.run();
   h.clear();
   assert.equal(h.run(undefined, { FORCE_REPAIR: "1" }).status, 0);
-  assert.ok(h.calls().includes("install npm:pi-vim"));
+  assert.ok(h.calls().includes("update npm:pi-vim"));
+  assert.ok(!h.calls().includes("install npm:pi-vim"));
 });

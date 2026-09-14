@@ -42,8 +42,7 @@
       # (pulumi-language-nodejs etc.) — brew's formula bundles them.
       "pulumi"
       # bk@3 is the real formula name; the unversioned "bk" alias breaks
-      # `brew bundle check`. Requires the buildkite tap below (and a
-      # one-time `brew trust buildkite/buildkite` on Homebrew 6+).
+      # `brew bundle check`. The buildkite tap below is trusted declaratively.
       "buildkite/buildkite/bk@3"
       "ghostscript"
       "graphicsmagick"
@@ -55,8 +54,26 @@
     ];
 
     taps = [
-      "buildkite/buildkite"
-      "conductorone/cone"
+      {
+        name = "asmvik/formulae";
+        trusted = true;
+      }
+      {
+        name = "buildkite/buildkite";
+        trusted = true;
+      }
+      {
+        name = "conductorone/cone";
+        trusted = true;
+      }
+      {
+        name = "jundot/omlx";
+        trusted = true;
+      }
+      {
+        name = "kitlangton/tap";
+        trusted = true;
+      }
     ];
   };
 }

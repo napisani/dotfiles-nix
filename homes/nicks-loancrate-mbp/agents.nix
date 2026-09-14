@@ -42,7 +42,7 @@
           url = "https://bde.dsci.loancrate.dev/mcp";
         };
       };
-      pluginMarketplaces = lib.mkAfter [ "loancrate/org-claude-skills#workmux" ];
+      pluginMarketplaces = lib.mkAfter [ "loancrate/org-claude-skills" ];
       plugins = lib.mkAfter [
         "lc@lc"
         "code@lc"

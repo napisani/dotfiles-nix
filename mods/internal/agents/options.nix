@@ -135,6 +135,11 @@ in
         default = [ ];
         description = "Pi package specs installed through Pi's native package manager.";
       };
+      allowScripts = mkOption {
+        type = stringList;
+        default = [ ];
+        description = "Dependency package names trusted to run npm install scripts in Pi's package root.";
+      };
       skillPaths = mkOption {
         type = stringList;
         default = [ ];

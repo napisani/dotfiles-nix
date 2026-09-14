@@ -5,7 +5,9 @@
 # nix-managed home: lazy.nvim's plugin clones, Homebrew on the Darwin hosts,
 # pi's npm-installed extensions, and the mutable Claude/Pi state managed by
 # global-tools. `pi.nix` declares *which* extensions exist, not which versions,
-# so bumping them is a runtime operation.
+# so bumping them is a runtime operation. Pi package updates run through
+# global-tools one at a time because npm 11.17 crashes while rolling back Pi's
+# batched `pi update --extensions` install.
 #
 # Each updater no-ops with a message rather than failing when its tool is absent
 # — that's what lets `update-all` run unchanged on both the Darwin laptops and
@@ -42,14 +44,9 @@ update-packages() {
 	return 0
 }
 
-# pet: Update all installed pi extensions
+# pet: Update all declaratively installed Pi packages, one package at a time.
 update-pi() {
-	if ! sh_have pi; then
-		echo "update-pi: pi is not installed — skipping" >&2
-		return 0
-	fi
-	echo "==> Updating pi extensions"
-	pi update --extensions
+	update-global-tools pi-packages
 }
 
 # pet: Refresh mutable Claude and Pi state managed by global-tools.
@@ -77,7 +74,7 @@ update-pi-packages() {
 # pet: Run every out-of-band updater (including global-tools-managed state).
 update-all() {
 	local step failed=()
-	for step in update-packages update-nvim update-pi update-global-tools; do
+	for step in update-packages update-nvim update-global-tools; do
 		# Deliberately keep going after a failure: a broken Homebrew tap
 		# shouldn't stop the nvim plugins from updating. Failures are
 		# collected and reported together at the end.
