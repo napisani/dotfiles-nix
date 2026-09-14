@@ -54,7 +54,30 @@
         "playwright-cli"
         "web-research"
         "mermaid-diagrams"
-        "worktree"
+        {
+          name = "workmux-worktree";
+          manualOnly = true;
+        }
+        {
+          name = "workmux-coordinator";
+          manualOnly = true;
+        }
+        {
+          name = "workmux-merge";
+          manualOnly = true;
+        }
+        {
+          name = "workmux-rebase";
+          manualOnly = true;
+        }
+        {
+          name = "workmux-open-pr";
+          manualOnly = true;
+        }
+        {
+          name = "workmux-reference";
+          manualOnly = true;
+        }
         "no-ai-slop"
         "show-me"
         "visual-explainer"

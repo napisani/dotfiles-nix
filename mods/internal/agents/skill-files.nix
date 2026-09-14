@@ -56,7 +56,7 @@ let
 
   skillEntry = name: catalog.${name} // { inherit name; };
 
-  skillSource =
+  rawSkillSource =
     skill:
     if skill.kind == "pinned" then
       if skill.path == "." then "${skill.source}" else "${skill.source}/${skill.path}"
@@ -64,6 +64,20 @@ let
       config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${skill.path}"
     else
       throw "agents: skill '${skill.name}' has unsupported source kind '${skill.kind}'";
+
+  skillSource =
+    skill:
+    let
+      source = rawSkillSource skill;
+    in
+    if skill ? replacements then
+      mkPatchedSkillSource {
+        name = skill.name;
+        sourcePath = source;
+        replacements = skill.replacements;
+      }
+    else
+      source;
 
   skillNamesByKind =
     kind: names: builtins.filter (name: catalog.${name}.kind == kind) (validateSkillNames names);
@@ -120,6 +134,7 @@ let
       sourcePath,
       addFiles ? { },
       insertAfterLine ? null,
+      replacements ? [ ],
     }:
     pkgs-unstable.runCommand "patched-skill-${name}" { } (
       ''
@@ -134,13 +149,27 @@ let
           } "$out/${relPath}"
         '') addFiles
       )
+      + lib.concatStrings (
+        lib.imap0 (index: replacement: ''
+          substituteInPlace "$out/SKILL.md" \
+            --replace-fail ${lib.escapeShellArg replacement.from} ${lib.escapeShellArg "__SKILL_REWRITE_${toString index}__"}
+        '') replacements
+      )
+      + lib.concatStrings (
+        lib.imap0 (index: replacement: ''
+          substituteInPlace "$out/SKILL.md" \
+            --replace-fail ${lib.escapeShellArg "__SKILL_REWRITE_${toString index}__"} ${lib.escapeShellArg replacement.to}
+        '') replacements
+      )
       + lib.optionalString (insertAfterLine != null) ''
         _target="$out/${insertAfterLine.file}"
         if [ "$(sed -n '1p' "$_target")" != "---" ]; then
           echo "mkPatchedSkillSource: ${name}: expected '$_target' to open with a '---' frontmatter line, refusing to patch" >&2
           exit 1
         fi
-        sed -i ${lib.escapeShellArg "${toString insertAfterLine.afterLine}a\\${insertAfterLine.text}"} "$_target"
+        if ! grep -Fqx -- ${lib.escapeShellArg insertAfterLine.text} "$_target"; then
+          sed -i ${lib.escapeShellArg "${toString insertAfterLine.afterLine}a\\${insertAfterLine.text}"} "$_target"
+        fi
       ''
     );
 in

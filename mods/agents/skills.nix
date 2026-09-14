@@ -7,6 +7,11 @@ let
     kind = "pinned";
     inherit source path;
   };
+  pinnedRewritten = source: path: replacements: {
+    kind = "pinned";
+    inherit source path replacements;
+  };
+  rewrite = from: to: { inherit from to; };
   local = path: {
     kind = "local";
     inherit path;
@@ -43,7 +48,38 @@ in
   playwright-cli = pinned inputs.playwright-cli-skills "skills/playwright-cli";
   web-research = pinned inputs.deepagents "libs/code/examples/skills/web-research";
   mermaid-diagrams = pinned inputs.softaworks-agent-toolkit "dist/plugins/mermaid-diagrams/skills/mermaid-diagrams";
-  worktree = pinned inputs.workmux-skills "skills/worktree";
+
+  # Keep Workmux's generic upstream names out of the shared skill namespace.
+  # Internal slash references are rewritten with the frontmatter name so the
+  # six skills continue to delegate to one another after namespacing.
+  workmux-worktree = pinnedRewritten inputs.workmux-skills "skills/worktree" [
+    (rewrite "name: worktree" "name: workmux-worktree")
+    (rewrite "/worktree" "/workmux-worktree")
+    (rewrite "/merge" "/workmux-merge")
+  ];
+  workmux-coordinator = pinnedRewritten inputs.workmux-skills "skills/coordinator" [
+    (rewrite "name: coordinator" "name: workmux-coordinator")
+    (rewrite "/merge" "/workmux-merge")
+  ];
+  workmux-merge = pinnedRewritten inputs.workmux-skills "skills/merge" [
+    (rewrite "name: merge" "name: workmux-merge")
+  ];
+  workmux-rebase = pinnedRewritten inputs.workmux-skills "skills/rebase" [
+    (rewrite "name: rebase" "name: workmux-rebase")
+  ];
+  workmux-open-pr = pinnedRewritten inputs.workmux-skills "skills/open-pr" [
+    (rewrite "name: open-pr" "name: workmux-open-pr")
+  ];
+  workmux-reference = pinnedRewritten inputs.workmux-skills "skills/workmux" [
+    (rewrite "name: workmux" "name: workmux-reference")
+    (rewrite "\"/workmux add ...\"" "\"/workmux-reference add ...\"")
+    (rewrite "/worktree" "/workmux-worktree")
+    (rewrite "/coordinator" "/workmux-coordinator")
+    (rewrite "/merge" "/workmux-merge")
+    (rewrite "/rebase" "/workmux-rebase")
+    (rewrite "/open-pr" "/workmux-open-pr")
+  ];
+
   no-ai-slop = pinned inputs.no-ai-slop "skills/no-ai-slop";
   show-me = pinned inputs.humanlayer-skills "plugins/show-me/skills/show-me";
   visual-explainer = pinned inputs.builderio-skills "skills/visual-explainer";
