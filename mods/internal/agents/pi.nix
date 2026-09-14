@@ -74,20 +74,32 @@ let
   # into a patched copy instead of editing the vendored file.
   patchPiSkillSource =
     s: src:
-    if
-      skillFiles.isSkillManualOnlyFor {
+    let
+      manualOnly = skillFiles.isSkillManualOnlyFor {
         skillName = s.name;
         agentId = "pi";
-      }
-    then
+      };
+      namespacedWorkmuxSkill = lib.hasPrefix "workmux-" s.name;
+    in
+    if manualOnly || namespacedWorkmuxSkill then
       skillFiles.mkPatchedSkillSource {
         name = s.name;
         sourcePath = src;
-        insertAfterLine = {
-          file = "SKILL.md";
-          afterLine = 1;
-          text = "disable-model-invocation: true";
+        replacements = lib.optional namespacedWorkmuxSkill {
+          from = "/workmux-";
+          to = "/skill:workmux-";
+          # Leaf skills contain no cross-skill references.
+          required = false;
         };
+        insertAfterLine =
+          if manualOnly then
+            {
+              file = "SKILL.md";
+              afterLine = 1;
+              text = "disable-model-invocation: true";
+            }
+          else
+            null;
       }
     else
       src;

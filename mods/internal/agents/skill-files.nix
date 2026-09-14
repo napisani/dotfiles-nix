@@ -152,13 +152,15 @@ let
       + lib.concatStrings (
         lib.imap0 (index: replacement: ''
           substituteInPlace "$out/SKILL.md" \
-            --replace-fail ${lib.escapeShellArg replacement.from} ${lib.escapeShellArg "__SKILL_REWRITE_${toString index}__"}
+            ${if replacement.required or true then "--replace-fail" else "--replace-quiet"} \
+            ${lib.escapeShellArg replacement.from} ${lib.escapeShellArg "__SKILL_REWRITE_${toString index}__"}
         '') replacements
       )
       + lib.concatStrings (
         lib.imap0 (index: replacement: ''
           substituteInPlace "$out/SKILL.md" \
-            --replace-fail ${lib.escapeShellArg "__SKILL_REWRITE_${toString index}__"} ${lib.escapeShellArg replacement.to}
+            ${if replacement.required or true then "--replace-fail" else "--replace-quiet"} \
+            ${lib.escapeShellArg "__SKILL_REWRITE_${toString index}__"} ${lib.escapeShellArg replacement.to}
         '') replacements
       )
       + lib.optionalString (insertAfterLine != null) ''
