@@ -38,13 +38,13 @@ fi
 # Lexical order is the contract. The decade a fragment lives in determines what
 # it may assume has already happened:
 #
-#   10-19  shell options, history, and early ble.sh load
+#   10-19  shell options and history
 #   20-29  completion
 #   30-39  early tool init (fzf before atuin)
 #   40-49  secrets and environment derived from them
 #   50-59  aliases and functions
 #   60-69  command wrappers and keybindings
-#   70-79  version managers and late prompt hooks (starship, then direnv)
+#   70-79  version managers, ble.sh, and prompt hooks (starship, then direnv)
 #   80-89  machine-specific
 #   90-99  local overrides, then final ble.sh attach
 #

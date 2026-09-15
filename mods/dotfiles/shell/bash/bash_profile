@@ -1,7 +1,3 @@
-# The following lines were added by Docker Desktop to add commands to your PATH.
-export PATH="$PATH:/Users/nick/.docker/bin"
-# End of Docker Desktop section.
-
 # ~/.bash_profile — login shell entry point.
 #
 # Bash reads this (not ~/.bashrc) for login shells, so it has to pull in both:

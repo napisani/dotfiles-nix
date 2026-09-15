@@ -112,6 +112,10 @@ style = "fg:cyan"
 style = "bold fg:yellow"
 
 [git_status]
+# Untracked-file discovery dominates prompt time in this large monorepo. Keep
+# staged, modified, deleted, conflicted, and ahead/behind state, but leave new
+# files to `git status` instead of rescanning the worktree before every prompt.
+untracked = ""
 style = "bold fg:red"
 
 [status]
