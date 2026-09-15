@@ -27,6 +27,7 @@ let
     home
     nodeBin
     callAgentLib
+    scriptsDir
     ;
 
   skillFiles = callAgentLib ./skill-files.nix;
@@ -52,8 +53,6 @@ let
     '';
   };
   mcpTarget = "${home}/.claude.json";
-  nativeScripts = import ../native-scripts.nix { inherit lib; };
-  scriptsDir = "${nativeScripts}/agents/scripts";
   workmuxStatusDir = ../../dotfiles/agents/workmux-status;
 
   # Desired manual-only skills land here as

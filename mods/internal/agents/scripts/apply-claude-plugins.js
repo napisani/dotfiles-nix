@@ -3,25 +3,12 @@
 // Marketplace sources are inputs to plugin installation, not an excuse to
 // uninstall a shared marketplace and its user-managed plugins.
 const fs = require("node:fs");
-const { spawnSync } = require("node:child_process");
 const { reconcileInstalls } = require(
   "../../scripts/lib/reconcile-installs.js",
 );
-const truthy = (value) => /^(1|true|yes)$/i.test(value || "");
-function run(args, capture = false) {
-  const result = spawnSync("claude", args, {
-    encoding: "utf8",
-    stdio: capture ? ["ignore", "pipe", "pipe"] : "inherit",
-    timeout: 60_000,
-  });
-  if (result.error || result.status !== 0) {
-    throw new Error(
-      result.error?.message ||
-        `claude ${args.slice(0, 2).join(" ")} exited ${result.status}`,
-    );
-  }
-  return result.stdout;
-}
+const { runProcess, truthy } = require("../../scripts/lib/adapter.js");
+const run = (args, capture = false) =>
+  runProcess("claude", args, { capture, timeout: 60_000 });
 function marketplaceMatches(entry, source) {
   const locations = [entry.repo, entry.url, entry.path].filter(Boolean);
   if (locations.includes(source)) return !entry.ref;

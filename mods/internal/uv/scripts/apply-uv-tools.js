@@ -4,28 +4,17 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
-const { spawnSync } = require("node:child_process");
 const { reconcileInstalls } = require(
   "../../scripts/lib/reconcile-installs.js",
 );
+const { runProcess, truthy } = require("../../scripts/lib/adapter.js");
 const uv = process.env.UV_COMMAND || "uv";
 const python = process.env.PYTHON_COMMAND || "python3";
 const normalize = (name) => name.toLowerCase().replace(/[-_.]+/g, "-");
 const packageName = (requirement) =>
   normalize(requirement.match(/^[a-z0-9_.-]+/i)?.[0] || "");
-function execute(command, args, capture = false) {
-  const result = spawnSync(command, args, {
-    encoding: "utf8",
-    stdio: capture ? ["ignore", "pipe", "pipe"] : "inherit",
-    timeout: 120_000,
-  });
-  if (result.error || result.status !== 0) {
-    throw new Error(
-      result.error?.message || `${command} exited ${result.status}`,
-    );
-  }
-  return result.stdout;
-}
+const execute = (command, args, capture = false) =>
+  runProcess(command, args, { capture });
 const readToml = (file) =>
   JSON.parse(
     execute(python, [
@@ -102,7 +91,7 @@ try {
       };
     }
   }
-  const force = /^(1|true|yes)$/i.test(process.env.FORCE_REPAIR || "");
+  const force = truthy(process.env.FORCE_REPAIR);
   const ok = reconcileInstalls({
     stateFile: process.env.STATE_FILE,
     mode: process.env.RECONCILE_MODE || "apply",

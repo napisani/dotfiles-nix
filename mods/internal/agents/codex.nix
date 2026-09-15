@@ -27,6 +27,7 @@ let
     home
     nodeBin
     callAgentLib
+    scriptsDir
     ;
 
   skillFiles = callAgentLib ./skill-files.nix;
@@ -45,8 +46,6 @@ let
   };
   configTomlFile = "${home}/.codex/config.toml";
   hooksTargetFile = "${home}/.codex/hooks.json";
-  nativeScripts = import ../native-scripts.nix { inherit lib; };
-  scriptsDir = "${nativeScripts}/agents/scripts";
   workmuxStatusDir = ../../dotfiles/agents/workmux-status;
 
   # Codex's real manual-only control isn't the `disable-model-invocation`

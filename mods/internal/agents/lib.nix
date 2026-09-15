@@ -24,6 +24,12 @@ let
 
   nodeBin = "${pkgs-unstable.nodejs}/bin";
 
+  # The vendored native install scripts, bound to the evaluated generation, and
+  # the agents/ subtree every per-agent adapter shells into. Centralized here so
+  # adapters don't each re-import native-scripts.nix.
+  nativeScripts = import ../native-scripts.nix { inherit lib; };
+  scriptsDir = "${nativeScripts}/agents/scripts";
+
   # Remove a stale non-directory (symlink, or a plain file left behind by a
   # tool that expects a real dir) at each of `paths`, before linkGeneration
   # runs. Agent-blind: just a list of paths, no identity of its own.
@@ -91,6 +97,8 @@ in
     dotfiles
     home
     nodeBin
+    nativeScripts
+    scriptsDir
     mkFixPathConflicts
     mkLocalFileLinks
     callAgentLib

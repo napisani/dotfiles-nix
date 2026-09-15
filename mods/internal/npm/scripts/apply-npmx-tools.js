@@ -5,10 +5,10 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
-const { spawnSync } = require("node:child_process");
 const { reconcileInstalls } = require(
   "../../scripts/lib/reconcile-installs.js",
 );
+const { runProcess, truthy } = require("../../scripts/lib/adapter.js");
 const prefix = process.env.NPM_CONFIG_PREFIX ||
   path.join(os.homedir(), ".local");
 const npm = process.env.NPM_COMMAND || "npm";
@@ -34,17 +34,12 @@ try {
     }
     desired[tool.name] = { version: tool.version };
   }
-  const run = (args) => {
-    const result = spawnSync(npm, args, { stdio: "inherit", timeout: 120_000 });
-    if (result.error || result.status !== 0) {
-      throw new Error(result.error?.message || `npm exited ${result.status}`);
-    }
-  };
+  const run = (args) => runProcess(npm, args);
   const ok = reconcileInstalls({
     stateFile: process.env.STATE_FILE,
     mode: process.env.RECONCILE_MODE || "apply",
     desired,
-    force: /^(1|true|yes)$/i.test(process.env.FORCE_REPAIR || ""),
+    force: truthy(process.env.FORCE_REPAIR),
     observe(name, spec) {
       if (!validName.test(name)) throw new Error("invalid managed npm name");
       const file = path.join(prefix, "lib/node_modules", name, "package.json");

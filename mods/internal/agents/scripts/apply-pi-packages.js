@@ -4,25 +4,13 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
-const { spawnSync } = require("node:child_process");
 const { reconcileInstalls } = require(
   "../../scripts/lib/reconcile-installs.js",
 );
+const { runProcess, truthy } = require("../../scripts/lib/adapter.js");
 const home = os.homedir();
-const run = (command, args, capture = false, cwd = home) => {
-  const result = spawnSync(command, args, {
-    cwd,
-    encoding: "utf8",
-    stdio: capture ? ["ignore", "pipe", "pipe"] : "inherit",
-    timeout: 120_000,
-  });
-  if (result.error || result.status !== 0) {
-    throw new Error(
-      result.error?.message || `${command} exited ${result.status}`,
-    );
-  }
-  return result.stdout;
-};
+const run = (command, args, capture = false, cwd = home) =>
+  runProcess(command, args, { capture, cwd });
 let inventory;
 function applyAllowScripts(allowScripts) {
   const file = path.join(home, ".pi/agent/npm/package.json");
@@ -94,7 +82,7 @@ try {
     stateFile: process.env.STATE_FILE,
     mode,
     desired,
-    force: /^(1|true|yes)$/i.test(process.env.FORCE_REPAIR || ""),
+    force: truthy(process.env.FORCE_REPAIR),
     observe(spec, desiredSpec) {
       const entries = inspect();
       if (!entries.has(spec)) return { status: "missing" };

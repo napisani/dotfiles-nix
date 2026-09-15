@@ -27,6 +27,7 @@ let
     home
     nodeBin
     callAgentLib
+    scriptsDir
     ;
 
   skillFiles = callAgentLib ./skill-files.nix;
@@ -50,8 +51,6 @@ let
     };
   };
 
-  nativeScripts = import ../native-scripts.nix { inherit lib; };
-  scriptsDir = "${nativeScripts}/agents/scripts";
   rtk = config.agents.rtkPackage;
   rtkAssets = import ./rtk-assets.nix {
     inherit lib rtk;
