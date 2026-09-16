@@ -97,6 +97,7 @@ in
   loancrate-slack-relay = pinned inputs.private-skills "loancrate-slack-relay";
   loancrate-pr-maintainer = pinned inputs.private-skills "loancrate-pr-maintainer";
   loancrate-prepare-perf-impact = pinned inputs.private-skills "loancrate-prepare-perf-impact";
+  loancrate-refresh-perf-scoreboard = pinned inputs.private-skills "loancrate-refresh-perf-scoreboard";
 
   loancrate-lc-script = pinned inputs.lc-script-skills "skills/loancrate-lc-script";
   loancrate-eval-model-candidates-ci = pinned inputs.lc-script-skills "skills/loancrate-eval-model-candidates-ci";

@@ -11,6 +11,7 @@
         "loancrate-weekly-update-draft"
         "loancrate-weekly-project-update-draft"
         "loancrate-slack-relay"
+        "loancrate-refresh-perf-scoreboard"
         {
           name = "loancrate-pr-maintainer";
           manualOnly = true;
