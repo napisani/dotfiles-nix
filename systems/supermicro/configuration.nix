@@ -167,6 +167,55 @@ in
   # services.libinput.enable = true;
   virtualisation.docker.enable = true;
 
+  # Tether runs in Kubernetes with host networking and a read-only host D-Bus
+  # socket. BlueZ and Avahi remain host-owned services; the pod only consumes
+  # their D-Bus APIs.
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings.General.Experimental = true;
+  };
+
+  services.avahi = {
+    enable = true;
+    openFirewall = true;
+    publish = {
+      enable = true;
+      userServices = true;
+    };
+  };
+
+  # iOS exposes message and contact permissions only when the Linux controller
+  # advertises the A/V Hands-Free class. bluetoothd resets the class when it
+  # starts, so reapply and verify it after every service restart.
+  systemd.services."tether-btclass@hci0" = {
+    description = "Set Bluetooth Class of Device for Tether on hci0";
+    after = [ "bluetooth.service" ];
+    partOf = [ "bluetooth.service" ];
+    wantedBy = [ "bluetooth.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "tether-btclass-hci0" ''
+        for attempt in $(${pkgs.coreutils}/bin/seq 30); do
+          hci=hci0
+          [ -e /sys/class/bluetooth/$hci ] \
+            || hci=$(${pkgs.coreutils}/bin/ls /sys/class/bluetooth 2>/dev/null | ${pkgs.coreutils}/bin/head -n1)
+          if [ -n "$hci" ]; then
+            echo | ${pkgs.bluez}/bin/btmgmt --index "$hci" class 4 8 >/dev/null 2>&1
+            if echo | ${pkgs.bluez}/bin/btmgmt --index "$hci" info 2>/dev/null \
+              | ${pkgs.gnugrep}/bin/grep -q "class 0x..0408"; then
+              exit 0
+            fi
+          fi
+          ${pkgs.coreutils}/bin/sleep 1
+        done
+        exit 1
+      '';
+      TimeoutStartSec = 60;
+    };
+  };
+
   users.groups = {
     kube-pods = {
       name = "kube-pods";
@@ -308,6 +357,7 @@ in
     80 # HTTP
     443 # HTTPS
     6443 # k3s: required so that pods can reach the API server (running on port 6443 by default)
+    5134 # Tether TCP + mTLS
     # 2379 # k3s, etcd clients: required if using a "High Availability Embedded etcd" configuration
     # 2380 # k3s, etcd peers: required if using a "High Availability Embedded etcd" configuration
     32400 # plex
