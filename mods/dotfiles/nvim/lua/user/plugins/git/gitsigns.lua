@@ -69,9 +69,9 @@ function M.get_keymaps()
 			{
 				"<leader>gp",
 				function()
-					compare.set_git_ref_to_parent()
+					compare.set_git_ref_to_pull_request_base()
 				end,
-				desc = "set ref to (p)arent",
+				desc = "set ref to (p)r base",
 			},
 
 			{

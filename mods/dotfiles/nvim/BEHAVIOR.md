@@ -195,8 +195,9 @@
 `<leader>g` → domain: git operations — status, blame, hunk navigation, diff reference  
 `<leader>gl` → leaf: show git blame for the current line (inline popup)  
 `<leader>gr` → leaf: set a git comparison reference (branch or commit) for diff views  
-`<leader>gR` → leaf: set a git comparison reference to a specific commit  
-`<leader>go` → leaf: open the full git status / commit UI  
+`<leader>gR` → leaf: set a git comparison reference to a specific commit
+`<leader>gp` → leaf: set the comparison reference to the GitHub-style merge base with the current branch's PR parent; use an open PR's base when available, otherwise use the parent saved in per-branch Git configuration or prompt once and remember the selection
+`<leader>go` → leaf: open the full git status / commit UI
 `]g` / `[g` → leaf: jump to next / previous hunk in the buffer (also under motions; **inside Diffview** the same keys also move across files — see *Inside diff / conflict views*)
 
 ---

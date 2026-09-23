@@ -110,7 +110,7 @@ function initialAction(pr, feedback, ci) {
     return { kind: "none", reason: "Mergeability is still computing" };
   }
   if (pr.mergeable === "CONFLICTING" || pr.mergeStateStatus === "DIRTY") {
-    return { kind: "rebase", reason: "Conflicts outrank all lower-priority work" };
+    return { kind: "merge", reason: "Conflicts outrank all lower-priority work" };
   }
   if (ci.failing) {
     return { kind: "ci", reason: `CI is failing: ${ci.failed.map((check) => check.name).join(", ") || "unknown check"}` };
@@ -136,9 +136,9 @@ function applyResendRules(action, pr, feedback, state) {
     return { ...action, newIds };
   }
 
-  if (action.kind === "rebase") {
-    if (previous?.last_action === "rebase" && previous.head_oid === pr.headRefOid) {
-      return { kind: "manual", reason: "Rebase was already dispatched for this unchanged conflicting head" };
+  if (action.kind === "merge") {
+    if (["merge", "rebase"].includes(previous?.last_action) && previous.head_oid === pr.headRefOid) {
+      return { kind: "manual", reason: "Parent merge was already dispatched for this unchanged conflicting head" };
     }
     return action;
   }
@@ -181,11 +181,11 @@ function classifyPullRequest(pr, viewer, state) {
 
 function actionPrompt(pr) {
   switch (pr.action.kind) {
-    case "rebase":
-      return "/rebase-from-parent\n\nThis branch has merge conflicts with its base. Rebase from the parent, resolve every conflict you can resolve confidently, and push the result automatically. If you hit a conflict you cannot resolve safely, or the push is rejected, abort and leave a clear note asking for my intervention rather than guessing.";
+    case "merge":
+      return "/merge-parent-into-branch\n\nThis branch has merge conflicts with its base. Merge the parent into this branch, resolve every conflict you can resolve confidently, and push the result automatically without rewriting history. If you hit a conflict you cannot resolve safely, or the push is rejected, abort and leave a clear note asking for my intervention rather than guessing.";
     case "ci": {
       const names = pr.ci.failed.map((check) => check.name).filter(Boolean).join(", ");
-      return `CI is failing on this PR: ${names}. Review the CI failures and work out whether the failure was introduced by this branch. If this branch introduced it, fix it and push the fix. If the failure is upstream, run /rebase-from-parent, resolve any conflicts, and push. If you cannot tell which it is, or the fix is not one you can make safely, stop and ask for my intervention rather than guessing.`;
+      return `CI is failing on this PR: ${names}. Review the CI failures and work out whether the failure was introduced by this branch. If this branch introduced it, fix it and push the fix. If the failure is upstream, run /merge-parent-into-branch, resolve any conflicts, and push. If you cannot tell which it is, or the fix is not one you can make safely, stop and ask for my intervention rather than guessing.`;
     }
     case "feedback":
       return `/address-pr-feedback ${pr.url}\n\nThere is new review feedback on this PR that has not been addressed yet.`;

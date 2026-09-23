@@ -25,6 +25,7 @@ in
   prompt-engineering-patterns = pinned inputs.wshobson-agents "plugins/llm-application-dev/skills/prompt-engineering-patterns";
   context7 = pinned inputs.intellectronica-agent-skills "skills/context7";
   code-simplification = pinned inputs.addyosmani-agent-skills "skills/code-simplification";
+  ai-ready = pinned inputs.ai-ready-skills "skills/ai-ready";
 
   brainstorming = pinned inputs.superpowers "skills/brainstorming";
   systematic-debugging = pinned inputs.superpowers "skills/systematic-debugging";
@@ -113,6 +114,7 @@ in
   forge-solution = local "agents/shared-skills/forge-solution";
   ob-note = local "agents/shared-skills/ob-note";
   rebase-from-parent = local "agents/shared-skills/rebase-from-parent";
+  merge-parent-into-branch = local "agents/shared-skills/merge-parent-into-branch";
   stackman-rebase-conflicts = local "agents/shared-skills/stackman-rebase-conflicts";
   tech-spec = local "agents/shared-skills/tech-spec";
 }

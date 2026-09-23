@@ -46,6 +46,22 @@ local function tmux_navigate_preserve_zoom(tmux_direction)
 	tmux_command("select-pane -" .. tmux_direction .. " -Z")
 end
 
+local function tmux_at_edge(tmux_direction)
+	local edge_format = ({
+		L = "pane_at_left",
+		R = "pane_at_right",
+		U = "pane_at_top",
+		D = "pane_at_bottom",
+	})[tmux_direction]
+
+	if edge_format == nil then
+		return false
+	end
+
+	local at_edge = tmux_command("display-message -p '#{" .. edge_format .. "}'")
+	return at_edge ~= nil and vim.trim(at_edge) == "1"
+end
+
 local function tmux_move_and_zoom(direction)
 	local cmd = "NvimTmuxNavigate" .. direction
 	local window_was_zoomed = was_window_zoomed()
@@ -53,13 +69,19 @@ local function tmux_move_and_zoom(direction)
 
 	if window_was_zoomed and move_cfg ~= nil then
 		local moved_in_vim = try_vim_navigate(move_cfg.vim)
-		if not moved_in_vim then
+		if not moved_in_vim and not tmux_at_edge(move_cfg.tmux) then
 			tmux_navigate_preserve_zoom(move_cfg.tmux)
 		end
 		return
 	end
 
 	if vim.fn.exists(":" .. cmd) == 2 then
+		-- The navigation plugin wraps at a tmux edge. Let it try Vim splits,
+		-- but do not let it wrap to the opposite tmux pane.
+		if tmux_at_edge(move_cfg.tmux) then
+			try_vim_navigate(move_cfg.vim)
+			return
+		end
 		vim.cmd(cmd)
 	else
 		vim.notify("Command " .. cmd .. " not found. Check your plugin name!", vim.log.levels.ERROR)

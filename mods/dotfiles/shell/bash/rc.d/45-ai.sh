@@ -3,15 +3,17 @@
 # allows tmux scrollbacks to work with claude
 export CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1
 
+# Pi is the default agent everywhere; callers can still override it before
+# shell initialization. Provider and model preferences remain machine-specific.
+export PREFERRED_AGENT="${PREFERRED_AGENT:-pi}"
+
 # ── Per-machine AI preferences ─────────────────────────────────────────────
 # Add a new branch here when a machine needs different values.
 if [ "${MACHINE_NAME:-}" = "nicks-loancrate-mbp" ]; then
-	export PREFERRED_AGENT="${PREFERRED_AGENT:-claude}"
 	export AI_PROVIDER="${AI_PROVIDER:-anthropic}"
 	export AI_MODEL="${AI_MODEL:-claude-sonnet-4-6}"
 	export AI_FAST_MODEL="${AI_FAST_MODEL:-claude-haiku-4-5}"
 else
-	export PREFERRED_AGENT="${PREFERRED_AGENT:-pi}"
 	export AI_PROVIDER="${AI_PROVIDER:-anthropic}"
 	export AI_MODEL="${AI_MODEL:-claude-sonnet-4-5}"
 	export AI_FAST_MODEL="${AI_FAST_MODEL:-claude-haiku-4-5}"

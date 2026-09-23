@@ -25,15 +25,48 @@ function M.find_file_from_root_and_callback(callback_fn)
 	})
 end
 
-function M.set_git_ref_to_parent()
-	local git_utils = require("user.utils.git_utils")
-	local fork_point, label = git_utils.get_fork_point()
-	if not fork_point then
-		vim.notify("could not determine fork point (no trunk branch to compare against?)", vim.log.levels.WARN)
+local function apply_pull_request_base(result)
+	utils.set_git_ref(result.commit)
+	local message = string.format(
+		"git ref set to PR merge base %s (parent: %s, source: %s)",
+		result.commit:sub(1, 12),
+		result.parent,
+		result.source
+	)
+	vim.notify(message, vim.log.levels.INFO)
+end
+
+local function select_pull_request_parent(pr_base)
+	Snacks.picker.git_branches({
+		all = false,
+		confirm = function(picker, item)
+			picker:close()
+			if not item or not item.branch then
+				return
+			end
+			local result, err = pr_base.remember_and_resolve(item.branch)
+			if not result then
+				vim.notify(err.message, vim.log.levels.WARN)
+				return
+			end
+			apply_pull_request_base(result)
+		end,
+	})
+end
+
+function M.set_git_ref_to_pull_request_base()
+	local pr_base = require("user.utils.git_pr_base")
+	local result, err = pr_base.resolve()
+	if result then
+		apply_pull_request_base(result)
 		return
 	end
-	utils.set_git_ref(fork_point)
-	vim.notify("git ref set to " .. (label or "fork point") .. ": " .. fork_point:sub(1, 12))
+	if err.kind == "parent_required" then
+		vim.notify(err.message .. "; select one to remember", vim.log.levels.INFO)
+		select_pull_request_parent(pr_base)
+		return
+	end
+	vim.notify(err.message, vim.log.levels.WARN)
 end
 
 function M.establish_git_ref(commit)

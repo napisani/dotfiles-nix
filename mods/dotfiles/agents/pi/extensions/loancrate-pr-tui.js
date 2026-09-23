@@ -165,8 +165,13 @@ async function addPaneStatus(pi, rows) {
 }
 
 function actionLabel(row) {
+  if (hasDispatchAction(row)) {
+    if (row.pane?.status === "busy") return "Working";
+    if (row.pane?.status === "no-session") return "No pane";
+    if (row.pane?.status === "no-agent") return "No agent";
+  }
   switch (row.action.kind) {
-    case "rebase": return "Rebase";
+    case "merge": return "Merge parent";
     case "ci": return "Fix CI";
     case "feedback": return `Address ${row.feedback.ids.length}`;
     case "manual": return "Needs you";
@@ -192,7 +197,7 @@ function mergeLabel(row) {
 }
 
 function hasDispatchAction(row) {
-  return Boolean(row && ["rebase", "ci", "feedback"].includes(row.action.kind));
+  return Boolean(row && ["merge", "ci", "feedback"].includes(row.action.kind));
 }
 
 function unavailableReason(row) {
@@ -231,12 +236,27 @@ const PR_VIEWS = [
 function stageIndicator(row, staged) {
   if (staged) return "[x]";
   if (isDispatchable(row)) return "[ ]";
-  if (row.action.kind === "manual") return "[- manual]";
-  if (!hasDispatchAction(row)) return row.ready ? "[- ready]" : "[- wait]";
-  if (row.pane?.status === "busy") return "[- busy]";
-  if (row.pane?.status === "no-session") return "[- no pane]";
-  if (row.pane?.status === "no-agent") return "[- no agent]";
-  return "[- unknown]";
+  return "[-]";
+}
+
+function statusSignals(row) {
+  const signals = [];
+  if (row.ci?.failing || ["FAILURE", "ERROR"].includes(row.ci?.state)) {
+    signals.push({ label: "C✗", tone: "error" });
+  } else if (["PENDING", "EXPECTED"].includes(row.ci?.state)) {
+    signals.push({ label: "C…", tone: "warning" });
+  } else if (row.ci?.state === "SUCCESS") {
+    signals.push({ label: "C✓", tone: "success" });
+  }
+
+  if ((row.feedback?.ids?.length ?? 0) > 0) {
+    signals.push({ label: "R!", tone: "error" });
+  } else if (row.approved) {
+    signals.push({ label: "R✓", tone: "success" });
+  } else if (!row.draft) {
+    signals.push({ label: "R?", tone: "warning" });
+  }
+  return signals;
 }
 
 function singleLine(value) {
@@ -405,9 +425,9 @@ class LoancratePrTuiView {
     const border = th.fg("border", "│");
     const top = th.fg("border", `╭${"─".repeat(inner)}╮`);
     const bottom = th.fg("border", `╰${"─".repeat(inner)}╯`);
-    const row = (content, background) => {
+    const row = (content, selected) => {
       const body = pad(this.line(content, inner), inner);
-      return border + (background ? th.bg("selectedBg", body) : body) + border;
+      return border + (selected ? th.bold(th.bg("selectedBg", body)) : body) + border;
     };
     lines.push("");
     lines.push(top);
@@ -432,18 +452,22 @@ class LoancratePrTuiView {
     const tableWidth = width >= 100 ? Math.min(width - 2, 105) : inner;
     const visible = this.visibleRows();
     const range = visible.rows.length < filtered.length ? ` · showing ${visible.start + 1}-${visible.start + visible.rows.length}` : "";
-    const header = `${pad("stage", 12)} ${pad("PR", 6)} ${pad("branch", 25)} ${pad("state", 13)} action${range}`;
+    const header = `${pad("", 1)} ${pad("STAGE", 7)} ${pad("PR", 7)} ${pad("BRANCH", 25)} ${pad("STATE", 20)} ACTION${range}`;
     lines.push(row(` ${th.fg("dim", this.line(header, tableWidth - 1))}`));
     for (let offset = 0; offset < visible.rows.length; offset += 1) {
       const i = visible.start + offset;
       const pr = visible.rows[offset];
+      const selected = i === this.selected;
+      const marker = th.fg(selected ? "accent" : "dim", selected ? ">" : "");
       const indicator = stageIndicator(pr, this.staged.has(pr.number));
       const checkbox = th.fg(this.staged.has(pr.number) ? "accent" : this.canStage(pr) ? "text" : "dim", indicator);
-      const health = pr.ready ? th.fg("success", "✓") : pr.action.kind === "manual" ? th.fg("error", "!") : pr.action.kind !== "none" ? th.fg("warning", "●") : th.fg("dim", "·");
-      const state = th.fg(actionColor(th, pr), mergeLabel(pr));
+      const prNumber = th.fg(pr.draft ? "dim" : "accent", `#${pr.number}`);
+      const signals = statusSignals(pr).map((signal) => th.fg(signal.tone, signal.label)).join(" ");
+      const stateLabel = th.fg(actionColor(th, pr), mergeLabel(pr));
+      const state = [signals, stateLabel].filter(Boolean).join(" ");
       const action = th.fg(actionColor(th, pr), actionLabel(pr));
-      const content = `${pad(checkbox, 12)} ${health} ${pad(`#${pr.number}`, 6)} ${pad(pr.branch, 25)} ${pad(state, 13)} ${action}`;
-      lines.push(row(` ${this.line(content, tableWidth - 1)}`, i === this.selected));
+      const content = `${pad(marker, 1)} ${pad(checkbox, 7)} ${pad(prNumber, 7)} ${pad(pr.branch, 25)} ${pad(state, 20)} ${action}`;
+      lines.push(row(` ${this.line(content, tableWidth - 1)}`, selected));
     }
 
     const selected = this.current();
@@ -555,3 +579,4 @@ function loancratePrTuiExtension(pi) {
 
 module.exports = loancratePrTuiExtension;
 module.exports.LoancratePrTuiView = LoancratePrTuiView;
+module.exports.statusSignals = statusSignals;

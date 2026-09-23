@@ -26,6 +26,10 @@
         "context7"
         "code-simplification"
         {
+          name = "ai-ready";
+          manualOnly = true;
+        }
+        {
           name = "brainstorming";
           manualOnly = true;
         }
@@ -108,6 +112,7 @@
         "forge-solution"
         "ob-note"
         "rebase-from-parent"
+        "merge-parent-into-branch"
         "stackman-rebase-conflicts"
         "tech-spec"
       ];
@@ -169,10 +174,12 @@
         "sharp"
         "webgpu"
       ];
+      # Keep this extension and the native Pi SDK in lockstep. The unqualified
+      # git source previously advanced ahead of the pinned Pi installation.
       packages = [
         "npm:@ayulab/pi-rewind"
         "npm:pi-mcp-adapter"
-        "git:github.com/nicobailon/pi-subagents"
+        "git:github.com/nicobailon/pi-subagents@v0.70.1"
         "npm:@datspike/pi-inline-slash-extension"
         "npm:@ff-labs/pi-fff"
         "npm:@juicesharp/rpiv-btw"
@@ -186,7 +193,7 @@
         "npm:pi-goal"
         # Direct dependency for local extensions; Pi's package root is not an
         # ancestor of individually linked extension files during Node resolution.
-        "npm:@earendil-works/pi-tui@0.85.0"
+        "npm:@earendil-works/pi-tui@0.86.1"
         "git:github.com/nicobailon/visual-explainer"
       ];
     };

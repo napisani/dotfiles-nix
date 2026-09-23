@@ -88,12 +88,6 @@ guard and *above* its `shellAliases`, so ordering silently decided things:
   by nix. Nix was emitted later, so nix always won and the fragment's version was
   dead code for as long as both existed. The dead one is now deleted and the
   survivor lives in `55-nix-aliases.sh`, numbered after `51`.
-- **Aliases now load before the command wrappers**, which they didn't before. A
-  function definition inside `eval` is subject to alias expansion, so with
-  `alias vim='nvim'` in effect, `eval "vim() { ... }"` defines `nvim()` a second
-  time and `vim` never gets wrapped. `61-tmux-extended-keys.sh` disables
-  `expand_aliases` around its loop. Quoting the name (`\vim()`) does not work —
-  bash rejects a quoted word as a function name.
 - **`have` is not a safe helper name.** bash-completion ends with
   `unset -f have; unset -v have` (it used to provide its own `have`), so any
   helper called `have` evaporates the moment `20-bash-completion.sh` runs, and

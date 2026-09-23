@@ -13,9 +13,10 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 5. [Neovim 0.12 `:checkhealth` remediation plan](#neovim-012-checkhealth-remediation-plan)
 6. [fff.nvim binary (lazy.nvim build hook)](#fffnvim-binary-lazyvim-build-hook)
 7. [Pi extensions: `claude-agent-sdk-pi` peer-dep conflict](#pi-extensions-claude-agent-sdk-pi-peer-dep-conflict)
-8. [`npm config set prefix` vs. immutable `~/.npmrc`](#npm-config-set-prefix-vs-immutable-npmrc)
-9. [OmniWM focused-border rendering](#omniwm-focused-border-rendering)
-10. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
+8. [Pi `claude-bridge` CLI model resolution](#pi-claude-bridge-cli-model-resolution)
+9. [`npm config set prefix` vs. immutable `~/.npmrc`](#npm-config-set-prefix-vs-immutable-npmrc)
+10. [OmniWM focused-border rendering](#omniwm-focused-border-rendering)
+11. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
 
 ---
 
@@ -91,14 +92,14 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 | Item | Detail |
 |------|--------|
 | **Symptom** | Pasting multi-line text (e.g. a shell command with `\` line continuations) at a plain shell prompt inside tmux inserts literal garbage like `^[[106;5u` instead of the real newlines, corrupting the paste. |
-| **Root cause** | `.tmux.conf` (formerly) set `extended-keys on` / `extended-keys-format csi-u` globally, enabling Kitty-keyboard-protocol key reporting (needed for Neovim/agent CLIs to disambiguate e.g. Ctrl-I from Tab, or get Shift+Enter). tmux has a known bug — [tmux/tmux#4663](https://github.com/tmux/tmux/issues/4663) — where it also re-encodes newlines **inside a bracketed paste** as literal CSI-u escape text, even though the protocol spec says paste content should pass through untouched. Reproduced directly on tmux 3.7b (the issue's fix, if any, didn't hold for this build). |
-| **Options considered and rejected** | (1) Leave `extended-keys` on always — pastes stay broken. (2) Toggle it via Neovim `FocusGained`/`FocusLost` autocmds only — misses agent CLIs (claude/codex/pi/opencode) run directly at the shell, which also need Shift+Enter. (3) Toggle via tmux hooks (`pane-focus-in`, `window-pane-changed`) keyed on `#{pane_current_command}` — tested directly against real `select-pane`/`select-window` (the same commands the `h`/`j`/`k`/`l` pane bindings use) and neither hook fired in this tmux 3.7b build, even though other hooks like `after-select-window` did. |
-| **Workaround (current)** | `mods/dotfiles/.tmux.conf` defaults `extended-keys off`. `mods/dotfiles/.bashrc.d/0069_tmux_extended_keys.bashrc` defines shell wrapper functions for `nvim`, `vim`, `claude`, `codex`, `pi`, `opencode` that flip `tmux set-option -g extended-keys always` right before exec'ing the real binary and back `off` right after it exits, via a `_TMUX_EXTKEYS_DEPTH` counter so nesting one inside another (e.g. `nvim` opened from inside `claude`) doesn't turn it off early on the inner exit. |
-| **`on` vs. `always`** | The wrapper's active state must be `always`, not `on`. `on` only forwards the enhanced encoding if tmux detected the outer terminal supports it, and that detection appears to happen once at client-attach time — since the session now starts at `off`, switching to `on` later left tmux still thinking the client couldn't handle it: confirmed live, Shift+Enter in an already-running Pi session silently degraded to plain Enter with `extended-keys on`, and started working immediately (no restart) the moment it was switched to `extended-keys always` instead. |
-| **Known limitation** | A program invoked another way — e.g. `nvim` launched as `$EDITOR` by a non-interactive subshell that doesn't source `.bashrc.d` — skips the wrapper and runs with whatever `extended-keys` state was already set. |
-| **Rollout note** | `.tmux.conf` is a live out-of-store symlink (`tmux source-file` picks up edits immediately); `.bashrc.d` is copied into the Nix store at build time (`shell.nix`: `".bashrc.d".source = ./dotfiles/.bashrc.d;`), so the wrapper file needs an actual `darwin-rebuild switch` before a new shell sees it — unlike `shell_scripts/`, which is a whole-directory live symlink. |
-| **Revisit when** | tmux ships a real fix for [tmux/tmux#4663](https://github.com/tmux/tmux/issues/4663) (test by removing the wrapper and pasting multi-line text at a plain prompt), or a per-window/per-pane override for `extended-keys` becomes possible (confirmed empirically on 3.7b: even a `-w`-flagged `set-option` mutates the global value, so it's effectively server-wide only). |
-| **Related upstream reports** | [tmux/tmux#4663](https://github.com/tmux/tmux/issues/4663) — this bug, closed upstream against an older tmux but still reproduces on 3.7b. Also see the related, still-open [neovim/neovim#38021](https://github.com/neovim/neovim/issues/38021) ("Bracketed paste under tmux is contaminated with extended keys") for the same root cause from Neovim's side. |
+| **Root cause** | `.tmux.conf` (formerly) set `extended-keys on` / `extended-keys-format csi-u` globally, enabling Kitty-keyboard-protocol key reporting (needed for Neovim/agent CLIs to disambiguate modified keys such as Shift+Enter). tmux has a known bug — [tmux/tmux#4663](https://github.com/tmux/tmux/issues/4663) — where it also re-encodes newlines **inside a bracketed paste** as literal CSI-u escape text, even though the protocol spec says paste content should pass through untouched. Reproduced directly on tmux 3.7c; neither the 3.8-rc notes nor current master identify a confirmed fix. |
+| **Options considered and rejected** | (1) Leave `extended-keys` on/always — pastes stay broken. (2) Toggle it around agent CLIs — the setting is server-wide, so an open Pi/Claude/Neovim pane still corrupts pastes in every other pane or attached client. (3) Toggle it from focus hooks — this remains server-wide and is ambiguous when multiple tmux clients are attached. |
+| **Workaround (current)** | Keep `extended-keys off` permanently. Alacritty explicitly emits CSI-u for the specialty chords used by Neovim and agent CLIs; matching root-table bindings in `mods/dotfiles/.tmux.conf` forward those exact bytes with `send-keys -H`. This preserves Shift/Ctrl/Alt+Enter and the other configured chords without turning on tmux's buggy blanket re-encoding. |
+| **Why explicit forwarding works** | With `extended-keys off`, tmux still recognizes an incoming CSI-u key but normally degrades it to the legacy unmodified byte (for example, Shift+Enter becomes carriage return). A root binding matches tmux's decoded key and emits the original CSI-u bytes directly to the pane. |
+| **Known limitation** | Only chords explicitly listed in both `alacritty.toml` and `.tmux.conf` remain distinguishable. Keep the two lists synchronized when adding a specialty key. |
+| **Rollout note** | Both files are live out-of-store symlinks. Reload tmux with `tmux source-file ~/.tmux.conf`; Alacritty key-binding changes require a config reload/new window. The removed shell wrapper no longer requires a Home Manager rebuild. |
+| **Revisit when** | tmux ships a confirmed fix for [tmux/tmux#4663](https://github.com/tmux/tmux/issues/4663) (test by temporarily removing the explicit forwarding bindings, enabling `extended-keys`, and pasting multi-line text at both a plain prompt and inside Neovim), or a per-window/per-pane override for `extended-keys` becomes possible (confirmed empirically on 3.7c: even a `-w`-flagged `set-option` mutates the server value). |
+| **Related upstream reports** | [tmux/tmux#4663](https://github.com/tmux/tmux/issues/4663) is closed without a linked fixing commit or release. [neovim/neovim#38021](https://github.com/neovim/neovim/issues/38021) documents the same contamination and is closed as blocked on an external fix. |
 
 ---
 
@@ -182,6 +183,21 @@ cd "$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/nvim" && nvim -u init.vim "+checkhe
 
 ---
 
+## Pi `claude-bridge` CLI model resolution
+
+| Item | Detail |
+|------|--------|
+| **Location** | `mods/dotfiles/agents/pi/extensions/claude-bridge-cli-model.js` and its adjacent `.test.cjs` test. |
+| **Symptom** | `pi --provider claude-bridge --model claude-sonnet-5 …` and `pi --model claude-bridge/claude-sonnet-5 …` silently run the request with Pi's global default model instead (currently `openai-codex/gpt-5.6-luna`). The response's JSON `provider` and `model` fields expose the mismatch; the TUI status alone is not reliable evidence. |
+| **Root cause** | `pi-claude-bridge` guards provider registration across multiple module instances. Its first instance queues registration during extension load, but a later instance can defer its registry-specific decision until `session_start`. Pi resolves built-in `--provider`/`--model` arguments before that deferred provider is visible, retains the unrelated fallback, and can restore that fallback after early startup handlers. Interactive `/model` works because registration is complete by then. |
+| **Workaround (current)** | The global extension reads only explicit `claude-bridge` selections from `process.argv`. It tries `ctx.modelRegistry.find()` during `resources_discover`, then reasserts the requested model exactly once in `before_agent_start` with `pi.setModel()`. The final barrier is strict: an unavailable requested bridge model exits with status 1 instead of dispatching to another provider. Explicit `--thinking` and `:<thinking>` model suffixes are preserved. Non-bridge model selection is untouched. |
+| **Why two barriers** | `resources_discover` runs after the bridge's deferred `session_start` registration and makes the model visible before normal interaction. Pi can subsequently restore the prematurely resolved fallback, so the first `before_agent_start` must reassert the requested model immediately before provider dispatch. Applying only during `session_start` was tested and failed for this reason. |
+| **Known limit** | This repairs `--provider` plus `--model`, and provider-qualified `--model`. It does not rewrite `--models` scoped-model resolution because `ctx.scopedModels` is read-only after Pi has resolved it. |
+| **How to verify** | Run `pi --provider claude-bridge --model claude-sonnet-5 --mode json --no-tools --no-skills --no-context-files --no-themes -p 'Reply with exactly OK.'` and inspect the assistant `message_end` event for `"provider":"claude-bridge"` and `"model":"claude-sonnet-5"`. Run `node --test mods/dotfiles/agents/pi/extensions/claude-bridge-cli-model.test.cjs` for the local parser/lifecycle regression suite. |
+| **Remove when** | Remove the extension after Pi resolves explicit CLI models only once extension providers—including deferred bridge instances—are registered, or after `pi-claude-bridge` guarantees factory-time registration without overwriting parent/subagent stream state. Re-run the JSON verification command without the shim before removal. |
+
+---
+
 ## Native installs repeatedly run stale activation code
 
 Activation used `${homeManagerRelPath}/mods/dotfiles/agents/scripts`, so a flake
@@ -261,4 +277,6 @@ a symlink to the same source directory.
 | 2026-08-27 | `apply-pi-packages.js` runs a full `npm install` reconcile in `~/.pi/agent/npm` when declarations change, health fails, or repair is forced; healthy unchanged activations skip installer work. |
 | 2026-08-27 | Removed the redundant `npm config set prefix … --location=user` call from `installNpmxTools` (`npmx.nix`): it tried to write `~/.npmrc`, which is a Home Manager–managed read-only Nix store symlink that already declares the same `prefix` value (`shell.nix`), so it always failed EACCES — misdiagnosed by npm's own error text as a root-owned `~/.npm` cache problem, which `chown` couldn't actually fix. |
 | 2026-08-27 | Moved `~/.npmrc` off `home.file` (`shell.nix`) entirely: `npmx.nix` now owns it as a writable plain file and atomically changes it only when needed. |
+| 2026-09-16 | Removed the server-wide agent wrappers after they reproduced paste corruption in other panes while Pi was open. Kept `extended-keys off` permanently and mirrored Alacritty's explicit CSI-u chords as tmux root bindings that forward the original bytes. |
+| 2026-09-21 | Added the `claude-bridge-cli-model` Pi extension workaround so explicit `--provider claude-bridge --model …` and provider-qualified `--model` selections are re-applied after deferred bridge registration and before the first provider request. |
 | *(add entries when adding/removing workarounds)* | |

@@ -97,6 +97,10 @@
       url = "github:addyosmani/agent-skills";
       flake = false;
     };
+    ai-ready-skills = {
+      url = "github:johnpapa/ai-ready";
+      flake = false;
+    };
     superpowers = {
       url = "github:obra/superpowers";
       flake = false;
