@@ -111,6 +111,24 @@ test("invalid target JSON exits 1 and leaves the file untouched", () => {
   assert.equal(fs.readFileSync(target, "utf8"), garbage, "target left untouched");
 });
 
+test("a scalar relay URL is managed without losing other extension settings", () => {
+  const dir = mkTmpDir();
+  const target = path.join(dir, "config.json");
+  fs.writeFileSync(target, JSON.stringify({ relay: "https://old.example", futureSetting: true }));
+
+  const env = {
+    TARGET_FILE: target,
+    MANAGED_KEY: "relay",
+    DECLARED_ENTRIES: JSON.stringify("https://remote-pi.napisani.xyz"),
+  };
+  run(env);
+  assert.deepEqual(JSON.parse(fs.readFileSync(target, "utf8")), {
+    relay: "https://remote-pi.napisani.xyz",
+    futureSetting: true,
+  });
+  assert.equal(run(env), "", "converged config should not be rewritten");
+});
+
 test("a missing target file is created with just the managed key", () => {
   const dir = mkTmpDir();
   const target = path.join(dir, "nested", "target.json");

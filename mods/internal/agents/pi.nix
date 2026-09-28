@@ -145,6 +145,11 @@ lib.mkMerge [
       managedKey = "mcpServers";
       declaredEntries = agentCfg.mcpServers;
     };
+    globalToolOperations.pi-remote-relay.command = managedConfig.mkJsonManagedMerge {
+      targetFile = "${home}/.pi/remote/config.json";
+      managedKey = "relay";
+      declaredEntries = config.home.sessionVariables.REMOTE_PI_RELAY;
+    };
     globalToolOperations.pi-settings = {
       after = [ "pi-packages" ];
       command = ''

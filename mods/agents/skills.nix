@@ -95,7 +95,6 @@ in
   loancrate-analyze-agent-self-improve-trend = pinned inputs.private-skills "loancrate-analyze-agent-self-improve-trend";
   loancrate-weekly-update-draft = pinned inputs.private-skills "loancrate-weekly-update-draft";
   loancrate-weekly-project-update-draft = pinned inputs.private-skills "loancrate-weekly-project-update-draft";
-  loancrate-slack-relay = pinned inputs.private-skills "loancrate-slack-relay";
   loancrate-pr-maintainer = pinned inputs.private-skills "loancrate-pr-maintainer";
   loancrate-prepare-perf-impact = pinned inputs.private-skills "loancrate-prepare-perf-impact";
   loancrate-refresh-perf-scoreboard = pinned inputs.private-skills "loancrate-refresh-perf-scoreboard";

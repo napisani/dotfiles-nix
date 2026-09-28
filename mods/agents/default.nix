@@ -11,6 +11,8 @@
     ../internal/global-tools.nix
   ];
 
+  home.sessionVariables.REMOTE_PI_RELAY = "https://remote-pi.napisani.xyz";
+
   agents = {
     enable = true;
     instructions = ../dotfiles/agents/AGENTS.md;
@@ -187,6 +189,7 @@
         "npm:@lincoln504/pi-research"
         "npm:pi-vim"
         "npm:pi-web-access"
+        "npm:remote-pi@0.7.0"
         # Routes Pi through the Claude Agent SDK without the stale pi-ai peer
         # range and removed getModels call in claude-agent-sdk-pi.
         "npm:pi-claude-bridge"

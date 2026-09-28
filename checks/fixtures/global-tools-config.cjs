@@ -26,12 +26,13 @@ const run = mode => spawnSync(process.execPath, [process.env.GLOBAL_TOOLS_CLI, m
 const status = run('status');
 assert.equal(status.status,1,status.stderr);
 // Every independent file must be reported, not just the first drift per agent.
-for (const file of ['.claude.json','.claude/settings.json','.codex/hooks.json','.codex/config.toml','.pi/agent/mcp.json','.pi/agent/settings.json','.pi/agent/models.json','.npmrc', ...(commands.some(({name}) => name === 'claude-loancrate') ? ['.claude/loancrate.json'] : [])]) {
+for (const file of ['.claude.json','.claude/settings.json','.codex/hooks.json','.codex/config.toml','.pi/agent/mcp.json','.pi/agent/settings.json','.pi/agent/models.json','.pi/remote/config.json','.npmrc', ...(commands.some(({name}) => name === 'claude-loancrate') ? ['.claude/loancrate.json'] : [])]) {
   assert.ok(status.stdout.includes(path.join(target,file)), `missing status for ${file}: ${status.stdout}`);
 }
 assert.deepEqual(snapshot(target),[], 'status wrote user state');
 const applied = run('apply'); assert.equal(applied.status,0,applied.stdout+applied.stderr);
 const after = snapshot(target);
+assert.equal(JSON.parse(fs.readFileSync(path.join(target,'.pi/remote/config.json'),'utf8')).relay,'https://remote-pi.napisani.xyz');
 assert.equal(run('status').status,0);
 assert.deepEqual(snapshot(target),after);
 assert.equal(run('apply').status,0);

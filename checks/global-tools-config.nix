@@ -51,6 +51,7 @@ let
                 "codex-hooks"
                 "codex-config"
                 "pi-mcp"
+                "pi-remote-relay"
                 "pi-settings"
                 "pi-models"
               ]
