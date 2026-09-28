@@ -33,6 +33,7 @@ assert.deepEqual(snapshot(target),[], 'status wrote user state');
 const applied = run('apply'); assert.equal(applied.status,0,applied.stdout+applied.stderr);
 const after = snapshot(target);
 assert.equal(JSON.parse(fs.readFileSync(path.join(target,'.pi/remote/config.json'),'utf8')).relay,'https://remote-pi.napisani.xyz');
+assert.equal(JSON.parse(fs.readFileSync(path.join(target,'.pi/agent/settings.json'),'utf8')).transport,'sse');
 assert.equal(run('status').status,0);
 assert.deepEqual(snapshot(target),after);
 assert.equal(run('apply').status,0);

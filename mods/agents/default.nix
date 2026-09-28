@@ -152,6 +152,7 @@
         defaultProvider = "openai-codex";
         defaultModel = "gpt-5.6-luna";
         defaultThinkingLevel = "high";
+        transport = "sse";
         theme = "kanagawa-dragon";
         openaiReasoningMode.fast = false;
         # Use the same local Vantage checkout as Neovim, not a second copy of
