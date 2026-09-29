@@ -109,6 +109,10 @@
       url = "github:mattpocock/skills";
       flake = false;
     };
+    pstack = {
+      url = "github:cursor/plugins";
+      flake = false;
+    };
     arjunmahishi-dotfiles = {
       url = "github:arjunmahishi/dotfiles";
       flake = false;

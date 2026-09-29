@@ -608,6 +608,22 @@
         "type": "github"
       }
     },
+    "pstack": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790607924,
+        "narHash": "sha256-mQ6+lYLBYkmdOOsXXGR0wxPcHj35dLdb5sMaR/CvQ58=",
+        "owner": "cursor",
+        "repo": "plugins",
+        "rev": "adf3218ca2f5b9971eedc07a76bef22df7701539",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cursor",
+        "repo": "plugins",
+        "type": "github"
+      }
+    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -686,6 +702,7 @@
         "private-skills": "private-skills",
         "procmux": "procmux",
         "proctmux": "proctmux",
+        "pstack": "pstack",
         "scrollbacktamer": "scrollbacktamer",
         "secret_inject": "secret_inject",
         "softaworks-agent-toolkit": "softaworks-agent-toolkit",

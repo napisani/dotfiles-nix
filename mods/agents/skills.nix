@@ -34,18 +34,37 @@ in
   resolving-merge-conflicts = pinned inputs.mattpocock-skills "skills/engineering/resolving-merge-conflicts";
   handoff = pinned inputs.mattpocock-skills "skills/productivity/handoff";
   grill-me = pinned inputs.mattpocock-skills "skills/productivity/grill-me";
+  grilling = pinned inputs.mattpocock-skills "skills/productivity/grilling";
   grill-with-docs = pinned inputs.mattpocock-skills "skills/engineering/grill-with-docs";
   improve-codebase-architecture = pinned inputs.mattpocock-skills "skills/engineering/improve-codebase-architecture";
   codebase-design = pinned inputs.mattpocock-skills "skills/engineering/codebase-design";
   tdd = pinned inputs.mattpocock-skills "skills/engineering/tdd";
-  implement = pinned inputs.mattpocock-skills "skills/engineering/implement";
-  to-spec = pinned inputs.mattpocock-skills "skills/engineering/to-spec";
+  writing-for-agents = pinned inputs.mattpocock-skills "skills/productivity/writing-for-agents";
+  wizard = pinned inputs.mattpocock-skills "skills/engineering/wizard";
   domain-modeling = pinned inputs.mattpocock-skills "skills/engineering/domain-modeling";
   prototype = pinned inputs.mattpocock-skills "skills/engineering/prototype";
+
+  blast-radius = pinned inputs.pstack "pstack/skills/blast-radius";
+  how = pinned inputs.pstack "pstack/skills/how";
+  teach = pinned inputs.pstack "pstack/skills/teach";
+  create-verification-skill = pinned inputs.pstack "pstack/skills/create-verification-skill";
+  maintain-verification-skill = pinned inputs.pstack "pstack/skills/maintain-verification-skill";
+  why = pinned inputs.pstack "pstack/skills/why";
+  arena = pinned inputs.pstack "pstack/skills/arena";
+  # Both ship `disable-model-invocation: true` upstream. The module only ever
+  # adds that key for manualOnly and never strips it, so without this rewrite a
+  # non-manualOnly selection in default.nix cannot make them model-invocable.
+  typescript-best-practices = pinnedRewritten inputs.pstack "pstack/skills/typescript-best-practices" [
+    (rewrite "\ndisable-model-invocation: true\n" "\n")
+  ];
+  unslop = pinnedRewritten inputs.pstack "pstack/skills/unslop" [
+    (rewrite "\ndisable-model-invocation: true\n" "\n")
+  ];
 
   proctmux-config = pinned inputs.proctmux "skills/proctmux-config";
   vantage-distill-session = pinned inputs.vantage-nvim-skills "skills/vantage-distill-session";
   vantage-author-walkthrough = pinned inputs.vantage-nvim-skills "skills/vantage-author-walkthrough";
+  vantage-author-diff-tour = pinned inputs.vantage-nvim-skills "skills/vantage-author-diff-tour";
   playwright-cli = pinned inputs.playwright-cli-skills "skills/playwright-cli";
   web-research = pinned inputs.deepagents "libs/code/examples/skills/web-research";
   mermaid-diagrams = pinned inputs.softaworks-agent-toolkit "dist/plugins/mermaid-diagrams/skills/mermaid-diagrams";
@@ -95,7 +114,9 @@ in
   loancrate-analyze-agent-self-improve-trend = pinned inputs.private-skills "loancrate-analyze-agent-self-improve-trend";
   loancrate-weekly-update-draft = pinned inputs.private-skills "loancrate-weekly-update-draft";
   loancrate-weekly-project-update-draft = pinned inputs.private-skills "loancrate-weekly-project-update-draft";
+  loancrate-project-prioritization = pinned inputs.private-skills "loancrate-project-prioritization";
   loancrate-pr-maintainer = pinned inputs.private-skills "loancrate-pr-maintainer";
+  loancrate-create-pr = pinned inputs.private-skills "loancrate-create-pr";
   loancrate-prepare-perf-impact = pinned inputs.private-skills "loancrate-prepare-perf-impact";
   loancrate-refresh-perf-scoreboard = pinned inputs.private-skills "loancrate-refresh-perf-scoreboard";
 

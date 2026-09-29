@@ -134,6 +134,13 @@ case "${ATUIN_PREEXEC_BACKEND:-}" in
 esac
 [ -z "$(type -t __bp_install 2>/dev/null)" ] || smoke_fail "Atuin loaded its bash-preexec fallback"
 
+_blesh_paste_bindings=$(ble-bind -m vi_nmap -P)
+case "$_blesh_paste_bindings" in
+*"-f p paste-from-clipboard"*) ;;
+*) smoke_fail "ble.sh normal-mode p clipboard binding is missing" ;;
+esac
+unset _blesh_paste_bindings
+
 completion_status=0
 _completion_loader mise >/dev/null 2>&1 || completion_status=$?
 case "$completion_status" in 0 | 124) ;; *) smoke_fail "mise completion failed to load" ;; esac

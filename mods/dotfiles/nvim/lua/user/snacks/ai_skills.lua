@@ -112,7 +112,7 @@ function M.skill_callout(provider)
 	local preferred = vim.env.PREFERRED_AGENT
 	return skill_callouts[provider]
 		or (preferred and skill_callouts[preferred])
-		or skill_callouts.claude
+		or skill_callouts.pi
 end
 
 function M.completion_trigger()

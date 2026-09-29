@@ -92,6 +92,7 @@ function M.get_keymaps()
 		shared = {
 			{ "<leader>v", group = "Vantage" },
 			{ "<leader>vb", group = "Vantage agent" },
+			{ "<leader>vd", group = "Vantage diff tour" },
 		},
 		normal = {
 			{ "<leader>va", with_vantage("annotate", command_opts()), desc = "annotate line" },
@@ -105,6 +106,13 @@ function M.get_keymaps()
 			{ "<leader>vf", with_vantage("search", command_opts()), desc = "search project" },
 			{ "<leader>vw", with_vantage("load_walkthrough"), desc = "load walkthrough" },
 			{ "<leader>vW", with_vantage("generate_walkthrough", command_opts()), desc = "generate walkthrough" },
+			{ "<leader>vc", with_vantage("load_diff_tour"), desc = "load diff tour" },
+			{ "<leader>vC", with_vantage("generate_diff_tour", command_opts()), desc = "generate diff tour" },
+			{ "<leader>vdl", with_vantage("load_diff_tour"), desc = "load diff tour" },
+			{ "]c", with_vantage("diff_tour_next"), desc = "next diff tour stop" },
+			{ "[c", with_vantage("diff_tour_prev"), desc = "previous diff tour stop" },
+			{ "<leader>vdg", with_vantage("generate_diff_tour", command_opts()), desc = "generate diff tour" },
+			{ "<leader>vdc", with_vantage("clear_diff_tour"), desc = "clear diff tour" },
 			-- Monitor mode binds nothing itself: each changed file opens as an
 			-- ordinary buffer, so <C-o>/<C-i> walk recent edits natively.
 			{ "<leader>vm", with_vantage("monitor"), desc = "listen for changes" },

@@ -17,7 +17,7 @@ branch="$(git -C "$repo_path" symbolic-ref --quiet --short HEAD 2>/dev/null || g
   exit 0
 }
 
-if [ -n "$(git -C "$repo_path" status --porcelain=v1 2>/dev/null)" ]; then
+if [ -n "$(GIT_OPTIONAL_LOCKS=0 git -C "$repo_path" status --porcelain=v1 2>/dev/null)" ]; then
   printf ' ± %s' "$branch"
 else
   printf ' ✓ %s' "$branch"

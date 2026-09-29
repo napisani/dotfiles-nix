@@ -71,6 +71,11 @@ if [ -n "${BLE_VERSION:-}" ]; then
 	done
 	unset _blesh_accept_mode
 
+	# In vi normal mode, use ble.sh's native clipboard put (pbpaste on macOS)
+	# rather than its internal yank register. Ctrl-V remains Alacritty's Paste
+	# action, which works at the prompt and in applications inside tmux.
+	ble-bind -m vi_nmap -f 'p' paste-from-clipboard
+
 	# Match Readline: abandon the current command and start a fresh prompt.
 	ble-bind -m vi_imap -f 'C-c' discard-line
 	ble-bind -m vi_nmap -f 'C-c' discard-line

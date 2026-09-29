@@ -45,3 +45,6 @@ alias_brow=Safari|Arc|Google Chrome|Chrome|Firefox|Brave|Microsoft Edge|Edge|Bra
 
 # Added by look update
 query_retention_seconds=5
+
+# Added by look update
+launcher_hotkey=cmd+space

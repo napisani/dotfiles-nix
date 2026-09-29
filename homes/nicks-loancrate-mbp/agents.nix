@@ -10,9 +10,14 @@
         "loancrate-analyze-agent-self-improve-trend"
         "loancrate-weekly-update-draft"
         "loancrate-weekly-project-update-draft"
+        "loancrate-project-prioritization"
         "loancrate-refresh-perf-scoreboard"
         {
           name = "loancrate-pr-maintainer";
+          manualOnly = true;
+        }
+        {
+          name = "loancrate-create-pr";
           manualOnly = true;
         }
         {
