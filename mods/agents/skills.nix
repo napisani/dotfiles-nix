@@ -116,6 +116,8 @@ in
   loancrate-weekly-project-update-draft = pinned inputs.private-skills "loancrate-weekly-project-update-draft";
   loancrate-project-prioritization = pinned inputs.private-skills "loancrate-project-prioritization";
   loancrate-pr-maintainer = pinned inputs.private-skills "loancrate-pr-maintainer";
+  loancrate-babysit-pr = pinned inputs.private-skills "loancrate-babysit-pr";
+  loancrate-babysit-pr-stop = pinned inputs.private-skills "loancrate-babysit-pr-stop";
   loancrate-create-pr = pinned inputs.private-skills "loancrate-create-pr";
   loancrate-prepare-perf-impact = pinned inputs.private-skills "loancrate-prepare-perf-impact";
   loancrate-refresh-perf-scoreboard = pinned inputs.private-skills "loancrate-refresh-perf-scoreboard";

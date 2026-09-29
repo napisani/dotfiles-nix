@@ -129,24 +129,44 @@ If a promised fix turns out to be technically wrong or unsafe, stop and explain 
 
 ## Draft Responses
 
-After implementing approved fixes and running verification, provide response drafts for every feedback item, including items that were not changed.
+After implementing approved fixes and running verification, draft a reply for
+every feedback item, including the ones you did not change.
 
-Do not make comments directly on GitHub. Keep every response in chat for the user to copy or revise.
+Do not post anything to GitHub. These drafts exist for the user to paste or
+revise, and for `loancrate-babysit-pr` to carry into its session synthesis.
 
-Use this format for each item:
+**Apply `/skill:no-ai-slop` to every draft.** These are short replies from a
+person to a colleague, so they have to read like one.
+
+Hold each reply to **one or two lines**. A reply earns its length by saying
+what changed and where, or why nothing changed. Nothing else belongs in it.
+
+Use this format, one block per item, so a block can be lifted whole:
 
 ```text
-file: file/name.ts
-line of code: const x = () => {}
-reviewer 1: this function should be named y and it should use the function keyword
-recommended response: I have updated this to use the function keyword and renamed it to y.
+PF-002 · path/to/file.ts · @reviewer · fixed in 4f2a19c
+> Good catch. Switched to the function keyword and renamed it to y.
+
+PF-005 · path/to/file.ts · @reviewer · no change
+> Left this one. The workflow boundary already retries, so a second layer here
+> would double-count.
 ```
 
-For no-change decisions, recommend a concise response that explains why no code change was made:
+The header line carries the decision-sheet ID, the file, who asked, and the
+disposition. Name the commit whenever there is one, since a reply that claims a
+fix without pointing at it is unverifiable.
 
-```text
-recommended response: I looked into this and kept the current implementation because <reason>. The existing behavior is covered by <test/context>.
-```
+What these replies avoid, because each one wastes the reader's attention:
+
+- Opening thanks, and closing offers of further help.
+- Restating the reviewer's comment back at them.
+- Hedging a decision already made. "I kept it as is" beats "I think maybe it
+  could be reasonable to keep this as is for now".
+- Explaining the fix in more detail than the diff already shows.
+
+When you disagree, say so plainly and give the reason, not an apology. A reply
+that reads as reluctant agreement while changing nothing is worse than a clear
+no.
 
 ## Final Response
 
@@ -155,6 +175,6 @@ Finish with:
 - A short summary of code changes made.
 - Verification commands run and their results.
 - A clear note that no commit was made.
-- The response drafts for every feedback item.
+- The reply drafts for every feedback item, in the block format above.
 
 Avoid saying that comments were resolved unless you actually posted to GitHub, which this skill does not do.

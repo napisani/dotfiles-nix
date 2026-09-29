@@ -42,25 +42,28 @@ let
     done
   '';
 
-  # Link every regular file with one of `extensions` under a dotfiles subdir
-  # into targetDirRelPath as an out-of-store symlink (live-editable), skipping
-  # *.test.* files. Enumerated at eval time from the flake's own tracked tree,
-  # so adding/removing a file needs a switch but edits to a linked file are
-  # live. Agent-blind: takes paths, not agent identity. Used for Pi
-  # extensions/themes.
+  # Flake evaluation only sees tracked entry-point directories; adding one needs a switch.
+  # Out-of-store links keep edits to existing assets live.
   mkLocalFileLinks =
     {
       sourceRelPath,
       targetDirRelPath,
       extensions,
+      directoryEntryPoints ? [ ],
     }:
     let
       absSrc = ../../dotfiles + "/${sourceRelPath}";
       ok =
         name: type:
-        type == "regular"
-        && lib.any (ext: lib.hasSuffix ext name) extensions
-        && !(lib.hasInfix ".test." name);
+        (
+          type == "regular"
+          && lib.any (ext: lib.hasSuffix ext name) extensions
+          && !(lib.hasInfix ".test." name)
+        )
+        || (
+          type == "directory"
+          && lib.any (entry: builtins.pathExists (absSrc + "/${name}/${entry}")) directoryEntryPoints
+        );
       names =
         if builtins.pathExists absSrc then
           lib.attrNames (lib.filterAttrs ok (builtins.readDir absSrc))

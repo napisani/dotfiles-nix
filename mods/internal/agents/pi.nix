@@ -117,6 +117,10 @@ let
         ".js"
         ".ts"
       ];
+      directoryEntryPoints = [
+        "index.ts"
+        "index.js"
+      ];
     }
     // shared.mkLocalFileLinks {
       sourceRelPath = "agents/pi/themes";

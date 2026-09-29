@@ -16,6 +16,15 @@
           name = "loancrate-pr-maintainer";
           manualOnly = true;
         }
+        # Commits and pushes on its own, so it stays behind a deliberate call.
+        {
+          name = "loancrate-babysit-pr";
+          manualOnly = true;
+        }
+        {
+          name = "loancrate-babysit-pr-stop";
+          manualOnly = true;
+        }
         {
           name = "loancrate-create-pr";
           manualOnly = true;
