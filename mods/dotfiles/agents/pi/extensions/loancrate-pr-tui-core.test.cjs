@@ -3,7 +3,7 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const { actionPrompt, babysitStatus, classifyPullRequest, parseSessionFrontmatter, updateStateAfterDispatch } = require("./loancrate-pr-tui-core.js");
-const { LoancratePrTuiView, statusSignals } = require("./loancrate-pr-tui.js");
+const { LoancratePrTuiView, babysitDetail, statusSignals } = require("./loancrate-pr-tui.js");
 
 function pullRequest(overrides = {}) {
   return {
@@ -256,4 +256,34 @@ test("a stale babysit leaves the PR dispatchable", () => {
   const row = classifyPullRequest(pr, "nick", { version: 1, prs: {} }, stale);
   assert.equal(row.action.kind, "ci");
   assert.equal(row.babysit.state, "stale");
+});
+
+test("the STATE column carries a babysit signal without a new column", () => {
+  const base = classifyPullRequest(pullRequest(), "nick", { version: 1, prs: {} });
+  assert.equal(statusSignals(base).some((s) => s.label.startsWith("B")), false);
+
+  const active = babysitStatus(parseSessionFrontmatter(SESSION_FILE), AT_1427);
+  const babysat = classifyPullRequest(pullRequest(), "nick", { version: 1, prs: {} }, active);
+  assert.deepEqual(statusSignals(babysat).find((s) => s.label.startsWith("B")), { label: "B▶", tone: "accent" });
+
+  const stale = babysitStatus(parseSessionFrontmatter(SESSION_FILE), AT_1427 + 13 * 60 * 1000);
+  const dead = classifyPullRequest(pullRequest(), "nick", { version: 1, prs: {} }, stale);
+  assert.deepEqual(statusSignals(dead).find((s) => s.label.startsWith("B")), { label: "B⚠", tone: "warning" });
+});
+
+test("the detail line reports next check and owed replies", () => {
+  assert.equal(babysitDetail({ babysit: { state: "none" } }), null);
+  assert.equal(babysitDetail({}), null);
+
+  const active = babysitStatus(parseSessionFrontmatter(SESSION_FILE), AT_1427);
+  assert.deepEqual(babysitDetail({ babysit: active }), {
+    tone: "accent",
+    text: "drive · next check 2026-09-30T14:30:04Z · 2 replies to post",
+  });
+
+  const stale = babysitStatus(parseSessionFrontmatter(SESSION_FILE), AT_1427 + 13 * 60 * 1000);
+  assert.match(babysitDetail({ babysit: stale }).text, /^stale since 2026-09-30T14:26:04Z · run died without finishing/);
+
+  const one = babysitStatus(parseSessionFrontmatter(SESSION_FILE.replace("unposted_replies: 2", "unposted_replies: 1")), AT_1427);
+  assert.match(babysitDetail({ babysit: one }).text, /1 reply to post$/);
 });

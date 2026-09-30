@@ -283,7 +283,31 @@ function statusSignals(row) {
   } else if (!row.draft) {
     signals.push({ label: "R?", tone: "warning" });
   }
+
+  // A babysit run owns the PR, so say so where the eye already looks for
+  // per-PR state. Stale is a warning because it means a run died mid-flight.
+  if (row.babysit?.state === "active") {
+    signals.push({ label: "B▶", tone: "accent" });
+  } else if (row.babysit?.state === "stale") {
+    signals.push({ label: "B⚠", tone: "warning" });
+  }
   return signals;
+}
+
+/** One line of babysit detail for the selected row, or null when there is none. */
+function babysitDetail(row) {
+  const babysit = row?.babysit;
+  if (!babysit || babysit.state === "none") return null;
+  const owed = (babysit.unposted_replies ?? 0) > 0
+    ? ` · ${babysit.unposted_replies} ${babysit.unposted_replies === 1 ? "reply" : "replies"} to post`
+    : "";
+  if (babysit.state === "active") {
+    return { tone: "accent", text: `${babysit.mode ?? "drive"} · next check ${babysit.next_poll ?? "unknown"}${owed}` };
+  }
+  if (babysit.state === "stale") {
+    return { tone: "warning", text: `stale since ${babysit.lastPoll ?? babysit.last_poll ?? "unknown"} · run died without finishing${owed}` };
+  }
+  return { tone: "dim", text: `finished · ${babysit.reason ?? babysit.ended ?? "no reason recorded"}${owed}` };
 }
 
 function singleLine(value) {
@@ -509,6 +533,8 @@ class LoancratePrTuiView {
         : ` ${th.fg("muted", "Dispatch:")} ${th.fg("success", "Available")} ${th.fg("dim", "— press Space to stage")}`));
       if (!visible.compact) {
         lines.push(row(` ${th.fg("muted", "Merge:")} ${selected.mergeable} / ${selected.mergeStateStatus}   ${th.fg("muted", "Agent:")} ${selected.pane?.status || "not checked"}${selected.pane?.target ? ` · ${selected.pane.target}` : ""}`));
+        const babysitLine = babysitDetail(selected);
+        if (babysitLine) lines.push(row(` ${th.fg("muted", "Babysit:")} ${th.fg(babysitLine.tone, babysitLine.text)}`));
         if (selected.ci.failed.length > 0) lines.push(row(` ${th.fg("error", `Failing: ${selected.ci.failed.map((check) => check.name).join(", ")}`)}`));
         if (selected.feedback.descriptions.length > 0) lines.push(row(` ${th.fg("warning", `Feedback: ${selected.feedback.descriptions[0]}${selected.feedback.descriptions.length > 1 ? ` (+${selected.feedback.descriptions.length - 1} more)` : ""}`)}`));
         if (selected.blocking !== "—") lines.push(row(` ${th.fg("muted", `Blocking: ${selected.blocking}`)}`));
@@ -607,3 +633,4 @@ function loancratePrTuiExtension(pi) {
 module.exports = loancratePrTuiExtension;
 module.exports.LoancratePrTuiView = LoancratePrTuiView;
 module.exports.statusSignals = statusSignals;
+module.exports.babysitDetail = babysitDetail;
