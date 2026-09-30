@@ -154,10 +154,55 @@ function applyResendRules(action, pr, feedback, state) {
   return action;
 }
 
-function classifyPullRequest(pr, viewer, state) {
+const BABYSIT_STALE_MS = 12 * 60 * 1000;
+
+/**
+ * Parse the flat frontmatter loancrate-babysit-pr writes at the top of
+ * ~/.local/state/loancrate-babysit-pr/sessions/<pr>.md. Deliberately not a
+ * YAML parser: the contract is one `key: value` per line with strings double
+ * quoted, so anything nested means the writer broke the contract.
+ */
+function parseSessionFrontmatter(contents) {
+  const match = /^---\n([\s\S]*?)\n---/.exec(contents ?? "");
+  if (!match) return null;
+  const out = {};
+  for (const line of match[1].split("\n")) {
+    const kv = /^([a-z_]+):\s*(.*)$/.exec(line);
+    if (!kv) continue;
+    const raw = kv[2].trim();
+    if (raw === "null" || raw === "") out[kv[1]] = null;
+    else if (raw === "true" || raw === "false") out[kv[1]] = raw === "true";
+    else if (/^-?\d+$/.test(raw)) out[kv[1]] = Number(raw);
+    else out[kv[1]] = raw.replace(/^"(.*)"$/, "$1");
+  }
+  return out;
+}
+
+/**
+ * Liveness is derived, never asserted: a crashed run cannot record `ended`,
+ * so a cold last_poll outranks a null ended. Every reader of these files
+ * applies this same rule.
+ */
+function babysitStatus(frontmatter, now = Date.now()) {
+  if (!frontmatter) return { state: "none" };
+  const last = Date.parse(frontmatter.last_poll ?? "");
+  if (frontmatter.ended) return { state: "finished", reason: frontmatter.ended, ...frontmatter };
+  if (!Number.isFinite(last) || now - last > BABYSIT_STALE_MS) {
+    return { state: "stale", lastPoll: frontmatter.last_poll ?? null, ...frontmatter };
+  }
+  return { state: "active", ...frontmatter };
+}
+
+function classifyPullRequest(pr, viewer, state, babysit = { state: "none" }) {
   const feedback = outstandingFeedback(pr, viewer);
   const ci = ciFailures(pr);
-  const action = applyResendRules(initialAction(pr, feedback, ci), pr, feedback, state);
+  let action = applyResendRules(initialAction(pr, feedback, ci), pr, feedback, state);
+  // An idle-looking pane may be a babysit loop between polls, so the session
+  // file outranks the pane check. Dispatching here would put two agents on
+  // one branch.
+  if (babysit.state === "active") {
+    action = { kind: "none", reason: `Babysat (${babysit.mode ?? "drive"}), next check ${babysit.next_poll ?? "unknown"}` };
+  }
   const blocking = mergeSummary(pr, ci);
   const ready = pr.reviewDecision === "APPROVED" && pr.mergeable === "MERGEABLE";
   return {
@@ -176,6 +221,7 @@ function classifyPullRequest(pr, viewer, state) {
     feedback,
     ci,
     action,
+    babysit,
   };
 }
 
@@ -220,9 +266,11 @@ function updateStateAfterDispatch(state, pr, target, now = new Date().toISOStrin
 function loancratePrTuiCoreExtension() {}
 Object.assign(loancratePrTuiCoreExtension, {
   actionPrompt,
+  babysitStatus,
   classifyPullRequest,
   ciFailures,
   isBot,
+  parseSessionFrontmatter,
   outstandingFeedback,
   updateStateAfterDispatch,
 });

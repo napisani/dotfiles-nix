@@ -4,7 +4,7 @@ const fs = require("node:fs/promises");
 const os = require("node:os");
 const path = require("node:path");
 const { createRequire } = require("node:module");
-const { actionPrompt, classifyPullRequest, updateStateAfterDispatch } = require("./loancrate-pr-tui-core.js");
+const { actionPrompt, babysitStatus, classifyPullRequest, parseSessionFrontmatter, updateStateAfterDispatch } = require("./loancrate-pr-tui-core.js");
 
 let piTui;
 function getPiTui() {
@@ -24,6 +24,7 @@ function getPiTui() {
 
 const REPO = "loancrate/loancrate";
 const STATE_FILE = path.join(os.homedir(), ".local", "state", "loancrate-pr-maintainer", "state.json");
+const BABYSIT_SESSIONS = path.join(os.homedir(), ".local", "state", "loancrate-babysit-pr", "sessions");
 // loancrate-pr-maintainer is a pinned skill, so Pi links it into its own
 // skill directory rather than the shared ~/.agents/skills store.
 const SKILL_DIR = path.join(os.homedir(), ".pi", "agent", "skills", "loancrate-pr-maintainer");
@@ -61,6 +62,31 @@ async function exec(pi, command, args, timeout = 30_000) {
     throw new Error((result.stderr || result.stdout || `${command} failed`).trim());
   }
   return result.stdout;
+}
+
+/**
+ * Read the babysit session files. loancrate-babysit-pr owns these; the TUI
+ * only reads them, so a missing directory means nothing is being babysat
+ * rather than an error.
+ */
+async function readBabysitSessions() {
+  const byNumber = new Map();
+  let entries;
+  try {
+    entries = await fs.readdir(BABYSIT_SESSIONS);
+  } catch {
+    return byNumber;
+  }
+  await Promise.all(entries.filter((name) => name.endsWith(".md")).map(async (name) => {
+    try {
+      const frontmatter = parseSessionFrontmatter(await fs.readFile(path.join(BABYSIT_SESSIONS, name), "utf8"));
+      const number = frontmatter?.pr ?? Number.parseInt(name, 10);
+      if (Number.isFinite(number)) byNumber.set(number, babysitStatus(frontmatter));
+    } catch {
+      // A half-written file during a babysit pass is not worth failing the sweep over.
+    }
+  }));
+  return byNumber;
 }
 
 async function readState() {
@@ -116,10 +142,11 @@ async function collectPullRequests(pi, options) {
   ]));
   const selected = options.pr === undefined ? list : list.filter((pr) => pr.number === options.pr);
   const state = await readState();
+  const babysits = await readBabysitSessions();
   const rows = await Promise.all(selected.map(async (summary) => {
     try {
       const pr = await queryPullRequest(pi, summary.number);
-      return classifyPullRequest(pr, viewer, state);
+      return classifyPullRequest(pr, viewer, state, babysits.get(summary.number) ?? { state: "none" });
     } catch (error) {
       return {
         ...summary,

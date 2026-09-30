@@ -2,7 +2,7 @@
 
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { actionPrompt, classifyPullRequest, updateStateAfterDispatch } = require("./loancrate-pr-tui-core.js");
+const { actionPrompt, babysitStatus, classifyPullRequest, parseSessionFrontmatter, updateStateAfterDispatch } = require("./loancrate-pr-tui-core.js");
 const { LoancratePrTuiView, statusSignals } = require("./loancrate-pr-tui.js");
 
 function pullRequest(overrides = {}) {
@@ -194,4 +194,66 @@ test("dispatch state unions feedback ids and increments CI attempts", () => {
   assert.equal(state.prs[42].ci_attempts, 2);
   assert.deepEqual(state.prs[42].handled_ids, ["old"]);
   assert.equal(state.prs[42].target, "pane");
+});
+
+const SESSION_FILE = [
+  "---",
+  "pr: 42",
+  'branch: "nick/feature"',
+  'mode: "drive"',
+  'last_poll: "2026-09-30T14:26:04Z"',
+  'next_poll: "2026-09-30T14:30:04Z"',
+  'ci: "red"',
+  'blocked_on: "human approval"',
+  "unposted_replies: 2",
+  "stop_requested: false",
+  "ended: null",
+  "---",
+  "",
+  "## 2026-09-30 14:02 · pass 1",
+].join("\n");
+
+const AT_1427 = Date.parse("2026-09-30T14:27:00Z");
+
+test("session frontmatter parses without a YAML library", () => {
+  const fm = parseSessionFrontmatter(SESSION_FILE);
+  assert.equal(fm.pr, 42);
+  assert.equal(fm.mode, "drive");
+  assert.equal(fm.unposted_replies, 2);
+  assert.equal(fm.stop_requested, false);
+  assert.equal(fm.ended, null);
+  assert.equal(fm.blocked_on, "human approval");
+});
+
+test("a file with no frontmatter is not a babysit run", () => {
+  assert.equal(parseSessionFrontmatter("# just a heading\n"), null);
+  assert.equal(babysitStatus(null).state, "none");
+});
+
+test("liveness comes from last_poll, not from ended being null", () => {
+  const fm = parseSessionFrontmatter(SESSION_FILE);
+  assert.equal(babysitStatus(fm, AT_1427).state, "active");
+  // A crashed run cannot record `ended`, so a cold poll outranks it.
+  assert.equal(babysitStatus(fm, AT_1427 + 13 * 60 * 1000).state, "stale");
+  assert.equal(babysitStatus({ ...fm, ended: "CI green" }, AT_1427).state, "finished");
+});
+
+test("an active babysit suppresses dispatch even when CI is failing", () => {
+  const pr = pullRequest({ commits: failingChecks() });
+  const active = babysitStatus(parseSessionFrontmatter(SESSION_FILE), AT_1427);
+  const withoutBabysit = classifyPullRequest(pr, "nick", { version: 1, prs: {} });
+  assert.equal(withoutBabysit.action.kind, "ci");
+
+  const withBabysit = classifyPullRequest(pr, "nick", { version: 1, prs: {} }, active);
+  assert.equal(withBabysit.action.kind, "none");
+  assert.match(withBabysit.action.reason, /Babysat \(drive\), next check 2026-09-30T14:30:04Z/);
+  assert.equal(withBabysit.babysit.state, "active");
+});
+
+test("a stale babysit leaves the PR dispatchable", () => {
+  const pr = pullRequest({ commits: failingChecks() });
+  const stale = babysitStatus(parseSessionFrontmatter(SESSION_FILE), AT_1427 + 13 * 60 * 1000);
+  const row = classifyPullRequest(pr, "nick", { version: 1, prs: {} }, stale);
+  assert.equal(row.action.kind, "ci");
+  assert.equal(row.babysit.state, "stale");
 });
