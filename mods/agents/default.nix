@@ -87,6 +87,11 @@
           name = "prototype";
           manualOnly = true;
         }
+        # cursor/plugins pstack · sketch types and module shape before writing code
+        {
+          name = "architect";
+          manualOnly = true;
+        }
         # cursor/plugins pstack · what a change could break beyond its own diff
         {
           name = "blast-radius";
@@ -210,6 +215,10 @@
         "address-pr-feedback"
         # repo-local · add or change agent assets declaratively in this repo
         "agent-management"
+        {
+          name = "classify";
+          manualOnly = true;
+        }
         # repo-local · guided design session ending in a typed tech spec
         "forge-solution"
         # repo-local · read and write Obsidian vault notes

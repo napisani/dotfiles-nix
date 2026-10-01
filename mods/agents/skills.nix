@@ -44,6 +44,7 @@ in
   domain-modeling = pinned inputs.mattpocock-skills "skills/engineering/domain-modeling";
   prototype = pinned inputs.mattpocock-skills "skills/engineering/prototype";
 
+  architect = pinned inputs.pstack "pstack/skills/architect";
   blast-radius = pinned inputs.pstack "pstack/skills/blast-radius";
   how = pinned inputs.pstack "pstack/skills/how";
   teach = pinned inputs.pstack "pstack/skills/teach";
@@ -54,9 +55,11 @@ in
   # Both ship `disable-model-invocation: true` upstream. The module only ever
   # adds that key for manualOnly and never strips it, so without this rewrite a
   # non-manualOnly selection in default.nix cannot make them model-invocable.
-  typescript-best-practices = pinnedRewritten inputs.pstack "pstack/skills/typescript-best-practices" [
-    (rewrite "\ndisable-model-invocation: true\n" "\n")
-  ];
+  typescript-best-practices =
+    pinnedRewritten inputs.pstack "pstack/skills/typescript-best-practices"
+      [
+        (rewrite "\ndisable-model-invocation: true\n" "\n")
+      ];
   unslop = pinnedRewritten inputs.pstack "pstack/skills/unslop" [
     (rewrite "\ndisable-model-invocation: true\n" "\n")
   ];
@@ -133,6 +136,7 @@ in
 
   address-pr-feedback = local "agents/shared-skills/address-pr-feedback";
   agent-management = local "agents/shared-skills/agent-management";
+  classify = local "agents/shared-skills/classify";
   forge-solution = local "agents/shared-skills/forge-solution";
   ob-note = local "agents/shared-skills/ob-note";
   rebase-from-parent = local "agents/shared-skills/rebase-from-parent";
