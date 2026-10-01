@@ -214,6 +214,8 @@ const SESSION_FILE = [
 ].join("\n");
 
 const AT_1427 = Date.parse("2026-09-30T14:27:00Z");
+// next_poll is 14:30:04, so the deadline is 14:40:04 and anything past it is stale.
+const AT_STALE = Date.parse("2026-09-30T14:47:00Z");
 
 test("session frontmatter parses without a YAML library", () => {
   const fm = parseSessionFrontmatter(SESSION_FILE);
@@ -230,12 +232,14 @@ test("a file with no frontmatter is not a babysit run", () => {
   assert.equal(babysitStatus(null).state, "none");
 });
 
-test("liveness comes from last_poll, not from ended being null", () => {
+test("liveness comes from next_poll, not from ended being null", () => {
   const fm = parseSessionFrontmatter(SESSION_FILE);
   assert.equal(babysitStatus(fm, AT_1427).state, "active");
-  // A crashed run cannot record `ended`, so a cold poll outranks it.
-  assert.equal(babysitStatus(fm, AT_1427 + 13 * 60 * 1000).state, "stale");
+  // A crashed run cannot record `ended`, so a missed deadline outranks it.
+  assert.equal(babysitStatus(fm, AT_STALE).state, "stale");
   assert.equal(babysitStatus({ ...fm, ended: "CI green" }, AT_1427).state, "finished");
+  // Grace: still active a few minutes after next_poll, since polls are not punctual.
+  assert.equal(babysitStatus(fm, Date.parse("2026-09-30T14:35:00Z")).state, "active");
 });
 
 test("an active babysit suppresses dispatch even when CI is failing", () => {
@@ -252,7 +256,7 @@ test("an active babysit suppresses dispatch even when CI is failing", () => {
 
 test("a stale babysit leaves the PR dispatchable", () => {
   const pr = pullRequest({ commits: failingChecks() });
-  const stale = babysitStatus(parseSessionFrontmatter(SESSION_FILE), AT_1427 + 13 * 60 * 1000);
+  const stale = babysitStatus(parseSessionFrontmatter(SESSION_FILE), AT_STALE);
   const row = classifyPullRequest(pr, "nick", { version: 1, prs: {} }, stale);
   assert.equal(row.action.kind, "ci");
   assert.equal(row.babysit.state, "stale");
@@ -266,7 +270,7 @@ test("the STATE column carries a babysit signal without a new column", () => {
   const babysat = classifyPullRequest(pullRequest(), "nick", { version: 1, prs: {} }, active);
   assert.deepEqual(statusSignals(babysat).find((s) => s.label.startsWith("B")), { label: "B▶", tone: "accent" });
 
-  const stale = babysitStatus(parseSessionFrontmatter(SESSION_FILE), AT_1427 + 13 * 60 * 1000);
+  const stale = babysitStatus(parseSessionFrontmatter(SESSION_FILE), AT_STALE);
   const dead = classifyPullRequest(pullRequest(), "nick", { version: 1, prs: {} }, stale);
   assert.deepEqual(statusSignals(dead).find((s) => s.label.startsWith("B")), { label: "B⚠", tone: "warning" });
 });
@@ -281,9 +285,26 @@ test("the detail line reports next check and owed replies", () => {
     text: "drive · next check 2026-09-30T14:30:04Z · 2 replies to post",
   });
 
-  const stale = babysitStatus(parseSessionFrontmatter(SESSION_FILE), AT_1427 + 13 * 60 * 1000);
+  const stale = babysitStatus(parseSessionFrontmatter(SESSION_FILE), AT_STALE);
   assert.match(babysitDetail({ babysit: stale }).text, /^stale since 2026-09-30T14:26:04Z · run died without finishing/);
 
   const one = babysitStatus(parseSessionFrontmatter(SESSION_FILE.replace("unposted_replies: 2", "unposted_replies: 1")), AT_1427);
   assert.match(babysitDetail({ babysit: one }).text, /1 reply to post$/);
+});
+
+test("a backed-off run on a quiet PR is active, not stale", () => {
+  // A PR sitting for days polls every 30 minutes. A fixed 12-minute window
+  // would call this healthy run dead, which is the bug this guards.
+  const quiet = parseSessionFrontmatter(SESSION_FILE
+    .replace('last_poll: "2026-09-30T14:26:04Z"', 'last_poll: "2026-09-30T14:00:00Z"')
+    .replace('next_poll: "2026-09-30T14:30:04Z"', 'next_poll: "2026-09-30T14:30:00Z"'));
+  assert.equal(babysitStatus(quiet, Date.parse("2026-09-30T14:25:00Z")).state, "active");
+  assert.equal(babysitStatus(quiet, Date.parse("2026-09-30T14:39:00Z")).state, "active");
+  assert.equal(babysitStatus(quiet, Date.parse("2026-09-30T14:41:00Z")).state, "stale");
+});
+
+test("a run with no next_poll falls back to last_poll plus grace", () => {
+  const fm = parseSessionFrontmatter(SESSION_FILE.replace('next_poll: "2026-09-30T14:30:04Z"', "next_poll: null"));
+  assert.equal(babysitStatus(fm, Date.parse("2026-09-30T14:30:00Z")).state, "active");
+  assert.equal(babysitStatus(fm, Date.parse("2026-09-30T14:40:00Z")).state, "stale");
 });

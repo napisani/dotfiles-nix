@@ -154,7 +154,7 @@ function applyResendRules(action, pr, feedback, state) {
   return action;
 }
 
-const BABYSIT_STALE_MS = 12 * 60 * 1000;
+const BABYSIT_GRACE_MS = 10 * 60 * 1000;
 
 /**
  * Parse the flat frontmatter loancrate-babysit-pr writes at the top of
@@ -185,9 +185,13 @@ function parseSessionFrontmatter(contents) {
  */
 function babysitStatus(frontmatter, now = Date.now()) {
   if (!frontmatter) return { state: "none" };
-  const last = Date.parse(frontmatter.last_poll ?? "");
   if (frontmatter.ended) return { state: "finished", reason: frontmatter.ended, ...frontmatter };
-  if (!Number.isFinite(last) || now - last > BABYSIT_STALE_MS) {
+  // Deadline comes from next_poll, not a fixed window: the run backs off to as
+  // much as 30 minutes on a quiet PR, and a fixed window would call it dead.
+  const due = Date.parse(frontmatter.next_poll ?? "");
+  const last = Date.parse(frontmatter.last_poll ?? "");
+  const deadline = Number.isFinite(due) ? due + BABYSIT_GRACE_MS : last + BABYSIT_GRACE_MS;
+  if (!Number.isFinite(deadline) || now > deadline) {
     return { state: "stale", lastPoll: frontmatter.last_poll ?? null, ...frontmatter };
   }
   return { state: "active", ...frontmatter };
