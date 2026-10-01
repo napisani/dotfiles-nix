@@ -75,60 +75,16 @@
     };
 
     pi.mcpServers = {
-      linear = {
-        url = "https://mcp.linear.app/mcp";
-        lifecycle = "lazy";
-      };
+      linear.url = "https://mcp.linear.app/mcp";
       figma = {
         url = "https://mcp.figma.com/mcp";
-        auth = "oauth";
-        oauth = {
-          clientName = "Codex";
-          clientUri = "https://github.com/openai/codex";
-          scope = "mcp:connect";
-        };
-        lifecycle = "lazy";
+        oauth.scope = "mcp:connect";
       };
-      bde = {
-        url = "https://bde.dsci.loancrate.dev/mcp";
-        lifecycle = "lazy";
-      };
-      datadog = {
-        url = "https://mcp.datadoghq.com/api/unstable/mcp-server/mcp";
-        auth = "oauth";
-        oauth = {
-          clientName = "Codex";
-          clientUri = "https://github.com/openai/codex";
-        };
-        lifecycle = "lazy";
-      };
-      gmail = {
-        url = "https://gmailmcp.googleapis.com/mcp/v1";
-        auth = "oauth";
-        oauth = {
-          clientName = "Codex";
-          clientUri = "https://github.com/openai/codex";
-        };
-        lifecycle = "lazy";
-      };
-      notion = {
-        url = "https://mcp.notion.com/mcp";
-        auth = "oauth";
-        oauth = {
-          clientName = "Codex";
-          clientUri = "https://github.com/openai/codex";
-        };
-        lifecycle = "lazy";
-      };
-      sentry = {
-        url = "https://mcp.sentry.dev/mcp";
-        auth = "oauth";
-        oauth = {
-          clientName = "Codex";
-          clientUri = "https://github.com/openai/codex";
-        };
-        lifecycle = "lazy";
-      };
+      bde.url = "https://bde.dsci.loancrate.dev/mcp";
+      datadog.url = "https://mcp.datadoghq.com/api/unstable/mcp-server/mcp";
+      gmail.url = "https://gmailmcp.googleapis.com/mcp/v1";
+      notion.url = "https://mcp.notion.com/mcp";
+      sentry.url = "https://mcp.sentry.dev/mcp";
     };
 
     opencode.mcpServers = {

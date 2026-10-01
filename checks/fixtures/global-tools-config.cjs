@@ -32,6 +32,13 @@ for (const file of ['.claude.json','.claude/settings.json','.codex/hooks.json','
 assert.deepEqual(snapshot(target),[], 'status wrote user state');
 const applied = run('apply'); assert.equal(applied.status,0,applied.stdout+applied.stderr);
 const after = snapshot(target);
+assert.ok(!fs.existsSync(path.join(target,'.pi/agent/mcp-adapter.json')));
+const mcpServers = JSON.parse(fs.readFileSync(path.join(target,'.pi/agent/mcp.json'),'utf8')).mcpServers;
+assert.ok(Object.keys(mcpServers).length > 0);
+for (const server of Object.values(mcpServers)) {
+  assert.ok(!('lifecycle' in server || 'auth' in server));
+  assert.ok(!('clientName' in (server.oauth ?? {}) || 'clientUri' in (server.oauth ?? {})));
+}
 assert.equal(JSON.parse(fs.readFileSync(path.join(target,'.pi/remote/config.json'),'utf8')).relay,'https://remote-pi.napisani.xyz');
 assert.equal(JSON.parse(fs.readFileSync(path.join(target,'.pi/agent/settings.json'),'utf8')).transport,'sse');
 assert.equal(run('status').status,0);

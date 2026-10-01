@@ -1,10 +1,7 @@
-# Out-of-band updaters — things Nix does not own.
+# Out-of-band updaters for mutable packages and Pi's self-update.
 #
-# Nix already owns everything declared in this flake; `nixupgrade` (55) covers
-# that half. What's left are the tools that manage their own versions inside a
-# nix-managed home: lazy.nvim's plugin clones, Homebrew on the Darwin hosts,
-# pi's npm-installed extensions, and the mutable Claude/Pi state managed by
-# global-tools. `pi.nix` declares *which* extensions exist, not which versions,
+# Nix declares global tool versions; a Nix switch can replace a self-updated Pi.
+# `pi.nix` declares *which* extensions exist, not which versions,
 # so bumping them is a runtime operation. Pi package updates run through
 # global-tools one at a time because npm 11.17 crashes while rolling back Pi's
 # batched `pi update --extensions` install.
@@ -44,8 +41,13 @@ update-packages() {
 	return 0
 }
 
-# pet: Update all declaratively installed Pi packages, one package at a time.
+# pet: Update Pi itself and its declaratively installed packages.
 update-pi() {
+	if ! sh_have pi; then
+		echo "update-pi: pi is not installed — skipping" >&2
+		return 0
+	fi
+	pi update --self || return
 	update-global-tools pi-packages
 }
 

@@ -14,12 +14,10 @@
   nativeTools.npm = {
     tools = {
       "@ellery/terminal-mcp" = "0.5.1";
-      # pi-research 1.7.0 requires the Pi SDK 0.87.x line.
-      # Update the Pi SDK and the pinned pi-subagents ref together.
-      "@earendil-works/pi-coding-agent" = "0.87.1";
-      "@agentclientprotocol/claude-agent-acp" = "0.74.0";
+      "@earendil-works/pi-coding-agent" = "0.99.1";
+      "@agentclientprotocol/claude-agent-acp" = "0.84.0";
       "@zed-industries/codex-acp" = "0.16.0";
-      "@playwright/cli" = "0.1.19";
+      "@playwright/cli" = "0.1.22";
       "@napisani/scute" = "0.0.19";
     };
   };
