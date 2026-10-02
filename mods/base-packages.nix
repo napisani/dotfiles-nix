@@ -6,6 +6,7 @@
   procmux,
   secret_inject,
   tmux_picker,
+  mushy_lint,
   animal_rescue,
   scrollbacktamer,
   proctmux,
@@ -52,6 +53,7 @@ in
 
       secret_inject.packages.${system}.default
       tmux_picker.packages.${system}.default
+      mushy_lint.packages.${system}.default
       animal_rescue.packages.${system}.default
       scrollbacktamer.packages.${system}.default
       proctmux.packages.${system}.default

@@ -83,7 +83,7 @@ let
     if manualOnly || namespacedWorkmuxSkill then
       skillFiles.mkPatchedSkillSource {
         name = s.name;
-        sourcePath = src;
+        sourcePath = skillFiles.skillSourceForPatching s;
         replacements = lib.optional namespacedWorkmuxSkill {
           from = "/workmux-";
           to = "/skill:workmux-";

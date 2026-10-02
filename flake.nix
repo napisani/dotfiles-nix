@@ -59,6 +59,11 @@
       url = "path:../tmux-picker";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    mushy_lint = {
+      url = "path:../mushy-lint";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs-darwin.follows = "nixpkgs";
+    };
     animal_rescue = {
       url = "path:../animalcontrol";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -349,6 +354,9 @@
             inherit lib pkgs;
           };
           global-tools-config = import ./checks/global-tools-config.nix {
+            inherit self lib pkgs;
+          };
+          skill-patching = import ./checks/skill-patching.nix {
             inherit self lib pkgs;
           };
           rtk-runtime = import ./checks/rtk-runtime.nix {

@@ -65,6 +65,8 @@ in
   ];
 
   proctmux-config = pinned inputs.proctmux "skills/proctmux-config";
+  mushy-lint-rule-config = pinned inputs.mushy_lint ".agents/skills/mushy-lint-rule-config";
+  mushy-lint-run-review = pinned inputs.mushy_lint ".agents/skills/mushy-lint-run-review";
   vantage-distill-session = pinned inputs.vantage-nvim-skills "skills/vantage-distill-session";
   vantage-author-walkthrough = pinned inputs.vantage-nvim-skills "skills/vantage-author-walkthrough";
   vantage-author-diff-tour = pinned inputs.vantage-nvim-skills "skills/vantage-author-diff-tour";

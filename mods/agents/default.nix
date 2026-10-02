@@ -133,6 +133,16 @@
         "unslop"
         # napisani/proctmux · write, fix, or explain a proctmux.yaml
         "proctmux-config"
+        # pub/mushy-lint · choose and configure semantic rules
+        {
+          name = "mushy-lint-rule-config";
+          manualOnly = true;
+        }
+        # pub/mushy-lint · classify source and triage scores into an action plan
+        {
+          name = "mushy-lint-run-review";
+          manualOnly = true;
+        }
         # pub/vantage-nvim · snapshot this session into .vantage/agent-context.md
         "vantage-distill-session"
         # pub/vantage-nvim · emit reviewable line pointers for the Neovim quickfix list

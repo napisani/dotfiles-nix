@@ -65,10 +65,12 @@ let
     else
       throw "agents: skill '${skill.name}' has unsupported source kind '${skill.kind}'";
 
-  skillSource =
+  # Build sandboxes cannot access live checkout targets. Patched local skills
+  # use tracked snapshots; unpatched local skills retain their live links.
+  skillSourceForPatching =
     skill:
     let
-      source = rawSkillSource skill;
+      source = if skill.kind == "local" then ../../dotfiles + "/${skill.path}" else rawSkillSource skill;
     in
     if skill ? replacements then
       mkPatchedSkillSource {
@@ -78,6 +80,9 @@ let
       }
     else
       source;
+
+  skillSource =
+    skill: if skill ? replacements then skillSourceForPatching skill else rawSkillSource skill;
 
   skillNamesByKind =
     kind: names: builtins.filter (name: catalog.${name}.kind == kind) (validateSkillNames names);
@@ -126,7 +131,7 @@ let
         )
     );
 
-  # Copy pinned skill content into a derivation and apply an agent-native patch.
+  # Copy skill content into a derivation and apply an agent-native patch.
   # Callers supply patch content; this utility has no agent-specific branches.
   mkPatchedSkillSource =
     {
@@ -137,10 +142,11 @@ let
       replacements ? [ ],
     }:
     let
-      replaceFlag = replacement: if replacement.required or true then "--replace-fail" else "--replace-quiet";
+      replaceFlag =
+        replacement: if replacement.required or true then "--replace-fail" else "--replace-quiet";
       placeholder = index: "__SKILL_REWRITE_${toString index}__";
 
-      # Vendored skills are read-only, so start from a writable copy.
+      # Source snapshots are read-only, so start from a writable copy.
       copyPhase = ''
         cp -r ${sourcePath} "$out"
         chmod -R u+w "$out"
@@ -204,6 +210,7 @@ in
     sharedSkillNames
     skillNamesByKind
     skillNamesFor
+    skillSourceForPatching
     unknownSkillNames
     ;
 }

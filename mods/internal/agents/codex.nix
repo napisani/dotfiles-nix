@@ -64,7 +64,7 @@ let
     then
       skillFiles.mkPatchedSkillSource {
         name = s.name;
-        sourcePath = src;
+        sourcePath = skillFiles.skillSourceForPatching s;
         addFiles."agents/openai.yaml" = ''
           policy:
             allow_implicit_invocation: false

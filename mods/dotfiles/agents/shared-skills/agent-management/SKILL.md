@@ -110,8 +110,10 @@ find "$p" -name SKILL.md
 2. Register it with `local` in `mods/agents/skills.nix`.
 3. Select it through `config.agents.skills`.
 
-Local content remains an out-of-store symlink, so edits are live. Adding the
-catalog entry or directory still requires `git add` before flake evaluation.
+Unpatched local skills remain out-of-store symlinks, so edits are live.
+Agents that need generated native patches use tracked source snapshots instead;
+those copies need a rebuild after edits because build sandboxes cannot read the
+live checkout. New skill files require `git add` before flake evaluation.
 
 ### Make a skill manual-only
 
