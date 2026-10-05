@@ -319,13 +319,6 @@
         };
       };
 
-      packages = lib.genAttrs [ "aarch64-darwin" "x86_64-darwin" "x86_64-linux" ] (system: {
-        hermes-skills-lock = import ./packages/hermes-skills-lock.nix {
-          pkgs = nixpkgs.legacyPackages.${system};
-          inherit lib inputs;
-        };
-      });
-
       # Force every merged Darwin and Home Manager activation value, so each
       # system's `nix flake check` catches option-merge conflicts (two
       # files defining home.activation.<sameName> differently) at eval time
@@ -372,14 +365,6 @@
           vocal-runtime = import ./checks/vocal-runtime.nix {
             inherit self lib pkgs;
           };
-          hermes-skills-lock = pkgs.runCommand "hermes-skills-lock-fresh" { } ''
-            if ! diff -u ${./mods/agents/hermes-skills.lock.json} ${self.packages.${system}.hermes-skills-lock}; then
-              echo 'mods/agents/hermes-skills.lock.json is stale; from pub/dotfiles-nix run:' >&2
-              echo '  cp "$(nix build --no-link --print-out-paths .#hermes-skills-lock)" mods/agents/hermes-skills.lock.json' >&2
-              exit 1
-            fi
-            touch "$out"
-          '';
         }
       );
     };

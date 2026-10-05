@@ -3,8 +3,8 @@
 # and home.file realization live elsewhere.
 { inputs }:
 let
-  # `input` names the flake input so packages/hermes-skills-lock.nix can find
-  # its pinned commit in flake.lock without fetching it.
+  # `input` names the flake input so other tools can find its pinned commit in
+  # flake.lock without fetching it.
   pinned = input: path: {
     kind = "pinned";
     source = inputs.${input};

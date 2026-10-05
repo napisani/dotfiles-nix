@@ -1,5 +1,5 @@
-# Skills every workstation agent gets. The homelab Hermes image installs the
-# same list from hermes-skills.lock.json; regenerate it after editing this.
+# Skills every workstation agent gets. A plain list, so other tools can import
+# it without evaluating the agent modules.
 [
   # Pinned community skills.
   # anthropics/skills · author, eval, and iterate on skills

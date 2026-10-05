@@ -10,7 +10,7 @@ You do not need to read installer code to change your setup.**
 - **npm/uv packages, including Scute:** [`mods/native-tools.nix`](mods/native-tools.nix).
 - **Shared agent skills, settings, MCP and packages:** [`mods/agents/default.nix`](mods/agents/default.nix).
   Add skill sources to [`mods/agents/skills.nix`](mods/agents/skills.nix) and select shared ones in
-  [`mods/agents/shared-skills.nix`](mods/agents/shared-skills.nix), which the homelab Hermes image also installs via [`hermes-skills.lock.json`](mods/agents/hermes-skills.lock.json).
+  [`mods/agents/shared-skills.nix`](mods/agents/shared-skills.nix).
 - **Common local models:** [`mods/model-runtimes.nix`](mods/model-runtimes.nix).
 - **One machine:** its `homes/home-*.nix`. The Loancrate home explicitly imports
   [`homes/nicks-loancrate-mbp/agents.nix`](homes/nicks-loancrate-mbp/agents.nix)
