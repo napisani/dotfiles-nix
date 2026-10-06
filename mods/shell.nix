@@ -82,6 +82,7 @@ in
       ".look/config" = mkForcedSym "look-config";
       ".look/sources/window-management.toml" =
         mkForcedSym "look-sources/window-management.toml";
+      ".look/sources/terminal.toml" = mkForcedSym "look-sources/terminal.toml";
 
       # Frequently edited user-facing config stays live-editable.
       ".yabairc".source = mkSym "yabairc";

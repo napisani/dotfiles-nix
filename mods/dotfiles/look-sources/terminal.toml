@@ -1,0 +1,8 @@
+# Opens the window in the running Alacritty over its IPC socket, which lives in
+# the per-user temp dir; open -na starts Alacritty when none is running.
+[new-alacritty]
+name = "New Alacritty terminal"
+aliases = ["terminal", "alacritty", "new terminal", "new window", "term"]
+do = [
+  "TMPDIR=\"$(getconf DARWIN_USER_TEMP_DIR)\" /Applications/Alacritty.app/Contents/MacOS/alacritty msg create-window || open -na /Applications/Alacritty.app",
+]
