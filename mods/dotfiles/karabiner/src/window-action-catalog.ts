@@ -62,6 +62,13 @@ export const windowActions: WindowAction[] = [
     command: "open -a '/Applications/Look.app'",
   },
   {
+    id: "launch-alacritty",
+    binding: "",
+    description: "Launch new Alacritty instance",
+    aliases: ["terminal", "alacritty", "new instance", "new terminal"],
+    command: "open -na Alacritty",
+  },
+  {
     id: "move-left",
     binding: "Tab + Q + H",
     description: "Move window left",
@@ -260,13 +267,13 @@ export const windowManagerLookSource = () =>
         "window manager",
         "omniwm",
         "w",
-        action.binding,
+        ...(action.binding ? [action.binding] : []),
         ...action.aliases,
       ];
       const command = action.lookCommand || action.command;
       return [
         `[window-manager-${action.id}]`,
-        `name = ${tomlString(`${action.binding} — ${action.description}`)}`,
+        `name = ${tomlString(`${action.binding ? `${action.binding} — ` : ""}${action.description}`)}`,
         `aliases = ${JSON.stringify([...new Set(aliases)])}`,
         `do = [${tomlString(command)}]`,
       ].join("\n");

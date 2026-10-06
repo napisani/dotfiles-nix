@@ -35,6 +35,11 @@ name = "Tab + F — Open Look launcher"
 aliases = ["window manager","omniwm","w","Tab + F","launcher","look"]
 do = ["open -a '/Applications/Look.app'"]
 
+[window-manager-launch-alacritty]
+name = "Launch new Alacritty instance"
+aliases = ["window manager","omniwm","w","terminal","alacritty","new instance","new terminal"]
+do = ["open -na Alacritty"]
+
 [window-manager-move-left]
 name = "Tab + Q + H — Move window left"
 aliases = ["window manager","omniwm","w","Tab + Q + H","move","window","left"]
