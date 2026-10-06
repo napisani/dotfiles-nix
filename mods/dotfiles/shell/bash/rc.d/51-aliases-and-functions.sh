@@ -33,6 +33,8 @@ alias LockScreen='open -a /System/Library/Frameworks/ScreenSaver.framework/Versi
 alias serve-directory='python3 -m http.server'
 # pet: Reload Karabiner configuration
 alias restart-karabiner='karabiner-reload.sh'
+# pet: Open Neovim in the Obsidian notes vault
+alias notes-nvim='(cd ~/code/todos_and_notes && nvim)'
 
 # pet: Trust a project-local Neovim config
 nvim-trust() {
