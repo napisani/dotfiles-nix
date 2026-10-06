@@ -56,6 +56,8 @@
         defaultThinkingLevel = "high";
         transport = "sse";
         theme = "kanagawa-dragon";
+        # Pi 1.0 defaults to fullscreen; keep the terminal's own scrollback.
+        tuiMode = "regular";
         openaiReasoningMode.fast = false;
         # Use the same local Vantage checkout as Neovim, not a second copy of
         # its bridge implementation or a temporary feature worktree.
