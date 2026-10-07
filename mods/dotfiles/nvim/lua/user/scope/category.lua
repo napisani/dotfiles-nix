@@ -15,7 +15,13 @@ M.categories = {
 			"**/*.test.*",
 			"**/*_spec.*",
 			"**/*.spec.*",
+			-- Suites migrated from Jest and eval suites, as named by loancrate's vitest-base.
+			"**/*.vitest.*",
+			"**/*.eval.ts",
 			"**/test/**",
+			"**/__mocks__/**",
+			"**/__fixtures__/**",
+			"**/__snapshots__/**",
 			"**/tests/**",
 			"**/__tests__/**",
 		},

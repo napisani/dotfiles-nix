@@ -4,6 +4,16 @@ local path = require("user.scope.path")
 path.clear_scopes()
 
 assert(category.classify("foo/bar_test.lua") == "tests", "expected _test.* to classify as tests")
+for _, path in ipairs({
+	"src/foo.vitest.ts",
+	"src/foo.db.vitest.ts",
+	"src/foo.eval.ts",
+	"src/__mocks__/foo.ts",
+	"src/__fixtures__/foo.json",
+	"src/__snapshots__/foo.test.ts.snap",
+}) do
+	assert(category.classify(path) == "tests", "expected tests classification: " .. path)
+end
 assert(category.classify("README.md") == "documentation", "expected README.md to classify as documentation")
 assert(category.classify("lua/user/init.lua") == "implementation", "expected plain .lua to fall back to catchall")
 
