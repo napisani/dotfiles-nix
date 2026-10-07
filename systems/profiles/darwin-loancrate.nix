@@ -37,6 +37,7 @@
       # git/jq are provided by macOS; shfmt/uv come from the nix profile,
       # so they're intentionally omitted here.
       "awscli"
+      "coder"
       "nvm"
       # nixpkgs' pulumi only ships the bare CLI, no language plugins
       # (pulumi-language-nodejs etc.) — brew's formula bundles them.
