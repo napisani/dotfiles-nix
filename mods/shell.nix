@@ -1,4 +1,5 @@
 {
+  inputs,
   pkgs,
   pkgs-unstable,
   config,
@@ -107,12 +108,7 @@ in
 
       ".ideavimrc".source = mkSym ".ideavimrc";
       ".tmux/tokyonight.tmuxtheme".source = ./dotfiles/tokyonight.tmuxtheme;
-      ".tmux/plugins/tpm".source = pkgs.fetchFromGitHub {
-        owner = "tmux-plugins";
-        repo = "tpm";
-        rev = "99469c4a9b1ccf77fade25842dc7bafbc8ce9946";
-        sha256 = "hW8mfwB8F9ZkTQ72WQp/1fy8KL1IIYMZBtZYIwZdMQc=";
-      };
+      ".tmux/plugins/tpm".source = inputs.tmux-tpm;
       ".config/discordo/config.toml".source = ./dotfiles/discordo-config.toml;
       "/Library/Application Support/discordo/config.toml".source = ./dotfiles/discordo-config.toml;
       ".config/starship.toml".source = mkSym "starship.toml";

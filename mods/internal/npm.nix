@@ -35,11 +35,6 @@ let
   # `npm config` write actually usable. See WORKAROUNDS.md "npm config set
   # prefix vs. immutable ~/.npmrc".
   npmrcContent = "prefix=${npmPrefix}\n" + config.nativeTools.npm.extraNpmrc;
-
-  globalToolsCheckUpdates = pkgs-unstable.writeShellApplication {
-    name = "global-tools-check-updates";
-    text = config.globalToolOperations.npm.checkUpdates;
-  };
 in
 {
   options.nativeTools.npm = {
@@ -64,7 +59,6 @@ in
     home.packages = [
       pkgs-unstable.nodejs
       pkgs-unstable.git
-      globalToolsCheckUpdates
     ];
 
     home.sessionVariables = {
@@ -81,11 +75,6 @@ in
 
     globalToolOperations.npm = {
       after = [ "npm-config" ];
-      checkUpdates = ''
-        DECLARED_TOOLS=${lib.escapeShellArg (builtins.toJSON npmxTools)} \
-        NPM_COMMAND=${lib.escapeShellArg npm} \
-          ${nodeBin}/node ${scriptsDir}/check-npm-tool-updates.js
-      '';
       command = ''
         export NPM_CONFIG_PREFIX="${npmPrefix}"
         export DISABLE_TELEMETRY=1

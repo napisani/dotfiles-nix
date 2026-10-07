@@ -16,7 +16,7 @@ function harness(t) {
   fs.writeFileSync(
     manifest,
     JSON.stringify({
-      operations: [{ name: "first", command, checkUpdates: command }, {
+      operations: [{ name: "first", command }, {
         name: "second",
         command,
         canUpdate: true,
@@ -47,7 +47,7 @@ test("help and usage identify global-tools without running components", (t) => {
   assert.equal(help.status, 0);
   assert.match(
     help.stdout,
-    /^global-tools \{status\|apply\|repair\|check-updates\|update\} \[component\]/,
+    /^global-tools \{status\|apply\|repair\|update\} \[component\]/,
   );
   const invalid = h.run(["invalid"]);
   assert.equal(invalid.status, 1);
@@ -81,9 +81,8 @@ test("updates dispatch only supported native operations; bad targets never run",
   const h = harness(t);
   assert.equal(h.run(["update"]).status, 0);
   assert.deepEqual(h.calls(), [{ mode: "apply", repair: "", update: "1" }]);
-  assert.equal(h.run(["check-updates"]).status, 0);
-  assert.equal(h.calls().length, 2);
+  assert.equal(h.run(["check-updates"]).status, 1);
   assert.equal(h.run(["repair", "typo"]).status, 1);
   assert.equal(h.run(["update", "first"]).status, 1);
-  assert.equal(h.calls().length, 2);
+  assert.equal(h.calls().length, 1);
 });

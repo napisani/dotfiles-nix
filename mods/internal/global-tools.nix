@@ -19,11 +19,6 @@ let
       inherit name;
       inherit (op) canUpdate;
       command = pkgs-unstable.writeShellScript "global-tools-${name}" ("set -eu\n" + op.command);
-      checkUpdates =
-        if op.checkUpdates == null then
-          null
-        else
-          pkgs-unstable.writeShellScript "global-tools-${name}-check-updates" ("set -eu\n" + op.checkUpdates);
     }
   ) plan;
   managedFiles = lib.filterAttrs (
@@ -57,10 +52,6 @@ in
       types.submodule {
         options = {
           command = mkOption { type = types.lines; };
-          checkUpdates = mkOption {
-            type = types.nullOr types.lines;
-            default = null;
-          };
           canUpdate = mkOption {
             type = types.bool;
             default = false;

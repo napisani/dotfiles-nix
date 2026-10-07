@@ -48,3 +48,6 @@ query_retention_seconds=5
 
 # Added by look update
 launcher_hotkey=cmd+space
+
+# Added by look update
+super_actions_enabled=false

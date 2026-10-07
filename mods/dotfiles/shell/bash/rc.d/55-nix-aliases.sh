@@ -1,42 +1,32 @@
-# nix rebuild aliases — previously generated per host from interpolated nix
-# values in homes/profiles/darwin.nix and homes/home-supermicro.nix.
-#
-# LOAD ORDER IS LOAD-BEARING. This file must stay numbered above
-# 51-aliases-and-functions.sh, which also defines `nixupgrade` (as a bare
-# `nix flake lock --update-input ...`). home-manager emitted its shellAliases
-# *after* bashrcExtra, so the nix definition has always been the one that wins;
-# keeping this file later preserves that. The now-dead duplicate was removed
-# from 51 as part of this migration — that ambiguity, where load order silently
-# picked between two definitions of the same alias, is exactly what this
-# restructure is meant to eliminate.
-#
-# The rebuild command differs per platform, so it's selected by which binary
-# exists rather than by interpolating a value at build time. That's what makes
-# this file work on a host nix never configured: it simply defines nothing.
+# These names must resolve to functions even when the fragment is re-sourced.
+unalias nixswitch nixswitchup nixclean 2>/dev/null || true
 
-_nix_dotfiles_dir="${DOTFILES_HOME_MANAGER_DIR:-$HOME/code/monorepo/pub/dotfiles-nix}"
-
-if sh_have darwin-rebuild; then
-	_nix_switch="sudo darwin-rebuild switch --show-trace --no-update-lock-file --flake $_nix_dotfiles_dir/.#"
-elif sh_have nixos-rebuild; then
-	_nix_switch="sudo nixos-rebuild --show-trace --no-update-lock-file --flake $_nix_dotfiles_dir/.#$(hostname -s) switch --impure"
-else
-	unset _nix_dotfiles_dir
-	return 0
-fi
-
-# shellcheck disable=SC2139  # expansion at definition time is intended here
-{
 # pet: Rebuild and activate the current Nix configuration
-	alias nixswitch="pushd $_nix_dotfiles_dir; $_nix_switch; popd"
-# pet: Pull configuration changes and activate Nix
-	alias nixswitchup="pushd $_nix_dotfiles_dir; git pull && $_nix_switch; popd"
-# pet: Update flake inputs and activate Nix
-	alias nixflakeup="pushd $_nix_dotfiles_dir; nix flake update --refresh && $_nix_switch; popd"
-# pet: Update all flake inputs and activate Nix
-	alias nixupgrade="pushd $_nix_dotfiles_dir; nix flake update --refresh && $_nix_switch; popd"
-# pet: Collect garbage and optimize the Nix store
-	alias nixclean="echo 'Collecting garbage...'; nix-collect-garbage -d && echo 'Optimizing store...'; nix store optimise && echo 'Cleaning up old profiles...'; sudo nix-collect-garbage -d && echo 'Done! Space freed.'"
-}
+nixswitch() (
+	cd -- "${DOTFILES_HOME_MANAGER_DIR:-$HOME/code/monorepo/pub/dotfiles-nix}" || return
+	if sh_have darwin-rebuild; then
+		sudo darwin-rebuild switch --show-trace --no-update-lock-file --flake .# "$@"
+	elif sh_have nixos-rebuild; then
+		sudo nixos-rebuild --show-trace --no-update-lock-file --flake ".#$(hostname -s)" switch --impure "$@"
+	else
+		echo "nixswitch: neither darwin-rebuild nor nixos-rebuild is installed" >&2
+		return 127
+	fi
+)
 
-unset _nix_dotfiles_dir _nix_switch
+# pet: Pull configuration changes and activate Nix
+nixswitchup() (
+	cd -- "${DOTFILES_HOME_MANAGER_DIR:-$HOME/code/monorepo/pub/dotfiles-nix}" || return
+	git pull && nixswitch "$@"
+)
+
+# pet: Delete old Nix generations and optimize the store
+nixclean() {
+	echo 'Collecting garbage...'
+	nix-collect-garbage -d || return
+	echo 'Optimizing store...'
+	nix store optimise || return
+	echo 'Cleaning up old profiles...'
+	sudo nix-collect-garbage -d || return
+	echo 'Done! Space freed.'
+}

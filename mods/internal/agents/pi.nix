@@ -173,14 +173,13 @@ lib.mkMerge [
   })
   {
     globalToolOperations.pi-packages = {
-      canUpdate = true;
       after = [ "npm" ];
       command = ''
-        export PATH="${nodeBin}:/opt/homebrew/bin:/run/current-system/sw/bin:$HOME/.local/bin:$PATH"
+        export PATH="${pkgs-unstable.git}/bin:${nodeBin}:/opt/homebrew/bin:/run/current-system/sw/bin:$HOME/.local/bin:$PATH"
         DECLARED_PACKAGES=${lib.escapeShellArg (builtins.toJSON (lib.optionals enabled agentCfg.packages))} \
         ALLOW_SCRIPTS=${lib.escapeShellArg (builtins.toJSON (lib.optionals enabled agentCfg.allowScripts))} \
         STATE_FILE=${lib.escapeShellArg "${home}/.local/state/agents-nix/pi-packages.json"} \
-        FORCE_REPAIR="''${GLOBAL_TOOLS_FORCE_REPAIR:-''${GLOBAL_TOOLS_UPDATE:-}}" \
+        FORCE_REPAIR="''${GLOBAL_TOOLS_FORCE_REPAIR:-}" \
           ${nodeBin}/node ${scriptsDir}/apply-pi-packages.js
       '';
     };

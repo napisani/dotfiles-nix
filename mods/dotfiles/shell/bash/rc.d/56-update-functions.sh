@@ -1,91 +1,111 @@
-# Out-of-band updaters for mutable packages and Pi's self-update.
-#
-# Nix declares global tool versions; a Nix switch can replace a self-updated Pi.
-# `pi.nix` declares *which* extensions exist, not which versions,
-# so bumping them is a runtime operation. Pi package updates run through
-# global-tools one at a time because npm 11.17 crashes while rolling back Pi's
-# batched `pi update --extensions` install.
-#
-# Each updater no-ops with a message rather than failing when its tool is absent
-# — that's what lets `update-all` run unchanged on both the Darwin laptops and
-# the NixOS host.
+# pet: Discover dependency and native-tool updates with sys-update help
+sys-update() {
+	local action="${1:-help}"
+	[ $# -eq 0 ] || shift
+	case "$action" in
+	help | -h | --help | brew | nvim | claude | tools)
+		if [ $# -ne 0 ]; then
+			echo "sys-update $action: unexpected arguments; see sys-update help" >&2
+			return 2
+		fi
+		;;
+	esac
 
-# pet: Update all Neovim plugins from the command line
-update-nvim() {
-	if ! sh_have nvim; then
-		echo "update-nvim: nvim is not installed — skipping" >&2
-		return 0
+	case "$action" in
+	help | -h | --help)
+		cat <<'HELP'
+Usage: sys-update <command> [arguments]
+
+Dependency pins:
+  list [--json]                 List all monorepo domains and their pins
+  check [DOMAIN...] [options]    Check for newer versions without changing pins
+  pins DOMAIN [ITEM...] [options]
+                                Update one domain and verify the changed pins
+
+Check and pins default to --project dotfiles-nix; override with --project NAME.
+Arguments pass through to scripts/deps.ts. Pin updates support --allow,
+--dry-run, and --no-verify; list and check support --json.
+These commands require a monorepo checkout. They never activate Nix.
+
+Native tools and plugin locks:
+  brew                          Update, upgrade, and clean Homebrew packages
+  nvim                          Sync Neovim plugins and rewrite lazy-lock.json
+  claude                        Refresh Claude plugins through global-tools
+  tools                         Run brew, nvim, and claude; report every failure
+
+Activation and cleanup are separate:
+  nixswitch                     Apply the current configuration
+  nixswitchup                   Pull configuration changes, then apply them
+  nixclean                      Delete old Nix generations and optimize the store
+
+Example: sys-update pins nix-core, review the diff, then run nixswitch.
+HELP
+		;;
+	list | check | pins)
+		local dotfiles="${DOTFILES_HOME_MANAGER_DIR:-$HOME/code/monorepo/pub/dotfiles-nix}"
+		(
+			cd -- "$dotfiles/../.." || return
+			if [ ! -x scripts/deps.ts ]; then
+				echo "sys-update $action: scripts/deps.ts is unavailable; use a monorepo checkout" >&2
+				return 127
+			fi
+			case "$action" in
+			list) ./scripts/deps.ts list "$@" ;;
+			check) ./scripts/deps.ts check --project dotfiles-nix "$@" ;;
+			pins) ./scripts/deps.ts update --project dotfiles-nix "$@" ;;
+			esac
+		)
+		;;
+	brew | nvim | claude)
+		local tool="$action"
+		[ "$action" != claude ] || tool=global-tools
+		if ! sh_have "$tool"; then
+			echo "sys-update $action: $tool is not installed; skipping" >&2
+			return 0
+		fi
+		case "$action" in
+		brew)
+			echo '==> Updating Homebrew packages'
+			brew update && brew upgrade && brew cleanup
+			;;
+		nvim)
+			echo '==> Updating Neovim plugins'
+			nvim --headless '+Lazy! sync' +qa
+			;;
+		claude)
+			echo '==> Updating Claude plugins'
+			global-tools update claude-plugins
+			;;
+		esac
+		;;
+	tools)
+		local step failed=()
+		# Independent tools should still update when another tool fails.
+		for step in brew nvim claude; do
+			sys-update "$step" || failed+=("$step")
+		done
+		if [ ${#failed[@]} -gt 0 ]; then
+			printf '==> sys-update tools: failed: %s\n' "${failed[*]}" >&2
+			return 1
+		fi
+		echo '==> sys-update tools: done'
+		;;
+	*)
+		echo "sys-update: unknown command '$action'; see sys-update help" >&2
+		return 2
+		;;
+	esac
+}
+
+sh_complete_sys_update() {
+	COMPREPLY=()
+	if [ "$COMP_CWORD" -eq 1 ]; then
+		local candidate
+		while IFS= read -r candidate; do
+			COMPREPLY+=("$candidate")
+		done < <(compgen -W 'help list check pins brew nvim claude tools' -- "${COMP_WORDS[1]}")
 	fi
-	# lazy.nvim's headless entry point. `Lazy! sync` is the non-interactive
-	# form (no confirmation prompt); it installs, updates, and cleans in one
-	# pass, then rewrites nvim/lazy-lock.json in this checkout.
-	echo "==> Updating Neovim plugins (lazy.nvim sync)"
-	nvim --headless "+Lazy! sync" +qa
 }
-
-# pet: Update all system packages (Homebrew on macOS, no-op under Nix-managed systems)
-update-packages() {
-	if sh_have brew; then
-		echo "==> Updating Homebrew packages"
-		brew update && brew upgrade && brew cleanup
-		return
-	fi
-	# On NixOS the system closure is declarative: package updates come from
-	# `nixupgrade` (flake inputs + rebuild), never from a package manager
-	# reaching out on its own. Nothing to do here by design.
-	if sh_have nixos-rebuild || [ -e /etc/NIXOS ]; then
-		echo "==> Nix-managed system: packages come from nixupgrade — nothing to do"
-		return 0
-	fi
-	echo "update-packages: no supported package manager found — skipping" >&2
-	return 0
-}
-
-# pet: Update Pi itself and its declaratively installed packages.
-update-pi() {
-	if ! sh_have pi; then
-		echo "update-pi: pi is not installed — skipping" >&2
-		return 0
-	fi
-	pi update --self || return
-	update-global-tools pi-packages
-}
-
-# pet: Refresh mutable Claude and Pi state managed by global-tools.
-# With no component, global-tools updates every operation that explicitly opts
-# into updates (currently Claude plugins and Pi packages).
-update-global-tools() {
-	if ! sh_have global-tools; then
-		echo "update-global-tools: global-tools is not installed — skipping" >&2
-		return 0
-	fi
-	echo "==> Updating mutable global tools"
-	global-tools update "$@"
-}
-
-# pet: Refresh Claude's installed plugins through global-tools.
-update-claude-plugins() {
-	update-global-tools claude-plugins
-}
-
-# pet: Refresh Pi packages declared by the agent configuration through global-tools.
-update-pi-packages() {
-	update-global-tools pi-packages
-}
-
-# pet: Run every out-of-band updater (including global-tools-managed state).
-update-all() {
-	local step failed=()
-	for step in update-packages update-nvim update-global-tools; do
-		# Deliberately keep going after a failure: a broken Homebrew tap
-		# shouldn't stop the nvim plugins from updating. Failures are
-		# collected and reported together at the end.
-		"$step" || failed+=("$step")
-	done
-
-	if [ ${#failed[@]} -gt 0 ]; then
-		printf '==> update-all: %s failed\n' "${failed[*]}" >&2
-		return 1
-	fi
-	echo "==> update-all: done"
-}
+if sh_have complete; then
+	complete -o default -F sh_complete_sys_update sys-update
+fi

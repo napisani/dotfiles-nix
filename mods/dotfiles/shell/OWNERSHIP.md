@@ -24,7 +24,7 @@ edits in the checkout take effect immediately without a rebuild.
 | `~/.bashrc`, `~/.bash_profile`, `~/.profile`, `~/.inputrc` | these dotfiles | `bash/` |
 | fzf / atuin / direnv / starship / bash-completion **shell init** | these dotfiles | `bash/rc.d/` |
 | atuin, git, gh **config files** | these dotfiles | `atuin/`, `git/`, `gh/` |
-| Aliases and functions, including the `nix*` rebuild aliases | these dotfiles | `bash/rc.d/5*` |
+| Aliases and functions, including `sys-update` and `nixswitch*` | these dotfiles | `bash/rc.d/5*` |
 | Shell and tool configuration links | Home Manager | explicit out-of-store `home.file` entries in `mods/shell.nix` |
 
 Home Manager is the only deployment adapter. The link inventory is explicit in
@@ -84,10 +84,10 @@ to print those lines dominates startup. Ordering follows each hook's contract:
 The previous setup put the fragment loop *above* home-manager's own interactive
 guard and *above* its `shellAliases`, so ordering silently decided things:
 
-- **`nixupgrade` was defined twice** — once in `0110_alias_and_func.bashrc`, once
-  by nix. Nix was emitted later, so nix always won and the fragment's version was
-  dead code for as long as both existed. The dead one is now deleted and the
-  survivor lives in `55-nix-aliases.sh`, numbered after `51`.
+- **Define each update or activation command in one fragment.**
+  `55-nix-aliases.sh` owns `nixswitch`, `nixswitchup`, and `nixclean`.
+  `56-update-functions.sh` owns the `sys-update` dispatcher and its completion.
+  Pin updates leave a diff; activation is always a separate command.
 - **`have` is not a safe helper name.** bash-completion ends with
   `unset -f have; unset -v have` (it used to provide its own `have`), so any
   helper called `have` evaporates the moment `20-bash-completion.sh` runs, and
@@ -114,6 +114,10 @@ than a port. Each is a separate decision:
   used one.
 
 ## Verifying a change
+
+Run `./tests/updates.sh` for update/activation command regression tests. Its
+native commands and dependency CLI are fixtures; it never updates real tools
+or runs a real rebuild.
 
 Run the focused smoke test after changing shell initialization. It starts the
 installed login shell, fails on unexpected startup stderr, verifies generated

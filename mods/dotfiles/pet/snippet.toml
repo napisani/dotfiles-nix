@@ -43,7 +43,7 @@
 
 
 # [[snippets]]
-#   description = "update nixpkgs in home manager flake"
-#   command = "nixpkgup"
+#   description = "update core Nix dependency pins"
+#   command = "sys-update pins nix-core"
 #   tag = ['nix', 'home manager', 'flake', 'update']
 

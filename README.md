@@ -31,6 +31,34 @@ to inspect the installed generation, or `global-tools repair [component]` for
 native repair. Neither reads unswitched configuration edits or repairs Nix-owned
 links. See the [lifecycle contract](docs/contracts/declarative-tooling.md) for details.
 
+## Updating and applying your setup
+
+Run `sys-update` for help, or press Tab after `sys-update ` to discover its commands.
+Dependency commands use the monorepo's `scripts/deps.ts` from any directory:
+
+```sh
+sys-update list                 # list every dependency domain and its pins
+sys-update check                # check the dotfiles project's pins
+sys-update pins nix-core        # update and verify one domain, without switching
+sys-update pins pi              # update pinned Pi packages
+```
+
+Checks and pin updates default to `--project dotfiles-nix`. Pass another
+`--project NAME` to change the scope. Review the diff and any changed agent
+content before applying it with `nixswitch`. Standalone clones can still apply
+configuration, but dependency commands require the monorepo checkout.
+
+`sys-update brew`, `sys-update nvim`, and `sys-update claude` call their native updaters.
+`sys-update tools` runs all three, skips tools that are absent, and reports failures
+without stopping the remaining updates. Neovim sync rewrites `lazy-lock.json`;
+Homebrew packages and Claude plugins are unpinned.
+
+Activation and cleanup remain separate:
+
+- `nixswitch` applies the current configuration without updating pins.
+- `nixswitchup` pulls configuration changes, then applies them.
+- `nixclean` deletes old Nix generations and optimizes the store.
+
 ## How to use (Linux)
 
 
@@ -71,7 +99,7 @@ nix-shell '<home-manager>' -A install
    git clone git@github.com:napisani/monorepo.git && cd monorepo/pub/dotfiles-nix
    ```
    Each host's flake config sets its own `homeManagerRelPath` (see `flake.nix`/`lib/builders.nix`)
-   so out-of-store symlinks and the `nixswitch*` aliases resolve to wherever you actually checked
+   so out-of-store symlinks and the `nixswitch*` functions resolve to wherever you actually checked
    this out — no extra config needed beyond cloning to the expected path for that host.
 
 3. one-time build of the  `darwin-rebuild` binary

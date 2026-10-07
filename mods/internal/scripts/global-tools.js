@@ -3,9 +3,8 @@
 const fs = require("node:fs");
 const { spawnSync } = require("node:child_process");
 
-const MODES = ["status", "apply", "repair", "check-updates", "update"];
-const USAGE =
-  "global-tools {status|apply|repair|check-updates|update} [component]";
+const MODES = ["status", "apply", "repair", "update"];
+const USAGE = "global-tools {status|apply|repair|update} [component]";
 
 function main() {
   const [manifestPath, mode = "status", component, ...extra] = process.argv
@@ -29,7 +28,7 @@ function main() {
   failed = runOperations(manifest, mode, component) || failed;
 
   // Files are Nix-owned links: there is nothing for this CLI to update.
-  if (component === "files" && ["update", "check-updates"].includes(mode)) {
+  if (component === "files" && mode === "update") {
     throw new Error("files: update Nix inputs/declarations, then switch");
   }
   return failed ? 1 : 0;
@@ -75,7 +74,6 @@ function checkManagedFiles(manifest) {
 
 // Pick the command a given mode runs for an operation, or null if unsupported.
 function commandFor(op, mode) {
-  if (mode === "check-updates") return op.checkUpdates;
   if (mode === "update") return op.canUpdate ? op.command : null;
   return op.command;
 }

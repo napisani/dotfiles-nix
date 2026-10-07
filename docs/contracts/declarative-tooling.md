@@ -161,10 +161,11 @@ Workmux hook templates are also generation-bound; activation never bootstraps
 npm dependencies into the checkout.
 
 `GLOBAL_TOOLS_FORCE_REPAIR=1` forces reinstall/repair without changing desired state.
-`GLOBAL_TOOLS_UPDATE=1` explicitly refreshes Claude marketplaces/plugins and reruns
-Pi's native package reconciliation. `global-tools-check-updates` performs the
-otherwise-network-free registry check for exact global npm versions; reported
-versions update only when their declaration changes.
+`GLOBAL_TOOLS_UPDATE=1` explicitly refreshes Claude marketplaces/plugins, the
+only unpinned operation. Global npm tool versions and Pi packages are pinned in
+their declarations and change only when those declarations change; in the
+monorepo, `make deps-check DOMAIN=npm-tools` (or `pi`) reports newer versions and
+`make deps-update` rewrites the declarations.
 
 ## Operations
 
@@ -174,8 +175,7 @@ global-tools status claude-settings # settings and RTK hooks; claude-mcp checks 
 global-tools apply                 # normal convergence for the installed generation
 global-tools repair                # force native repair; reapply writable config
 global-tools repair pi-packages    # one component
-global-tools check-updates         # report newer exact npm versions
-global-tools update                # explicit mutable Claude/Pi refresh
+global-tools update                # explicit mutable Claude plugin refresh
 ```
 
 The CLI and activation execute the same generated command files, in the same

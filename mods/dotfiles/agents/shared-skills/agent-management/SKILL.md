@@ -227,13 +227,12 @@ strict (nonzero on failure); only activation's dispatcher soft-fails them.
 global-tools status                # read-only native/config/link checks
 global-tools repair                # native repair + writable config convergence
 global-tools repair pi-packages    # one component
-global-tools check-updates         # exact npm freshness only
-global-tools update                # mutable Claude/Pi refresh only
+global-tools update                # mutable Claude plugin refresh only
 ```
 
 These use the installed generation's declarations, not an arbitrary checkout.
 `global-tools repair` reports broken Home Manager links but does not recreate them;
-restore Nix-owned files with a switch. `global-tools-check-updates` is the standalone shortcut.
+restore Nix-owned files with a switch.
 RTK is selected with `agents.<agent>.rtk.enable` and generated from
 `agents.rtkPackage` in isolated Nix builds. Never reintroduce live `rtk init`
 activation against the now-immutable instruction files.
@@ -250,14 +249,18 @@ per-host read-only MCP audits and RTK reproducibility checks on upgrades.
 # Reinstall/repair the currently declared assets.
 GLOBAL_TOOLS_FORCE_REPAIR=1 darwin-rebuild switch --flake .
 
-# Refresh mutable Claude/Pi native assets explicitly.
+# Refresh mutable Claude plugins explicitly.
 GLOBAL_TOOLS_UPDATE=1 darwin-rebuild switch --flake .
 ```
 
-Run `global-tools check-updates` for an explicit registry check of exact global npm
-tool versions. Update the reported `nativeTools.npm.tools` declarations; the
-next switch installs only changed versions. Skills remain pinned by
-`flake.lock` and update through `nix flake update <input>`.
+Global npm tool versions (`nativeTools.npm.tools`) and Pi packages
+(`agents.pi.packages`, each `npm:<name>@<version>` or `git:<repo>@<tag|commit>`)
+are exact pins; the next switch installs only changed ones. Skills are pinned by
+`flake.lock`. In the monorepo, check and move all of them from the root:
+`make deps-check DOMAIN=npm-tools|pi|skills`, then
+`make deps-update DOMAIN=<domain> [ITEMS="<name> …"]`, which also regenerates
+dependent locks. A standalone clone edits the declarations by hand and uses
+`nix flake update <input>` for skills.
 
 ## Verification
 

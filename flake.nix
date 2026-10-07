@@ -44,7 +44,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    proctmux.url = "github:napisani/proctmux";
+    proctmux = {
+      url = "github:napisani/proctmux";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     stackman = {
       url = "path:../stackman";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -78,6 +81,12 @@
     look = {
       url = "github:kunkka19xx/look?dir=apps/linows";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    # tmux plugin manager, linked to ~/.tmux/plugins/tpm.
+    tmux-tpm = {
+      url = "github:tmux-plugins/tpm";
+      flake = false;
     };
 
     # ── Community skill sources (content-only, pinned via flake.lock) ──────
@@ -118,10 +127,6 @@
       url = "github:cursor/plugins";
       flake = false;
     };
-    arjunmahishi-dotfiles = {
-      url = "github:arjunmahishi/dotfiles";
-      flake = false;
-    };
     vantage-nvim-skills = {
       url = "path:../vantage-nvim";
       flake = false;
@@ -140,10 +145,6 @@
     };
     workmux-skills = {
       url = "github:raine/workmux";
-      flake = false;
-    };
-    gh-stack-skills = {
-      url = "github:github/gh-stack";
       flake = false;
     };
     no-ai-slop = {

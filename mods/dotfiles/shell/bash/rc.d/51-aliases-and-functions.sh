@@ -76,12 +76,6 @@ function dns-clear() {
 }
 # pet: Change to the Home Manager configuration directory
 alias cdhomeman='cd "${DOTFILES_HOME_MANAGER_DIR:-$HOME/.config/home-manager}"'
-# `nixupgrade` was also defined here as
-#   nix flake lock --update-input nixpkgs-unstable; nix flake lock --update-input nixpkgs
-# but home-manager emitted its own shellAliases after this file, so that
-# definition has always been dead — the flake-update-and-switch version in
-# 55-nix-aliases.sh is what actually ran. Removed rather than carried forward;
-# `nixpkgup` below still does the lock-only update.
 
 # capture the output of a command so it can be retrieved with ret
 # pet: Capture command output for later retrieval
@@ -243,24 +237,8 @@ function color-test {
 # pet: Compare two files in WebStorm
 alias wsdiff='function _wsdiff() { /Applications/WebStorm.app/Contents/MacOS/webstorm diff "$1" "$2"; }; _wsdiff'
 
-# pet: Update the nixpkgs flake inputs without switching
-alias nixpkgup='cdhomeman && nix flake lock --update-input nixpkgs-unstable; nix flake lock --update-input nixpkgs'
-
 # scrollbacktamer aliases
 # pet: Open the scrollback editor
 alias stame='scrollbacktamer'
 # pet: Open the most recent scrollback
 alias stame-last='scrollbacktamer -last 1'
-
-
-
-# pet: Clean old Nix generations and optimize the store
-nix_system_clean() {
-    sudo nix-collect-garbage -d
-    home-manager expire-generations -d
-    nix store gc && sudo nix store optimise
-    sudo nix profile wipe-history
-    home-manager remove-generations old
-    echo "Nix system cleaning complete!"
-}
-
