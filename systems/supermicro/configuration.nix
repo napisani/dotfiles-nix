@@ -16,6 +16,14 @@ let
   # then flip to true and rebuild to activate — no `systemctl` needed.
   gitopsSyncTimerEnabled = true;
 
+  bluetoothReset = pkgs.writeShellApplication {
+    name = "supermicro-bluetooth-reset";
+    runtimeInputs = with pkgs; [
+      bluez coreutils gnugrep kmod kubectl systemd util-linux
+    ];
+    text = builtins.readFile ./scripts/reset-bluetooth.sh;
+  };
+
   # Nix-managed entrypoint so a script always exists to run even before the
   # monorepo is cloned. It clones on first run, then hands off to the
   # versioned reconcile script that lives inside the repo's
@@ -170,6 +178,15 @@ in
   # Tether runs in Kubernetes with host networking and a read-only host D-Bus
   # socket. BlueZ and Avahi remain host-owned services; the pod only consumes
   # their D-Bus APIs.
+  environment.systemPackages = [ bluetoothReset ];
+  security.sudo.extraRules = [{
+    users = [ "nick" ];
+    commands = [
+      { command = "/run/current-system/sw/bin/supermicro-bluetooth-reset preserve"; options = [ "NOPASSWD" ]; }
+      { command = "/run/current-system/sw/bin/supermicro-bluetooth-reset clear"; options = [ "NOPASSWD" ]; }
+    ];
+  }];
+
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
