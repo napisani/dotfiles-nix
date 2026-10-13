@@ -108,6 +108,7 @@ function M.get_keymaps()
 			{ "<leader>vW", with_vantage("generate_walkthrough", command_opts()), desc = "generate walkthrough" },
 			{ "<leader>vc", with_vantage("load_diff_tour"), desc = "load diff tour" },
 			{ "<leader>vC", with_vantage("generate_diff_tour", command_opts()), desc = "generate diff tour" },
+			{ "<leader>vt", with_vantage("open_last_turn"), desc = "open last-turn doc" },
 			{ "<leader>vdl", with_vantage("load_diff_tour"), desc = "load diff tour" },
 			{ "]c", with_vantage("diff_tour_next"), desc = "next diff tour stop" },
 			{ "[c", with_vantage("diff_tour_prev"), desc = "previous diff tour stop" },
