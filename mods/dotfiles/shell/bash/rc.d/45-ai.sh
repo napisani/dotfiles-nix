@@ -60,7 +60,10 @@ function _pi_completion() {
 
 	local instruction="$1"
 	local context="${2-}"
-	local model="${3:-gpt-5.6-luna}"
+	local -a model_args=()
+	if [ -n "${3-}" ]; then
+		model_args=(--model "$3")
+	fi
 	local prompt="$instruction"
 
 	if [ -n "$context" ]; then
@@ -70,11 +73,11 @@ function _pi_completion() {
 
 	local response
 	if ! response=$(pi \
-		--model "$model" \
+		"${model_args[@]}" \
 		--thinking low \
 		--no-session \
 		--no-tools \
-		--no-extensions \
+		--no-mcp \
 		--no-skills \
 		--no-context-files \
 		--no-themes \

@@ -43,6 +43,12 @@ function shq(s) {
   return "'" + String(s).replace(/'/g, "'\\''") + "'";
 }
 
+const { ok: stateOk, managed: previouslyManaged } = readManagedState(stateFile);
+if (declared.length === 0 && previouslyManaged.size === 0) {
+  console.log("model-runtimes: " + backend + ": no declared or managed models; skipping sync");
+  process.exit(0);
+}
+
 let installed;
 try {
   installed = new Set(
@@ -57,7 +63,6 @@ try {
   process.exit(0);
 }
 
-const { ok: stateOk, managed: previouslyManaged } = readManagedState(stateFile);
 const declaredSet = new Set(declared);
 
 // Install anything declared but not present.

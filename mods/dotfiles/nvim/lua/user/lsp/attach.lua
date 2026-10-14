@@ -31,6 +31,10 @@ function M.on_attach(client, bufnr)
 		apply_keymap(client, bufnr, keymap, "v")
 	end
 
+	for _, keymap in ipairs(keymaps.base_insert) do
+		apply_keymap(client, bufnr, keymap, "i")
+	end
+
 	local server_keymaps = load_server_keymaps(client.name)
 	for _, keymap in ipairs(server_keymaps) do
 		apply_keymap(client, bufnr, keymap, keymap.mode or "n")
@@ -38,8 +42,8 @@ function M.on_attach(client, bufnr)
 end
 
 function M.setup()
-	vim.api.nvim_create_autocmd('LspAttach', {
-		group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
+	vim.api.nvim_create_autocmd("LspAttach", {
+		group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
 		callback = function(ev)
 			local client = vim.lsp.get_clients({ id = ev.data.client_id })[1]
 			if client then

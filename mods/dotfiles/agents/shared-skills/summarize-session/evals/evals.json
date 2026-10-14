@@ -1,0 +1,59 @@
+{
+  "skill_name": "summarize-session",
+  "evals": [
+    {
+      "id": 1,
+      "name": "in-progress-known-motivation",
+      "prompt": "/summarize-session\n\nFixture session: branch `fix/export-timeout`, ticket ENG-412 (\"CSV export times out for large accounts\"). The user said support is escalating because enterprise customers cannot export their ledgers. The agent found the export loaded every row into memory, switched it to a streamed query, and added a regression test with 50k rows (passing). Two commits are on the branch, not pushed. The user still wants the 200k-row case benchmarked before opening a PR.",
+      "expected_output": "A 150-250 word brief in the approved ## / ### format. Why ties ENG-412 to enterprise customers being unable to export. Done lists 3-5 outcomes (streaming change, regression test passing, decision and reason). Where we are separates committed from not pushed and PR not opened. Next is the 200k-row benchmark. No files written, no commands beyond read-only git checks.",
+      "files": [],
+      "expectations": [
+        "Output uses the sections Why, Done, Where we are, Next under a task heading with a worktree/branch status line",
+        "Why connects the ticket to the underlying customer problem rather than only restating the ticket title",
+        "Where we are states the work is committed but not pushed",
+        "Next names the 200k-row benchmark as the next action",
+        "Only read-only commands were run and no file was written"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "implemented-not-activated",
+      "prompt": "/summarize-session\n\nFixture session: a Nix-managed dotfiles repo. The user wanted a new manual-only agent skill so they can recap worktrees quickly. The agent added the skill files, registered it in the catalog, selected it in the shared skill list, staged the new files, and ran `nix flake check` (green). Nothing is committed. No system switch has been run, so no agent has the skill installed yet.",
+      "expected_output": "A brief whose Where we are distinguishes implemented and tested (flake check green) from not committed and not activated, and says the skill is unavailable to agents until a switch. Next is review/commit, then activation after the user chooses to switch. No claim that the skill is installed.",
+      "files": [],
+      "expectations": [
+        "Distinguishes implemented and verified from uncommitted",
+        "States explicitly that the skill is not yet activated or installed",
+        "Next separates committing from a later switch",
+        "Does not run a build, check, switch, or commit to produce the recap"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "missing-motivation-thin-context",
+      "prompt": "/summarize-session\n\nFixture session: context was just compacted and holds only a one-line note, \"continuing work\". The worktree is on branch `chore/queue-retry-backoff` with one commit, \"add jittered backoff to queue retries\", and an uncommitted change to the retry test file. No ticket or PR is mentioned anywhere.",
+      "expected_output": "Opens with one line naming the evidence limit. Why says motivation is not recorded and offers a labeled inference from the branch name and commit message only. Done and Where we are come from git state (one commit, uncommitted test edit) without claiming tests pass. Next suggests reviewing the uncommitted test change. No clarifying questionnaire and no invented ticket.",
+      "files": [],
+      "expectations": [
+        "States the evidence limit before or inside the brief",
+        "Labels any motivation as inferred, or says it is not recorded",
+        "Does not invent a ticket, customer, or incident",
+        "Does not claim tests pass or the work is finished",
+        "Delivers a partial recap instead of asking questions first"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "unrelated-multi-task-history",
+      "prompt": "/summarize-session\n\nFixture session, in order: (a) 20 messages debugging a flaky CI job on a different repo, resolved and unrelated to this worktree; (b) the user asks to add rate limiting to the public /search endpoint in this worktree (branch `feat/search-rate-limit`) because scraping is degrading latency; the agent adds a token-bucket middleware and unit tests (passing, uncommitted); (c) a side question about which YAML parser to use in a separate script, answered, no change made here.",
+      "expected_output": "The main brief covers only the rate-limiting task: why scraping degrades latency, the middleware and passing unit tests, uncommitted state, next step. The CI debugging and YAML question are omitted or at most a single-line mention. The tasks are not merged into one story.",
+      "files": [],
+      "expectations": [
+        "Main brief is about the /search rate limiting task",
+        "Why cites scraping degrading latency",
+        "CI debugging and the YAML parser question are omitted or at most one line, not woven into Done",
+        "States the change is uncommitted with unit tests passing"
+      ]
+    }
+  ]
+}

@@ -47,6 +47,48 @@ function mkTmpDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "apply-models-test-"));
 }
 
+test("an empty declaration and ownership set do not query the runtime", () => {
+  const dir = mkTmpDir();
+  const a = fakeAdapter(dir);
+  const queried = path.join(dir, "queried");
+  run(dir, a, [], { LIST_CMD: `touch '${queried}'; exit 9` });
+  assert.equal(fs.existsSync(queried), false);
+  assert.equal(fs.existsSync(path.join(dir, "state.json")), false);
+});
+
+test("an existing empty ownership file does not require a running runtime", () => {
+  const dir = mkTmpDir();
+  const a = fakeAdapter(dir);
+  const state = path.join(dir, "state.json");
+  fs.writeFileSync(state, "[]\n");
+  const queried = path.join(dir, "queried");
+  run(dir, a, [], { LIST_CMD: `touch '${queried}'; exit 9` });
+  assert.equal(fs.existsSync(queried), false);
+  assert.equal(fs.readFileSync(state, "utf8"), "[]\n");
+});
+
+test("the configured Ollama listing preserves ownership when the server is unavailable", () => {
+  const dir = mkTmpDir();
+  const a = fakeAdapter(dir);
+  const state = path.join(dir, "state.json");
+  fs.writeFileSync(state, '["tracked"]\n');
+  const warnings = path.join(dir, "warnings");
+  const ollama = path.join(dir, "ollama");
+  fs.writeFileSync(ollama, "#!/bin/sh\necho 'server unavailable' >&2\nexit 9\n");
+  fs.chmodSync(ollama, 0o755);
+  const module = fs.readFileSync(path.join(__dirname, "../../model-runtimes.nix"), "utf8");
+  const encoded = module.match(/list = ("(?:\\.|[^"\\])*");/);
+  assert.ok(encoded, "expected the configured Ollama list command");
+  const list = JSON.parse(encoded[1]).replaceAll("${awk}", "awk");
+  run(dir, a, [], {
+    LIST_CMD: list,
+    PATH: dir + path.delimiter + process.env.PATH,
+    GLOBAL_TOOLS_WARN_FILE: warnings,
+  });
+  assert.equal(fs.readFileSync(state, "utf8"), '["tracked"]\n');
+  assert.match(fs.readFileSync(warnings, "utf8"), /could not list installed models/);
+});
+
 test("installs declared-missing models and records them in state", () => {
   const dir = mkTmpDir();
   const a = fakeAdapter(dir);

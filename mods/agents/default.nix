@@ -51,8 +51,8 @@
       # range breaks dependency resolution for the other Pi extensions. See
       # WORKAROUNDS.md.
       settings = {
-        defaultProvider = "openai-codex";
-        defaultModel = "gpt-5.6-luna";
+        defaultProvider = "claude-bridge";
+        defaultModel = "claude-sonnet-5-5";
         defaultThinkingLevel = "high";
         transport = "sse";
         theme = "kanagawa-dragon";

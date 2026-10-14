@@ -69,6 +69,12 @@ function M.open_file_keep_picker_focus(picker, item)
 		return false
 	end
 
+	local editing_win = require("user.utils.edit_navigation").route_picker(picker)
+	if editing_win then
+		require("snacks.picker.actions").jump(picker, item, {})
+		return true
+	end
+
 	local list_win = picker.list and picker.list.win and picker.list.win.win
 	local target_win = picker.main
 

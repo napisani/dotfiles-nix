@@ -57,6 +57,7 @@ pkgs.runCommand "native-install-contract"
       ]
     }
     cp ${../mods/internal/model-runtimes/scripts}/*.test.cjs fixture/model-runtimes/scripts/
+    cp ${../mods/internal/model-runtimes.nix} fixture/model-runtimes.nix
     cp ${../mods/internal/scripts}/*.test.cjs fixture/scripts/
     cp -R ${../mods/internal/scripts/test-fixtures} fixture/scripts/test-fixtures
     cp ${../mods/internal/scripts/lib/reconcile-installs.test.cjs} fixture/scripts/lib/reconcile-installs.test.cjs

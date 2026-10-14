@@ -196,10 +196,15 @@ function workmux-pr-review() {
 
   local pr
   local failed=0
+  # Keep going after a failure so every PR that can open does; the count is
+  # reported once at the end rather than aborting the loop.
   for pr in "$@"; do
-    workmux add "review_$pr" \
+    if ! workmux add "review_$pr" \
       --pr "$pr" \
-      --prompt "$(ai_skill multi-valued-review) on the changes made in this pr: $pr" || failed=$((failed + 1))
+      --prompt "$(ai_skill multi-valued-review) on the changes made in this pr: $pr"; then
+      echo "workmux-pr-review: failed to open review for '$pr'" >&2
+      failed=$((failed + 1))
+    fi
   done
 
   if [ "$failed" -gt 0 ]; then
@@ -207,6 +212,10 @@ function workmux-pr-review() {
     return 1
   fi
 }
+
+# Single-quoted so gh runs on each invocation, not when this file is sourced.
+# pet: Open workmux review windows for every open PR awaiting my review
+alias workmux-pr-review-all='workmux-pr-review $(gh pr list --search "is:pr state:open user-review-requested:@me" --limit 1000 --json number --jq ".[].number" | tr "\n" " ")'
 
 # pet: Display a terminal color gradient
 function color-test {

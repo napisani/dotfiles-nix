@@ -135,6 +135,10 @@
       url = "github:microsoft/playwright-cli";
       flake = false;
     };
+    gogcli-skills = {
+      url = "github:openclaw/gogcli";
+      flake = false;
+    };
     deepagents = {
       url = "github:langchain-ai/deepagents";
       flake = false;

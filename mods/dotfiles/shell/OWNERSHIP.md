@@ -115,6 +115,12 @@ than a port. Each is a separate decision:
 
 ## Verifying a change
 
+Run `./tests/workmux.sh` after changing the `workmux-pr-review-all` alias; it stubs
+`gh` and `workmux-pr-review`.
+
+Run `./tests/workmux-pr-review.sh` after changing `workmux-pr-review`; it stubs `workmux`
+and covers partial failures under `set -e` and `set -eu`.
+
 Run `./tests/updates.sh` for update/activation command regression tests. Its
 native commands and dependency CLI are fixtures; it never updates real tools
 or runs a real rebuild.

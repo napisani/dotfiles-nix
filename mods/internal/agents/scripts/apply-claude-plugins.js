@@ -21,11 +21,12 @@ let inventory;
 function plugins() {
   if (!inventory) {
     const entries = JSON.parse(run(["plugin", "list", "--json"], true));
+    // Claude adds scopes over time (synced, managed). Only user scope is
+    // installer-owned, so other scopes need a string name, not a known one.
     if (
       !Array.isArray(entries) ||
       !entries.every((entry) =>
-        typeof entry?.id === "string" &&
-        ["user", "project", "local"].includes(entry.scope)
+        typeof entry?.id === "string" && typeof entry.scope === "string"
       )
     ) throw new Error("invalid Claude plugin inventory");
     inventory = new Map(
@@ -99,7 +100,9 @@ try {
       } catch (error) {
         // Explicit repair may reinstall a declared uncertain asset, but must
         // not infer that an unknown native installation may be uninstalled.
-        if (!repair && !update) throw error;
+        // Update must not fall back to install: it reports an installed
+        // plugin as current without upgrading it.
+        if (!repair) throw error;
       }
       inventory = null;
       if (repair && present) {

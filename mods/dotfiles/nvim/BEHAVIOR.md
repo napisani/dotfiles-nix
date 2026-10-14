@@ -18,6 +18,34 @@
 
 ---
 
+## Background resource use
+
+Every launch defers registry-classified heavyweight LSPs, including TypeScript
+and Python analysis. Source insertion or a mapped semantic request such as `gd`
+starts the matching servers asynchronously. Prompt editing and file browsing do
+not. `<leader>lo` eagerly enables all selected LSPs or turns them off. Explicit
+off stays off until toggled on or `:LspEnable` is run. No launch flag is needed.
+
+After 15 minutes unfocused, enabled heavyweight LSPs sleep. Returning resumes
+only those suspended by idle sleep. Unsaved buffers, undo, windows, and Vantage
+stay running. Background statusline refresh slows down and recovers on focus.
+`:IdleStatus` shows focus, LSP mode, and deferred/sleeping servers.
+
+This applies to newly started editors. See the [resource lifecycle
+notes](../../../docs/neovim-resource-lifecycle.md).
+
+## Navigation from Diffview
+
+File and buffer picker selections, including split selections and quickfix export,
+open in the editing tab that the Diffview tab was opened from. Canceling a picker
+stays in Diffview. LSP goto requests use the diff buffer and cursor, then open
+results or location lists in that editing tab. This includes `gd`, `gD`, `gy`,
+`gi`, `gr`, and the stock `gri`, `grr`, `grt` aliases.
+
+The Diffview tab stays open with its layout and cursor positions intact. Switch
+back with your usual tab navigation to continue reviewing. If the original tab
+was closed, navigation uses another non-Diffview tab or creates an editing tab.
+
 ## Inside fuzzy pickers
 
 `<C-q>` → leaf: send the currently displayed picker results to the quickfix list and open it; if items are explicitly selected, send only the selection
@@ -41,6 +69,8 @@
 `<C-_>` → [nv] leaf: toggle comment on line or selection
 
 `gd` → leaf: jump to definition (LSP)  
+`gD` → leaf: jump to declaration (LSP)\
+`gy` / `grt` → leaf: jump to type definition (LSP)\
 `gr` → leaf: show all references (LSP); hides references in disabled file categories (see `<leader><leader>st`)
 `gi` → leaf: jump to implementation (LSP); hides implementations in disabled file categories (see `<leader><leader>st`)
 `gl` → leaf: show inline diagnostics float for current line  
@@ -147,6 +177,8 @@
 `<leader>lf` → leaf: format current buffer using the project's configured formatter  
 `<leader>ll` → leaf: refresh and run code lens at cursor  
 `<leader>li` → leaf: organize imports (Go and TypeScript; no-op for other filetypes)  
+`<leader>lo` → leaf: toggle all selected LSPs; explicit off stays off across editing and focus changes
+
 `<leader>lE` → leaf: populate location list with all diagnostics in current buffer  
 `<leader>lR` → leaf: restart all attached LSP servers  
 `<leader>lc` → [nv] leaf: toggle comment on current line or selection  

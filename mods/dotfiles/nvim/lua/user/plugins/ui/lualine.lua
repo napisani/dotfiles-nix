@@ -1,4 +1,5 @@
 local M = {}
+local focused_refresh
 
 function M.setup()
 	local status_ok, lualine = pcall(require, "lualine")
@@ -93,6 +94,26 @@ function M.setup()
 		tabline = {},
 		extensions = {},
 	})
+	focused_refresh = lualine.get_config().options.refresh
+end
+
+function M.set_focused(focused)
+	if not focused_refresh then
+		return
+	end
+	local lualine = require("lualine")
+	local refresh = vim.deepcopy(focused_refresh)
+	if not focused then
+		refresh.refresh_time = 1000
+		refresh.statusline = 5000
+		refresh.tabline = 5000
+		refresh.winbar = 5000
+		refresh.events = { "FocusGained" }
+	end
+	lualine.setup({ options = { refresh = refresh } })
+	if focused then
+		lualine.refresh({ force = true, scope = "all" })
+	end
 end
 
 function M.get_keymaps()

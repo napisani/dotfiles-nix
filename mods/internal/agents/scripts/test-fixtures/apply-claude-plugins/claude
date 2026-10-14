@@ -15,6 +15,11 @@ const writeInstalled = (entries) => {
   fs.mkdirSync(path.dirname(stateFile), { recursive: true });
   fs.writeFileSync(stateFile, JSON.stringify(entries));
 };
+const upgradedFile = stateFile && path.join(path.dirname(stateFile), "upgraded.json");
+const readUpgraded = () =>
+  upgradedFile && fs.existsSync(upgradedFile)
+    ? JSON.parse(fs.readFileSync(upgradedFile, "utf8"))
+    : [];
 const artifactPath = (id) => path.join(path.dirname(stateFile), "artifacts", encodeURIComponent(id));
 
 if (args[0] !== "plugin") process.exit(2);
@@ -28,16 +33,34 @@ if (args[1] === "marketplace") {
 }
 
 if (args[1] === "list" && args.includes("--json")) {
+  if (process.env.CLAUDE_LIST_INVALID === "schema") {
+    process.stdout.write(JSON.stringify([{ id: "plugin@m", scope: 7 }]));
+    process.exit(0);
+  }
   if (process.env.CLAUDE_LIST_INVALID) {
     process.stdout.write("not-json");
     process.exit(0);
   }
+  const upgraded = readUpgraded();
   const entries = readInstalled().map((id) => ({
     id,
+    version: upgraded.includes(id) ? "0.2.0" : "0.1.0",
     scope: "user",
     enabled: true,
     installPath: artifactPath(id),
   }));
+  // Claude Code 2.1.287 also lists entries from other scopes: stale per-project
+  // copies, claude.ai-synced plugins (one shadowed, with an empty installPath),
+  // and a user-scope entry that failed to load.
+  entries.push(
+    { id: "datadog@synced", version: "0.7.17", scope: "synced", enabled: true, installPath: artifactPath("datadog@synced") },
+    {
+      id: "plugin@synced", version: "unknown", scope: "synced", enabled: true, installPath: "",
+      notes: ["not loaded: shadowed"], noteDetails: [{ type: "synced-plugin-shadowed", related: "plugin@m" }],
+    },
+    { id: "plugin@m", version: "0.0.1", scope: "local", enabled: true, installPath: artifactPath("plugin@m"), projectPath: "/tmp/project" },
+    { id: "skills@skills-dir", version: "unknown", scope: "user", enabled: false, installPath: "", errors: ["not loaded"], errorDetails: [{ type: "generic-error" }] },
+  );
   process.stdout.write(JSON.stringify(entries));
   process.exit(0);
 }
@@ -46,7 +69,11 @@ const id = args[2];
 if (args[1] === "install") {
   if (process.env.CLAUDE_FAIL_INSTALL === id) process.exit(1);
   const entries = readInstalled();
-  if (!entries.includes(id)) entries.push(id);
+  if (entries.includes(id)) {
+    console.log(`Plugin "${id}" is already installed (scope: user)`);
+    process.exit(0);
+  }
+  entries.push(id);
   fs.mkdirSync(artifactPath(id), { recursive: true });
   writeInstalled(entries);
 } else if (args[1] === "uninstall") {
@@ -55,4 +82,5 @@ if (args[1] === "install") {
   fs.rmSync(artifactPath(id), { recursive: true, force: true });
 } else if (args[1] === "update") {
   if (process.env.CLAUDE_FAIL_UPDATE === id) process.exit(1);
+  fs.writeFileSync(upgradedFile, JSON.stringify([...readUpgraded(), id]));
 }

@@ -52,6 +52,7 @@ in
       ".config/shell" = mkForcedSym "shell";
       ".config/atuin/config.toml" = mkShellFile "atuin/config.toml";
       ".config/gh/config.yml" = mkShellFile "gh/config.yml";
+      ".config/workmux/config.yaml" = mkForcedSym "workmux-config.yaml";
       ".config/git/config" = mkShellFile "git/config";
       ".config/git/ignore" = mkShellFile "git/ignore";
       ".config/git/local-include" = mkShellFile "git/local-include";
@@ -81,8 +82,7 @@ in
       ".config/karabiner/karabiner.json" = mkForcedSym "karabiner.json";
 
       ".look/config" = mkForcedSym "look-config";
-      ".look/sources/window-management.toml" =
-        mkForcedSym "look-sources/window-management.toml";
+      ".look/sources/window-management.toml" = mkForcedSym "look-sources/window-management.toml";
       ".look/sources/terminal.toml" = mkForcedSym "look-sources/terminal.toml";
 
       # Frequently edited user-facing config stays live-editable.

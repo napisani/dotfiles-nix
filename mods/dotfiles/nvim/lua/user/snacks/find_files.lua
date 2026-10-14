@@ -86,6 +86,7 @@ function M.find_path_files(opts)
 									opts.confirm(picker, item)
 								else
 									if picker then
+										require("user.utils.edit_navigation").route_picker(picker)
 										picker:close()
 									end
 									vim.cmd("edit " .. vim.fn.fnameescape(file_path))

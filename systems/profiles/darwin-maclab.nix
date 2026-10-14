@@ -21,9 +21,9 @@
 
     brews = [
       "helm"
-
+      "openclaw/tap/gogcli"
     ];
 
-    taps = [ ];
+    taps = [ "openclaw/tap" ];
   };
 }

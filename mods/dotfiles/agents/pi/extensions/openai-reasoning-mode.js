@@ -91,24 +91,10 @@ function readSettings(settingsPath = defaultSettingsPath()) {
   }
 }
 
-async function applyStartupDefaults(api, ctx, state, settings) {
+function applyStartupDefaults(ctx, state, settings) {
   if (!isRecord(settings)) {
     updateStatus(state, ctx);
     return;
-  }
-
-  if (typeof settings.defaultProvider === "string" && typeof settings.defaultModel === "string") {
-    const model = ctx && ctx.modelRegistry && typeof ctx.modelRegistry.find === "function"
-      ? ctx.modelRegistry.find(settings.defaultProvider, settings.defaultModel)
-      : undefined;
-
-    if (model && typeof api.setModel === "function") {
-      await api.setModel(model);
-    }
-  }
-
-  if (typeof settings.defaultThinkingLevel === "string" && THINKING_LEVELS.includes(settings.defaultThinkingLevel)) {
-    api.setThinkingLevel(settings.defaultThinkingLevel);
   }
 
   if (isRecord(settings.openaiReasoningMode) && typeof settings.openaiReasoningMode.fast === "boolean") {
@@ -149,8 +135,8 @@ function openaiReasoningMode(api, options = {}) {
     };
   });
 
-  api.on("session_start", async (_event, ctx) => {
-    await applyStartupDefaults(api, ctx, state, loadSettings());
+  api.on("session_start", (_event, ctx) => {
+    applyStartupDefaults(ctx, state, loadSettings());
   });
 }
 

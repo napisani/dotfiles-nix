@@ -9,22 +9,7 @@ if not mason_lsp_ok then
 	return
 end
 local M = {}
-local servers = {
-	"bashls",
-	"cssls",
-	"gopls",
-	"denols",
-	"expert",
-	"jsonls",
-	"lua_ls",
-	-- "pyright",
-	"basedpyright",
-	"ruff",
-	"yamlls",
-	"vtsls",
-	"efm",
-	"zls",
-}
+local servers = require("user.lsp.registry").configured
 
 mason.setup({})
 

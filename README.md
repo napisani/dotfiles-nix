@@ -31,6 +31,10 @@ to inspect the installed generation, or `global-tools repair [component]` for
 native repair. Neither reads unswitched configuration edits or repairs Nix-owned
 links. See the [lifecycle contract](docs/contracts/declarative-tooling.md) for details.
 
+Google Workspace access for agents uses `gog` and its shared skills.
+See [Google account setup](docs/gog.md) for OAuth authorization and read-only
+verification commands.
+
 ## Updating and applying your setup
 
 Run `sys-update` for help, or press Tab after `sys-update ` to discover its commands.

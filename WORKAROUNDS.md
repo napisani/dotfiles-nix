@@ -42,6 +42,19 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 | **Remove when** | Upstream plugins use only the positional form; `:checkhealth vim.deprecated` stays clean **without** this wrapper. |
 | **How to verify** | `nvim --headless -u init.vim -c "checkhealth vim.deprecated" -c "qa"` from `mods/dotfiles/nvim` (or interactive `:checkhealth vim.deprecated`). |
 
+### Native LSP shutdown during initialization
+
+Neovim 0.12.5's `vim.lsp.enable(name, false)` stops initialized clients, but can
+miss a client still initializing. If its source buffer closes before `LspAttach`,
+an attachment hook cannot stop the leftover process either.
+
+`mods/dotfiles/nvim/lua/user/lsp/lifecycle.lua` checks the current enable/sleep
+policy in `on_init`, preserving existing initialization callbacks. Remove this
+guard when native disable reliably stops initializing clients whose source
+buffers close. Verify with
+`mods/dotfiles/nvim/tests/lsp_first_use_spec.lua`, which closes the source buffer
+while a slow server initializes after a manual toggle off.
+
 ### Experimental `ui2` (Neovim 0.12+)
 
 | Item | Detail |

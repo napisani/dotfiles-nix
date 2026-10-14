@@ -80,6 +80,32 @@ test("/reasoning rejects invalid thinking levels", async () => {
   assert.equal(ctx.notifications.at(-1).level, "error");
 });
 
+for (const fast of [undefined, false]) {
+  test(`fast mode stays off for all models with fast=${fast}`, async () => {
+    const api = makeApi();
+    const ctx = makeCtx();
+    openaiReasoningMode(api, {
+      readSettings: () => fast === undefined ? {} : { openaiReasoningMode: { fast } },
+    });
+    await api.events.get("session_start")({}, ctx);
+
+    for (const model of ["gpt-5.6-luna", "gpt-5-codex", "claude-sonnet-5-5"]) {
+      const payload = {
+        model,
+        stream: true,
+        instructions: "do work",
+        input: [],
+        tool_choice: "auto",
+        prompt_cache_key: "cache-key",
+      };
+      const result = await api.events.get("before_provider_request")({ payload });
+      assert.equal(result, undefined, model);
+      assert.equal(payload.service_tier, undefined, model);
+    }
+    assert.deepEqual(ctx.statuses.at(-1), { key: "openai-fast", value: undefined });
+  });
+}
+
 test("/fast on enables priority service tier for OpenAI Codex payloads", async () => {
   const api = makeApi();
   const ctx = makeCtx();
@@ -106,6 +132,7 @@ test("/fast off stops adding priority service tier", async () => {
   const ctx = makeCtx();
 
   openaiReasoningMode(api);
+  await api.commands.get("fast").handler("on", ctx);
   await api.commands.get("fast").handler("off", ctx);
 
   const result = await api.events.get("before_provider_request")({
@@ -122,20 +149,20 @@ test("/fast off stops adding priority service tier", async () => {
   assert.equal(result, undefined);
 });
 
-test("startup defaults set model, thinking, and fast mode from settings", async () => {
+test("startup settings load fast mode without changing model or thinking", () => {
   const api = makeApi();
   const ctx = makeCtx();
   const state = { fastMode: false };
 
-  await applyStartupDefaults(api, ctx, state, {
+  applyStartupDefaults(ctx, state, {
     defaultProvider: "openai-codex",
     defaultModel: "gpt-5.5",
     defaultThinkingLevel: "xhigh",
     openaiReasoningMode: { fast: true },
   });
 
-  assert.deepEqual(api.models, [{ provider: "openai-codex", id: "gpt-5.5" }]);
-  assert.deepEqual(api.thinkingLevels, ["xhigh"]);
+  assert.deepEqual(api.models, []);
+  assert.deepEqual(api.thinkingLevels, []);
   assert.equal(state.fastMode, true);
   assert.deepEqual(ctx.statuses.at(-1), { key: "openai-fast", value: "fast:on" });
 });
@@ -145,9 +172,16 @@ test("extension session_start applies fast mode from settings", async () => {
   const ctx = makeCtx();
 
   openaiReasoningMode(api, {
-    readSettings: () => ({ openaiReasoningMode: { fast: true } }),
+    readSettings: () => ({
+      defaultProvider: "claude-bridge",
+      defaultModel: "claude-sonnet-5-5",
+      defaultThinkingLevel: "high",
+      openaiReasoningMode: { fast: true },
+    }),
   });
   await api.events.get("session_start")({}, ctx);
+  assert.deepEqual(api.models, []);
+  assert.deepEqual(api.thinkingLevels, []);
 
   const nextPayload = await api.events.get("before_provider_request")({
     payload: {

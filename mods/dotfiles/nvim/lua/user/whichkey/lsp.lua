@@ -12,11 +12,16 @@ local function convert_to_whichkey_format(keymap_list)
 	return result
 end
 
-local normal_mappings = vim.list_extend(
-	vim.deepcopy(keymaps.whichkey_groups.normal),
-	convert_to_whichkey_format(keymaps.base)
-)
+local normal_mappings =
+	vim.list_extend(vim.deepcopy(keymaps.whichkey_groups.normal), convert_to_whichkey_format(keymaps.base))
 
+table.insert(normal_mappings, {
+	"<leader>lo",
+	function()
+		require("user.lsp.lifecycle").toggle()
+	end,
+	desc = "Toggle all LSPs",
+})
 table.insert(normal_mappings, { "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" })
 table.insert(normal_mappings, { "<leader>lR", "<cmd>:LspRestart<cr>", desc = "(R)estart LSPs" })
 table.insert(normal_mappings, { "<leader>ld", "<cmd>MermaidRenderOpen<cr>", desc = "(d)raw mermaid" })
@@ -30,10 +35,8 @@ table.insert(normal_mappings, {
 	desc = "(w)rap toggle",
 })
 
-local visual_mappings = vim.list_extend(
-	vim.deepcopy(keymaps.whichkey_groups.visual),
-	convert_to_whichkey_format(keymaps.base_visual)
-)
+local visual_mappings =
+	vim.list_extend(vim.deepcopy(keymaps.whichkey_groups.visual), convert_to_whichkey_format(keymaps.base_visual))
 
 table.insert(visual_mappings, { "<leader>lc", "<Plug>ContextCommentary", desc = "(c)omment" })
 

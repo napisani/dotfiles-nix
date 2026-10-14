@@ -129,6 +129,10 @@
   "vantage-author-diff-tour"
   # microsoft/playwright-cli · drive a browser and work with Playwright tests
   "playwright-cli"
+  "gog"
+  "gog-docs"
+  "gog-sheets"
+  "gog-drive"
   # langchain-ai/deepagents · multi-source web research with cited findings
   "web-research"
   # softaworks/agent-toolkit · author Mermaid diagrams of any type
@@ -217,6 +221,11 @@
   "merge-parent-into-branch"
   # repo-local · resolve conflicts after a Stackman rebase stops
   "stackman-rebase-conflicts"
+  # repo-local · re-entry recap of the current worktree task: why, done, where we are, next
+  {
+    name = "summarize-session";
+    manualOnly = true;
+  }
   # repo-local · write a typed call-stack architecture handoff
   "tech-spec"
 ]

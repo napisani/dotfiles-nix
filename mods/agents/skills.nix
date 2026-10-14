@@ -75,6 +75,10 @@ in
   vantage-author-walkthrough = pinned "vantage-nvim-skills" "skills/vantage-author-walkthrough";
   vantage-author-diff-tour = pinned "vantage-nvim-skills" "skills/vantage-author-diff-tour";
   playwright-cli = pinned "playwright-cli-skills" "skills/playwright-cli";
+  gog = pinned "gogcli-skills" ".agents/skills/gog";
+  gog-docs = pinned "gogcli-skills" ".agents/skills/gog-docs";
+  gog-sheets = pinned "gogcli-skills" ".agents/skills/gog-sheets";
+  gog-drive = pinned "gogcli-skills" ".agents/skills/gog-drive";
   web-research = pinned "deepagents" "libs/code/examples/skills/web-research";
   mermaid-diagrams = pinned "softaworks-agent-toolkit" "dist/plugins/mermaid-diagrams/skills/mermaid-diagrams";
 
@@ -148,5 +152,6 @@ in
   rebase-from-parent = local "agents/shared-skills/rebase-from-parent";
   merge-parent-into-branch = local "agents/shared-skills/merge-parent-into-branch";
   stackman-rebase-conflicts = local "agents/shared-skills/stackman-rebase-conflicts";
+  summarize-session = local "agents/shared-skills/summarize-session";
   tech-spec = local "agents/shared-skills/tech-spec";
 }

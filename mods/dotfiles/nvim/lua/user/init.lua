@@ -38,3 +38,4 @@ require("user.autocommands")
 
 -- Finalize exrc manager setup
 exrc_manager.setup()
+require("user.idle").setup()

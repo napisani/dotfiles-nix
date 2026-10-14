@@ -29,32 +29,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 	end,
 })
 
-vim.lsp.enable({
-	"efm",
-	"gopls",
-	"jsonls",
-	"lua_ls",
-	"cssls",
-	"bashls",
-	-- "pyright",
-	"basedpyright",
-	"ruff",
-	"yamlls",
-	"expert",
-	"zls",
-})
-
--- For now, i need to completely disable vtsls for any projects that are
--- using deno, to avoid conflicts.
--- for some reason, the root_dir function and root_markers config options
--- are not working as expected for vtsls.
-local is_deno = vim.fs.root(0, { "deno.json", "deno.jsonc" })
-
-if is_deno then
-	vim.lsp.enable({ "denols" })
-else
-	vim.lsp.enable({ "vtsls" })
-end
+require("user.lsp.lifecycle").setup()
 
 vim.diagnostic.config({
 	virtual_lines = false,

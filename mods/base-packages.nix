@@ -45,7 +45,8 @@ in
       # ngrok
       fd
     ]
-    ++ lib.optionals (system != "x86_64-darwin") [ fff ]
+    # Intel's Nix package set has gogcli 0.11; maclab uses Homebrew instead.
+    ++ lib.optionals (system != "x86_64-darwin") [ fff gogcli ]
     ++ [
 
       # search for packages on nixos

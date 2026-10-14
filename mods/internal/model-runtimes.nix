@@ -27,7 +27,7 @@ let
     probe = "ollama";
     # `ollama list` is a `NAME ID SIZE MODIFIED` table; skip its header and
     # keep explicit tags.
-    list = "ollama list | ${awk} 'NR>1{print $1}'";
+    list = "models=$(ollama list) && printf '%s\\n' \"$models\" | ${awk} 'NR>1{print $1}'";
     install = "ollama pull";
     remove = "ollama rm";
   };

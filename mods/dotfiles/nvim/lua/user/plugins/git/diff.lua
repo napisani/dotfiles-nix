@@ -345,6 +345,9 @@ function M.configure_diffview()
 		enhanced_diff_hl = true,
 		use_icons = true,
 		watch_index = true,
+		hooks = {
+			view_opened = require("user.utils.edit_navigation").remember_origin,
+		},
 		hide_merge_artifacts = false,
 		diffopt = split_diffopt(vim.o.diffopt),
 		view = {

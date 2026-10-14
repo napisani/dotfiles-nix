@@ -13,6 +13,12 @@ let
   localPatched = home.home.file.".codex/skills/classify".source;
   pinnedPatched = home.home.file.".codex/skills/brainstorming".source;
   localLive = home.home.file.".agents/skills/classify".source;
+  gogSkill = home.home.file.".pi/agent/skills/gog".source;
+  gogServiceSkills = map (name: home.home.file.".pi/agent/skills/${name}".source) [
+    "gog-docs"
+    "gog-sheets"
+    "gog-drive"
+  ];
 in
 pkgs.runCommand "skill-patching" { } ''
   test ! -L ${localPatched}
@@ -23,5 +29,12 @@ pkgs.runCommand "skill-patching" { } ''
   test -s ${pinnedPatched}/SKILL.md
   grep -Fx '  allow_implicit_invocation: false' ${pinnedPatched}/agents/openai.yaml
   test -L ${localLive}
+  test -s ${gogSkill}/SKILL.md
+  test -s ${gogSkill}/agents/openai.yaml
+  for source in ${lib.concatStringsSep " " gogServiceSkills}; do
+    test -s "$source/SKILL.md"
+    test -s "$source/agents/openai.yaml"
+    grep -Fq '../gog/SKILL.md' "$source/SKILL.md"
+  done
   touch "$out"
 ''

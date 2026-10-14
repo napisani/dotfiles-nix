@@ -313,6 +313,22 @@
         "type": "github"
       }
     },
+    "gogcli-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1789169160,
+        "narHash": "sha256-JAIN0MaQegHkg1zBsIYf2YIh3VyeFvQdvyXe9U9AZjg=",
+        "owner": "openclaw",
+        "repo": "gogcli",
+        "rev": "a3065f53c38f31ae1c7e0edfcb5923652ee08d03",
+        "type": "github"
+      },
+      "original": {
+        "owner": "openclaw",
+        "repo": "gogcli",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -710,6 +726,7 @@
         "darwin-26": "darwin-26",
         "deepagents": "deepagents",
         "deepwiki-rs-skills": "deepwiki-rs-skills",
+        "gogcli-skills": "gogcli-skills",
         "home-manager": "home-manager",
         "home-manager-26": "home-manager-26",
         "humanlayer-skills": "humanlayer-skills",

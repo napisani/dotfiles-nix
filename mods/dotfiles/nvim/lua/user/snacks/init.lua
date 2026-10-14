@@ -24,6 +24,15 @@ M.opts = get_opts({
 	picker = {
 		enabled = true,
 		ui_select = true,
+		actions = {
+			confirm = require("user.utils.edit_navigation").picker_jump,
+			jump = require("user.utils.edit_navigation").picker_jump,
+			edit = require("user.utils.edit_navigation").picker_jump,
+			qflist = function(picker)
+				require("user.utils.edit_navigation").route_picker(picker)
+				return require("snacks.picker.actions").qflist(picker)
+			end,
+		},
 		layout = function()
 			-- return vim.o.columns >= 120 and "my_picker" or "my_picker_vertical"
 			return "my_horizontal_picker"

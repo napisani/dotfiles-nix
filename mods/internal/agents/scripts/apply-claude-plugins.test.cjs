@@ -139,6 +139,52 @@ test("explicit update refreshes marketplaces and updates plugins", () => {
   assert.ok(!calls.includes("plugin install plugin@m --scope user"));
 });
 
+test("explicit update upgrades an installed plugin past its stale version", () => {
+  const dir = mkTmpDir();
+  const state = path.join(dir, "state.json");
+  const env = declarations(["plugin@m"], state);
+  run(dir, env);
+  const versions = () =>
+    JSON.parse(
+      spawnSync("claude", ["plugin", "list", "--json"], {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          PATH: `${STUB_BIN}:${process.env.PATH}`,
+          CALL_LOG: path.join(dir, "calls.log"),
+          CLAUDE_INSTALL_STATE: path.join(dir, "installed.json"),
+        },
+      }).stdout,
+    ).find((entry) => entry.id === "plugin@m" && entry.scope === "user")
+      .version;
+  assert.equal(versions(), "0.1.0");
+
+  const result = run(dir, { ...env, UPDATE: "1" });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(versions(), "0.2.0");
+});
+
+test("explicit update fails closed on unreadable inventory instead of installing", () => {
+  const dir = mkTmpDir();
+  const log = path.join(dir, "calls.log");
+  const state = path.join(dir, "state.json");
+  const env = declarations(["plugin@m"], state, { CALL_LOG: log });
+  run(dir, env);
+  fs.writeFileSync(log, "");
+
+  const result = run(dir, {
+    ...env,
+    UPDATE: "1",
+    CLAUDE_LIST_INVALID: "1",
+  });
+
+  assert.equal(result.status, 1);
+  const calls = readCalls(log);
+  assert.ok(!calls.some((call) => call.startsWith("plugin install")));
+  assert.ok(!calls.some((call) => call.startsWith("plugin uninstall")));
+});
+
 test("explicit update resolves a marketplace's declared git ref", () => {
   const dir = mkTmpDir();
   const log = path.join(dir, "calls.log");
@@ -222,6 +268,17 @@ test("unknown inventory fails closed; explicit repair only attempts declared ins
   const calls = readCalls(path.join(dir, "calls.log"));
   assert.ok(calls.includes("plugin install plugin@m --scope user"));
   assert.ok(!calls.some((call) => call.startsWith("plugin uninstall")));
+});
+test("inventory entries without a string scope are rejected, not ignored", () => {
+  const dir = mkTmpDir();
+  const state = path.join(dir, "state.json");
+  const env = declarations(["plugin@m"], state, {
+    CLAUDE_LIST_INVALID: "schema",
+  });
+  assert.equal(run(dir, env).status, 1);
+  assert.deepEqual(readCalls(path.join(dir, "calls.log")), [
+    "plugin list --json",
+  ]);
 });
 test("corrupt state is preserved and does not authorize pruning", () => {
   const dir = mkTmpDir();
