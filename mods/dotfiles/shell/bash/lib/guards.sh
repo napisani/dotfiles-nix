@@ -13,6 +13,11 @@ sh_have() {
 	command -v "$1" >/dev/null 2>&1
 }
 
+# The dotfiles checkout every update and activation command operates on.
+sh_dotfiles_dir() {
+	printf '%s\n' "${DOTFILES_HOME_MANAGER_DIR:-$HOME/code/monorepo/pub/dotfiles-nix}"
+}
+
 # Source a file only if it's readable. Returns success either way, so a missing
 # optional file never aborts shell startup.
 sh_source_if() {

@@ -1,8 +1,28 @@
 # toolbox
 
 Personal CLI utilities and shell replacements, scoped to this dotfiles repo.
-Two tiers depending on complexity — both use uv for isolation, both end up as
-plain commands on PATH.
+Two tiers depending on complexity. Both end up as plain commands on PATH.
+Standard-library scripts can run directly with Python; dependency-bearing tools
+use uv for isolation.
+
+## PR checkouts
+
+`workmux_pr.py --purpose development|review <PR> [...]` delegates to native
+Workmux. The shell exposes `workmux-pr` and the review shortcut
+`workmux-pr-review`. Review mode uses the static `workmux-review.json` to skip
+project setup/file operations and start ordinary Neovim plus the configured agent.
+It does not create a registry, pin comparisons, dispatch skills, refresh checkouts,
+or perform cleanup. Invoke review, tour, and recap skills manually in the agent.
+
+The profile suppresses project editor-init and sets a generic picker removal
+block because native Workmux removal can run project teardown. Direct native
+removal bypasses that block. This is not a sandbox for running PR code.
+
+Tests, without installing anything:
+
+```sh
+python3 -m unittest discover -s tests -p workmux_pr_test.py
+```
 
 ---
 

@@ -16,7 +16,8 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 8. [Pi `claude-bridge` CLI model resolution](#pi-claude-bridge-cli-model-resolution)
 9. [`npm config set prefix` vs. immutable `~/.npmrc`](#npm-config-set-prefix-vs-immutable-npmrc)
 10. [OmniWM focused-border rendering](#omniwm-focused-border-rendering)
-11. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
+11. [Atuin e2e checks vs. nix-darwin `/etc/bashrc`](#atuin-e2e-checks-vs-nix-darwin-etcbashrc)
+12. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
 
 ---
 
@@ -253,6 +254,18 @@ a symlink to the same source directory.
 
 ---
 
+## Atuin e2e checks vs. nix-darwin `/etc/bashrc`
+
+| Item | Detail |
+|------|--------|
+| **Location** | `mods/shell.nix` (`atuin` override) |
+| **What** | On Darwin, `preCheck` points `ATUIN_E2E_BASH` at a wrapper that exports `NOSYSBASHRC=1` before exec'ing the build's bash. Checks stay enabled. |
+| **Why** | Atuin 18.23's e2e tests start an interactive bash in a temp home with the freshly built `atuin` first on `PATH`. The Darwin sandbox can read nix-darwin's `/etc/bashrc`, which re-exports `PATH` from `set-environment`, so the shell loses the test binary (or finds an installed, older Atuin). History is never recorded and `filtered_commands_leave_no_captured_output` times out with `captured: []`. |
+| **Remove when** | nixpkgs' atuin package or upstream's test harness stops letting the host's `/etc/bashrc` rewrite `PATH` in the build sandbox. |
+| **How to verify** | `nix build` the Darwin `atuin` derivation with checks enabled; `e2e_capture` reports 8 passed. |
+
+---
+
 ## Future improvements (consolidation and monitoring)
 
 ### Neovim
@@ -292,4 +305,5 @@ a symlink to the same source directory.
 | 2026-08-27 | Moved `~/.npmrc` off `home.file` (`shell.nix`) entirely: `npmx.nix` now owns it as a writable plain file and atomically changes it only when needed. |
 | 2026-09-16 | Removed the server-wide agent wrappers after they reproduced paste corruption in other panes while Pi was open. Kept `extended-keys off` permanently and mirrored Alacritty's explicit CSI-u chords as tmux root bindings that forward the original bytes. |
 | 2026-09-21 | Added the `claude-bridge-cli-model` Pi extension workaround so explicit `--provider claude-bridge --model …` and provider-qualified `--model` selections are re-applied after deferred bridge registration and before the first provider request. |
+| 2026-10-15 | Overrode `atuin` in `mods/shell.nix` so its Darwin e2e checks skip the host `/etc/bashrc` that reset `PATH` inside the build sandbox. |
 | *(add entries when adding/removing workarounds)* | |

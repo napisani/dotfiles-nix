@@ -20,6 +20,20 @@ let
     source = mkShellSym path;
     force = true;
   };
+
+  # nix-darwin's /etc/bashrc is readable inside the Darwin build sandbox and
+  # resets PATH, so atuin's e2e shell tests lose the binary under test.
+  atuin = pkgs-unstable.atuin.overrideAttrs (old: {
+    preCheck =
+      (old.preCheck or "")
+      + lib.optionalString pkgs-unstable.stdenv.hostPlatform.isDarwin ''
+        real_bash=$(type -P bash)
+        printf '#!%s\nexport NOSYSBASHRC=1\nexec %s "$@"\n' \
+          "$real_bash" "$real_bash" > "$HOME/bash"
+        chmod +x "$HOME/bash"
+        export ATUIN_E2E_BASH="$HOME/bash"
+      '';
+  });
 in
 {
   home = {
@@ -32,14 +46,16 @@ in
     # without ever adding it to the user profile, so nothing else puts a
     # bash_completion.sh in a profile path our shell config can find.
     # bash/rc.d/20-bash-completion.sh probes the profile path.
-    packages = with pkgs-unstable; [
+    packages = [
       atuin
+    ]
+    ++ (with pkgs-unstable; [
       bash-completion
       blesh
       fzf
       gh
       starship
-    ];
+    ]);
 
     # Shell configuration is linked directly from the checkout. Home Manager
     # owns link reconciliation; mkOutOfStoreSymlink keeps edits live without a

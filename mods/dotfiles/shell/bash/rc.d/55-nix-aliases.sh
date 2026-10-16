@@ -3,7 +3,7 @@ unalias nixswitch nixswitchup nixclean 2>/dev/null || true
 
 # pet: Rebuild and activate the current Nix configuration
 nixswitch() (
-	cd -- "${DOTFILES_HOME_MANAGER_DIR:-$HOME/code/monorepo/pub/dotfiles-nix}" || return
+	cd -- "$(sh_dotfiles_dir)" || return
 	if sh_have darwin-rebuild; then
 		sudo darwin-rebuild switch --show-trace --no-update-lock-file --flake .# "$@"
 	elif sh_have nixos-rebuild; then
@@ -16,7 +16,7 @@ nixswitch() (
 
 # pet: Pull configuration changes and activate Nix
 nixswitchup() (
-	cd -- "${DOTFILES_HOME_MANAGER_DIR:-$HOME/code/monorepo/pub/dotfiles-nix}" || return
+	cd -- "$(sh_dotfiles_dir)" || return
 	git pull && nixswitch "$@"
 )
 

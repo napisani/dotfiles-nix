@@ -63,6 +63,29 @@ Activation and cleanup remain separate:
 - `nixswitchup` pulls configuration changes, then applies them.
 - `nixclean` deletes old Nix generations and optimizes the store.
 
+`update-interactive` walks through all of this with a yes/no question per
+step (Enter means no). Each step first says what it changes and when that
+takes effect, then shows its command and scope. Order:
+
+1. Pull the checkout with `git pull --ff-only`. It runs first because pin
+   updates dirty the tree, and it never merges, rebases, or autostashes.
+2. Optionally run `sys-update check`, then `sys-update pins DOMAIN` for each
+   domain that `sys-update list --json` reports under `pub/dotfiles-nix`.
+   Majors stay held. A failed pull or pin update skips activation.
+3. Review the whole checkout read-only: `git status --short` (untracked paths
+   are listed, never read), `git diff --stat`, and the full tracked `git diff`
+   against HEAD. Read changed skills and Pi packages before activating.
+4. Activate with `nixswitch`. Pulling already happened, so `nixswitchup`
+   would only pull a second time.
+5. Update `brew`, `nvim`, and `claude` one at a time, after activation so
+   `global-tools` is the new generation's and `nvim` rewrites a tracked
+   lockfile only after the pull. Never `sys-update tools`.
+6. Optionally `nixclean`, which deletes old rollback generations. It is
+   skipped after a failed activation.
+
+Failures are reported with their scope, later steps still run, and the exit
+status is 1 if any action failed. End of input aborts the run.
+
 ## How to use (Linux)
 
 

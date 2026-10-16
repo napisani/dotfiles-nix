@@ -75,12 +75,49 @@ assert(resolved.parent_ref == "refs/remotes/origin/parent", "expected fetched or
 
 -- An existing GitHub PR is authoritative over saved local configuration.
 git(repo, "config", "--local", "branch.child.prBase", "main")
-fake_gh({ "#!/bin/sh", "printf 'parent\\n'" })
+fake_gh({
+	"#!/bin/sh",
+	'[ "$*" = "pr list --head child --state all --limit 100 --json baseRefName,state,headRepositoryOwner" ] || exit 2',
+	[[printf '%s\n' '[{"baseRefName":"parent","state":"OPEN"}]']],
+})
 resolved, err = pr_base.resolve()
 assert(resolved, err and err.message or "expected GitHub parent to resolve")
 assert(resolved.parent == "parent", "expected GitHub PR parent")
 assert(resolved.source == "github", "expected GitHub source")
 assert(resolved.commit == original_parent_tip, "expected merge base against GitHub parent")
+
+-- Renamed PR checkouts identify their PR through ordinary Git tracking.
+git(repo, "config", "branch.child.remote", "origin")
+git(repo, "config", "branch.child.merge", "refs/pull/12/head")
+fake_gh({
+	"#!/bin/sh",
+	'[ "$*" = "pr view 12 --json baseRefName --jq .baseRefName" ] || exit 2',
+	"printf 'parent\\n'",
+})
+resolved, err = pr_base.resolve()
+assert(resolved and resolved.parent == "parent", "expected PR tracking reference to identify PR 12")
+assert(resolved.commit == original_parent_tip, "expected current merge base, not a stored snapshot")
+
+-- Native Workmux checkouts can track a differently named branch in a fork.
+git(repo, "remote", "add", "fork", "https://github.com/contributor/project.git")
+git(repo, "config", "branch.child.remote", "fork")
+git(repo, "config", "branch.child.merge", "refs/heads/reused-head")
+fake_gh({
+	"#!/bin/sh",
+	'[ "$*" = "pr list --head reused-head --state all --limit 100 --json baseRefName,state,headRepositoryOwner" ] || exit 2',
+	[[printf '%s\n' '[{"baseRefName":"main","state":"OPEN","headRepositoryOwner":{"login":"other"}},{"baseRefName":"parent","state":"OPEN","headRepositoryOwner":{"login":"contributor"}}]']],
+})
+resolved, err = pr_base.resolve()
+assert(resolved and resolved.parent == "parent", "expected matching fork owner and upstream branch")
+assert(resolved.commit == original_parent_tip, "expected fork PR target merge base")
+fake_gh({
+	"#!/bin/sh",
+	[[printf '%s\n' '[{"baseRefName":"main","state":"OPEN","headRepositoryOwner":{"login":"contributor"}},{"baseRefName":"parent","state":"OPEN","headRepositoryOwner":{"login":"contributor"}}]']],
+})
+resolved, err = pr_base.resolve()
+assert(not resolved and err.kind == "ambiguous_pr", "ambiguous PR association must not guess or use saved parent")
+git(repo, "config", "--unset", "branch.child.merge")
+git(repo, "config", "--unset", "branch.child.remote")
 
 -- Without authoritative metadata, resolution must fail closed so the caller
 -- can prompt instead of guessing from an ambiguous commit graph.

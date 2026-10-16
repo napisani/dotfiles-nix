@@ -187,30 +187,14 @@ env-expand() {
   env "${vars[@]}" "$@"
 }
 
-# pet: Open workmux review windows for pull requests
+# pet: Create or reopen a PR worktree for development or review
+function workmux-pr() {
+  command workmux_pr.py "$@"
+}
+
+# pet: Open lightweight PR review workspaces
 function workmux-pr-review() {
-  if [ $# -eq 0 ]; then
-    echo "Usage: workmux-pr-review <pr-number> [pr-number...]" >&2
-    return 1
-  fi
-
-  local pr
-  local failed=0
-  # Keep going after a failure so every PR that can open does; the count is
-  # reported once at the end rather than aborting the loop.
-  for pr in "$@"; do
-    if ! workmux add "review_$pr" \
-      --pr "$pr" \
-      --prompt "$(ai_skill multi-valued-review) on the changes made in this pr: $pr"; then
-      echo "workmux-pr-review: failed to open review for '$pr'" >&2
-      failed=$((failed + 1))
-    fi
-  done
-
-  if [ "$failed" -gt 0 ]; then
-    echo "workmux-pr-review: $failed of $# review window(s) failed to create" >&2
-    return 1
-  fi
+  workmux-pr --purpose review "$@"
 }
 
 # Single-quoted so gh runs on each invocation, not when this file is sourced.

@@ -111,3 +111,19 @@ def test_run_speed_is_passed_to_tts(tmp_path: Path):
 
     assert code == 0
     assert ("tts", 1.5) in calls
+
+
+def test_run_synthesis_error_returns_1_without_saved_message(tmp_path: Path):
+    from read_aloud.tts import SynthesisError
+
+    output = tmp_path / "out.mp3"
+
+    def failing_tts(text: str, out: Path, *, voice: str, speed: float) -> None:
+        raise SynthesisError("speech service rejected the request (HTTP 403)")
+
+    app = _make_app(tmp_path, tts=failing_tts)
+    code = app.run(url=None, output=output, voice="en-US-GuyNeural", stdin=io.StringIO("Hello"))
+
+    assert code == 1
+    assert "Error: speech service rejected the request (HTTP 403)" in app.stderr.getvalue()
+    assert "Saved:" not in app.stderr.getvalue()

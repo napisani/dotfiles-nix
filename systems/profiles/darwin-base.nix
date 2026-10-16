@@ -37,7 +37,9 @@
 
     # Base casks that all Macs should have
     casks = [
-      "alacritty"
+      # The homebrew/cask alacritty is disabled (fails Gatekeeper); this tap's
+      # cask is the same upstream release and has no `disable!`.
+      "maxinchun5/community-cask/alacritty"
       # "ungoogled-chromium"
       "bitwarden"
       "caffeine"
@@ -65,6 +67,10 @@
       # "homebrew/cask-versions"
       {
         name = "kunkka19xx/tap";
+        trusted = true;
+      }
+      {
+        name = "maxinchun5/community-cask";
         trusted = true;
       }
       {

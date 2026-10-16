@@ -24,7 +24,7 @@ edits in the checkout take effect immediately without a rebuild.
 | `~/.bashrc`, `~/.bash_profile`, `~/.profile`, `~/.inputrc` | these dotfiles | `bash/` |
 | fzf / atuin / direnv / starship / bash-completion **shell init** | these dotfiles | `bash/rc.d/` |
 | atuin, git, gh **config files** | these dotfiles | `atuin/`, `git/`, `gh/` |
-| Aliases and functions, including `sys-update` and `nixswitch*` | these dotfiles | `bash/rc.d/5*` |
+| Aliases and functions, including `sys-update`, `update-interactive`, and `nixswitch*` | these dotfiles | `bash/rc.d/5*` |
 | Shell and tool configuration links | Home Manager | explicit out-of-store `home.file` entries in `mods/shell.nix` |
 
 Home Manager is the only deployment adapter. The link inventory is explicit in
@@ -86,8 +86,14 @@ guard and *above* its `shellAliases`, so ordering silently decided things:
 
 - **Define each update or activation command in one fragment.**
   `55-nix-aliases.sh` owns `nixswitch`, `nixswitchup`, and `nixclean`.
-  `56-update-functions.sh` owns the `sys-update` dispatcher and its completion.
-  Pin updates leave a diff; activation is always a separate command.
+  `56-update-functions.sh` owns the `sys-update` dispatcher and its completion,
+  and `update-interactive`, which only sequences those commands with yes/no
+  prompts. Pin updates leave a diff; activation is always a separate command.
+- **`update-interactive` never calls overlapping commands.** It pulls with
+  `--ff-only` itself and then runs `nixswitch`, never `nixswitchup`; it runs
+  `sys-update brew`, `nvim`, and `claude` separately, never `tools`. Pin
+  domains come from `sys-update list --json`, filtered to `pub/dotfiles-nix`
+  (the scope `sys-update pins` forces), so new domains appear without edits.
 - **`have` is not a safe helper name.** bash-completion ends with
   `unset -f have; unset -v have` (it used to provide its own `have`), so any
   helper called `have` evaporates the moment `20-bash-completion.sh` runs, and
@@ -118,12 +124,38 @@ than a port. Each is a separate decision:
 Run `./tests/workmux.sh` after changing the `workmux-pr-review-all` alias; it stubs
 `gh` and `workmux-pr-review`.
 
-Run `./tests/workmux-pr-review.sh` after changing `workmux-pr-review`; it stubs `workmux`
-and covers partial failures under `set -e` and `set -eu`.
+`workmux-pr` and `workmux-pr-review` forward to `../toolbox/workmux_pr.py`.
+Run `./tests/workmux-pr-review.sh` with current Bash and `/bin/bash` for quoting
+and exit-status coverage. Test the small Python launcher from `../toolbox/` with
+`python3 -m unittest discover -s tests -p workmux_pr_test.py`.
+
+The launcher calls native `workmux add --pr <N> --open-if-exists`. Development
+uses normal project configuration, which can install dependencies or start
+services. Review adds the static lightweight profile, ordinary Neovim, and the
+native configured agent. It skips setup/file operations and suppresses project
+editor-init. Review/tour/recap skills are manual. There are no action, focus,
+refresh, registry, snapshot, editor RPC, or cleanup operations in the helper.
+
+Run `./tests/pr-review-native.sh /absolute/path/to/candidate-tmux-picker` for an
+owned fixture using real Workmux, isolated tmux, ordinary Neovim, and a fake
+agent. It checks skipped hooks/files, native reuse preserving local commits,
+generic removal blocking, and normal development setup. It uses no live model,
+GitHub API, or existing user workspaces.
+
+The profile sets the Reviews category and a generic session removal block;
+tmux-picker reads no purpose or manifest. Native Workmux removal can still run
+project teardown. Activate a picker supporting removal blocks before opening
+reviews; direct native removal bypasses them. The helper never installs tools,
+activates configuration, updates checkouts, or removes user work.
 
 Run `./tests/updates.sh` for update/activation command regression tests. Its
 native commands and dependency CLI are fixtures; it never updates real tools
 or runs a real rebuild.
+
+Run `./tests/update-interactive.sh` after changing `update-interactive`. It
+re-runs under the current Bash and `/bin/bash` (3.2 on macOS), feeds scripted
+answers, and records every action boundary (git, `deps.ts`, native updaters,
+rebuild, garbage collection) as a fixture call. It needs `jq`.
 
 Run the focused smoke test after changing shell initialization. It starts the
 installed login shell, fails on unexpected startup stderr, verifies generated

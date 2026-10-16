@@ -10,7 +10,8 @@ requires-python = "==3.12.*"
 dependencies = [
     "click>=8.1,<9",
     "trafilatura>=1.12,<2",
-    "edge-tts>=7.0,<8",
+    "aiohttp>=3.9,<4",
+    "edge-tts>=7.3,<8",
 ]
 
 [project.scripts]

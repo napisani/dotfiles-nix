@@ -6,6 +6,9 @@ M.get_exrc = function()
 end
 
 M.source_local_config = function()
+	if vim.env.NVIM_NO_PROJECT_CONFIG == "1" then
+		return
+	end
 	local exrc_file = ".nvim.lua"
 	if vim.fn.filereadable(exrc_file) == 1 then
 		vim.cmd("source " .. exrc_file)

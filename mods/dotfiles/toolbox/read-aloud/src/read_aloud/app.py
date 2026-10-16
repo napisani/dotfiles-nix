@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Callable, TextIO
 
 from .extractor import ExtractionError, extract_from_url
-from .tts import DEFAULT_SPEED, DEFAULT_VOICE, text_to_mp3
+from .tts import DEFAULT_SPEED, DEFAULT_VOICE, SynthesisError, text_to_mp3
 
 
 @dataclass
@@ -51,6 +51,10 @@ class ReadAloudApp:
                 return 1
 
         # Convert to speech
-        self.tts(text, output, voice=voice, speed=speed)
+        try:
+            self.tts(text, output, voice=voice, speed=speed)
+        except SynthesisError as exc:
+            self.stderr.write(f"Error: {exc}\n")
+            return 1
         self.stderr.write(f"Saved: {output}\n")
         return 0
