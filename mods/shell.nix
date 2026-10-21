@@ -37,6 +37,8 @@ let
 in
 {
   home = {
+    sessionVariables.SECRET_INJECT_PROFILE = "shell";
+
     # ── packages ────────────────────────────────────────────────────────────
     # Keep packages explicit instead of enabling Home Manager program modules
     # that would also generate configuration and shell init we own natively.

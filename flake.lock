@@ -802,18 +802,14 @@
         ]
       },
       "locked": {
-        "lastModified": 1791375050,
-        "narHash": "sha256-NTYj7ETbim7iUM1+33YrLr2G8BBY5PSzPPiEb8otMUg=",
-        "owner": "napisani",
-        "repo": "secret_inject",
-        "rev": "3f17db5fcc3610f3738e297fd77af6dd1a752deb",
-        "type": "github"
+        "path": "../secret_inject",
+        "type": "path"
       },
       "original": {
-        "owner": "napisani",
-        "repo": "secret_inject",
-        "type": "github"
-      }
+        "path": "../secret_inject",
+        "type": "path"
+      },
+      "parent": []
     },
     "softaworks-agent-toolkit": {
       "flake": false,

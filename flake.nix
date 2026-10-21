@@ -53,7 +53,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     secret_inject = {
-      url = "github:napisani/secret_inject";
+      url = "path:../secret_inject";
       # Its own lock pins a 26.11-era nixpkgs that dropped x86_64-darwin;
       # follow the main nixpkgs (26.05-darwin) so maclab can evaluate it.
       inputs.nixpkgs.follows = "nixpkgs";
