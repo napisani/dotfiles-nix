@@ -35,7 +35,6 @@ in
   systematic-debugging = pinned "superpowers" "skills/systematic-debugging";
 
   diagnosing-bugs = pinned "mattpocock-skills" "skills/engineering/diagnosing-bugs";
-  resolving-merge-conflicts = pinned "mattpocock-skills" "skills/engineering/resolving-merge-conflicts";
   handoff = pinned "mattpocock-skills" "skills/productivity/handoff";
   grill-me = pinned "mattpocock-skills" "skills/productivity/grill-me";
   grilling = pinned "mattpocock-skills" "skills/productivity/grilling";

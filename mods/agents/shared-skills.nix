@@ -34,8 +34,6 @@
   }
   # mattpocock/skills · diagnose hard bugs and performance regressions
   "diagnosing-bugs"
-  # mattpocock/skills · resolve an in-progress merge or rebase conflict
-  "resolving-merge-conflicts"
   # mattpocock/skills · compact this session into a handoff doc for a fresh agent
   "handoff"
   # mattpocock/skills · user entry point; its whole body calls grilling

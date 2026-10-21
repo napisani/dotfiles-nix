@@ -77,10 +77,18 @@ merge automatically.
 
 ## 3. Resolve conflicts
 
-If the merge stops on a conflict, **use the `resolving-merge-conflicts` skill**
-to work through it — that skill owns the conflict-resolution methodology
-(understanding both sides and resolving correctly). Once the resolution is
-complete, continue with:
+If the merge stops on a conflict, resolve each hunk by intent, not by picking
+`ours` or `theirs`:
+
+1. For each conflicting hunk, read why each side changed it: the commit
+   messages, PRs, and issues behind both versions.
+2. Preserve both intents where they are compatible. Where they are not, pick
+   the side that matches the merge's goal and tell the user the trade-off.
+   Do not invent new behaviour to paper over a clash.
+3. Run the project's checks (typecheck, tests, format). A merge can produce
+   code that satisfies both branches and passes neither's tests.
+
+Then continue with:
 
 ```sh
 git add <resolved-files>

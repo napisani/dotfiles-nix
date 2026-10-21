@@ -59,7 +59,13 @@ where `<old-parent-base>` is the parent's previous tip (the current branch's for
 
 ## 3. Resolve conflicts
 
-If the rebase stops on a conflict, **use the `resolving-merge-conflicts` skill** to work through it — that skill owns the conflict-resolution methodology (understanding both sides, resolving correctly, continuing the rebase). Don't hand-wave conflict resolution here; hand off to it, then return to step 4 once the rebase completes (`git rebase --continue` through to a clean tree, or `git rebase --abort` if the user decides to back out).
+If the rebase stops on a conflict, resolve each hunk by intent, not by picking `ours` or `theirs`:
+
+1. For each conflicting hunk, read why each side changed it: the commit messages, PRs, and issues behind both versions. During a rebase, "ours" is the parent and "theirs" is the commit being replayed.
+2. Preserve both intents where they are compatible. Where they are not, pick the side that matches this branch's goal and tell the user the trade-off. Do not invent new behaviour to paper over a clash.
+3. Run the project's checks (typecheck, tests, format) once the code is coherent again.
+
+Then `git add` the resolved files and `git rebase --continue`, repeating for each stopped commit until the tree is clean, and go to step 4. Use `git rebase --abort` only if the user decides to back out.
 
 ## 4. Force-push with lease
 
