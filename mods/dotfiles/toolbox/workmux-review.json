@@ -5,7 +5,7 @@
   "files": { "copy": [], "symlink": [] },
   "panes": [
     {
-      "command": "tmux set-option -t \"$TMUX_PANE\" @tmux_picker_category Reviews && tmux set-option -t \"$TMUX_PANE\" @tmux_picker_remove_blocked 'Native Workmux removal may run project teardown; use explicit manual cleanup' && NVIM_NO_PROJECT_CONFIG=1 nvim",
+      "command": "tmux set-option -t \"$TMUX_PANE\" @tmux_picker_category Reviews && NVIM_NO_PROJECT_CONFIG=1 nvim",
       "focus": true
     },
     { "command": "<agent>", "split": "horizontal" }

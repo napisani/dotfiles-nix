@@ -26,7 +26,7 @@ git init -q -b main
 git config user.name Fixture
 git config user.email fixture@example.invalid
 printf 'fixture\n' >source.txt
-jq -n --arg root "$root" '{mode:"session",agent:"pi",post_create:[("touch "+$root+"/setup-ran")],pre_remove:[("touch "+$root+"/teardown-ran")],files:{copy:["private-copy.txt"]},panes:[{command:"<agent>"}]}' >.workmux.yaml
+jq -n --arg root "$root" '{mode:"session",agent:"pi",post_create:[("touch "+$root+"/setup-ran")],pre_remove:[("touch "+$root+"/teardown-ran; exit 1")],files:{copy:["private-copy.txt"]},panes:[{command:"<agent>"}]}' >.workmux.yaml
 printf 'owned configuration\n' >private-copy.txt
 git add source.txt .workmux.yaml
 git commit -qm fixture
@@ -38,20 +38,14 @@ session=''
 for _ in {1..40}; do
   session=$(tmux list-panes -a -F '#{session_id}:#{pane_current_path}' | grep -F ":$wt" | cut -d: -f1 | sort -u) || session=''
   if [ -n "$session" ] && [ "$(tmux show-option -t "$session" -qv @tmux_picker_category)" = Reviews ] &&
-    [ -n "$(tmux show-option -t "$session" -qv @tmux_picker_remove_blocked)" ] &&
-    tmux list-panes -t "$session" -F '#{pane_current_command}' | grep -qx nvim; then break; fi
+       tmux list-panes -t "$session" -F '#{pane_current_command}' | grep -qx nvim; then break; fi
   sleep 0.1
 done
 [ -n "$session" ]
 [ "$(tmux show-option -t "$session" -qv @tmux_picker_category)" = Reviews ]
-[ -n "$(tmux show-option -t "$session" -qv @tmux_picker_remove_blocked)" ]
 tmux list-panes -t "$session" -F '#{pane_current_command}' | grep -qx nvim
 [ ! -e "$root/setup-ran" ] && [ ! -e "$wt/private-copy.txt" ]
-if "$picker" kill "$session"; then
-  echo 'blocked session removal accepted' >&2
-  exit 1
-fi
-[ -d "$wt" ] && [ ! -e "$root/teardown-ran" ]
+[ -d "$wt" ]
 printf 'owned notes\n' >"$wt/notes.txt"
 git -C "$wt" add notes.txt
 git -C "$wt" commit -qm 'local review work'
@@ -59,6 +53,16 @@ local_head=$(git -C "$wt" rev-parse HEAD)
 workmux add review/12-runtime --name "$handle" --base "$head" --config "$profile" -H -F --open-if-exists -b
 [ "$(git -C "$wt" rev-parse HEAD)" = "$local_head" ]
 [ "$(cat "$wt/notes.txt")" = 'owned notes' ]
+# Removal hands the client off first, so the headless fixture needs an attached pty client
+# whose stdin stays open.
+(sleep 60) | script -q /dev/null tmux -S "$socket" attach -t fixture >/dev/null 2>&1 &
+client=$!
+for _ in {1..40}; do [ -n "$(tmux list-clients 2>/dev/null)" ] && break; sleep 0.1; done
+"$picker" kill "$session"
+kill "$client" 2>/dev/null || true
+# The failing teardown ran, aborted workmux, and the picker still removed everything.
+[ -e "$root/teardown-ran" ] && [ ! -d "$wt" ]
+[ -z "$(git branch --list review/12-runtime)" ]
 workmux add development --base "$head" -b
 [ -f "$root/setup-ran" ] && [ -f "$root/repo__worktrees/development/private-copy.txt" ]
-printf 'native profile: normal Neovim, isolated review setup, native reuse, manual removal guard, and normal development setup passed\n'
+printf 'native profile: normal Neovim, isolated review setup, native reuse, removal despite a failing teardown, and normal development setup passed\n'

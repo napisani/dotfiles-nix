@@ -85,25 +85,25 @@
       # git source previously advanced ahead of the pinned Pi installation.
       packages = [
         "npm:@ayulab/pi-rewind@0.4.6"
-        "git:github.com/nicobailon/pi-subagents@v0.76.1"
-        "npm:@datspike/pi-inline-slash-extension@0.2.0"
+        "git:github.com/nicobailon/pi-subagents@v0.78.0"
+        "npm:@datspike/pi-inline-slash-extension@0.2.1"
         "npm:@ff-labs/pi-fff@0.11.0"
-        "npm:@juicesharp/rpiv-btw@2.12.0"
-        "npm:@juicesharp/rpiv-ask-user-question@2.12.0"
-        "npm:@lincoln504/pi-research@1.7.9"
+        "npm:@juicesharp/rpiv-btw@2.13.8"
+        "npm:@juicesharp/rpiv-ask-user-question@2.13.8"
+        "npm:@lincoln504/pi-research@1.7.11"
         "npm:pi-vim@0.14.2"
-        "npm:pi-web-access@0.37.0"
+        "npm:pi-web-access@0.41.0"
         "npm:remote-pi@0.7.0"
         # Routes Pi through the Claude Agent SDK without the stale pi-ai peer
         # range and removed getModels call in claude-agent-sdk-pi.
-        "npm:pi-claude-bridge@0.9.1"
+        "npm:pi-claude-bridge@0.9.3"
         "npm:pi-goal@0.1.7"
         # pi-blackhole 0.5.11 still requires the pre-1.0 Pi APIs and cannot
         # resolve alongside the Pi 1.0 dependency tree.
         # Direct dependency for local extensions; Pi's package root is not an
         # ancestor of individually linked extension files during Node resolution.
         "npm:@earendil-works/pi-tui@1.0.4"
-        "git:github.com/nicobailon/visual-explainer@0cc6f15452c455a05fb7fceb036d0da31387c69c"
+        "git:github.com/nicobailon/visual-explainer@69cd7395cee2979aa7301ebe51bb4c2ba5f5ef9e"
       ];
     };
 

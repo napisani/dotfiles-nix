@@ -33,6 +33,15 @@
           name = "loancrate-prepare-perf-impact";
           manualOnly = true;
         }
+        # These run a candidate's code in a snapshot and publish an Artifact, so they stay behind a deliberate call.
+        {
+          name = "loancrate-review-policy-engine-interview";
+          manualOnly = true;
+        }
+        {
+          name = "loancrate-review-filters-interview";
+          manualOnly = true;
+        }
         "loancrate-lc-script"
         "loancrate-eval-model-candidates-ci"
         "loancrate-ob-pricing-regression-test"

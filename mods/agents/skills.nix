@@ -148,6 +148,8 @@ in
   agent-management = local "agents/shared-skills/agent-management";
   classify = local "agents/shared-skills/classify";
   forge-solution = local "agents/shared-skills/forge-solution";
+  loancrate-review-filters-interview = local "agents/shared-skills/loancrate-review-filters-interview";
+  loancrate-review-policy-engine-interview = local "agents/shared-skills/loancrate-review-policy-engine-interview";
   ob-note = local "agents/shared-skills/ob-note";
   rebase-from-parent = local "agents/shared-skills/rebase-from-parent";
   merge-parent-into-branch = local "agents/shared-skills/merge-parent-into-branch";

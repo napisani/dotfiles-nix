@@ -14,9 +14,10 @@ project setup/file operations and start ordinary Neovim plus the configured agen
 It does not create a registry, pin comparisons, dispatch skills, refresh checkouts,
 or perform cleanup. Invoke review, tour, and recap skills manually in the agent.
 
-The profile suppresses project editor-init and sets a generic picker removal
-block because native Workmux removal can run project teardown. Direct native
-removal bypasses that block. This is not a sandbox for running PR code.
+The profile suppresses project editor-init. Removing a review Session from the
+picker runs the project's `pre_remove` teardown through `workmux remove`, like
+any other Workmux Session; if that fails, the picker falls back to deleting the
+worktree and branch with git. This is not a sandbox for running PR code.
 
 Tests, without installing anything:
 
