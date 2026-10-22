@@ -36,6 +36,7 @@ for name in ("loancrate", "personal"):
         config_dir.mkdir()
         # Keep real keyring credentials and caches outside the fixture process.
         config["storage"] = {"type": "file"}
+        config["profiles"]["fixture override"] = {"include": []}
         (config_dir / ".secret_inject.json").write_text(json.dumps(config))
         environment = {
             "HOME": str(home),
@@ -62,17 +63,29 @@ for name in ("loancrate", "personal"):
         assert "--profile is required" in missing.stderr
         assert not (home / "provider-called").exists()
 
-        environment["SECRET_INJECT_PROFILE"] = "shell"
-        environment["SECRET_INJECT_FIXTURE"] = "existing fixture value"
-        exported = run(
-            ["/bin/bash", "--noprofile", "--norc", "-c",
-             '. "$1"; test "$RESULT" -eq 0 || exit 1; '
-             'printf "%s" "$SECRET_INJECT_FIXTURE"', "fixture", str(hook)],
-            environment,
-        )
-        assert exported.stdout == fixture_value
-        assert exported.stderr == ""
-        assert (home / "provider-called").read_text() == "called"
+        for case, variables, expected in (
+            ("unset profile", {}, fixture_value),
+            ("empty profile", {"SECRET_INJECT_PROFILE": ""}, fixture_value),
+            ("inherited session guard", {"__HM_SESS_VARS_SOURCED": "1"}, fixture_value),
+            ("explicit shell", {"SECRET_INJECT_PROFILE": "shell"}, fixture_value),
+            ("explicit override", {"SECRET_INJECT_PROFILE": "fixture override"},
+             "existing fixture value"),
+        ):
+            startup_environment = {
+                **environment,
+                "SECRET_INJECT_FIXTURE": "existing fixture value",
+                **variables,
+            }
+            exported = run(
+                ["/bin/bash", "--noprofile", "--norc", "-c",
+                 '. "$1"; test "$RESULT" -eq 0 || exit 1; '
+                 'printf "%s" "$SECRET_INJECT_FIXTURE"', "fixture", str(hook)],
+                startup_environment,
+            )
+            assert exported.stdout == expected, case
+            assert exported.stderr == "", case
+            assert (home / "provider-called").read_text() == "called"
+            print(f"PASS: {name}: {case}")
 
         checked = run(
             [str(binary), "profile", "check", "--profile", "shell"], environment,
