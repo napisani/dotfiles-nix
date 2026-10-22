@@ -18,6 +18,10 @@ for name in ("loancrate", "personal"):
     config = json.loads(config_path.read_text())
     assert config["profiles"]["shell"] == {"exclude": [], "overwrite": True}
     assert set(config["sources"]) == {"doppler"}
+    assert config["profiles"]["project-only"]["remote_sources"] is False
+    assert config["profiles"]["project"]["remote_sources"] is True
+    for profile in ("project-only", "project"):
+        assert config["profiles"][profile]["env_files"] == ["*.env", "*.env.local"]
 
     with tempfile.TemporaryDirectory(prefix="secret-inject-shell-") as temporary:
         home = Path(temporary)
@@ -29,7 +33,8 @@ for name in ("loancrate", "personal"):
             "#!/bin/sh\n"
             'printf called > "$HOME/provider-called"\n'
             "printf '%s\\n' "
-            "'{\"SECRET_INJECT_FIXTURE\":{\"computed\":\"synthetic fixture value\"}}'\n"
+            "'{\"SECRET_INJECT_FIXTURE\":{\"computed\":\"synthetic fixture value\"},"
+            "\"REMOTE_ONLY\":{\"computed\":\"remote fixture\"}}'\n"
         )
         doppler.chmod(0o700)
         config_dir = home / ".config"
@@ -62,6 +67,20 @@ for name in ("loancrate", "personal"):
         assert missing.returncode == 1
         assert "--profile is required" in missing.stderr
         assert not (home / "provider-called").exists()
+
+        (home / ".env").write_text("SECRET_INJECT_FIXTURE=base\nLOCAL_ONLY=local\n")
+        (home / ".env.local").write_text("SECRET_INJECT_FIXTURE=local override\n")
+        local = run([str(binary), "--profile", "project-only", "--output", "json"], environment)
+        assert json.loads(local.stdout) == {
+            "SECRET_INJECT_FIXTURE": "local override", "LOCAL_ONLY": "local",
+        }
+        assert not (home / "provider-called").exists()
+        combined = run([str(binary), "--profile", "project", "--output", "json"], environment)
+        assert json.loads(combined.stdout) == {
+            "SECRET_INJECT_FIXTURE": "local override", "LOCAL_ONLY": "local",
+            "REMOTE_ONLY": "remote fixture",
+        }
+        print(f"PASS: {name}: project-only skips providers; project overlays local files")
 
         for case, variables, expected in (
             ("unset profile", {}, fixture_value),
