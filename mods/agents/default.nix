@@ -61,11 +61,17 @@
         openaiReasoningMode.fast = false;
         # Use the same local Vantage checkout as Neovim, not a second copy of
         # its bridge implementation or a temporary feature worktree.
+        # pi-surface loads from the monorepo checkout too; it needs
+        # `npm ci && npm run build` there and warns instead of failing without it.
         extensions = [
           "${config.home.homeDirectory}/code/monorepo/pub/vantage-nvim/server/src/neovim/runtime/adjacent/extension.ts"
+          "${config.home.homeDirectory}/code/monorepo/pub/pi-surface/extension/index.ts"
         ];
       };
-      skillPaths = [ "~/code/*/apps/*/.agents/skills" ];
+      skillPaths = [
+        "~/code/*/apps/*/.agents/skills"
+        "~/code/monorepo/pub/pi-surface/skills"
+      ];
       # These packages provide native binaries or package-specific setup used by
       # the declared Pi extensions. Name-level approval intentionally follows
       # extension updates; adding a new script-owning dependency still produces
