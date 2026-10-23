@@ -51,8 +51,8 @@ Every design question goes through the session's surface. Never ask a design que
    - a file tree when it is about module boundaries;
    - a data table when it is about the shape of data or a side-by-side comparison.
 5. **Spec impact.** Say what the option does to the spec, and to the RFC when one is requested: sections it adds or changes, decisions it unlocks, and any new subsystem or platform obligation.
-6. **Plain language.** The user reads every word of a question once, cold. Write the question, option descriptions, pros, cons, score reasons, impact lines, and `look` lines as the `unslop` skill requires, then check them against these rules:
-   - An option description is one or two whole sentences: what changes, and what it costs. No flag names, file names, or internal terms the user has not seen in this session unless the sentence defines them.
+6. **Plain language.** The user reads every word of a question once, cold. Before writing the first question, read the `unslop` skill and `../no-ai-slop/SKILL.md` (installed beside this skill). Write the question, option descriptions, pros, cons, score reasons, impact lines, and `look` lines to both, then check them against these rules:
+   - An option description is one or two whole sentences, at most 280 characters: what changes, and what it costs. No flag names, file names, or internal terms the user has not seen in this session unless the sentence defines them. Each pro or con is at most 100 characters; anvil rejects longer ones.
    - Name the concrete thing, not the idea: "copies every exported parent variable into the child" beats "inherits the ambient environment by default".
    - Pros, cons, and score reasons are short phrases a reader can compare, not sentences that restate the option.
    - Define a term the first time it appears in a question. Reuse the same word for the same thing across questions.
