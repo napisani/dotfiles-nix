@@ -97,6 +97,18 @@ sh_path_prepend "$HOME/toolbox"
 # nested login shells rather than appending it in both profile entry points.
 sh_path_append "$HOME/.docker/bin"
 
+# ── android ─────────────────────────────────────────────────────────────────
+# Keyed off what is installed, not MACHINE_NAME: the SDK appears only after
+# Android Studio's first-run setup, and the JDK only where zulu@17 is a cask.
+if [ -d "$HOME/Library/Android/sdk" ]; then
+	export ANDROID_HOME="$HOME/Library/Android/sdk"
+	sh_path_append "$ANDROID_HOME/emulator"
+	sh_path_append "$ANDROID_HOME/platform-tools"
+fi
+if [ -d /Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home ]; then
+	export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home
+fi
+
 # ── editor ──────────────────────────────────────────────────────────────────
 # Assigned unconditionally when nvim is present, matching home-manager's
 # unconditional `export EDITOR="nvim"`. An "only if unset" version looks tidier

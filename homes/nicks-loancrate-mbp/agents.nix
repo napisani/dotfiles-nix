@@ -29,6 +29,11 @@
           name = "loancrate-create-pr";
           manualOnly = true;
         }
+        # Creates tickets, branches and PRs unattended, so it stays behind a deliberate call.
+        {
+          name = "loancrate-create-split-prs";
+          manualOnly = true;
+        }
         {
           name = "loancrate-prepare-perf-impact";
           manualOnly = true;

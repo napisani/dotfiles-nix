@@ -27,6 +27,11 @@
       # formula — homebrew/core has no session-manager-plugin, so listing it
       # under brews fails `brew bundle` with "No formulae found".
       "session-manager-plugin"
+
+      # Mobile development: Android Studio plus the JDK 17 that the React
+      # Native Android build expects.
+      "android-studio"
+      "zulu@17"
     ];
 
     brews = [
@@ -52,6 +57,9 @@
       "pango"
       "poppler"
       "conductorone/cone/cone"
+      # iOS dependency manager for the mobile app; Xcode itself is installed
+      # outside Homebrew.
+      "cocoapods"
     ];
 
     taps = [

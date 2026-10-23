@@ -51,6 +51,12 @@ Every design question goes through the session's surface. Never ask a design que
    - a file tree when it is about module boundaries;
    - a data table when it is about the shape of data or a side-by-side comparison.
 5. **Spec impact.** Say what the option does to the spec, and to the RFC when one is requested: sections it adds or changes, decisions it unlocks, and any new subsystem or platform obligation.
+6. **Plain language.** The user reads every word of a question once, cold. Write the question, option descriptions, pros, cons, score reasons, impact lines, and `look` lines as the `unslop` skill requires, then check them against these rules:
+   - An option description is one or two whole sentences: what changes, and what it costs. No flag names, file names, or internal terms the user has not seen in this session unless the sentence defines them.
+   - Name the concrete thing, not the idea: "copies every exported parent variable into the child" beats "inherits the ambient environment by default".
+   - Pros, cons, and score reasons are short phrases a reader can compare, not sentences that restate the option.
+   - Define a term the first time it appears in a question. Reuse the same word for the same thing across questions.
+   - Re-read each option description as if you had not seen the code. If it needs two passes, rewrite it.
 
 Lead with the recommended option and make its trade-offs say why it wins here. Don't pad with options you would never pick.
 
@@ -68,11 +74,20 @@ Lead with the recommended option and make its trade-offs say why it wins here. D
 - Choose 2–4 lenses from the views above and fill every lens for every option, or use kind `na` with the reason.
 - Turn the trade-off dimensions into `dimensions`, and score every option 1–5 against the others with a one-line reason.
 - Put the bullets in `pros` and `cons`, one string per bullet.
-- Put spec impact in `impact` and `specDelta`.
+- Put spec impact in `impact` and `specDelta` on every option. The page's Overview tab adds these up across the decided questions, so an option without them counts as no change.
 - Flag the recommendation with `recommended: true`, keeping the label to the option's name.
 - The turn ends after `anvil_ask`. Answers and defers come back together as one `Anvil round N complete` message once every question in the round is settled; that message is the round's answer. Follow-ups and revisits arrive as they happen.
 - An `Anvil revisit` reopens a decision: re-ask it with `anvil_ask` under the same id and name the later decisions it puts back up for review.
-- Decisions are recorded on the page. If the user decides in chat, ask them to submit it on the page so the ledger stays complete.
+- Decisions are recorded on the page. If the user decides in chat, ask them to submit it on the page so the Overview stays complete.
+
+### Interim drafts on anvil
+
+The page has two views. Questions is for answering one decision at a time. Overview shows the whole design: the decision map, the net effect on the spec, and a draft tech spec or RFC built from the decisions so far. The user can ask for a draft at any point in Phase 1 or 2. The request arrives as an `Anvil draft requested` message that lists every decision's status.
+
+- Read the format reference, then write the whole draft from the decisions made so far. Write every section the decisions already support.
+- Mark each gap where the text goes: `TBD(D4): what is missing` when it waits on an open or deferred decision, or `TBD: what is missing` when no question covers it yet. A section that cannot be written yet keeps its heading and holds only its TBD lines.
+- Post it with `anvil_draft` and end the turn. It answers no question and writes no file; open questions stay open.
+- Each `TBD:` with no decision id is a gap in the design tree. Add it to the next frontier round.
 
 ### Follow-ups
 
@@ -119,6 +134,7 @@ Read each draft's format reference before writing it.
 Then, for each draft:
 
 - The draft must stay out of git. Check with `git check-ignore -q .scratch`; if not ignored, append `.scratch/` to `.git/info/exclude` (local-only, never committed) rather than editing the repo's `.gitignore`.
+- On anvil, also post each draft with `anvil_draft` so the Overview shows the final version.
 - Self-review before handing it over: scan for placeholders/TBDs (an RFC's page-header blanks excepted), internal contradictions, requirements interpretable two ways, and scope too big for one implementation pass. For an RFC, also check every section against its budget. Fix inline.
 - Ask the user to review the drafts through the terminal's structured tool. When no RFC was requested, offer "Approve and also write an RFC" beside plain approval; choosing it runs any RFC-only grilling still open, then writes and reviews the RFC. Revise until approved.
 

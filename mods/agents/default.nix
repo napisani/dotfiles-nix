@@ -66,6 +66,7 @@
         extensions = [
           "${config.home.homeDirectory}/code/monorepo/pub/vantage-nvim/server/src/neovim/runtime/adjacent/extension.ts"
           "${config.home.homeDirectory}/code/monorepo/pub/pi-surface/extension/index.ts"
+          "${config.home.homeDirectory}/code/monorepo/pub/pi-anvil/extension/index.ts"
         ];
       };
       skillPaths = [

@@ -131,6 +131,7 @@ in
   loancrate-babysit-pr = pinned "private-skills" "loancrate-babysit-pr";
   loancrate-babysit-pr-stop = pinned "private-skills" "loancrate-babysit-pr-stop";
   loancrate-create-pr = pinned "private-skills" "loancrate-create-pr";
+  loancrate-create-split-prs = pinned "private-skills" "loancrate-create-split-prs";
   loancrate-prepare-perf-impact = pinned "private-skills" "loancrate-prepare-perf-impact";
   loancrate-refresh-perf-scoreboard = pinned "private-skills" "loancrate-refresh-perf-scoreboard";
 
