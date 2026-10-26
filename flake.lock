@@ -574,6 +574,18 @@
         "type": "github"
       }
     },
+    "pi-surface-skills": {
+      "flake": false,
+      "locked": {
+        "path": "../pi-surface/skills",
+        "type": "path"
+      },
+      "original": {
+        "path": "../pi-surface/skills",
+        "type": "path"
+      },
+      "parent": []
+    },
     "playwright-cli-skills": {
       "flake": false,
       "locked": {
@@ -739,6 +751,7 @@
         "nixpkgs-unstable": "nixpkgs-unstable",
         "no-ai-slop": "no-ai-slop",
         "patricio0312rev-skills": "patricio0312rev-skills",
+        "pi-surface-skills": "pi-surface-skills",
         "playwright-cli-skills": "playwright-cli-skills",
         "private-skills": "private-skills",
         "procmux": "procmux",

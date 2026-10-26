@@ -209,8 +209,23 @@
     name = "classify";
     manualOnly = true;
   }
-  # repo-local · guided design session ending in a typed tech spec
-  "forge-solution"
+  # repo-local · guided design session in the terminal, ending in a typed tech spec
+  "terminal-forge-solution"
+  # pi-surface · guided design session on the browser page; needs the pi-surface extension
+  {
+    name = "surface-forge-solution";
+    manualOnly = true;
+  }
+  # pi-surface · review local changes or a PR on the browser page
+  {
+    name = "surface-code-review";
+    manualOnly = true;
+  }
+  # pi-surface · work through PR feedback on the browser page
+  {
+    name = "surface-pr-feedback";
+    manualOnly = true;
+  }
   # repo-local · read and write Obsidian vault notes
   "ob-note"
   # repo-local · rebase onto trunk or the stack parent, force-push with lease

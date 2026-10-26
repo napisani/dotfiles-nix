@@ -61,18 +61,17 @@
         openaiReasoningMode.fast = false;
         # Use the same local Vantage checkout as Neovim, not a second copy of
         # its bridge implementation or a temporary feature worktree.
-        # pi-web-code-review loads from the monorepo checkout too; it needs
-        # `npm ci && npm run build` there to serve its page.
+        # pi-surface loads from the monorepo checkout too; it needs
+        # `npm ci && npm run build` there to serve its pages. Its surface-*
+        # skills come from shared-skills.nix like every other skill.
         extensions = [
           "${config.home.homeDirectory}/code/monorepo/pub/vantage-nvim/server/src/neovim/runtime/adjacent/extension.ts"
-          "${config.home.homeDirectory}/code/monorepo/pub/pi-anvil/extension/index.ts"
-          "${config.home.homeDirectory}/code/monorepo/pub/pi-web-code-review/extension/index.ts"
+          "${config.home.homeDirectory}/code/monorepo/pub/pi-surface/extension/index.ts"
         ];
       };
-      skillPaths = [
-        "~/code/*/apps/*/.agents/skills"
-        "~/code/monorepo/pub/pi-web-code-review/skills"
-      ];
+      # Plain paths only: Pi treats a glob here as a filter that disables every
+      # skill outside it. It already finds .agents/skills in the cwd's ancestors.
+      skillPaths = [ ];
       # These packages provide native binaries or package-specific setup used by
       # the declared Pi extensions. Name-level approval intentionally follows
       # extension updates; adding a new script-owning dependency still produces
@@ -105,6 +104,7 @@
         # range and removed getModels call in claude-agent-sdk-pi.
         "npm:pi-claude-bridge@0.9.3"
         "npm:pi-goal@0.1.7"
+        "npm:pi-cache-graph@1.0.2"
         # pi-blackhole 0.5.11 still requires the pre-1.0 Pi APIs and cannot
         # resolve alongside the Pi 1.0 dependency tree.
         # Direct dependency for local extensions; Pi's package root is not an

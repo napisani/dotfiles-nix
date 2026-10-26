@@ -1,10 +1,12 @@
 // Applies declarative Pi settings to ~/.pi/agent/settings.json.
-// Managed object values are deep-merged, and declared skill paths are added
-// without removing user-managed paths.
+// Managed object values are deep-merged. Declared skill paths are added, and
+// paths an earlier run declared but this one doesn't are removed; paths the
+// user added by hand are kept.
 //
 // Env vars:
-//   PI_MANAGED_SETTINGS — JSON object of settings to enforce
-//   PI_SKILL_PATHS      — JSON array of skill search paths to ensure
+//   PI_MANAGED_SETTINGS   — JSON object of settings to enforce
+//   PI_SKILL_PATHS        — JSON array of skill search paths to ensure
+//   PI_SKILL_STATE_FILE   — where the last declared skill paths are recorded
 
 const fs = require("node:fs");
 const path = require("node:path");
@@ -65,8 +67,33 @@ function mergeManaged(target, desired) {
 
 mergeManaged(settings, managedSettings);
 
-if (managedSkillPaths.length > 0) {
-  const skills = Array.isArray(settings.skills) ? [...settings.skills] : [];
+// Declared before skill paths were recorded, so no state file names them.
+// The glob also hid every other skill: Pi reads globs in this list as filters.
+const RETIRED_SKILL_PATHS = [
+  "~/code/*/apps/*/.agents/skills",
+  "~/code/monorepo/pub/pi-surface/skills",
+];
+
+const stateFile = process.env.PI_SKILL_STATE_FILE;
+let previousSkillPaths = [];
+if (stateFile && fs.existsSync(stateFile)) {
+  try {
+    const recorded = JSON.parse(fs.readFileSync(stateFile, "utf8"));
+    if (isStringArray(recorded)) previousSkillPaths = recorded;
+  } catch {
+    // An unreadable record only means nothing earlier can be pruned.
+  }
+}
+
+const stale = new Set(
+  [...previousSkillPaths, ...RETIRED_SKILL_PATHS].filter(
+    (skillPath) => !managedSkillPaths.includes(skillPath),
+  ),
+);
+if (Array.isArray(settings.skills) || managedSkillPaths.length > 0) {
+  const skills = (Array.isArray(settings.skills) ? settings.skills : []).filter(
+    (skillPath) => !stale.has(skillPath),
+  );
   for (const skillPath of managedSkillPaths) {
     if (!skills.includes(skillPath)) skills.push(skillPath);
   }
@@ -81,4 +108,9 @@ if (JSON.stringify(settings) !== before) {
   if (writeConfigFile(settingsPath, JSON.stringify(settings, null, 2) + "\n")) {
     console.log("agents: applied declared Pi settings");
   }
+}
+
+if (stateFile) {
+  if (process.env.RECONCILE_MODE !== "status") fs.mkdirSync(path.dirname(stateFile), { recursive: true });
+  writeConfigFile(stateFile, JSON.stringify(managedSkillPaths) + "\n");
 }

@@ -73,6 +73,10 @@ in
   vantage-distill-session = pinned "vantage-nvim-skills" "skills/vantage-distill-session";
   vantage-author-walkthrough = pinned "vantage-nvim-skills" "skills/vantage-author-walkthrough";
   vantage-author-diff-tour = pinned "vantage-nvim-skills" "skills/vantage-author-diff-tour";
+  # This input is rooted at pub/pi-surface/skills, so the paths are skill names.
+  surface-forge-solution = pinned "pi-surface-skills" "surface-forge-solution";
+  surface-code-review = pinned "pi-surface-skills" "surface-code-review";
+  surface-pr-feedback = pinned "pi-surface-skills" "surface-pr-feedback";
   playwright-cli = pinned "playwright-cli-skills" "skills/playwright-cli";
   gog = pinned "gogcli-skills" ".agents/skills/gog";
   gog-docs = pinned "gogcli-skills" ".agents/skills/gog-docs";
@@ -147,7 +151,7 @@ in
   address-pr-feedback = local "agents/shared-skills/address-pr-feedback";
   agent-management = local "agents/shared-skills/agent-management";
   classify = local "agents/shared-skills/classify";
-  forge-solution = local "agents/shared-skills/forge-solution";
+  terminal-forge-solution = local "agents/shared-skills/terminal-forge-solution";
   loancrate-review-filters-interview = local "agents/shared-skills/loancrate-review-filters-interview";
   loancrate-review-policy-engine-interview = local "agents/shared-skills/loancrate-review-policy-engine-interview";
   ob-note = local "agents/shared-skills/ob-note";

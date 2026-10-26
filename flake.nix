@@ -131,6 +131,13 @@
       url = "path:../vantage-nvim";
       flake = false;
     };
+    # The surface-* skills and the workflow code beside them, from the working
+    # tree like private-skills: scoped to skills/ so node_modules and the page
+    # bundle stay out of the store copy.
+    pi-surface-skills = {
+      url = "path:../pi-surface/skills";
+      flake = false;
+    };
     playwright-cli-skills = {
       url = "github:microsoft/playwright-cli";
       flake = false;

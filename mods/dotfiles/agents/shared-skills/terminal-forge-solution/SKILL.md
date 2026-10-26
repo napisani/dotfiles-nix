@@ -1,10 +1,10 @@
 ---
-name: forge-solution
-description: A guided design session that ends in an implementation-ready typed tech spec, plus a reviewer-ready RFC whenever the user asks for one. Highest-leverage questions first, then exhaustive frontier rounds, every option shown with its trade-offs, pros and cons, and visuals. Runs in the terminal, or on the anvil browser page when the anvil extension is loaded. Writes only ephemeral drafts to .scratch/.
+name: terminal-forge-solution
+description: A guided design session in the terminal that ends in an implementation-ready typed tech spec, plus a reviewer-ready RFC whenever the user asks for one. Highest-leverage questions first, then exhaustive frontier rounds, every option shown with its trade-offs, pros and cons, and visuals. Writes only ephemeral drafts to .scratch/.
 disable-model-invocation: true
 ---
 
-# Forge Solution
+# Terminal Forge Solution
 
 Turn an idea into an implementation-ready **tech spec** through a design session with two strands:
 
@@ -18,31 +18,20 @@ This skill is **design-only** and **project-agnostic**. Do not implement, scaffo
 - **tech spec**, always: a typed call-stack handoff an implementing agent can execute. Format: [references/spec-format.md](references/spec-format.md).
 - **RFC**, on request: a design doc reviewers can judge in one sitting — key decisions, alternatives, sketches, rollout. Format: [references/rfc-format.md](references/rfc-format.md).
 
-Never ask up front whether to write an RFC. The user can request or withdraw one at any point — in chat, with the anvil page's RFC toggle (arriving as an `Anvil RFC` message), or at spec review. When it is requested in chat on anvil, record it with `anvil_rfc` so the page shows it. A request mid-session adds the RFC's extra branches to the design tree (see [Phase 2](#phase-2--grill-frontier-rounds)); they join the next round.
+Never ask up front whether to write an RFC. The user can request or withdraw one at any point, in chat or at spec review. A request mid-session adds the RFC's extra branches to the design tree (see [Phase 2](#phase-2--grill-frontier-rounds)); they join the next round.
 
-## Choose the surface
+## The terminal
 
-Questions reach the user on one **surface** for the whole session:
-
-- **terminal**: the structured ask-question tool (e.g. `ask_user_question`, Claude Code's `AskUserQuestion`).
-- **anvil**: a live browser page, reached through the `anvil_ask` and `anvil_reply` tools.
-
-Pick it before the first question:
-
-1. If the user named one ("terminal", "tui", "anvil", "browser"), use it.
-2. Otherwise, if `anvil_ask` is available, the surface choice is the session's first question: ask it on the terminal, anvil recommended.
-3. Otherwise use the terminal.
-
-If the chosen surface's tools are missing, say so and stop rather than asking in prose. Draft review in Phase 3 always happens on the terminal.
+Every question goes through the terminal's structured ask-question tool (e.g. `ask_user_question`, Claude Code's `AskUserQuestion`). If it is missing, say so and stop rather than asking in prose.
 
 ## How to ask
 
-Every design question goes through the session's surface. Never ask a design question in plain text. Each question carries the same content on either surface; [Deliver it](#deliver-it) says how each surface carries it.
+Every design question goes through the structured tool. Never ask a design question in plain text. [Deliver it](#deliver-it) says how the tool carries each part.
 
 1. **A clear, pointed question.** One decision, phrased so each option is a direct answer. No preamble, no bundled sub-questions. The header is a short tag for the decision.
 2. **Trade-offs on every option.** State what the answer buys and what it costs, across the dimensions this particular decision actually trades between — pick from simplicity, correctness, accuracy, reliability, robustness, durability, redundancy, performance, operability, reversibility, blast radius, testability, and anything else that applies. Name only the dimensions where the options differ; a dimension that is equal everywhere is noise. Be concrete ("one more table, but retries become idempotent") rather than adjectival ("more robust"). Keep every option to the same dimensions so they compare line for line.
 3. **Pros and cons on every option.** Alongside the trade-offs, a bulleted **Pros** list and a bulleted **Cons** list: one short, concrete point per bullet, judged against the other options in this question. Every option gets at least one of each. They make the trade-offs scannable; the trade-off dimensions, scores, and visuals all stay.
-4. **Visuals on every option.** Every option shows what choosing it means — in its `preview` on the terminal, in its lens visuals on anvil. Use the `show-me` skill's vocabulary, pick the views that make the difference obvious, and give every option the same views:
+4. **Visuals on every option.** Every option shows what choosing it means in its `preview`. Use the `show-me` skill's vocabulary, pick the views that make the difference obvious, and give every option the same views:
    - a `diff` against the current code when the change is to something that already exists. Read the files first; a diff names only files that exist or are marked new.
    - a sequence diagram when it is about interactions, call order, or where a failure surfaces;
    - an ER diagram plus example data and an example query when it changes a data model, storage, or a cache;
@@ -52,7 +41,7 @@ Every design question goes through the session's surface. Never ask a design que
    - a data table when it is about the shape of data or a side-by-side comparison.
 5. **Spec impact.** Say what the option does to the spec, and to the RFC when one is requested: sections it adds or changes, decisions it unlocks, and any new subsystem or platform obligation.
 6. **Plain language.** The user reads every word of a question once, cold. Before writing the first question, read the `unslop` skill and `../no-ai-slop/SKILL.md` (installed beside this skill). Write the question, option descriptions, pros, cons, score reasons, impact lines, and `look` lines to both, then check them against these rules:
-   - An option description is one or two whole sentences, at most 280 characters: what changes, and what it costs. No flag names, file names, or internal terms the user has not seen in this session unless the sentence defines them. Each pro or con is at most 100 characters; anvil rejects longer ones.
+   - An option description is one or two whole sentences, at most 280 characters: what changes, and what it costs. No flag names, file names, or internal terms the user has not seen in this session unless the sentence defines them. Each pro or con is at most 100 characters.
    - Name the concrete thing, not the idea: "copies every exported parent variable into the child" beats "inherits the ambient environment by default".
    - Pros, cons, and score reasons are short phrases a reader can compare, not sentences that restate the option.
    - Define a term the first time it appears in a question. Reuse the same word for the same thing across questions.
@@ -62,40 +51,19 @@ Lead with the recommended option and make its trade-offs say why it wins here. D
 
 ### Deliver it
 
-**Terminal.** Ask through the structured tool.
+Ask through the structured tool.
 
 - Put trade-offs and spec impact in the option `description`, the recommended option first with `(Recommended)` at the end of its label.
 - Give every option a `preview` holding the single most decisive view, rendered as plain text, followed by its **Pros** and **Cons** bullet lists, so options sit side by side. Previews render only on single-select questions, so prefer single-select; if a question must be multi-select, put one shared view in the question body and each option's pros and cons in its `description`.
 - Check each call before sending: every option of every design question has a `preview` with pros and cons, and the call fits the tool's limits (header length, options per question, questions per call). One limit violation rejects the whole call.
 
-**anvil.** Post each round with one `anvil_ask` call carrying all of its questions. The tool's parameter descriptions define the fields.
-
-- Give each question stable id `D1`, `D2`, … in the order decisions are first asked.
-- Choose 2–4 lenses from the views above and fill every lens for every option, or use kind `na` with the reason.
-- Turn the trade-off dimensions into `dimensions`, and score every option 1–5 against the others with a one-line reason.
-- Put the bullets in `pros` and `cons`, one string per bullet.
-- Put spec impact in `impact` and `specDelta` on every option. The page's Overview tab adds these up across the decided questions, so an option without them counts as no change.
-- Flag the recommendation with `recommended: true`, keeping the label to the option's name.
-- The turn ends after `anvil_ask`. Answers and defers come back together as one `Anvil round N complete` message once every question in the round is settled; that message is the round's answer. Follow-ups and revisits arrive as they happen.
-- An `Anvil revisit` reopens a decision: re-ask it with `anvil_ask` under the same id and name the later decisions it puts back up for review.
-- Decisions are recorded on the page. If the user decides in chat, ask them to submit it on the page so the Overview stays complete.
-
-### Interim drafts on anvil
-
-The page has two views. Questions is for answering one decision at a time. Overview shows the whole design: the decision map, the net effect on the spec, and a draft tech spec or RFC built from the decisions so far. The user can ask for a draft at any point in Phase 1 or 2. The request arrives as an `Anvil draft requested` message that lists every decision's status.
-
-- Read the format reference, then write the whole draft from the decisions made so far. Write every section the decisions already support.
-- Mark each gap where the text goes: `TBD(D4): what is missing` when it waits on an open or deferred decision, or `TBD: what is missing` when no question covers it yet. A section that cannot be written yet keeps its heading and holds only its TBD lines.
-- Post it with `anvil_draft` and end the turn. It answers no question and writes no file; open questions stay open.
-- Each `TBD:` with no decision id is a gap in the design tree. Add it to the next frontier round.
-
 ### Follow-ups
 
-The user can question any question before answering it. On the terminal the tool appends a free-text "Type something." row to every question; never author that option yourself (the tool rejects reserved labels). On anvil they arrive as `Anvil follow-up` messages. Either way the question needs no dedicated follow-up option.
+The user can question any question before answering it. The tool appends a free-text "Type something." row to every question; never author that option yourself (the tool rejects reserved labels). The question needs no dedicated follow-up option.
 
 - **Triggers.** A free-text answer or message that reads as a question or a request for clarification, not as a decision. If it is ambiguous, treat it as a follow-up — a wrongly recorded decision costs more than one extra turn.
-- **Answer it.** Briefly, with a fresh visual when that is what clarifies. If it needs a codebase fact, look it up (sub-agent if large) rather than guessing. On the terminal reply in plain text; on anvil reply with `anvil_reply`, revising the option there if the answer changes it.
-- **Re-ask it.** On the terminal, ask the same question again through the tool, revising the options, trade-offs, or visuals if the clarification changed them, and repeat until it gets a real answer. On anvil the question stays open on the page.
+- **Answer it.** Briefly, with a fresh visual when that is what clarifies. If it needs a codebase fact, look it up (sub-agent if large) rather than guessing. Reply in plain text.
+- **Re-ask it.** Ask the same question again through the tool, revising the options, trade-offs, or visuals if the clarification changed them, and repeat until it gets a real answer.
 - **A follow-up that exposes a missing decision** goes back into the design tree as a new question, rather than being resolved inside the answer.
 - **In a batched round**, answers already given to the other questions stand; only the questioned one is re-asked, alongside any new frontier it unlocked. A follow-up never counts as the round's answer.
 
@@ -116,7 +84,7 @@ Now close every gap. Map the chosen design as a **design tree**: every decision 
 
 The **frontier** is every decision whose prerequisites are settled — askable *now* without guessing at unheard answers. Ask the whole frontier as one round and wait for answers before the next.
 
-- **Ask the round on the session's surface.** On the terminal, batch frontier questions up to the tool's per-call limit (e.g. 4) and split a larger frontier across consecutive calls in the same round. On anvil, post the whole frontier in one `anvil_ask` call.
+- **Ask the round through the tool.** Batch frontier questions up to the tool's per-call limit (e.g. 4) and split a larger frontier across consecutive calls in the same round.
 - A question that depends on another question still open this round belongs to a *later* round.
 - **Facts are your job, decisions are the user's.** When a frontier question needs a fact from the codebase or environment, dispatch a sub-agent to find it instead of asking. Don't block the round on it — only downstream questions wait; ask the rest of the frontier now.
 - Aim the tree at what the spec will need (the outline in [references/spec-format.md](references/spec-format.md)). The frontier is empty only when you could fill every section without inventing: domain types and state model, interfaces and APIs, expected failure types, seams and adapters, call stacks from entrypoint to side effect, failure/retry/cancellation/idempotency behavior where reachable, files to touch, and what "done" means (the test plan).
@@ -134,9 +102,8 @@ Read each draft's format reference before writing it.
 Then, for each draft:
 
 - The draft must stay out of git. Check with `git check-ignore -q .scratch`; if not ignored, append `.scratch/` to `.git/info/exclude` (local-only, never committed) rather than editing the repo's `.gitignore`.
-- On anvil, also post each draft with `anvil_draft` so the Overview shows the final version.
 - Self-review before handing it over: scan for placeholders/TBDs (an RFC's page-header blanks excepted), internal contradictions, requirements interpretable two ways, and scope too big for one implementation pass. For an RFC, also check every section against its budget. Fix inline.
-- Ask the user to review the drafts through the terminal's structured tool. When no RFC was requested, offer "Approve and also write an RFC" beside plain approval; choosing it runs any RFC-only grilling still open, then writes and reviews the RFC. Revise until approved.
+- Ask the user to review the drafts through the structured tool. When no RFC was requested, offer "Approve and also write an RFC" beside plain approval; choosing it runs any RFC-only grilling still open, then writes and reviews the RFC. Revise until approved.
 
 ## Terminal state
 

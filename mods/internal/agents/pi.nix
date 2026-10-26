@@ -160,6 +160,7 @@ lib.mkMerge [
         # ── Settings (provider defaults, model, skill paths) ──────────────────────
         PI_MANAGED_SETTINGS=${lib.escapeShellArg (builtins.toJSON agentCfg.settings)} \
         PI_SKILL_PATHS=${lib.escapeShellArg (builtins.toJSON agentCfg.skillPaths)} \
+        PI_SKILL_STATE_FILE=${lib.escapeShellArg "${home}/.local/state/agents-nix/pi-skill-paths.json"} \
           ${nodeBin}/node ${scriptsDir}/apply-pi-settings.js
 
       '';

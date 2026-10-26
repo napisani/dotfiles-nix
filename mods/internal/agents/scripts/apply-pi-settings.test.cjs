@@ -45,6 +45,35 @@ test("applies declared Pi settings and skill paths while preserving unmanaged va
   });
 });
 
+test("removes skill paths an earlier run declared, keeping hand-added ones", () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), "apply-pi-settings-"));
+  const settingsPath = path.join(home, ".pi", "agent", "settings.json");
+  const stateFile = path.join(home, "state", "pi-skill-paths.json");
+  fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+  fs.writeFileSync(settingsPath, JSON.stringify({ skills: ["~/manual-skills"] }));
+
+  const declare = (paths) => run(home, { PI_SKILL_PATHS: JSON.stringify(paths), PI_SKILL_STATE_FILE: stateFile });
+  assert.equal(declare(["~/old-skills", "~/kept-skills"]).status, 0);
+  assert.equal(declare(["~/kept-skills"]).status, 0);
+
+  assert.deepEqual(JSON.parse(fs.readFileSync(settingsPath, "utf8")).skills, ["~/manual-skills", "~/kept-skills"]);
+  assert.deepEqual(JSON.parse(fs.readFileSync(stateFile, "utf8")), ["~/kept-skills"]);
+});
+
+test("retires skill paths declared before they were recorded", () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), "apply-pi-settings-"));
+  const settingsPath = path.join(home, ".pi", "agent", "settings.json");
+  fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+  fs.writeFileSync(settingsPath, JSON.stringify({
+    skills: ["~/code/*/apps/*/.agents/skills", "~/code/monorepo/pub/pi-surface/skills", "~/declared-skills"],
+  }));
+
+  const result = run(home, { PI_SKILL_PATHS: JSON.stringify(["~/declared-skills"]) });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(JSON.parse(fs.readFileSync(settingsPath, "utf8")).skills, ["~/declared-skills"]);
+});
+
 test("rejects invalid declaration JSON without changing settings", () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), "apply-pi-settings-"));
   const settingsPath = path.join(home, ".pi", "agent", "settings.json");
