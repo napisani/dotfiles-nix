@@ -18,6 +18,12 @@ for name in ("loancrate", "personal"):
     config = json.loads(config_path.read_text())
     assert config["profiles"]["shell"] == {"exclude": [], "overwrite": True}
     assert set(config["sources"]) == {"doppler"}
+    assert config["sources"]["doppler"]["credential"] == {
+        "kind": "stored", "name": f"{name}-doppler",
+    }
+    assert config["storage"] == {
+        "type": "keyring", "allowed_backends": ["darwin-keychain", "linux-secret-service"],
+    }
     assert config["profiles"]["project-only"]["remote_sources"] is False
     assert config["profiles"]["project"]["remote_sources"] is True
     for profile in ("project-only", "project"):
@@ -39,9 +45,17 @@ for name in ("loancrate", "personal"):
         doppler.chmod(0o700)
         config_dir = home / ".config"
         config_dir.mkdir()
-        # Keep real keyring credentials and caches outside the fixture process.
+        # This process must never contact a developer's native store or providers.
         config["storage"] = {"type": "file"}
-        config["profiles"]["fixture override"] = {"include": []}
+        config["profiles"]["shell"].update({
+            "remote_sources": False, "env_files": ["shell-fixture.vars"],
+        })
+        config["profiles"]["project"]["remote_sources"] = False
+        config["profiles"]["fixture override"] = {"include": [], "remote_sources": False}
+        config["profiles"]["remote refusal"] = {"exclude": [], "remote_sources": True}
+        (home / "shell-fixture.vars").write_text(
+            f"SECRET_INJECT_FIXTURE={fixture_value}\nREMOTE_ONLY=remote fixture\n"
+        )
         (config_dir / ".secret_inject.json").write_text(json.dumps(config))
         environment = {
             "HOME": str(home),
@@ -78,9 +92,14 @@ for name in ("loancrate", "personal"):
         combined = run([str(binary), "--profile", "project", "--output", "json"], environment)
         assert json.loads(combined.stdout) == {
             "SECRET_INJECT_FIXTURE": "local override", "LOCAL_ONLY": "local",
-            "REMOTE_ONLY": "remote fixture",
         }
-        print(f"PASS: {name}: project-only skips providers; project overlays local files")
+        refused = subprocess.run(
+            [str(binary), "--profile", "remote refusal", "--output", "json"],
+            env=environment, cwd=home, capture_output=True, text=True, timeout=15,
+        )
+        assert refused.returncode == 1 and refused.stdout == ""
+        assert not (home / "provider-called").exists()
+        print(f"PASS: {name}: local overlays work; legacy remote file storage is refused")
 
         for case, variables, expected in (
             ("unset profile", {}, fixture_value),
@@ -103,7 +122,7 @@ for name in ("loancrate", "personal"):
             )
             assert exported.stdout == expected, case
             assert exported.stderr == "", case
-            assert (home / "provider-called").read_text() == "called"
+            assert not (home / "provider-called").exists()
             print(f"PASS: {name}: {case}")
 
         checked = run(
