@@ -24,6 +24,9 @@ let
   # nix-darwin's /etc/bashrc is readable inside the Darwin build sandbox and
   # resets PATH, so atuin's e2e shell tests lose the binary under test.
   atuin = pkgs-unstable.atuin.overrideAttrs (old: {
+    # The Darwin sandbox sees the host's process table, so a running pi session
+    # makes atuin's pi liveness e2e tests report the session as live.
+    checkFlags = (old.checkFlags or [ ]) ++ [ "--skip=Agent__Pi" ];
     preCheck =
       (old.preCheck or "")
       + lib.optionalString pkgs-unstable.stdenv.hostPlatform.isDarwin ''

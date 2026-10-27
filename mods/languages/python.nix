@@ -11,5 +11,4 @@ with pkgs-unstable;
   yapf
   uv
   python312
-  rye
 ]

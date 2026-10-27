@@ -43,9 +43,7 @@ assert !lib.hasInfix "/.codex/RTK.md" withoutRtk.home.file.".codex/AGENTS.md".te
 pkgs.runCommand "rtk-runtime" { } ''
   ${lib.concatMapStringsSep "\n" (path: "test -s ${home.home.file.${path}.source}") paths}
   grep -F '${home.agents.rtkPackage}/bin/rtk' ${home.home.file.".pi/agent/extensions/rtk.ts".source}
-  grep -F '${home.agents.rtkPackage}/bin/rtk' ${
-    home.home.file.".config/opencode/plugins/rtk.ts".source
-  }
+  grep -F '${home.agents.rtkPackage}/bin' ${home.home.file.".config/opencode/plugins/rtk.ts".source}
   grep -F '@RTK.md' ${home.home.file.".claude/CLAUDE.md".source}
   grep -F '@${home.home.homeDirectory}/.codex/RTK.md' ${home.home.file.".codex/AGENTS.md".source}
   export HOME="$TMPDIR/rtk-probe"

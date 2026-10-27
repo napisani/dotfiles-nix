@@ -94,11 +94,11 @@
         "git:github.com/nicobailon/pi-subagents@v0.78.0"
         "npm:@datspike/pi-inline-slash-extension@0.2.1"
         "npm:@ff-labs/pi-fff@0.11.0"
-        "npm:@juicesharp/rpiv-btw@2.13.8"
-        "npm:@juicesharp/rpiv-ask-user-question@2.13.8"
-        "npm:@lincoln504/pi-research@1.7.11"
+        "npm:@juicesharp/rpiv-btw@2.15.0"
+        "npm:@juicesharp/rpiv-ask-user-question@2.15.0"
+        "npm:@lincoln504/pi-research@1.7.23"
         "npm:pi-vim@0.14.2"
-        "npm:pi-web-access@0.41.0"
+        "npm:pi-web-access@0.45.0"
         "npm:remote-pi@0.7.0"
         # Routes Pi through the Claude Agent SDK without the stale pi-ai peer
         # range and removed getModels call in claude-agent-sdk-pi.
@@ -110,7 +110,7 @@
         # Direct dependency for local extensions; Pi's package root is not an
         # ancestor of individually linked extension files during Node resolution.
         "npm:@earendil-works/pi-tui@1.0.4"
-        "git:github.com/nicobailon/visual-explainer@69cd7395cee2979aa7301ebe51bb4c2ba5f5ef9e"
+        "git:github.com/nicobailon/visual-explainer@5f378868e0ea745a6284b51e710c390f0c76f72c"
       ];
     };
 

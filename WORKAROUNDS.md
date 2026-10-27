@@ -16,8 +16,9 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 8. [Pi `claude-bridge` CLI model resolution](#pi-claude-bridge-cli-model-resolution)
 9. [`npm config set prefix` vs. immutable `~/.npmrc`](#npm-config-set-prefix-vs-immutable-npmrc)
 10. [OmniWM focused-border rendering](#omniwm-focused-border-rendering)
-11. [Atuin e2e checks vs. nix-darwin `/etc/bashrc`](#atuin-e2e-checks-vs-nix-darwin-etcbashrc)
-12. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
+11. [Atuin e2e checks in the Darwin build sandbox](#atuin-e2e-checks-in-the-darwin-build-sandbox)
+12. [Darwin flake check vs. Linux `rtk` build](#darwin-flake-check-vs-linux-rtk-build)
+13. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
 
 ---
 
@@ -254,7 +255,9 @@ a symlink to the same source directory.
 
 ---
 
-## Atuin e2e checks vs. nix-darwin `/etc/bashrc`
+## Atuin e2e checks in the Darwin build sandbox
+
+### nix-darwin `/etc/bashrc` rewrites `PATH`
 
 | Item | Detail |
 |------|--------|
@@ -263,6 +266,28 @@ a symlink to the same source directory.
 | **Why** | Atuin 18.23's e2e tests start an interactive bash in a temp home with the freshly built `atuin` first on `PATH`. The Darwin sandbox can read nix-darwin's `/etc/bashrc`, which re-exports `PATH` from `set-environment`, so the shell loses the test binary (or finds an installed, older Atuin). History is never recorded and `filtered_commands_leave_no_captured_output` times out with `captured: []`. |
 | **Remove when** | nixpkgs' atuin package or upstream's test harness stops letting the host's `/etc/bashrc` rewrite `PATH` in the build sandbox. |
 | **How to verify** | `nix build` the Darwin `atuin` derivation with checks enabled; `e2e_capture` reports 8 passed. |
+
+### Pi liveness tests see the host's running `pi`
+
+| Item | Detail |
+|------|--------|
+| **Location** | `mods/shell.nix` (`atuin` override, `checkFlags`) |
+| **What** | Append `--skip=Agent__Pi` to the package's `checkFlags`, skipping every Pi variant of atuin's `e2e_ai_sessions` tests. Other agents' variants and all other checks stay enabled. |
+| **Why** | pi records no running session anywhere, so atuin decides liveness by scanning the process table for any `pi` while the session file is recently modified. The Darwin sandbox shares the host's process table, so any `pi` you have open makes `a_copy_behind_another_machine_catches_up_as_it_resumes`, `a_diverged_copy_resumes_only_as_chosen` and `a_session_gone_on_with_elsewhere_catches_up_where_it_came_from` fail with "Pi is running this session here". The build then fails whenever you rebuild from inside a pi session. |
+| **Remove when** | Upstream's tests stop depending on the host process table (or the Darwin sandbox hides it), or nixpkgs adds its own skip. |
+| **How to verify** | Remove the flag and `nix build` the Darwin `atuin` derivation with a `pi` session open; all `e2e_ai_sessions` tests should pass. |
+
+---
+
+## Darwin flake check vs. Linux `rtk` build
+
+| Item | Detail |
+|------|--------|
+| **Location** | `flake.nix` (`mkAgentConfigResolvedCheck`) |
+| **What** | The check discards the string context of the JSON it writes with `builtins.unsafeDiscardStringContext`. It still forces every host's agent config at evaluation. |
+| **Why** | The JSON includes each host's `agents.rtkPackage` store path. Keeping its context makes the Darwin check depend on the Supermicro host's x86_64-linux `rtk`, which a Mac without a Linux builder cannot build (or substitute, when the cache lacks that nixpkgs revision). |
+| **Remove when** | The check no longer serialises package paths, or every machine running `nix flake check` has a Linux builder. |
+| **How to verify** | `nix flake check` on Darwin passes without `platform mismatch` errors. |
 
 ---
 
@@ -306,4 +331,5 @@ a symlink to the same source directory.
 | 2026-09-16 | Removed the server-wide agent wrappers after they reproduced paste corruption in other panes while Pi was open. Kept `extended-keys off` permanently and mirrored Alacritty's explicit CSI-u chords as tmux root bindings that forward the original bytes. |
 | 2026-09-21 | Added the `claude-bridge-cli-model` Pi extension workaround so explicit `--provider claude-bridge --model …` and provider-qualified `--model` selections are re-applied after deferred bridge registration and before the first provider request. |
 | 2026-10-15 | Overrode `atuin` in `mods/shell.nix` so its Darwin e2e checks skip the host `/etc/bashrc` that reset `PATH` inside the build sandbox. |
+| 2026-10-27 | Skipped atuin's Pi e2e tests in the Darwin build (host `pi` processes made them fail) and discarded string context in `agent-config-resolved` so the Darwin flake check no longer builds a Linux `rtk`. |
 | *(add entries when adding/removing workarounds)* | |

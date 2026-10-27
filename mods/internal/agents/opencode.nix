@@ -44,10 +44,10 @@ let
     pkgs = pkgs-unstable;
     args = [ "--opencode" ];
     files = [ ".config/opencode/plugins/rtk.ts" ];
+    # The plugin finds rtk on PATH only; search the pinned package instead.
     patch = ''
       substituteInPlace "$out/.config/opencode/plugins/rtk.ts" \
-        --replace-fail 'which rtk' 'test -x ${rtk}/bin/rtk' \
-        --replace-fail 'rtk rewrite ''${command}' '${rtk}/bin/rtk rewrite ''${command}'
+        --replace-fail '(process.env.PATH ?? "")' '"${rtk}/bin"'
     '';
   };
 

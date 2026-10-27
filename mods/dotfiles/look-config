@@ -51,3 +51,7 @@ launcher_hotkey=cmd+space
 
 # Added by look update
 super_actions_enabled=false
+
+# Added by look update
+hints_enabled=true
+search_placeholder=Type whatever you want

@@ -262,7 +262,11 @@
         assert lib.all (cfg: lib.all validSkillSelection (skillSelections cfg)) (
           builtins.attrValues resolved
         );
-        pkgs.writeText "resolved-agent-config.json" (builtins.toJSON resolved);
+        # The JSON embeds each host's rtkPackage store path; keeping its string context
+        # would make this darwin check build a Linux rtk (no Linux builder).
+        pkgs.writeText "resolved-agent-config.json" (
+          builtins.unsafeDiscardStringContext (builtins.toJSON resolved)
+        );
       mkActivationMergeForcedCheck =
         system:
         let
