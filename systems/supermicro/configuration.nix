@@ -93,7 +93,7 @@ let
   # exports immediately before executing the Nix-managed bootstrap.
   gitopsSyncEntrypoint = pkgs.writeShellScript "gitops-sync-with-secrets" ''
     set -euo pipefail
-    _secret_exports="$(${secretInject}/bin/secret_inject)"
+    _secret_exports="$(${secretInject}/bin/secret_inject --profile shell)"
     eval "$_secret_exports"
     unset _secret_exports
     exec ${gitopsSyncBootstrap}
