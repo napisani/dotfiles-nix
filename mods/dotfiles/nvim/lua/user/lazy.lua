@@ -26,6 +26,7 @@ vim.g.nvim_dadbod_bg_port = "4545"
 vim.g.nvim_dadbod_bg_log_file = "/tmp/nvim-dadbod-dbg.log"
 
 local vantage_dir = "/Users/nick/code/monorepo/pub/vantage-nvim"
+local scrollbacktamer_dir = "/Users/nick/code/monorepo/pub/scrollbacktamer.nvim"
 
 -- Setup lazy.nvim
 require("lazy").setup({
@@ -157,6 +158,14 @@ require("lazy").setup({
 		},
 		{
 			"smoka7/hop.nvim",
+		},
+
+		-- tmux scrollback viewer; the tmux popup binding loads it with require()
+		{
+			dir = scrollbacktamer_dir,
+			name = "scrollbacktamer.nvim",
+			cmd = "Scrollbacktamer",
+			opts = { prompt = "❯" },
 		},
 
 		-- debugging

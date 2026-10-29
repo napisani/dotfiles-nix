@@ -117,7 +117,7 @@ Language tooling in `mods/languages/` aggregated by `all.nix`. Imported by both 
 `mods/internal/uv.nix` and `mods/internal/npm.nix` use home-manager activation hooks to install tools via `uv tool install` and `npm install -g` for packages not easily packaged in Nix.
 
 #### Custom Flake Inputs
-Several of the user's own projects are consumed as flake inputs: `procmux`, `proctmux`, `stackman`, `secret_inject`, `animal_rescue`, and `scrollbacktamer`. Stackman is sourced from the `pub/stackman` subdirectory of the monorepo rather than a standalone repository.
+Several of the user's own projects are consumed as flake inputs: `procmux`, `proctmux`, `stackman`, `secret_inject`, and `animal_rescue`. Stackman is sourced from the `pub/stackman` subdirectory of the monorepo rather than a standalone repository.
 
 ### Common Gotchas
 - The `nil` flake input was recently removed -- the Nix LSP comes from `pkgs-unstable.nil` in `languages/nix.nix`

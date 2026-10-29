@@ -140,10 +140,6 @@ export SHELL
 # default 256 on macOS.
 ulimit -n 65536 2>/dev/null || true
 
-# scrollbacktamer: open scrollbacks in nvim, scrolled to the end.
-export SBTAMER_EDITOR='nvim +"term cat %s"  +"execute \":normal! G\""'
-export SBTAMER_TERMINATOR='.*❯.*'
-
 # Keep pnpm from self-managing its install — mise and nix own that.
 #
 # Deliberately NOT exported, matching the previous 0050_shell.bashrc exactly so

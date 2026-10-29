@@ -230,8 +230,3 @@ function color-test {
 # pet: Compare two files in WebStorm
 alias wsdiff='function _wsdiff() { /Applications/WebStorm.app/Contents/MacOS/webstorm diff "$1" "$2"; }; _wsdiff'
 
-# scrollbacktamer aliases
-# pet: Open the scrollback editor
-alias stame='scrollbacktamer'
-# pet: Open the most recent scrollback
-alias stame-last='scrollbacktamer -last 1'

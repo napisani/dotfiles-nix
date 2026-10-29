@@ -30,16 +30,6 @@
   command = "nix-search --details <package> | head -50"
   tag = ['nix', 'search', 'package']
 
-[[snippets]]
-  description = "scrollbacktamer"
-  command = "stame"
-  tag = ['scrollback', 'tamer']
-
-[[snippets]]
-  description = "scrollbacktamer"
-  command = "stame-last"
-  tag = ['scrollback', 'tamer', 'last']
-
 
 
 # [[snippets]]

@@ -13,7 +13,10 @@ exrc_manager.source_local_config()
 require("user.options")
 require("user.keymaps")
 require("user.lazy")
-require("user.lsp")
+-- The scrollbacktamer tmux popup sets this flag; LSP is the only >10 ms startup cost it doesn't need.
+if not vim.g.scrollbacktamer then
+	require("user.lsp")
+end
 
 -- Initialize modular plugins from registry
 -- The registry maintains proper load order (e.g., colorscheme and notify load early)

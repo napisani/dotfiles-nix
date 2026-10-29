@@ -8,7 +8,6 @@
   tmux_picker,
   mushy_lint,
   animal_rescue,
-  scrollbacktamer,
   proctmux,
   stackman,
   ...
@@ -56,7 +55,6 @@ in
       tmux_picker.packages.${system}.default
       mushy_lint.packages.${system}.default
       animal_rescue.packages.${system}.default
-      scrollbacktamer.packages.${system}.default
       proctmux.packages.${system}.default
       stackman.packages.${system}.default
       # tmuxp

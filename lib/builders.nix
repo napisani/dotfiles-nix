@@ -68,7 +68,6 @@ rec {
       tmux_picker
       mushy_lint
       animal_rescue
-      scrollbacktamer
       ;
     overlays = [ ];
     user = "nick";

@@ -71,10 +71,6 @@
       url = "path:../animalcontrol";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    scrollbacktamer = {
-      url = "path:../scrollbacktamer";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     # Look launcher — keyboard-first desktop launcher (macOS/Linux).
     # The nix flake only builds for Linux; on macOS we install via brew cask.
