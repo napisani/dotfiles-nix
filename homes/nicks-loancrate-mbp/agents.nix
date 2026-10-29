@@ -99,6 +99,7 @@
       gmail.url = "https://gmailmcp.googleapis.com/mcp/v1";
       notion.url = "https://mcp.notion.com/mcp";
       sentry.url = "https://mcp.sentry.dev/mcp";
+      posthog.url = "https://mcp.posthog.com/mcp";
     };
 
     opencode.mcpServers = {

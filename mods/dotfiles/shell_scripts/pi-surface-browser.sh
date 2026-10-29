@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Opens a pi-surface page in terminal-browser, in one "pi-surface" tmux window
-# per session: reuses the window and its browser when they exist, otherwise
-# creates them. pi-surface runs this through its surface.browser setting.
+# Opens a pi-surface page in terminal-browser, in one tmux window per workflow
+# page (review, forge, ...) per session: reuses that window and its browser when
+# they exist, otherwise creates them. Other sessions and other pages never share
+# a window. pi-surface runs this through its surface.browser setting.
 set -euo pipefail
 
 url="${1:?usage: pi-surface-browser.sh <url>}"
-window_name="pi-surface"
 
 default_browser() {
 	if command -v open >/dev/null 2>&1; then
@@ -18,44 +18,60 @@ if [[ -z "${TMUX:-}" ]] || ! command -v terminal-browser >/dev/null 2>&1; then
 	default_browser
 fi
 
+# The workflow page is the last path segment, without query or fragment. A server
+# restart changes the port and token but not the page, so it keys the window.
+page="${url%%[#?]*}"
+page="${page#*://}"
+page="${page%/}"
+page="${page##*/}"
+
 # The session of the pane pi runs in, not whichever session a client last used.
-session="$(tmux display-message -p ${TMUX_PANE:+-t "$TMUX_PANE"} '#S')"
+# Its id, unlike its name, is safe to use as a target.
+session="$(tmux display-message -p ${TMUX_PANE:+-t "$TMUX_PANE"} '#{session_id}')"
+
+# Window names get renamed; this option marks the windows this script owns.
+page_option="@pi_surface_page"
 
 new_window() {
-	exec tmux new-window -t "$session:" -n "$window_name" terminal-browser open "$url"
+	local window
+	window="$(tmux new-window -P -F '#{window_id}' -t "$session:" -n "surface:$page" terminal-browser open "$url")"
+	tmux set-option -w -t "$window" "$page_option" "$page"
 }
 
+window="$(tmux list-windows -t "$session" -F "#{window_id}	#{$page_option}" | awk -F '\t' -v page="$page" '$2 == page { print $1; exit }')"
+if [[ -z "$window" ]]; then
+	new_window
+	exit 0
+fi
+
 if ! command -v jq >/dev/null 2>&1; then
-	new_window
+	tmux select-window -t "$window"
+	exit 0
 fi
 
-windows="$(tmux list-windows -t "$session" -F '#{window_id}	#{window_name}' | awk -F '\t' -v name="$window_name" '$2 == name { print $1 }')"
-if [[ -z "$windows" ]]; then
-	new_window
-fi
-
-# The browser in one of those windows, and the tab to reuse: one already on this
-# page, else one on the same workflow page of an earlier server (its port and
-# token change on restart), else none.
+# The browser is the one in a pane of that window. The tab to reuse is one
+# already on this page, else one on the same page of an earlier server, else none.
+panes="$(tmux list-panes -t "$window" -F '#{pane_id}')"
 match="$(terminal-browser ls --all --json | jq -r \
-	--arg session "$session" \
-	--arg windows "$windows" \
+	--arg panes "$panes" \
 	--arg url "$url" '
-	def page: sub("^[a-z]+://[^/]+"; "") | split("/") | map(select(. != "")) | last;
+	def page: split("#")[0] | split("?")[0] | sub("^[a-z]+://[^/]+"; "") | split("/") | map(select(. != "")) | last;
 	def local: test("^https?://(127\\.0\\.0\\.1|localhost)(:[0-9]+)?/");
-	($windows | split("\n") | map("\($session):\(.)")) as $tabs
-	| [.browsers[] | select(.pane.tab as $t | $tabs | index($t))] | first // empty
+	($panes | split("\n")) as $ids
+	| [.browsers[] | select(.pane.pane as $p | $ids | index($p))] | first // empty
 	| . as $b
 	| (([$b.tabs[] | select(.url == $url)] + [$b.tabs[] | select((.url | local) and (.url | page) == ($url | page))]) | first | .id // "") as $tab
-	| [$b.key, ($b.pane.tab | split(":") | last), ($tab | tostring)] | @tsv
+	| [$b.key, ($tab | tostring)] | @tsv
 ')"
 
 if [[ -z "$match" ]]; then
-	# A pi-surface window whose browser has gone; leave it to the user and start fresh.
-	new_window
+	# The window outlived its browser; start one in its first pane.
+	tmux respawn-pane -k -t "${panes%%$'\n'*}" terminal-browser open "$url"
+	tmux select-window -t "$window"
+	exit 0
 fi
 
-IFS=$'\t' read -r browser window tab <<<"$match"
+IFS=$'\t' read -r browser tab <<<"$match"
 if [[ -n "$tab" ]]; then
 	terminal-browser action --browser "$browser" --tab "$tab" --follow -- eval "location.replace($(jq -rn --arg u "$url" '$u | tojson'))" >/dev/null
 	# Clears the "agent is using this tab" overlay right away instead of after its timeout.

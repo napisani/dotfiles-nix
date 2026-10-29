@@ -11,8 +11,10 @@ cat >"$tmp/tmux" <<'STUB'
 #!/usr/bin/env bash
 echo "tmux $*" >>"$TEST_LOG"
 case "$1" in
-display-message) echo "main" ;;
+display-message) echo '$1' ;;
 list-windows) printf '%b' "$TEST_WINDOWS" ;;
+list-panes) printf '%b' "$TEST_PANES" ;;
+new-window) echo "@9" ;;
 esac
 STUB
 cat >"$tmp/terminal-browser" <<'STUB'
@@ -34,9 +36,10 @@ export TEST_LOG="$tmp/log"
 export TEST_BROWSERS="$tmp/browsers.json"
 url="http://127.0.0.1:5000/tok2/review/"
 
+# terminal-browser prefixes pane.tab with an icon; the script must not depend on it.
 browsers() {
 	cat >"$TEST_BROWSERS" <<JSON
-{ "browsers": [ { "key": "B1", "pane": { "tab": "$1", "pane": "%9" }, "tabs": [
+{ "browsers": [ { "key": "B1", "pane": { "tab": "$(printf '\357\220\230') main:@7", "pane": "$1" }, "tabs": [
   { "id": 1, "url": "https://example.com/" },
   { "id": 2, "url": "$2" }
 ] } ] }
@@ -56,42 +59,71 @@ check() {
 
 run() {
 	: >"$TEST_LOG"
-	"$subject" "$url"
+	"$subject" "${1:-$url}"
 }
 
 TMUX="" TEST_WINDOWS="" run
 check "outside tmux it uses the default browser" "open $url"
 
 export TMUX="/tmp/tmux-1/default,1,0" TMUX_PANE="%1"
+# shellcheck disable=SC2016 # \$1 is the stub's literal tmux session id
+lookup='tmux display-message -p -t %1 #{session_id}
+tmux list-windows -t $1 -F #{window_id}	#{@pi_surface_page}'
 
-TEST_WINDOWS='@1\tzsh\n' run
-check "with no pi-surface window it creates one" \
-	"tmux display-message -p -t %1 #S
-tmux list-windows -t main -F #{window_id}	#{window_name}
-tmux new-window -t main: -n pi-surface terminal-browser open $url"
+browsers "%9" "$url"
+TEST_WINDOWS='@1\t\n' run
+check "with no window for the page it creates and marks one" \
+	"$lookup
+tmux new-window -P -F #{window_id} -t \$1: -n surface:review terminal-browser open $url
+tmux set-option -w -t @9 @pi_surface_page review"
 
-browsers "main:@7" "http://127.0.0.1:4000/tok1/review/"
-TEST_WINDOWS='@1\tzsh\n@7\tpi-surface\n' run
-check "an earlier server's tab for the same workflow is reused" \
-	"tmux display-message -p -t %1 #S
-tmux list-windows -t main -F #{window_id}	#{window_name}
+TEST_WINDOWS='@1\t\n@7\treview\n' TEST_PANES='%9\n' run
+check "an earlier server's tab for the same page is reused" \
+	"$lookup
+tmux list-panes -t @7 -F #{pane_id}
 terminal-browser action --browser B1 --tab 2 --follow -- eval location.replace(\"$url\")
 terminal-browser action --browser B1 done
 tmux select-window -t @7"
 
-browsers "main:@7" "http://127.0.0.1:4000/tok1/forge/"
-TEST_WINDOWS='@7\tpi-surface\n' run
-check "another workflow opens as a new tab in the same browser" \
-	"tmux display-message -p -t %1 #S
-tmux list-windows -t main -F #{window_id}	#{window_name}
+browsers "%9" "http://127.0.0.1:4000/tok1/review/#tab=files"
+TEST_WINDOWS='@7\treview\n' TEST_PANES='%9\n' run
+check "a tab's fragment does not hide its page" \
+	"$lookup
+tmux list-panes -t @7 -F #{pane_id}
+terminal-browser action --browser B1 --tab 2 --follow -- eval location.replace(\"$url\")
+terminal-browser action --browser B1 done
+tmux select-window -t @7"
+
+browsers "%9" "http://127.0.0.1:4000/tok1/forge/"
+TEST_WINDOWS='@7\treview\n' TEST_PANES='%9\n' run
+check "a window with no tab on the page gets a new tab" \
+	"$lookup
+tmux list-panes -t @7 -F #{pane_id}
 terminal-browser new-tab --browser B1 $url
 tmux select-window -t @7"
 
-browsers "other:@7" "$url"
-TEST_WINDOWS='@7\tpi-surface\n' run
-check "a browser in another session's window is not this session's" \
-	"tmux display-message -p -t %1 #S
-tmux list-windows -t main -F #{window_id}	#{window_name}
-tmux new-window -t main: -n pi-surface terminal-browser open $url"
+browsers "%9" "$url"
+TEST_WINDOWS='@7\tforge\n' run
+check "another page in the same session gets its own window" \
+	"$lookup
+tmux new-window -P -F #{window_id} -t \$1: -n surface:review terminal-browser open $url
+tmux set-option -w -t @9 @pi_surface_page review"
+
+# Another session's windows are not in this session's list-windows output, so a
+# browser there is never considered.
+browsers "%50" "$url"
+TEST_WINDOWS='@1\t\n' run
+check "another session's browser is not reused" \
+	"$lookup
+tmux new-window -P -F #{window_id} -t \$1: -n surface:review terminal-browser open $url
+tmux set-option -w -t @9 @pi_surface_page review"
+
+browsers "%50" "$url"
+TEST_WINDOWS='@7\treview\n' TEST_PANES='%9\n' run
+check "a window whose browser has gone is respawned" \
+	"$lookup
+tmux list-panes -t @7 -F #{pane_id}
+tmux respawn-pane -k -t %9 terminal-browser open $url
+tmux select-window -t @7"
 
 echo "pi-surface browser: ok"
