@@ -22,7 +22,7 @@ for name in ("loancrate", "personal"):
         "kind": "stored", "name": f"{name}-doppler",
     }
     assert config["storage"] == {
-        "type": "keyring", "allowed_backends": ["darwin-keychain", "linux-systemd-credentials"],
+        "type": "keyring", "allowed_backends": ["darwin-age", "linux-systemd-credentials"],
     }
     assert config["profiles"]["project-only"]["remote_sources"] is False
     assert config["profiles"]["project"]["remote_sources"] is True
