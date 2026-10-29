@@ -37,9 +37,10 @@
 
     # Base casks that all Macs should have
     casks = [
-      # The homebrew/cask alacritty is disabled (fails Gatekeeper); this tap's
-      # cask is the same upstream release and has no `disable!`.
-      "maxinchun5/community-cask/alacritty"
+      "kitty"
+      # Its own `setup` links the agent skill per agent (the Codex copy is a
+      # different variant), so the skill is deliberately not in the Nix catalog.
+      "terminal-browser"
       # "ungoogled-chromium"
       "bitwarden"
       "caffeine"
@@ -67,10 +68,6 @@
       # "homebrew/cask-versions"
       {
         name = "kunkka19xx/tap";
-        trusted = true;
-      }
-      {
-        name = "maxinchun5/community-cask";
         trusted = true;
       }
       {

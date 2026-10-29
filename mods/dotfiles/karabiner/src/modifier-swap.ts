@@ -6,6 +6,7 @@ const allStandardApps: string[] = [
   "^io\\.alacritty",
   "^org\\.alacritty",
   "^com\\.mitchellh\\.ghostty",
+  "^net\\.kovidgoyal\\.kitty",
   // "^com\\.jetbrains\\..*"
 ];
 const ifAnyStandardApp = ifApp(allStandardApps, "any standard app").unless();

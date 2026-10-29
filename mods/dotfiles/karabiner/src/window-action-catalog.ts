@@ -62,11 +62,11 @@ export const windowActions: WindowAction[] = [
     command: "open -a '/Applications/Look.app'",
   },
   {
-    id: "launch-alacritty",
+    id: "launch-kitty",
     binding: "",
-    description: "Launch new Alacritty instance",
-    aliases: ["terminal", "alacritty", "new instance", "new terminal"],
-    command: "open -na Alacritty",
+    description: "Launch new kitty instance",
+    aliases: ["terminal", "kitty", "new instance", "new terminal"],
+    command: "open -na kitty",
   },
   {
     id: "move-left",

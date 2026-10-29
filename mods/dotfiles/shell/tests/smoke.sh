@@ -86,7 +86,7 @@ usable_bash "$bash_bin" || {
 	exit 1
 }
 command -v expect >/dev/null 2>&1 || {
-	echo "smoke.sh: expect(1) is required for ble.sh attachment checks" >&2
+	echo "smoke.sh: expect(1) is required for interactive Readline checks" >&2
 	exit 1
 }
 
@@ -118,33 +118,41 @@ for name in \
 	[ "$(type -t "$name" 2>/dev/null)" = function ] || smoke_fail "missing function: $name"
 done
 
-[ -n "${BLE_VERSION:-}" ] || smoke_fail "ble.sh did not load"
-[ -n "${BLE_ATTACHED:-}" ] || smoke_fail "ble.sh did not attach"
-[ "${bleopt_term_true_colors:-}" = semicolon ] || smoke_fail "ble.sh truecolor output is not enabled"
-[ "${bleopt_term_index_colors:-}" = 256 ] || smoke_fail "ble.sh 256-color fallback is not enabled"
-[ -z "${bleopt_complete_menu_complete:-}" ] || smoke_fail "ble.sh menu completion is still enabled"
-case "${PROMPT_COMMAND[0]:-}" in
-_direnv_hook*) ;;
-*) smoke_fail "direnv is not the final prompt modifier" ;;
+[ -z "${BLE_VERSION:-}" ] || smoke_fail "ble.sh is still loaded"
+[ -z "$(type -t ble-attach 2>/dev/null)" ] || smoke_fail "ble.sh functions are still loaded"
+case ":$SHELLOPTS:" in
+*:vi:*) ;;
+*) smoke_fail "Readline vi mode is not enabled" ;;
 esac
-blehook PRECMD | grep -q starship_precmd || smoke_fail "Starship is absent from ble.sh PRECMD hooks"
+case "${PROMPT_COMMAND[*]:-}" in
+*_direnv_hook*) ;;
+*) smoke_fail "direnv prompt hook is missing" ;;
+esac
+case " ${precmd_functions[*]:-} " in
+*" starship_precmd "*) ;;
+*) smoke_fail "Starship is absent from bash-preexec prompt hooks" ;;
+esac
+case " ${precmd_functions[*]:-} " in
+*" __atuin_precmd "*) ;;
+*) smoke_fail "Atuin prompt hook is missing" ;;
+esac
+case " ${preexec_functions[*]:-} " in
+*" __atuin_preexec "*) ;;
+*) smoke_fail "Atuin preexec hook is missing" ;;
+esac
 case "${ATUIN_PREEXEC_BACKEND:-}" in
-*:blesh-*) ;;
-*) smoke_fail "Atuin did not select its ble.sh backend" ;;
+*:bash-preexec*) ;;
+*) smoke_fail "Atuin did not select its bash-preexec backend" ;;
 esac
-[ -z "$(type -t __bp_install 2>/dev/null)" ] || smoke_fail "Atuin loaded its bash-preexec fallback"
-
-_blesh_paste_bindings=$(ble-bind -m vi_nmap -P)
-case "$_blesh_paste_bindings" in
-*"-f p paste-from-clipboard"*) ;;
-*) smoke_fail "ble.sh normal-mode p clipboard binding is missing" ;;
-esac
-unset _blesh_paste_bindings
 
 completion_status=0
 _completion_loader mise >/dev/null 2>&1 || completion_status=$?
 case "$completion_status" in 0 | 124) ;; *) smoke_fail "mise completion failed to load" ;; esac
-[ "$(type -t _mise 2>/dev/null)" = function ] || smoke_fail "packaged mise completion is missing"
+_mise_completion=$(complete -p mise 2>/dev/null) || smoke_fail "packaged mise completion is missing"
+_mise_completion=${_mise_completion#* -F }
+_mise_completion=${_mise_completion%% *}
+[ "$(type -t "$_mise_completion" 2>/dev/null)" = function ] || smoke_fail "mise completion function is missing"
+unset _mise_completion
 if [ -e "$HOME/.local/share/bash-completion/completions/mise" ] \
 	|| [ -L "$HOME/.local/share/bash-completion/completions/mise" ]; then
 	smoke_fail "user-local mise completion shadows the packaged completion"
@@ -186,9 +194,9 @@ fi
 {
 	cat <<'READY'
 _shell_smoke_ready() {
-	printf '\nSHELL_SMOKE_READY\n'
+	# Wait for prompt rendering, not just completion of PROMPT_COMMAND hooks.
+	PS1+='SHELL_SMOKE_READY '
 }
-BLE_ONLOAD+=(_shell_smoke_ready)
 READY
 	if [ -n "$simulate_dir" ]; then
 		printf 'SHELL_DOTFILES_DIR=%q; export SHELL_DOTFILES_DIR\n' "$simulate_dir"
@@ -197,6 +205,7 @@ READY
 	else
 		printf '. %q\n' "$HOME/.bash_profile"
 	fi
+	printf 'PROMPT_COMMAND+=(_shell_smoke_ready)\n'
 } >"$rcfile"
 
 cat >"$expect_script" <<'EXPECT'
@@ -208,8 +217,8 @@ set ctrl_c_marker [lindex $argv 3]
 spawn -noecho $bash_path --noprofile --rcfile $rcfile -i
 expect {
 	-exact "SHELL_SMOKE_READY" {}
-	timeout { puts stderr "smoke.sh: timed out waiting for ble.sh to attach"; exit 1 }
-	eof { puts stderr "smoke.sh: shell exited before ble.sh attached"; exit 1 }
+	timeout { puts stderr "smoke.sh: timed out waiting for the shell prompt"; exit 1 }
+	eof { puts stderr "smoke.sh: shell exited before the first prompt"; exit 1 }
 }
 send -- ". $probe\r"
 expect {
@@ -223,16 +232,24 @@ expect {
 	eof { puts stderr "smoke.sh: shell exited during keybinding checks"; exit 1 }
 }
 expect {
-	-exact "-- INSERT --" {}
-	timeout { puts stderr "smoke.sh: timed out waiting for ble.sh insert mode"; exit 1 }
+	-exact "SHELL_SMOKE_READY" {}
+	timeout { puts stderr "smoke.sh: timed out waiting for the next prompt"; exit 1 }
 	eof { puts stderr "smoke.sh: shell exited before the Ctrl-C check"; exit 1 }
 }
 send -- "touch '$ctrl_c_marker'"
 after 300
 send -- "\003"
-after 300
+expect {
+	-exact "SHELL_SMOKE_READY" {}
+	timeout { puts stderr "smoke.sh: Ctrl-C did not return to a prompt"; exit 1 }
+	eof { puts stderr "smoke.sh: shell exited during the Ctrl-C check"; exit 1 }
+}
 send -- "\r"
-after 500
+expect {
+	-exact "SHELL_SMOKE_READY" {}
+	timeout { puts stderr "smoke.sh: empty input did not return to a prompt"; exit 1 }
+	eof { puts stderr "smoke.sh: shell exited after empty input"; exit 1 }
+}
 send -- "exit\r"
 expect eof
 EXPECT

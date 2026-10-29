@@ -56,7 +56,6 @@ in
     ]
     ++ (with pkgs-unstable; [
       bash-completion
-      blesh
       fzf
       gh
       starship
@@ -96,6 +95,7 @@ in
       ".config/pet".source = ./dotfiles/pet;
       ".config/mcphub/servers.json" = mkForcedSym "mcphub-servers.json";
       ".aerospace.toml" = mkForcedSym ".aerospace.toml";
+      # Ghostty is not installed, but OmniWM's quake terminal embeds it and reads this file.
       "Library/Application Support/com.mitchellh.ghostty/config" = mkForcedSym "ghostty-config";
       "toolbox" = mkForcedSym "toolbox";
       "shell_scripts" = mkForcedSym "shell_scripts";
@@ -109,7 +109,9 @@ in
       # Frequently edited user-facing config stays live-editable.
       ".yabairc".source = mkSym "yabairc";
 
+      # Alacritty is no longer installed; the config stays linked as a fallback.
       ".config/alacritty/alacritty.toml" = mkForcedSym "alacritty.toml";
+      ".config/kitty/kitty.conf" = mkForcedSym "kitty.conf";
       ".config/scute/config.yaml" =
         let
           machineName = config.home.sessionVariables.MACHINE_NAME or "";

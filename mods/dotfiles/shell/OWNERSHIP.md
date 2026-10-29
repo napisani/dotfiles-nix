@@ -51,9 +51,9 @@ order. The decade a fragment lives in defines what it may assume already ran:
 | 40–49 | secrets and environment derived from them |
 | 50–59 | aliases and functions |
 | 60–69 | command wrappers and keybindings |
-| 70–79 | version managers, ble.sh, and prompt hooks — Starship before direnv |
+| 70–79 | version managers and prompt hooks — Starship before direnv |
 | 80–89 | machine-specific |
-| 90–99 | local overrides, then final ble.sh attachment |
+| 90–99 | local overrides |
 
 To disable a fragment, rename it so it no longer ends in `.sh`, or override it
 from `~/.bashrc.local` (loaded at stage 99). This replaces the old
@@ -68,16 +68,15 @@ command. Let `bash-completion` lazy-load version-matched completion files from
 installed packages; do not vendor generated completion or preexec code when the
 tool/package already supplies it. Scute is the narrow exception: its generated
 Bash integration is one stable helper and binding, while launching its Bun CLI
-to print those lines dominates startup. Ordering follows each hook's contract:
+to print those lines dominates startup. Bash uses standard Readline with vi
+editing from `inputrc`. Ordering follows each hook's contract:
 
 1. fzf initializes before Atuin so Atuin retains Ctrl-R.
-2. Atuin initializes before ble.sh with its bash-preexec fallback disabled; its
-   supported `BLE_ONLOAD` callback connects to ble.sh when it loads later.
-3. ble.sh loads with `--attach=none` before Starship, but after earlier init
-   scripts so its traps do not slow their parsing.
-4. mise initializes before Starship so Starship preserves its prompt hook.
-5. direnv initializes after every other prompt modifier, as its docs require.
-6. Local overrides load before ble.sh attaches at the very end.
+2. Atuin loads its bundled bash-preexec backend for command lifecycle hooks.
+3. mise initializes before Starship so Starship preserves its prompt hook;
+   Starship registers its command and prompt callbacks with bash-preexec.
+4. direnv initializes after every other prompt modifier, as its docs require.
+5. Local overrides load last.
 
 ## Load-order hazards, all of which have bitten
 
@@ -172,6 +171,16 @@ checkout before rebuilding:
 ```bash
 ./tests/smoke.sh --simulate ..
 ```
+
+After terminal-key configuration changes, also run the isolated tmux regression
+suite (Python 3.11+, tmux and Bash; Neovim coverage runs when installed):
+
+```bash
+python3 ./tests/tmux-keys.py
+```
+
+It exercises native key negotiation, per-pane mode isolation, byte-exact
+bracketed paste and Readline acceptance without modifying the running server.
 
 Simulation retains the current `$HOME` and installed tools but bypasses
 `/etc/profile` and `~/.bash_profile`, so run the installed mode again after

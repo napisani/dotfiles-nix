@@ -1,3 +1,5 @@
+# Mirrors kitty.conf. Alacritty is no longer installed; this config is kept as a fallback.
+
 [[keyboard.bindings]]
 action = "ReceiveChar"
 key = "B"
@@ -23,6 +25,8 @@ chars = "\u001F"
 key = "Slash"
 mods = "Control"
 
+# tmux requests modifyOtherKeys, not Alacritty's Kitty keyboard protocol.
+# Explicit CSI-u inputs let tmux encode modified keys for each pane's mode.
 [[keyboard.bindings]]
 chars = "\u001B[81;5u"
 key = "Q"

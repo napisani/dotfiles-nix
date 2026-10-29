@@ -64,7 +64,7 @@ Implementation: Raw manipulator objects with `set_variable`/`variable_if` condit
 
 ### 2. modifier-swap.ts -- Per-App Cmd/Ctrl/Fn Swapping
 
-Terminal apps (Terminal, iTerm2, Alacritty, Ghostty) are treated as "dev apps"; everything else is "standard apps".
+Terminal apps (Terminal, iTerm2, Alacritty, Ghostty, kitty) are treated as "dev apps"; everything else is "standard apps".
 
 | Context | Mapping |
 |---|---|

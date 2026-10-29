@@ -52,14 +52,14 @@
 
 `Caps` (hold) → note: modifier swap is independent of the Caps layer; both apply simultaneously
 
-**Standard apps** (everything except Terminal, iTerm2, Alacritty, Ghostty):
+**Standard apps** (everything except Terminal, iTerm2, Alacritty, Ghostty, kitty):
 
 `left_command` → leaf: behaves as `left_control`  
 `left_control` → leaf: behaves as `left_command`  
 `fn` → leaf: behaves as `left_command`  
 `fn` → note: so `fn+c/v/z` etc. work as copy/paste/undo in GUI apps without reaching for Cmd
 
-**Dev apps** (Terminal, iTerm2, Alacritty, Ghostty):
+**Dev apps** (Terminal, iTerm2, Alacritty, Ghostty, kitty):
 
 `fn` → leaf: behaves as `left_control`  
 `left_command` → exception: NOT swapped in dev apps — keeps its native behavior so shell `Cmd+...` shortcuts work normally  

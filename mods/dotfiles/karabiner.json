@@ -825,7 +825,8 @@
                       "^com\\.googlecode\\.iterm2",
                       "^io\\.alacritty",
                       "^org\\.alacritty",
-                      "^com\\.mitchellh\\.ghostty"
+                      "^com\\.mitchellh\\.ghostty",
+                      "^net\\.kovidgoyal\\.kitty"
                     ]
                   }
                 ]
@@ -850,7 +851,8 @@
                       "^com\\.googlecode\\.iterm2",
                       "^io\\.alacritty",
                       "^org\\.alacritty",
-                      "^com\\.mitchellh\\.ghostty"
+                      "^com\\.mitchellh\\.ghostty",
+                      "^net\\.kovidgoyal\\.kitty"
                     ]
                   }
                 ]
@@ -880,7 +882,8 @@
                       "^com\\.googlecode\\.iterm2",
                       "^io\\.alacritty",
                       "^org\\.alacritty",
-                      "^com\\.mitchellh\\.ghostty"
+                      "^com\\.mitchellh\\.ghostty",
+                      "^net\\.kovidgoyal\\.kitty"
                     ]
                   }
                 ]
@@ -910,7 +913,8 @@
                       "^com\\.googlecode\\.iterm2",
                       "^io\\.alacritty",
                       "^org\\.alacritty",
-                      "^com\\.mitchellh\\.ghostty"
+                      "^com\\.mitchellh\\.ghostty",
+                      "^net\\.kovidgoyal\\.kitty"
                     ]
                   }
                 ]

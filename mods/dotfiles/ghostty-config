@@ -1,5 +1,7 @@
 
-# examples https://github.com/search?q=path%3Aghostty%2Fconfig&type=code
+# Mirrors kitty.conf. OmniWM's quake terminal embeds Ghostty and reads this file,
+# so it stays linked even though the Ghostty app is not installed.
+
 # Kanagawa Dragon vivid terminal palette.
 palette = 0=#1f1f28
 palette = 1=#ff5d62
@@ -25,18 +27,43 @@ selection-background = #2d4f67
 selection-foreground = #dcd7ba
 
 # Font get available with `ghostty +list-fonts`
-#font-family = "Symbols Nerd Font Mono"
-#font-family = "MesloLGSDZ Nerd Font Mono"
-font-family = "MesloLGS Nerd Font Mono"
-#font-family = "JetBrainsMono Nerd Font Mono"
+font-family = "MesloLGSDZ Nerd Font Mono"
 font-size = 12
 font-thicken = true
 
+# Defaults carried over from the previous Alacritty setup.
+cursor-style = block
+cursor-style-blink = false
+window-padding-x = 0
+window-padding-y = 0
+window-save-state = never
+macos-titlebar-style = native
+confirm-close-surface = false
+quit-after-last-window-closed = true
+# Shell integration would inject into the hand-managed bash setup.
+shell-integration = none
 
-# Keybindings
-keybind = ctrl+shift+c=copy_to_clipboard
+# Clipboard
 keybind = ctrl+v=paste_from_clipboard
-keybind = performable:ctrl+c=copy_to_clipboard
+keybind = ctrl+shift+v=paste_from_clipboard
+keybind = ctrl+shift+c=copy_to_clipboard
 
-# Mouse
-mouse-hide-while-typing = true
+# tmux requests modifyOtherKeys. Explicit CSI-u inputs let tmux encode modified
+# keys for each pane's mode, as in kitty.conf.
+keybind = ctrl+slash=text:\x1f
+keybind = ctrl+q=text:\x1b[81;5u
+keybind = ctrl+shift+p=text:\x1b[80;6u
+keybind = ctrl+shift+r=text:\x1b[82;6u
+keybind = ctrl+shift+e=text:\x1b[69;6u
+keybind = ctrl+shift+f=text:\x1b[70;6u
+keybind = ctrl+shift+t=text:\x1b[84;6u
+keybind = ctrl+shift+h=text:\x1b[72;6u
+
+# Specialty TUI chords, CSI-u encoded: ESC [ <keycode> ; <mods> u
+# where mods: 2=Shift, 3=Alt, 5=Ctrl, 6=Ctrl+Shift.
+keybind = shift+enter=text:\x1b[13;2u
+keybind = ctrl+enter=text:\x1b[13;5u
+keybind = ctrl+shift+enter=text:\x1b[13;6u
+keybind = alt+enter=text:\x1b[13;3u
+keybind = alt+backspace=text:\x1b[127;3u
+keybind = ctrl+shift+backspace=text:\x1b[127;6u

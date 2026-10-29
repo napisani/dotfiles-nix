@@ -44,9 +44,9 @@ fi
 #   40-49  secrets and environment derived from them
 #   50-59  aliases and functions
 #   60-69  command wrappers and keybindings
-#   70-79  version managers, ble.sh, and prompt hooks (starship, then direnv)
+#   70-79  version managers and prompt hooks (starship, then direnv)
 #   80-89  machine-specific
-#   90-99  local overrides, then final ble.sh attach
+#   90-99  local overrides
 #
 # To disable a fragment, rename it so it doesn't end in .sh, or shadow it from
 # ~/.bashrc.local at stage 99. (This replaces the old excludes.txt mechanism,
