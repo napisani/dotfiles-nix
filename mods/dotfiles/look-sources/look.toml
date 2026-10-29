@@ -1,0 +1,7 @@
+# Quits and relaunches Look so it re-reads its config and sources.
+[reload-look]
+name = "Reload Look"
+aliases = ["look", "reload", "reload look", "refresh", "refresh look", "restart look"]
+do = [
+  "$HOME/shell_scripts/reload-look.sh",
+]

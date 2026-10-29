@@ -90,6 +90,56 @@ name = "Tab + Q + P — Move window to previous workspace"
 aliases = ["window manager","omniwm","w","Tab + Q + P","workspace","move","previous"]
 do = ["$HOME/shell_scripts/omniwm-workspace-move-adjacent.sh prev"]
 
+[window-manager-workspace-1]
+name = "Tab + 1 — Switch to workspace 1"
+aliases = ["window manager","omniwm","w","Tab + 1","workspace","switch","1"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 1"]
+
+[window-manager-move-workspace-1]
+name = "Tab + Q + 1 — Move window to workspace 1"
+aliases = ["window manager","omniwm","w","Tab + Q + 1","workspace","move","1"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 1"]
+
+[window-manager-workspace-2]
+name = "Tab + 2 — Switch to workspace 2"
+aliases = ["window manager","omniwm","w","Tab + 2","workspace","switch","2"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 2"]
+
+[window-manager-move-workspace-2]
+name = "Tab + Q + 2 — Move window to workspace 2"
+aliases = ["window manager","omniwm","w","Tab + Q + 2","workspace","move","2"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 2"]
+
+[window-manager-workspace-3]
+name = "Tab + 3 — Switch to workspace 3"
+aliases = ["window manager","omniwm","w","Tab + 3","workspace","switch","3"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 3"]
+
+[window-manager-move-workspace-3]
+name = "Tab + Q + 3 — Move window to workspace 3"
+aliases = ["window manager","omniwm","w","Tab + Q + 3","workspace","move","3"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 3"]
+
+[window-manager-workspace-4]
+name = "Tab + 4 — Switch to workspace 4"
+aliases = ["window manager","omniwm","w","Tab + 4","workspace","switch","4"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 4"]
+
+[window-manager-move-workspace-4]
+name = "Tab + Q + 4 — Move window to workspace 4"
+aliases = ["window manager","omniwm","w","Tab + Q + 4","workspace","move","4"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 4"]
+
+[window-manager-workspace-5]
+name = "Tab + 5 — Switch to workspace 5"
+aliases = ["window manager","omniwm","w","Tab + 5","workspace","switch","5"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 5"]
+
+[window-manager-move-workspace-5]
+name = "Tab + Q + 5 — Move window to workspace 5"
+aliases = ["window manager","omniwm","w","Tab + Q + 5","workspace","move","5"]
+do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 5"]
+
 [window-manager-toggle-float]
 name = "Tab + Q + Space — Toggle floating window"
 aliases = ["window manager","omniwm","w","Tab + Q + Space","float","floating","window"]

@@ -22,6 +22,10 @@
       "wispr-flow"
       "yubico-authenticator"
       "ngrok"
+      # Deprecated upstream: Homebrew disables it 2027-07-12 and points to the
+      # `chatgpt` cask. The Codex CLI cask lives in darwin-base.nix.
+      "codex-app"
+      "chatgpt"
 
       # AWS Session Manager plugin for the AWS CLI. It's a cask, not a
       # formula — homebrew/core has no session-manager-plugin, so listing it

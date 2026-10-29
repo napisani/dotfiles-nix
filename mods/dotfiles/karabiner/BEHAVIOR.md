@@ -157,6 +157,7 @@ Simlayers activate when the trigger key and the action key are pressed at almost
 `Tab+l` → leaf: focus the window to the right  
 `Tab+n` → leaf: switch to the next workspace  
 `Tab+p` → leaf: switch to the previous workspace  
+`Tab+1` … `Tab+5` → leaf: switch directly to OmniWM workspace 1–5 (by workspace ID, on its assigned monitor)  
 `Tab+Q` (hold) → domain: activate nested layer for window manipulation (hold Q while Tab is held)
 
 ### Tab+Q nested layer — window move and layout
@@ -173,6 +174,7 @@ Simlayers activate when the trigger key and the action key are pressed at almost
 `Tab+Q+o` → leaf: join or expel current window to the right
 `Tab+Q+n` → leaf: move current window to the next workspace
 `Tab+Q+p` → leaf: move current window to the previous workspace
+`Tab+Q+1` … `Tab+Q+5` → leaf: move current window to OmniWM workspace 1–5 (by workspace ID)
 `Tab+Q+Space` → leaf: toggle float for current window
 `Tab+Q+z` → leaf: toggle fullscreen for current window
 `Tab+Q+b` → leaf: toggle the focused Niri column's tabbed mode

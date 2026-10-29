@@ -1,6 +1,7 @@
 import { rule, to$ } from "karabiner.ts";
 import {
   adjacentWorkspaceMoveCommand,
+  directWorkspaceNumbers,
   windowActionCommand,
 } from "./window-action-catalog.ts";
 
@@ -317,6 +318,39 @@ const omniwmNestedRules = rule("Tab+Q: OmniWM Nested Actions")
     },
   ]);
 
+const numberKeyRule = (
+  name: string,
+  actionPrefix: "workspace" | "move-workspace",
+  nestedMode: 0 | 1,
+) =>
+  rule(name).manipulators(
+    directWorkspaceNumbers.map((number) => ({
+      type: "basic" as const,
+      from: { key_code: `${number}` as const },
+      to: [action(`${actionPrefix}-${number}`)],
+      conditions: [
+        { type: "variable_if" as const, name: TAB_WINDOW_MODE, value: 1 },
+        {
+          type: "variable_if" as const,
+          name: TAB_Q_NESTED_MODE,
+          value: nestedMode,
+        },
+      ],
+    })),
+  );
+
+const omniwmWorkspaceJumpRules = numberKeyRule(
+  "Tab: OmniWM Switch To Workspace",
+  "workspace",
+  0,
+);
+
+const omniwmWorkspaceSendRules = numberKeyRule(
+  "Tab+Q: OmniWM Move Window To Workspace",
+  "move-workspace",
+  1,
+);
+
 const omniwmResizeRules = rule("Tab+Q: OmniWM Resize").manipulators([
   {
     type: "basic",
@@ -366,5 +400,7 @@ export const tabWindowManagerRules = [
   tabKeyRule,
   omniwmPrimaryRules,
   omniwmNestedRules,
+  omniwmWorkspaceJumpRules,
+  omniwmWorkspaceSendRules,
   omniwmResizeRules,
 ];

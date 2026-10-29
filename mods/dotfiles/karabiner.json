@@ -5121,6 +5121,246 @@
             ]
           },
           {
+            "description": "Tab: OmniWM Switch To Workspace",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "1"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 1"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "2"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 2"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "3"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 3"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "4"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 4"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "5"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 5"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "description": "Tab+Q: OmniWM Move Window To Workspace",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "1"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 1"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "2"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 2"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "3"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 3"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "4"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 4"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
+                  "key_code": "5"
+                },
+                "to": [
+                  {
+                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 5"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
             "description": "Tab+Q: OmniWM Resize",
             "manipulators": [
               {

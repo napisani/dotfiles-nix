@@ -68,6 +68,12 @@
           "${config.home.homeDirectory}/code/monorepo/pub/vantage-nvim/server/src/neovim/runtime/adjacent/extension.ts"
           "${config.home.homeDirectory}/code/monorepo/pub/pi-surface/extension/index.ts"
         ];
+        # pi-surface pages open in one terminal-browser tmux window per session,
+        # reused while open; the script falls back to the default browser outside tmux.
+        surface.browser = {
+          command = "${config.home.homeDirectory}/shell_scripts/pi-surface-browser.sh";
+          args = [ "{url}" ];
+        };
       };
       # Plain paths only: Pi treats a glob here as a filter that disables every
       # skill outside it. It already finds .agents/skills in the cwd's ancestors.

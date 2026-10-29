@@ -11,6 +11,10 @@ const omniwmctl = "/etc/profiles/per-user/nick/bin/omniwmctl";
 const adjacentWorkspaceScript =
   "$HOME/shell_scripts/omniwm-workspace-move-adjacent.sh";
 
+// Workspaces 1-5 live on the main display; the numeric forms address them by ID,
+// unlike `slot`, which depends on whichever monitor is focused.
+export const directWorkspaceNumbers = [1, 2, 3, 4, 5] as const;
+
 export const windowActions: WindowAction[] = [
   {
     id: "focus-left",
@@ -138,6 +142,22 @@ export const windowActions: WindowAction[] = [
     aliases: ["workspace", "move", "previous"],
     command: `${adjacentWorkspaceScript} prev`,
   },
+  ...directWorkspaceNumbers.flatMap((number): WindowAction[] => [
+    {
+      id: `workspace-${number}`,
+      binding: `Tab + ${number}`,
+      description: `Switch to workspace ${number}`,
+      aliases: ["workspace", "switch", String(number)],
+      command: `${omniwmctl} command switch-workspace ${number}`,
+    },
+    {
+      id: `move-workspace-${number}`,
+      binding: `Tab + Q + ${number}`,
+      description: `Move window to workspace ${number}`,
+      aliases: ["workspace", "move", String(number)],
+      command: `${omniwmctl} command move-to-workspace ${number}`,
+    },
+  ]),
   {
     id: "toggle-float",
     binding: "Tab + Q + Space",
