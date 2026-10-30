@@ -240,6 +240,14 @@ in
     };
   };
 
+  systemd.tmpfiles.rules = [
+    "d /media/storage/media/tdarr-cache 2775 nick kube-pods -"
+  ];
+
+  # Cache provisioning must not land on the root filesystem beneath ZFS.
+  systemd.services.systemd-tmpfiles-setup.unitConfig.RequiresMountsFor =
+    "/media/storage";
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.nick = {
     isNormalUser = true;
