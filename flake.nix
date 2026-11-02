@@ -374,9 +374,6 @@
           rtk-runtime = import ./checks/rtk-runtime.nix {
             inherit self lib pkgs;
           };
-          vocal-runtime = import ./checks/vocal-runtime.nix {
-            inherit self lib pkgs;
-          };
         }
       );
     };

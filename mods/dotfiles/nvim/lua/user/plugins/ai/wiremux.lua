@@ -518,7 +518,6 @@ function M.get_keymaps()
 			end, desc = "toggle composition" },
 			{ "<leader>ao", M.toggle_target, desc = "show/hide route target" },
 			{ "<leader>aq", M.close_target, desc = "close target" },
-			{ "<leader>av", "<cmd>Vocal<cr>", desc = "voice" },
 			{ "<leader>af", group = "file refs → composition" },
 			{ "<leader>afe", ref_from_buffers, desc = "ref buffers → composition" },
 			{ "<leader>aff", function()
@@ -552,7 +551,6 @@ function M.get_keymaps()
 			{ "<leader>ai", function()
 				require("vantage").compose()
 			end, desc = "toggle composition" },
-			{ "<leader>av", "<cmd>Vocal<cr>", desc = "voice" },
 			{ "<leader>af", group = "file refs → composition" },
 			{ "<leader>aff", function()
 				require(ai_context).add_visual_range_to_chat()

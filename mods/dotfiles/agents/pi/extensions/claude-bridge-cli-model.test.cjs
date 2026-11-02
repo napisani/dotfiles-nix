@@ -97,7 +97,7 @@ test("ignores non-bridge model selections", () => {
       "--provider",
       "openai-codex",
       "--model",
-      "gpt-5.6-luna",
+      "gpt-6-luna",
     ]),
     undefined,
   );

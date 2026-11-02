@@ -298,10 +298,9 @@ Merge conflict resolution (contextual inside a diff/merge view):
 `<leader>a` → contract: after a **send** to the agent (including from PromptBuilder via `<C-g>`) or after **`ao`** toggle / focus, the **Wiremux target pane** gets focus so the reply is visible. Staging keys (`af*`, `ae`, `a?`, `as`, `ap`, `am`) only update PromptBuilder until you `<C-g>` there; **`ai`** is different: it only opens or focuses PromptBuilder and appends no text
 `<leader>a` → note: route (target) is per-session and defaults to the `pi` pane for the current working directory; available coding-agent routes include OpenCode, Claude Code, Codex, Cursor Agent, Gemini, and Pi
 
-**Direct to Wiremux / voice (not PromptBuilder)**  
+**Direct to Wiremux (not PromptBuilder)**  
 `<leader>aq` → [n] leaf: close the current route target  
 `<leader>ao` → [n] leaf: show or hide the current route target and focus it  
-`<leader>av` → [nv] leaf: toggle voice recording; transcription replaces selection or inserts at cursor  
 `<leader>aw` → [n] leaf: pick the active route/backend in a fuzzy list
 
 **`af` — append @-ref lines to PromptBuilder** (then edit; `<C-g>` in that buffer to send to the agent and close the builder)  

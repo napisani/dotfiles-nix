@@ -8,6 +8,8 @@ export type WindowAction = {
 };
 
 const omniwmctl = "/etc/profiles/per-user/nick/bin/omniwmctl";
+// The cask puts no `hex` on PATH; the app bundle's executable is the control CLI.
+const hex = "/Applications/Hex.app/Contents/MacOS/hex";
 const adjacentWorkspaceScript =
   "$HOME/shell_scripts/omniwm-workspace-move-adjacent.sh";
 
@@ -57,6 +59,15 @@ export const windowActions: WindowAction[] = [
     description: "Switch to previous workspace",
     aliases: ["workspace", "previous"],
     command: `${omniwmctl} command switch-workspace prev`,
+  },
+  {
+    id: "dictation",
+    binding: "Tab + V",
+    description: "Dictate while held",
+    aliases: ["dictate", "dictation", "voice", "speech"],
+    command: `${hex} dictation start`,
+    // Look has no key release to stop on, so it toggles instead.
+    lookCommand: `${hex} dictation toggle`,
   },
   {
     id: "open-look",
@@ -300,6 +311,8 @@ export const windowManagerLookSource = () =>
     }),
     "",
   ].join("\n\n");
+
+export const dictationStopCommand = `${hex} dictation stop`;
 
 export const adjacentWorkspaceMoveCommand = (direction: "next" | "prev") =>
   windowActionCommand(`move-workspace-${direction}`);

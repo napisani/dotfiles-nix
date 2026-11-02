@@ -45,7 +45,6 @@
   "vim-dadbod-ui": { "branch": "master", "commit": "afd07819d8efcefc3317205b855ad4e3513b0011" },
   "vim-fugitive": { "branch": "master", "commit": "3b753cf8c6a4dcde6edee8827d464ba9b8c4a6f0" },
   "vim-slime": { "branch": "main", "commit": "305b4d81ff4630af5137fdeffb54aa0fef14761b" },
-  "vocal.nvim": { "branch": "master", "commit": "8535dd0dbb61a4461fac07c9d5b906383199231a" },
   "which-key.nvim": { "branch": "main", "commit": "3aab2147e74890957785941f0c1ad87d0a44c15a" },
   "wiremux.nvim": { "branch": "main", "commit": "f4962a3e600de78a3935e2ca50619d1f1c438b61" }
 }

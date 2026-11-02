@@ -296,14 +296,6 @@ require("lazy").setup({
 		},
 		{ "Bilal2453/luvit-meta", lazy = true }, -- optional `vim.uv` typings
 
-		-- Speech-to-text via OpenAI Whisper
-		{
-			"kyza0d/vocal.nvim",
-			dependencies = {
-				"nvim-lua/plenary.nvim",
-			},
-		},
-
 		-- Inline AI annotations and review lenses
 		{
 			dir = vantage_dir,

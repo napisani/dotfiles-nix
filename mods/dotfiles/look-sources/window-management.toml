@@ -30,6 +30,11 @@ name = "Tab + P — Switch to previous workspace"
 aliases = ["window manager","omniwm","w","Tab + P","workspace","previous"]
 do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace prev"]
 
+[window-manager-dictation]
+name = "Tab + V — Dictate while held"
+aliases = ["window manager","omniwm","w","Tab + V","dictate","dictation","voice","speech"]
+do = ["/Applications/Hex.app/Contents/MacOS/hex dictation toggle"]
+
 [window-manager-open-look]
 name = "Tab + F — Open Look launcher"
 aliases = ["window manager","omniwm","w","Tab + F","launcher","look"]

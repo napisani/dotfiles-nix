@@ -62,7 +62,7 @@ M.opts = {
 			{
 				name = "default",
 				provider = "openai-codex",
-				model = "gpt-5.6-luna",
+				model = "gpt-6-luna",
 				options = {
 					reasoning = "minimal",
 				},

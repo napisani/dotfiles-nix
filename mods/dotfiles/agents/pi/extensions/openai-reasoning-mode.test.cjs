@@ -89,7 +89,7 @@ for (const fast of [undefined, false]) {
     });
     await api.events.get("session_start")({}, ctx);
 
-    for (const model of ["gpt-5.6-luna", "gpt-5-codex", "claude-sonnet-5-5"]) {
+    for (const model of ["gpt-6-luna", "gpt-5-codex", "claude-sonnet-5-5"]) {
       const payload = {
         model,
         stream: true,

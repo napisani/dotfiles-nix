@@ -53,7 +53,9 @@
       "claude-code"
       "codex"
       "look"
-    ];
+    ]
+    # Hex's cask is arm64-only, so the Intel Mac (maclab) cannot run it.
+    ++ lib.optional pkgs.stdenv.hostPlatform.isAarch64 "anomalyco/tap/hex";
 
     # Base brews that all Macs should have
     brews = [
@@ -78,7 +80,11 @@
         name = "raine/workmux";
         trusted = true;
       }
-    ];
+    ]
+    ++ lib.optional pkgs.stdenv.hostPlatform.isAarch64 {
+      name = "anomalyco/tap";
+      trusted = true;
+    };
   };
 
   environment = {

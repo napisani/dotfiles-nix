@@ -4607,6 +4607,34 @@
               {
                 "type": "basic",
                 "from": {
+                  "key_code": "v"
+                },
+                "to": [
+                  {
+                    "shell_command": "/Applications/Hex.app/Contents/MacOS/hex dictation start"
+                  }
+                ],
+                "to_after_key_up": [
+                  {
+                    "shell_command": "/Applications/Hex.app/Contents/MacOS/hex dictation stop"
+                  }
+                ],
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "tab_window_mode_active",
+                    "value": 1
+                  },
+                  {
+                    "type": "variable_if",
+                    "name": "tab_q_nested_mode_active",
+                    "value": 0
+                  }
+                ]
+              },
+              {
+                "type": "basic",
+                "from": {
                   "key_code": "f"
                 },
                 "to": [

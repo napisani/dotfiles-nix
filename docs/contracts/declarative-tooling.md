@@ -63,7 +63,7 @@ Every realized asset is assigned by who else writes its target:
   the `~/.agents/skills` store use `home.file`. Pinned content comes from flake
   inputs; repo-local content uses out-of-store symlinks. Home Manager provides
   revocation and rollback. Composed instructions, RTK resources generated in
-  isolated Nix builds, and Vocal's Python runtime also belong here. RTK's
+  isolated Nix builds also belong here. RTK's
   package comes from `agents.rtkPackage`, not a Homebrew install.
 - **Layer 1 — Nix and the tool share a config file.** Claude `mcpServers`, Codex
   `mcp_servers`, Pi `mcpServers`, and similar settings use activation-time
@@ -116,8 +116,8 @@ Keep npm and uv as general-purpose native installation paths. Agent-native
 configuration and frequent package updates likewise remain adapter-owned; moving
 these installations into Nix packages is not the simplification goal. Nix owns
 the declarations, generation-bound scripts and activation trigger, while native
-adapters own installation mechanics. Nix-owned resources such as RTK files and
-Vocal's Python runtime remain unchanged.
+adapters own installation mechanics. Nix-owned resources such as RTK files
+remain unchanged.
 
 Scute is installed from the npm registry as the exact version declared in
 `mods/native-tools.nix`. Its Bun launcher uses the Nix-provided Bun runtime, while
@@ -146,12 +146,10 @@ instead of triggering an install loop; explicit repair can reinstall declared
 assets, but cannot override corrupt ownership state. Atomic, content-aware
 state writes and per-state-file locks protect progress and avoid mtime churn.
 
-Vocal's dependency-only Python runtime is a Home Manager link to
-`python3.withPackages` in `mods/neovim.nix`, not a mutable uv venv. The uv
-adapter retains removal-only support for previously tracked Vocal requirements;
-it leaves the legacy environment and unmanaged packages intact. No new Vocal
-installations or repair state are created. `checks.<system>.vocal-runtime`
-verifies interpreter selection ahead of project Python and imports `requests`.
+Vocal (the Neovim dictation plugin) and its Python runtime have been removed;
+dictation is now the Hex app. The uv adapter retains removal-only support for
+previously tracked Vocal requirements; it leaves the legacy environment and
+unmanaged packages intact, and creates no new installations or repair state.
 
 Editable Python tools hash dependency metadata (`pyproject.toml` and `uv.lock`),
 not source files. Code edits stay live without reinstalling. All tooling installer
@@ -197,7 +195,7 @@ activation overrides are retired. Use `GLOBAL_TOOLS_*` instead; the CLI clears
 inherited repair/update overrides in status mode.
 
 `files` checks only explicitly registered managed links, including skills,
-instructions, RTK and Vocal. Adapters register the exact keys they declare, never
+instructions and RTK. Adapters register the exact keys they declare, never
 all files found under an agent's path prefix.
 Only a Home Manager switch can restore those links; `global-tools repair` does not
 reimplement linking or run a switch. Native checks are bounded local probes,
@@ -216,5 +214,4 @@ have migrated and the supported rollback window has closed. Record evidence in
 [the migration gates](global-tools-migrations.md), including per-host MCP audits
 and RTK upgrade reproducibility checks. Missing state never grants ownership. Shared Claude marketplace
 registrations are installation inputs: removing a plugin does not delete a
-marketplace containing manually installed plugins. Actual post-switch Vocal
-transcription remains a manual verification step; checks make no model request.
+marketplace containing manually installed plugins.

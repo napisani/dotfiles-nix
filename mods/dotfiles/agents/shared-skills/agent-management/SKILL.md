@@ -239,7 +239,7 @@ activation against the now-immutable instruction files.
 
 Native npm/uv declarations live separately under `nativeTools.npm` and
 `nativeTools.uv`, selected in `mods/native-tools.nix`. Their scripts and
-tests live under `mods/internal/{npm,uv}/scripts/`; neither depends on agent enablement. Vocal is a Nix Python runtime, not a uv tool.
+tests live under `mods/internal/{npm,uv}/scripts/`; neither depends on agent enablement.
 Retain the removal-only legacy Vocal path and old-state readers until all hosts
 have migrated and the supported rollback window has closed; do not seed ownership
 from untracked inventory. Follow `docs/contracts/global-tools-migrations.md` for
@@ -278,7 +278,7 @@ and runs `native-install-contract`: subprocess fixtures against the actual
 immutable script bundle plus generation-binding assertions for every host.
 The checks are exposed equally on all managed systems. `global-tools-config` runs
 actual config commands with only their HOME paths redirected into a sandbox;
-`rtk-runtime` and `vocal-runtime` build and check the Nix-owned resources.
+`rtk-runtime` builds and checks the Nix-owned resources.
 Foreign-platform checks can be evaluated with `nix flake check --all-systems
 --no-build`; runtime execution still requires a builder for that platform.
 

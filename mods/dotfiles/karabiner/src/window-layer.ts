@@ -1,6 +1,7 @@
 import { rule, to$ } from "karabiner.ts";
 import {
   adjacentWorkspaceMoveCommand,
+  dictationStopCommand,
   directWorkspaceNumbers,
   windowActionCommand,
 } from "./window-action-catalog.ts";
@@ -108,6 +109,17 @@ const omniwmPrimaryRules = rule("Tab: OmniWM Primary Actions")
         set_variable: { name: TAB_Q_NESTED_MODE, value: 0 },
       }],
       conditions: [{ type: "variable_if", name: TAB_WINDOW_MODE, value: 1 }],
+    },
+    {
+      // Hold-to-talk: Hex starts when V goes down and transcribes when it is released.
+      type: "basic",
+      from: { key_code: "v" },
+      to: [action("dictation")],
+      to_after_key_up: [to$(dictationStopCommand)],
+      conditions: [
+        { type: "variable_if", name: TAB_WINDOW_MODE, value: 1 },
+        { type: "variable_if", name: TAB_Q_NESTED_MODE, value: 0 },
+      ],
     },
     {
       type: "basic",

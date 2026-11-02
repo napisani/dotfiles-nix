@@ -37,7 +37,6 @@ M.modules = {
 	"ui.indentline",
 	-- AI plugins
 	"ai.wiremux",
-	"ai.vocal",
 	"ai.vantage",
 	-- Database plugins
 	"database.dadbod",

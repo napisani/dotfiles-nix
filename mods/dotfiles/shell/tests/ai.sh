@@ -23,8 +23,8 @@ for flag in --no-tools --no-mcp --no-session --no-context-files; do
 done
 grep -qx 'staged diff' "$calls"
 
-_pi_completion 'Write a subject' '' 'openai-codex/gpt-5.6-luna' >/dev/null
-grep -A1 -x -- '--model' "$calls" | grep -qx 'openai-codex/gpt-5.6-luna'
+_pi_completion 'Write a subject' '' 'openai-codex/gpt-6-luna' >/dev/null
+grep -A1 -x -- '--model' "$calls" | grep -qx 'openai-codex/gpt-6-luna'
 
 pi_status=42
 if _pi_completion 'Write a subject' >"$tmp/stdout" 2>"$tmp/stderr"; then

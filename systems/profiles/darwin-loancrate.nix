@@ -19,7 +19,6 @@
       "linear"
       "loom"
       "notion"
-      "wispr-flow"
       "yubico-authenticator"
       "ngrok"
       # Deprecated upstream: Homebrew disables it 2027-07-12 and points to the
