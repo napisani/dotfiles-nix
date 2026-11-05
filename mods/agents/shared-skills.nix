@@ -109,6 +109,8 @@
   "unslop"
   # napisani/proctmux · write, fix, or explain a proctmux.yaml
   "proctmux-config"
+  # pub/secret_inject · run commands with secrets without leaking values into chat
+  "secret-inject"
   # pub/mushy-lint · choose and configure semantic rules
   {
     name = "mushy-lint-rule-config";

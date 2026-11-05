@@ -68,6 +68,7 @@ in
   ];
 
   proctmux-config = pinned "proctmux" "skills/proctmux-config";
+  secret-inject = pinned "secret_inject" "skills/secret-inject";
   mushy-lint-rule-config = pinned "mushy_lint" ".agents/skills/mushy-lint-rule-config";
   mushy-lint-run-review = pinned "mushy_lint" ".agents/skills/mushy-lint-run-review";
   vantage-distill-session = pinned "vantage-nvim-skills" "skills/vantage-distill-session";

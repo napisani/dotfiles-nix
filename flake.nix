@@ -89,8 +89,8 @@
     # Consumed by mods/agents/skills.nix's catalog; each is a plain content
     # repo (flake = false), not a Nix flake. Update one with:
     #   nix flake update <input-name>
-    # proctmux skills reuse the existing `proctmux` input above (a flake
-    # input's source tree works the same whether or not it's a flake).
+    # proctmux, mushy_lint, and secret_inject skills reuse their package inputs
+    # above (a flake input's source tree works the same whether or not it's a flake).
     anthropic-skills = {
       url = "github:anthropics/skills";
       flake = false;
