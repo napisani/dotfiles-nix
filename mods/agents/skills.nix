@@ -78,6 +78,7 @@ in
   surface-forge-solution = pinned "pi-surface-skills" "surface-forge-solution";
   surface-code-review = pinned "pi-surface-skills" "surface-code-review";
   surface-pr-feedback = pinned "pi-surface-skills" "surface-pr-feedback";
+  surface-plan-large-change = pinned "pi-surface-skills" "surface-plan-large-change";
   playwright-cli = pinned "playwright-cli-skills" "skills/playwright-cli";
   gog = pinned "gogcli-skills" ".agents/skills/gog";
   gog-docs = pinned "gogcli-skills" ".agents/skills/gog-docs";

@@ -228,6 +228,11 @@
     name = "surface-pr-feedback";
     manualOnly = true;
   }
+  # pi-surface · plan a multi-session change: decisions, architecture, slices
+  {
+    name = "surface-plan-large-change";
+    manualOnly = true;
+  }
   # repo-local · read and write Obsidian vault notes
   "ob-note"
   # repo-local · rebase onto trunk or the stack parent, force-push with lease
