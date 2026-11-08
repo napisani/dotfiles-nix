@@ -1,43 +1,50 @@
 # Shell configuration: who owns what
 
 Read this before changing anything under `mods/dotfiles/shell/`, or before
-adding a `programs.<something>` to a nix module that also writes shell config.
+adding shell configuration to a Nix module.
 
 ## The rule
 
-**Nix owns capabilities, host policy, and link reconciliation. Out-of-store
-dotfiles own rapidly edited user configuration. Services own their runtime
-environment and credentials.**
+**Nix builds prerequisites and publishes host facts. Mise deploys authored
+configuration and user environment. Applications/services own runtime state and
+credentials.**
 
-All supported systems use Home Manager. `mods/shell.nix` declares shell and
-tool configuration as out-of-store links, so Nix owns each destination while
-edits in the checkout take effect immediately without a rebuild.
+Standalone bootstrap links the canonical source and configuration. Shell and
+tool links belong to global mise declarations, preserving live edits without a
+rebuild.
 
 ## Ownership table
 
 | Concern | Owner | Where |
 |---|---|---|
-| Packages: bash, fzf, atuin, starship, gh, git, direnv, bash-completion | nix | `mods/shell.nix`, `mods/git.nix`, `mods/base-packages.nix` |
-| `gh` extensions (gh-stack), `nix-direnv` library | nix — inherently nix-shaped | `mods/shell.nix` |
-| Machine facts: `MACHINE_NAME`, `PET_ADDL_SNIPPETS`, `STARSHIP_CONFIG`, `NPM_CONFIG_PREFIX`, `TERMINFO_DIRS` | nix `home.sessionVariables`, consumed via `hm-session-vars.sh` | `homes/*`, bridged in `bash/profile` |
+| Login bash and Mac GnuPG | Nix prerequisites | `mods/base-packages.nix` |
+| Mac base userland, user tmux, direnv, Atuin, btop, fff and statix | mise tools | core `[tools]` with platform selectors |
+| NixOS base userland and administrative tmux | NixOS OS layer | `mods/system-packages.nix` |
+| fzf, starship, gh, prebuilt CLIs and language runtimes | mise tools | core/host `[tools]`; one owner across hosts |
+| TPM | mise pinned repository | core `[bootstrap.repos]` |
+| Project environment loading | Native direnv, project `.envrc` and one deployed `use_flake` | `mods/dotfiles/direnv/lib/use_flake.sh`; no nix-direnv |
+| Shell machine identity and source path | Authored profile | Hostname mapping and canonical source-link resolution in `bash/profile` |
+| User preferences and extra pet snippets | mise `[env]` | global and host TOML |
+| npm prefix/authentication references | mise native INI merge | `mise/apps/{common,work}/npmrc.tera` |
 | Unattended service credentials and runtime environment | the declaring Nix service | e.g. `gitopsSyncEntrypoint` in `systems/supermicro/configuration.nix` |
 | `~/.bashrc`, `~/.bash_profile`, `~/.profile`, `~/.inputrc` | these dotfiles | `bash/` |
 | fzf / atuin / direnv / starship / bash-completion **shell init** | these dotfiles | `bash/rc.d/` |
 | atuin, git, gh **config files** | these dotfiles | `atuin/`, `git/`, `gh/` |
 | Aliases and functions, including `sys-update`, `update-interactive`, and `nixswitch*` | these dotfiles | `bash/rc.d/5*` |
-| Shell and tool configuration links | Home Manager | explicit out-of-store `home.file` entries in `mods/shell.nix` |
+| Shell and tool configuration links | mise | `[dotfiles]` in global/host TOML |
 
-Home Manager is the only deployment adapter. The link inventory is explicit in
-`mods/shell.nix`; `mkOutOfStoreSymlink` keeps source edits live while Home
-Manager safely reconciles destination ownership. Git uses its standard init
-template. Run `git-local-ignore` in a repository when it needs a private
-`.gitignore_local` file.
+Mise owns authored links. Nix owns system packages, not user configuration or
+bootstrap execution.
+Git uses its standard init template. Run `git-local-ignore` in a repository
+when it needs a private `.gitignore_local` file.
 
 ## Sequencing contract
 
 **`profile` is login-time environment only.** Environment variables and PATH.
 No aliases, no functions meant for interactive use, no tool init, no
-keybindings, no output. Must be safe to source non-interactively.
+keybindings, no output. Native `mise env --shell bash` supplies environment
+exports, not interactive hooks, so child scripts avoid per-command shim startup.
+Must be safe to source non-interactively.
 
 **`bashrc` is interactive only.** The interactive guard is its first statement.
 Everything else is a numbered fragment in `bash/rc.d/`, sourced in lexical
@@ -56,10 +63,7 @@ order. The decade a fragment lives in defines what it may assume already ran:
 | 90–99 | local overrides |
 
 To disable a fragment, rename it so it no longer ends in `.sh`, or override it
-from `~/.bashrc.local` (loaded at stage 99). This replaces the old
-`.bashrc.d/excludes.txt`, which was an empty file and couldn't have worked
-selectively anyway: `~/.bashrc.d` was a read-only store copy, so changing
-anything there needed a rebuild.
+from `~/.bashrc.local` (loaded at stage 99).
 
 ## Shell integration policy
 
@@ -80,9 +84,6 @@ editing from `inputrc`. Ordering follows each hook's contract:
 
 ## Load-order hazards, all of which have bitten
 
-The previous setup put the fragment loop *above* home-manager's own interactive
-guard and *above* its `shellAliases`, so ordering silently decided things:
-
 - **Define each update or activation command in one fragment.**
   `55-nix-aliases.sh` owns `nixswitch`, `nixswitchup`, and `nixclean`.
   `56-update-functions.sh` owns the `sys-update` dispatcher and its completion,
@@ -90,7 +91,8 @@ guard and *above* its `shellAliases`, so ordering silently decided things:
   prompts. Pin updates leave a diff; activation is always a separate command.
 - **`update-interactive` never calls overlapping commands.** It pulls with
   `--ff-only` itself and then runs `nixswitch`, never `nixswitchup`; it runs
-  `sys-update brew`, `nvim`, and `claude` separately, never `tools`. Pin
+  `sys-update brew`, `nvim`, and `claude` separately, never `tools`. Skill-only
+  updates use `sys-update skills` outside that interactive flow. Pin
   domains come from `sys-update list --json`, filtered to `pub/dotfiles-nix`
   (the scope `sys-update pins` forces), so new domains appear without edits.
 - **`have` is not a safe helper name.** bash-completion ends with
@@ -99,24 +101,24 @@ guard and *above* its `shellAliases`, so ordering silently decided things:
   every later fragment that used it fails. All helpers are `sh_`-prefixed.
 - **PATH prepend order is precedence order, reversed.** `bash/profile` lists
   `.local/bin`, then `shell_scripts`, then `toolbox` to end up resolving
-  `toolbox` > `shell_scripts` > `.local/bin`, matching the old
-  `0050_shell.bashrc`. Writing them in the intuitive order inverts precedence.
+  `toolbox` > `shell_scripts` > mise tool directories > stock mise shims > `.local/bin`.
+  Mise paths precede the legacy npm prefix; shell scripts and editable
+  toolbox commands retain precedence. Writing prepends in the intuitive order
+  inverts precedence.
 
 ## Known rough edges
 
-Carried forward deliberately, because fixing them is a behavior change rather
-than a port. Each is a separate decision:
+Fixing each of these changes behavior, so each is a separate decision:
 
 - `alias ls='ls --color'` is a GNU coreutils flag. It works because coreutils is
-  installed from nixpkgs everywhere and shadows BSD `ls`; on a machine with only
+  installed through conda on Macs and NixOS system packages on Linux, ahead of
+  BSD `ls`; on a machine with only
   BSD `ls`, this alias breaks `ls`.
-- `PNPM_MANAGE_INSTALLATION=false` in `bash/profile` is not exported, exactly as
-  before — which means pnpm itself can't see it, so the line may never have done
-  anything.
-- `40-secret-inject.sh` and `72-nvm.sh` print to stderr on a machine where their
-  config or node version is missing. Pre-existing.
-- Only bash is covered. There is no zsh/fish equivalent, because nothing here
-  used one.
+- `PNPM_MANAGE_INSTALLATION=false` in `bash/profile` is not exported, so pnpm
+  itself can't see it and the line may have no effect.
+- `40-secret-inject.sh` prints to stderr when its configuration is missing.
+  Node versions come from mise; no NVM fragment is loaded.
+- Only bash is covered. There is no zsh/fish equivalent.
 
 ## Verifying a change
 
@@ -156,6 +158,10 @@ re-runs under the current Bash and `/bin/bash` (3.2 on macOS), feeds scripted
 answers, and records every action boundary (git, `deps.ts`, native updaters,
 rebuild, garbage collection) as a fixture call. It needs `jq`.
 
+Run `bash ./tests/profile-path.sh` and `/bin/bash ./tests/profile-path.sh` for
+isolated profile precedence checks, including empty PATH components, inherited
+shim entries, real tool directories and repeated logins.
+
 Run the focused smoke test after changing shell initialization. It starts the
 installed login shell, fails on unexpected startup stderr, verifies generated
 hook functions and prompt order, forces mise completion loading, and checks pet
@@ -166,7 +172,7 @@ and scute bindings under a PTY:
 ```
 
 Use `--simulate` to source a candidate `profile` and `bashrc` directly from the
-checkout before rebuilding:
+checkout before applying it:
 
 ```bash
 ./tests/smoke.sh --simulate ..
@@ -184,4 +190,4 @@ bracketed paste and Readline acceptance without modifying the running server.
 
 Simulation retains the current `$HOME` and installed tools but bypasses
 `/etc/profile` and `~/.bash_profile`, so run the installed mode again after
-activating Home Manager.
+deploying the system and portable user configuration.

@@ -39,7 +39,7 @@ via `mods/uvx.nix`).
 
 - [x] **Step 1: Scaffold package manifest and Makefile**
 
-Same shape as `read-aloud`/`stackman`: `hatchling` backend,
+Same shape as `stackman`: `hatchling` backend,
 `requires-python = "==3.12.*"`, `dependencies = ["click>=8.1,<9"]`,
 `[project.scripts] tmux-picker = "tmux_picker.cli:main"`.
 

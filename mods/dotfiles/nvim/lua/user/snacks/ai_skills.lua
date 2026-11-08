@@ -23,11 +23,6 @@ local skill_callouts = {
 			return "$" .. name
 		end,
 	},
-	opencode = {
-		format = function(name)
-			return "/skill " .. name
-		end,
-	},
 	pi = {
 		format = function(name)
 			return "/skill:" .. name
@@ -110,9 +105,7 @@ function M.skill_callout(provider)
 		provider = provider:lower()
 	end
 	local preferred = vim.env.PREFERRED_AGENT
-	return skill_callouts[provider]
-		or (preferred and skill_callouts[preferred])
-		or skill_callouts.pi
+	return skill_callouts[provider] or (preferred and skill_callouts[preferred]) or skill_callouts.pi
 end
 
 function M.completion_trigger()

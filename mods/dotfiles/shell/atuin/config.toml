@@ -1,4 +1,4 @@
-# atuin — previously generated from programs.atuin.settings in mods/shell.nix.
+# atuin configuration.
 #
 # Self-hosted sync and AI server; see the kube-home-lab atuin.ts app definition
 # for the server side. The AI api_token is NOT set here: it comes from the

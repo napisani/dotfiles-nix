@@ -4,13 +4,15 @@ local utils = require("user.utils")
 local function dap_root()
 	return utils.get_dap_root()
 end
--- DAP python
--- you must first: `go install github.com/go-delve/delve/cmd/dlv@latest` into you current project
 
 dap.adapters.go = {
-	type = "executable",
-	command = "dlv",
-	args = { "dap" },
+	type = "server",
+	host = "127.0.0.1",
+	port = "${port}",
+	executable = {
+		command = "dlv",
+		args = { "dap", "--listen=127.0.0.1:${port}" },
+	},
 }
 
 dap.configurations.go = {

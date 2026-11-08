@@ -1,0 +1,4 @@
+[package-manager]
+requires = ["pi", "npm"]
+supports_version_pins = true
+os = ["macos", "linux"]

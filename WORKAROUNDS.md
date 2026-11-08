@@ -18,7 +18,8 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 10. [OmniWM focused-border rendering](#omniwm-focused-border-rendering)
 11. [Atuin e2e checks in the Darwin build sandbox](#atuin-e2e-checks-in-the-darwin-build-sandbox)
 12. [Darwin flake check vs. Linux `rtk` build](#darwin-flake-check-vs-linux-rtk-build)
-13. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
+13. [GnuPG pinentry on macOS](#gnupg-pinentry-on-macos)
+14. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
 
 ---
 
@@ -111,8 +112,8 @@ while a slow server initializes after a manual toggle off.
 | **Configuration (current)** | `extended-keys on` and `extended-keys-format csi-u` let each application request mode 1 or 2. Readline does not request extended keys and retains legacy encoding. Do not use `always` or server-wide shell/focus toggles; application requests already provide per-pane isolation. The duplicated root-table `send-keys -H` bindings are not needed. |
 | **Terminal compatibility** | Keep the explicit CSI-u inputs in `kitty.conf` (mirrored in `alacritty.toml` and `ghostty-config`): [tmux 3.8 activates outer extended keys](https://github.com/tmux/tmux/blob/3.8/tty-features.c) with xterm's `modifyOtherKeys`, whereas [Alacritty supports Kitty negotiation instead](https://github.com/alacritty/alacritty/issues/3101). Do not declare `alacritty:extkeys` or `xterm-kitty:extkeys` merely because literal CSI-u mappings work. Native tmux decoding translates those inputs to the mode requested by each pane. |
 | **Known limitations** | Only the explicitly mapped specialty chords are guaranteed on this terminal path. Mode 1 preserves established legacy representations (including Ctrl-Shift-P as Ctrl-P); applications needing that distinction must request mode 2. Clipboard input is separate: kitty handles `Ctrl-V` as `paste_from_clipboard`; Readline's vi-mode `p` uses its editing buffer, not the system clipboard. |
-| **Verification** | `python3 mods/dotfiles/shell/tests/tmux-keys.py` starts an isolated server and sends the `send_text` bytes from `kitty.conf` through a PTY client. On tmux 3.8 it checks standard versus extended modes, byte-exact Unicode multiline paste, independent pane modes, real Readline acceptance, and installed Neovim's negotiation and modified-key recognition. It does not synthesize physical kitty keypresses or exercise the GUI clipboard. |
-| **Rollout note** | Check both `tmux -V` (installed client) and `tmux display-message -p '#{version}'` (running server). Upgrading the binary does not upgrade existing servers. Start a fresh 3.8 server after safely exiting old sessions, or open a separate one with `tmux -L tmux38 new-session` from a new terminal. Reload alone neither upgrades the server nor removes old root bindings whose declarations were deleted. Do not kill active sessions to apply this. |
+| **Verification** | `python3 mods/dotfiles/shell/tests/tmux-keys.py` starts an isolated server and sends the `send_text` bytes from `kitty.conf` through a PTY client. It passes on mise tmux 3.7c and Nix tmux 3.8, checking standard versus extended modes, byte-exact Unicode multiline paste, independent pane modes, real Readline acceptance, and installed Neovim's negotiation and modified-key recognition. It does not synthesize physical kitty keypresses or exercise the GUI clipboard. |
+| **Rollout note** | Check both `tmux -V` (installed client) and `tmux display-message -p '#{version}'` (running server). Upgrading the binary does not upgrade existing servers. Use the installed version for a fresh server after safely exiting old sessions, or open an independent server with `tmux -L userland-check new-session` from a new terminal. Reload alone neither upgrades the server nor removes old root bindings whose declarations were deleted. Do not kill active sessions to apply this. |
 | **Revisit when** | kitty and tmux share native outer-terminal negotiation, allowing removal of the literal key mappings. If real clipboard paste still corrupts input, capture its actual bytes and application mode before attributing it to extended-key conversion: bare LF in mode 2 is legitimately Ctrl-J, while bracketed-paste contents should bypass key encoding. |
 
 ---
@@ -129,7 +130,7 @@ Captured with NVIM v0.12.0 using `mods/dotfiles/nvim` (`init.vim` → `user/init
 Or from a **real terminal** (recommended; see below):
 
 ```bash
-cd "$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/nvim" && nvim -u init.vim "+checkhealth" "+write! /tmp/nvim-checkhealth.txt" "+qa"
+cd "$DOTFILES_DIR/nvim" && nvim -u init.vim "+checkhealth" "+write! /tmp/nvim-checkhealth.txt" "+qa"
 ```
 
 ### Headless vs interactive (important)
@@ -151,7 +152,7 @@ cd "$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/nvim" && nvim -u init.vim "+checkhe
 | **P1** | Snacks (interactive) | If still ERROR after interactive run: `vim.ui.input` / `vim.ui.select` not Snacks; missing image/LaTeX/Mermaid tools; `lazygit`; kitty graphics. | Align with [snacks.nvim](https://github.com/folke/snacks.nvim) docs: ensure `require("snacks").setup` runs early (`lazy = false` already); optionally install optional tools or **accept** warnings for unused features. |
 | **P2** | Lazy / luarocks | Wants Lua 5.1 for luarocks; Neovim uses **LuaJIT**. | **Ignore** unless a plugin requires luarocks build; lazy’s own health says no plugins need luarocks. |
 | **P2** | ~~LuaSnip~~ | *(removed)* LuaSnip / friendly-snippets dropped; blink uses `lsp` + `path` + `buffer` only. |
-| **P2** | Mason | Optional language runtimes (cargo, composer, php, javac, julia, pip, …) not on PATH. | Install only what you need via Nix or Mason; warnings are **informational**. |
+| **P2** | Optional runtimes | Some plugin integrations need additional language runtimes. | Declare required tools through mise; Mason is not an installer. |
 | **P3** | `vim.lsp` | “Unknown filetype” for composite fts (`eelixir`, `surface`, `gowork`, `yaml.*`, …). | Cosmetic: add `vim.filetype.add` aliases if those projects matter, or ignore. |
 | **P3** | Agentic | Optional ACP backends not installed. | Expected unless you use those providers. |
 | **P3** | blink.cmp | “Some providers disabled dynamically”. | Informational. |
@@ -165,6 +166,42 @@ cd "$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/nvim" && nvim -u init.vim "+checkhe
 | **`vim.validate` table API** | `compat.lua` intercepts `vim.validate(spec)` and forwards to `vim.validate(name, val, …)` so `vim.deprecate` is not triggered. | **codecompanion** / **dadbod-grip** (and any other plugin) switch to positional `vim.validate`; grep `vim.validate` in lazy plugins / run `:checkhealth vim.deprecated`. |
 | **Headless health noise** | Use interactive `:checkhealth` for UI/terminal/Snacks. | If you add a scripted check, set `TERM=xterm-256color` and account for lazy load. |
 | **Tmux `$TERM` vs `default-terminal`** | In real tmux sessions, set `default-terminal` and shell `TERM` consistently (e.g. both `tmux-256color` or both `xterm-256color` per your stack). | N/A (environment contract). |
+
+---
+
+## Docker Desktop CLI ownership on maclab
+
+Docker Desktop 4.98.0 rewrites four system CLI links to direct app paths on
+restart. They resolve to the same executables as mise's links, but mise
+2026.11.2 rejects the changed link fingerprints. User CLI mode avoids that
+conflict but rewrites managed Bash profiles with an absolute HOME path on every
+restart. Portable marker blocks are overwritten too. Disabling configuration
+checking did not prevent the system-link rewrites; its original setting was
+restored.
+
+Maclab therefore omits Docker Desktop from its mise package declarations under
+an explicit operator-approved exception. Retain the installed app, data,
+receipts and backups; do not uninstall or prune it. Docker uses System CLI mode
+and owns those links. Verify its engine separately from declared mise packages.
+Other host declarations are unchanged; no other host was activated.
+
+Revisit when native mise can coexist with Docker's equivalent link retargeting,
+or Docker provides a supported configuration that preserves both managed links
+and shell profiles across restarts. Do not manufacture receipts or add a repair
+loop. Evidence: maclab's `20261108T010815Z-docker-cli-handoff` directory retains
+settings, link fingerprints and failed restart tests.
+
+## Mise cask transfer preflight
+
+Mise 2026.10.25 returns early for Homebrew-owned casks before checking artifacts,
+even during `--dry-run`. `mise-migration/migration.py` runs that dry-run with an
+empty temporary `MISE_SYSTEM_BREW_PREFIX`, then uses the normal prefix for the
+real transfer. Failed validation leaves the Homebrew app installed. No receipts
+are imported, and the override never applies to a mutating command.
+
+Remove the override when native mise can validate a reinstall without skipping
+existing receipts. A successful preview still cannot prove later downloads,
+privileged installers or writes to the real prefix will succeed.
 
 ---
 
@@ -185,13 +222,13 @@ cd "$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/nvim" && nvim -u init.vim "+checkhe
 
 | Item | Detail |
 |------|--------|
-| **Location** | `mods/agents/default.nix` (`agents.pi.packages`) |
+| **Location** | `mods/dotfiles/mise/config.toml`; `mods/dotfiles/mise/runtime/mise/plugins/pi/lib/packages.lua` |
 | **Symptom** | `pi` fails to start with `Error: Failed to load extension ".../node_modules/pi-vim/index.ts": Failed to load extension: Cannot find module '@earendil-works/pi-coding-agent'`, `Require stack: - .../node_modules/pi-vim/clipboard-mirror.ts`. |
 | **Root cause** | `pi install` resolves the whole `~/.pi/agent/npm` package tree (all declared extensions) together via npm. `claude-agent-sdk-pi`'s latest published version (`1.0.22`) peer-deps on `@earendil-works/pi-ai@^0.74.0`, while every other declared extension (`pi-web-access`, `pi-mcp-adapter`, `@juicesharp/rpiv-btw`) now needs `pi-ai@0.84.x`. `^0.74.0` on a `0.x` package only allows patch bumps (`>=0.74.0 <0.75.0`), so it's incompatible with `0.84.3` — a real `ERESOLVE` conflict, not a version-pinning choice on our side. That conflict makes npm silently skip auto-installing peer deps for **every** extension in the tree (not just `claude-agent-sdk-pi`'s own), which is what left `pi-vim`'s peer dep on `@earendil-works/pi-coding-agent` unmet. |
 | **How it was diagnosed** | Reproduced directly: ran `pi install npm:pi-vim` (via the real binary, `/Users/nick/.local/bin/pi`, bypassing the tmux shell wrapper — see below), confirmed `npm ls @earendil-works/pi-coding-agent` showed unmet, then ran `npm install ... --no-save` in `~/.pi/agent/npm` and got an explicit `ERESOLVE` error naming `claude-agent-sdk-pi@1.0.22` as the conflicting peer. Removing it from that project's `package.json` and reinstalling resolved cleanly and installed `@earendil-works/pi-coding-agent`; the extension-load error disappeared. |
-| **Workaround (current)** | Dropped `"npm:claude-agent-sdk-pi"` from `agents.pi.packages` in `mods/agents/default.nix`. The diff-and-prune mechanism in `apply-pi-packages.js` runs `pi remove npm:claude-agent-sdk-pi` on the next `home-manager switch` since it's no longer declared. That alone was **not** sufficient, though: `pi install`/`pi remove` act on one package at a time and don't reconcile the shared `~/.pi/agent/npm` tree as a whole, so removing the conflicting peer range did not retroactively install the now-satisfiable peers — `pi-vim` still failed with the same error until a plain `npm install` was run in that directory by hand. `apply-pi-packages.js` now runs that `npm install` reconcile after managed installs/removals (including repairs), retaining pending progress when finalization fails. Healthy unchanged activations skip Pi installers and npm reconciliation. Routine probes check declared artifacts and exact pins rather than the entire transitive npm tree; use `GLOBAL_TOOLS_FORCE_REPAIR=1` for dependency damage outside those bounded checks. |
+| **Workaround (current)** | Keep `claude-agent-sdk-pi` out of the pinned mise package set. The Pi package plugin runs `npm install` in the shared `~/.pi/agent/npm` root after native package mutations, because native per-package actions did not restore the missing peer dependencies. Healthy unchanged applies skip this work. Failures propagate without a local retry ledger. Only mise-owned packages are pruned; pre-cutover installations need reviewed native cleanup. Use native diagnostics or `mise -C "$HOME" bootstrap packages upgrade --manager pi` for dependency damage beyond local version checks. |
 | **Unrelated red herring** | A concurrent `npm error EACCES` on `~/.npmrc` (root-owned `~/.npm` cache files from a past `sudo npm install`) was also present and broke `installNpmxTools` during activation. That's a real local-machine issue worth fixing (`sudo chown -R $(id -u):$(id -g) ~/.npm ~/.npmrc`), but it was **not** the cause of the `pi-vim` extension error — the peer-dep conflict above was. |
-| **Revisit when** | Upstream bumps `claude-agent-sdk-pi`'s peer range off of `pi-ai@^0.74.0` **and** ships a version built against the current `pi-ai` models interface. Check with `npm view claude-agent-sdk-pi version peerDependencies`; re-add `"npm:claude-agent-sdk-pi"` to `agents.pi.packages` once both hold. |
+| **Revisit when** | Upstream bumps `claude-agent-sdk-pi`'s peer range off of `pi-ai@^0.74.0` **and** ships a version built against the current `pi-ai` models interface. Check with `npm view claude-agent-sdk-pi version peerDependencies`; re-add a pinned `pi:npm:claude-agent-sdk-pi` entry to the mise TOML once both hold. |
 | **Recheck 2026-09-04** | Still blocked, and the blocker is now deeper than a peer range. Upstream is unchanged at `1.0.22` (published 2026-05-16, ~4 months stale) with `pi-ai@^0.74.0`. Re-adding it reproduces the same `ERESOLVE` against `pi-mcp-adapter@2.32.1`'s `peerOptional pi-ai@^0.84.1`. Forcing resolution with root overrides for `pi-ai` and `pi-coding-agent` `0.85.0` installs cleanly, but the extension then fails to load because it calls the removed `getModels("anthropic")`. Re-adding requires either an upstream release or a patched fork. Decision: stay out. |
 
 ---
@@ -219,12 +256,11 @@ read-only replay of the real Pi inventory reproduced ten attempted installer
 calls in that checkout versus no calls on the committed reconciler's second
 run. New declarations alone could not fix an activation that ran old code.
 
-`mods/internal/native-scripts.nix` now bundles installer scripts and their relative
-imports in the Nix store. The `native-install-contract` flake check asserts
-binding for every managed host and runs fixtures against that bundle. Claude/npm/Pi/uv
-also share per-asset progress rather than a whole-batch success stamp. uv probes
-canonicalize editable receipt paths, avoiding reinstalls when the receipt names
-a symlink to the same source directory.
+The generation-bound bundle was an intermediate workaround. Portable bootstrap
+now binds the canonical source link explicitly and rejects conflicting links;
+runtime commands derive their source from that link. Disposable source-handoff
+and collision tests cover this boundary. Native mise owns package lifecycle state;
+there is no Nix activation dispatcher.
 
 ---
 
@@ -232,12 +268,12 @@ a symlink to the same source directory.
 
 | Item | Detail |
 |------|--------|
-| **Location** | `mods/internal/npm.nix` — `~/.npmrc` content (`npmrcContent`) and the `npm-config` operation that writes it now both live here. Previously the file was declared in `mods/shell.nix` (`npmrc` let-binding, `home.file.".npmrc".text`). |
+| **Location** | `mods/dotfiles/mise/config.toml` and `mise/apps/{common,work}/npmrc.tera`: native INI merge declarations and inputs. |
 | **Symptom** | `home-manager switch` fails during `Activating installNpmxTools` with `npm error code EACCES … npm error path /Users/nick/.npmrc … Your cache folder contains root-owned files … sudo chown -R 501:20 "/Users/nick/.npm"` followed by `installNpmxTools: ERROR: npm config set prefix failed for: /Users/nick/.local`. `chown`-ing `~/.npm` as suggested does **not** fix it — the error recurs on the very next switch. |
 | **Root cause** | `~/.npmrc` was Home Manager–managed (`mods/shell.nix`: `home.file.".npmrc".text = npmrc`, where `npmrc` already contained `prefix=$HOME/.local`). Home Manager links `home.file` entries as symlinks into the read-only `/nix/store` — confirmed via `readlink -f ~/.npmrc` → `/nix/store/…-hm_.npmrc`. `installNpmxTools` *also* ran `npm config set prefix "$NPM_CONFIG_PREFIX" --location=user`, which opens `~/.npmrc` for **writing** to persist the same value imperatively. That write always fails EACCES against the immutable Nix store target, no matter what `~/.npm`'s cache ownership is — npm's own error message just misattributes any EACCES during a config write to "root-owned cache files", which is a real and common npm failure mode in general, just not what was happening here. |
 | **Why it looked like the cache** | npm's EACCES error text is generic and always suggests the `sudo chown -R … ~/.npm` fix, regardless of which file it actually failed to open. `~/.npm` (the cache dir) and `~/.npmrc` (the config file) are easy to conflate by name; only `readlink -f ~/.npmrc` / `ls -la ~/.npmrc` reveals the real target is a Nix store symlink, not a plain writable file. |
-| **Workaround (current)** | Just deleting the `npm config set prefix` call (redundant with the declarative `~/.npmrc`) fixed the symptom, but left the underlying trap in place — `~/.npmrc` was still a read-only Nix store symlink, so anything that later needs to write to it (npm itself, `npm login`, `npm config set` for something else) would hit the exact same EACCES. Moved `~/.npmrc` management off `home.file` entirely: `mods/internal/npm.nix` now computes `npmrcContent` and applies it with a content-aware `globalToolOperations.npm-config` command (ordered before npm installs, shared by activation and the `global-tools` CLI). It atomically replaces a legacy symlink or changed file but leaves an unchanged plain file untouched. `~/.npmrc` is a plain, writable file again — colocated with the rest of this module's npm setup, and safe for any future imperative npm config write. `mods/shell.nix` no longer references `.npmrc` or `machineRoles` at all. |
-| **Revisit when** | N/A — this was a bug, not a temporary upstream workaround. If another module ever wants to own part of `~/.npmrc`, extend `npmrcContent` in `npmx.nix` rather than reintroducing a `home.file` declaration for the same path. |
+| **Workaround (current)** | Keep `~/.npmrc` writable. Mise applies the declared native INI merge before installation, preserving unmanaged registry/authentication keys and literal environment references. New files are 0600; existing permissions survive. Native merge writes in place, not atomically. Review immutable legacy links during cutover rather than forcing writes into the store. |
+| **Revisit when** | Extend the native npmrc merge sources when adding managed settings. Do not reintroduce a Home Manager file declaration or a second npmrc writer. |
 
 ---
 
@@ -254,6 +290,9 @@ a symlink to the same source directory.
 ---
 
 ## Atuin e2e checks in the Darwin build sandbox
+
+Retired: Atuin is mise-owned on every host. The Nix package and both overrides
+are removed; the build failures below are historical provenance.
 
 ### nix-darwin `/etc/bashrc` rewrites `PATH`
 
@@ -277,15 +316,35 @@ a symlink to the same source directory.
 
 ---
 
+## GnuPG pinentry on macOS
+
+Mac GnuPG remains Nix-owned. Conda GnuPG 2.5.24 reports a pinentry path inside
+its prefix, but that executable is absent. A disposable protected key could be
+created using loopback input; after restarting the agent, normal signing failed
+with `No pinentry`. Revisit when the native package provides a working prompt,
+then test signing and agent restart before moving real keys. See [ADR 0004](docs/adr/0004-global-mise-lifecycles.md).
+
 ## Darwin flake check vs. Linux `rtk` build
+
+Retired: RTK is mise-owned and no Nix RTK resources or Intel package override
+remain. The `agent-config-resolved` check was removed with the artifact modules.
+
+RTK 1.1.0 itself overwrites modified Claude/Codex `RTK.md` files silently.
+`mods/dotfiles/mise/runtime/mise/rtk-setup.cjs` compares against disposable upstream output
+before calling real init; Pi already rejects modified extensions. Revisit this
+guard when upstream protects all three files. See the
+[cutover contract](docs/contracts/mise-cutover.md#skills-and-rtk-cutover).
+
+---
+
+## Mise package plugins on the Intel-compatible package set
 
 | Item | Detail |
 |------|--------|
-| **Location** | `flake.nix` (`mkAgentConfigResolvedCheck`) |
-| **What** | The check discards the string context of the JSON it writes with `builtins.unsafeDiscardStringContext`. It still forces every host's agent config at evaluation. |
-| **Why** | The JSON includes each host's `agents.rtkPackage` store path. Keeping its context makes the Darwin check depend on the Supermicro host's x86_64-linux `rtk`, which a Mac without a Linux builder cannot build (or substitute, when the cache lacks that nixpkgs revision). |
-| **Remove when** | The check no longer serialises package paths, or every machine running `nix flake check` has a Linux builder. |
-| **How to verify** | `nix flake check` on Darwin passes without `platform mismatch` errors. |
+| **Status** | Retired by the portable boundary roadmap. |
+| **Historical cause** | The Intel-compatible Nix package set shipped mise before package-manager plugins. |
+| **Replacement** | Official standalone mise >=2026.11.2, independent of the system package set; no `mise-src` fallback or Home Manager bootstrap. |
+| **Coverage** | Disposable-HOME native runtime tests and per-host deployment acceptance; evaluation alone does not prove runtime functionality. |
 
 ---
 
@@ -293,7 +352,7 @@ a symlink to the same source directory.
 
 ### Neovim
 
-- **After each Neovim upgrade:** run **`:TSUpdate`** (and ensure Nix `tree-sitter` CLI is on `PATH`) so parsers match `vim.treesitter.language_version`.
+- **After each Neovim upgrade:** run **`:TSUpdate`** (and ensure mise's `tree-sitter` CLI is on `PATH`) so parsers match `vim.treesitter.language_version`.
 - Use **`:restart`** (0.12+) when iterating on plugins or early startup Lua without killing the terminal; pair with `:mksession` if you need buffers back.
 - After a **Neovim point release**, try `let g:user_ts_markdown_treesitter = v:true` (or Lua equivalent) and remove the `vim.treesitter.start` wrapper if no crashes in daily use.
 - Watch **nvim-treesitter** `main` README/changelog; the rewrite dropped `nvim-treesitter.configs` — keep `treesitter.lua` aligned with upstream.
@@ -320,7 +379,7 @@ a symlink to the same source directory.
 | 2026-05-07 | Removed the temporary `direnv` `CGO_ENABLED = 1` override and matching `mise` override after the locked stock `direnv-2.37.1` substituted from cache and passed a basic allow/export smoke test. |
 | 2026-08-11 | Added `overlays/oxlint-darwin-ps-fix.nix` to fix `oxlint` build failing with `spawn EPERM` under the Darwin sandbox (`@napi-rs/cli` `/bin/ps` exec); mirrors the fix already merged in nixpkgs `master` but not yet promoted to `nixpkgs-unstable`. |
 | 2026-08-13 | Removed `oxlint-darwin-ps-fix.nix` overlay; the fix is now in nixpkgs-unstable (oxlint 1.78.0), and the overlay was causing spurious substitution failures. |
-| 2026-08-20 | Defaulted tmux `extended-keys` off (`.tmux.conf`) and added `.bashrc.d/0069_tmux_extended_keys.bashrc` shell wrappers (`nvim`/`vim`/`claude`/`codex`/`pi`/`opencode`) to toggle it only while one of those programs is running, working around tmux/tmux#4663 corrupting multi-line pastes at the shell prompt. |
+| 2026-08-20 | Defaulted tmux `extended-keys` off (`.tmux.conf`) and added `.bashrc.d/0069_tmux_extended_keys.bashrc` shell wrappers (`nvim`/`vim`/`claude`/`codex`/`pi`) to toggle it only while one of those programs is running, working around tmux/tmux#4663 corrupting multi-line pastes at the shell prompt. |
 | 2026-08-20 | Fixed the above: wrapper's active state must be `extended-keys always`, not `on` — `on`'s client-support detection doesn't re-trigger on a later switch, so Shift+Enter silently degraded to plain Enter until confirmed live and corrected to `always`. |
 | 2026-08-27 | Dropped `npm:claude-agent-sdk-pi` from `agents.pi.packages`: its peer dep on `@earendil-works/pi-ai@^0.74.0` conflicts with the `0.84.x` other declared Pi extensions need, which blocked npm from auto-installing peer deps for the whole tree and broke `pi-vim` with a missing-module error. |
 | 2026-08-27 | `apply-pi-packages.js` runs a full `npm install` reconcile in `~/.pi/agent/npm` when declarations change, health fails, or repair is forced; healthy unchanged activations skip installer work. |
@@ -331,5 +390,5 @@ a symlink to the same source directory.
 | 2026-10-15 | Overrode `atuin` in `mods/shell.nix` so its Darwin e2e checks skip the host `/etc/bashrc` that reset `PATH` inside the build sandbox. |
 | 2026-10-27 | Skipped atuin's Pi e2e tests in the Darwin build (host `pi` processes made them fail) and discarded string context in `agent-config-resolved` so the Darwin flake check no longer builds a Linux `rtk`. |
 | 2026-10-29 | Moved the daily terminal from Alacritty to kitty: `kitty.conf` is now the key contract read by `tmux-keys.py`, and `alacritty.toml`/`ghostty-config` stay linked but their apps are no longer installed. Pinned `theme dark` and `popup-style` in `.tmux.conf` because Ghostty reports the macOS appearance as the client theme, which gave tmux 3.8 popups its light palette there. |
-| 2026-10-30 | maclab (x86_64-darwin) builds `agents.rtkPackage` from nixpkgs-unstable's `rtk` expression against its 26.05 package set (`homes/home-maclab.nix`). The 26.05 stack's `rtk` 0.41.0 rejects `--no-trust-filters` and `--agent pi`, so every `rtk-assets` build failed with exit 2. Drop the override once maclab leaves Intel or 26.05 ships `rtk` ≥ 1.0. |
+| 2026-10-30 | maclab (x86_64-darwin) builds `agentAssets.rtkPackage` from nixpkgs-unstable's `rtk` expression against its 26.05 package set (`homes/home-maclab.nix`). The 26.05 stack's `rtk` 0.41.0 rejects `--no-trust-filters` and `--agent pi`, so every `rtk-assets` build failed with exit 2. Drop the override once maclab leaves Intel or 26.05 ships `rtk` ≥ 1.0. |
 | *(add entries when adding/removing workarounds)* | |

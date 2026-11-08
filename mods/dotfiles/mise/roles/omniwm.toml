@@ -1,0 +1,13 @@
+# OmniWM's legacy Home Manager agent must be retired before mise loads its own.
+[bootstrap.hooks.pre-defaults]
+run = 'sh {{ vars.dotfiles_root | quote }}/mise/runtime/mise/check-omniwm-handoff.sh /Applications/OmniWM.app/Contents/MacOS/OmniWM "$HOME/Library/LaunchAgents/org.nix-community.home.omniwm.plist"'
+
+[bootstrap.macos.launchd.agents.omniwm]
+program = "/Applications/OmniWM.app/Contents/MacOS/OmniWM"
+run_at_load = true
+keep_alive = true
+stdout_path = "/tmp/omniwm.log"
+stderr_path = "/tmp/omniwm.err.log"
+
+[bootstrap.packages]
+"brew-cask:omniwm" = { os = "macos/arm64" }

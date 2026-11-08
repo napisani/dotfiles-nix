@@ -10,6 +10,12 @@ this path?** It supersedes the earlier assumption (see the original
 `CONTEXT.md` "Revocable install" note) that every mechanism should reach
 revocability the same way `skills.nix` did.
 
+**Layer 2/execution superseded by:** [ADR 0004](0004-global-mise-lifecycles.md).
+Normal global mise configuration replaces tracked-state reconciliation and the
+shared dispatcher; preexisting installations remain unowned. The historical
+decision below explains the original ownership split. Current operations are
+defined in the [lifecycle contract](../contracts/declarative-tooling.md).
+
 ## Context
 
 The post-0001 module was well-organized but leaned on imperative activation

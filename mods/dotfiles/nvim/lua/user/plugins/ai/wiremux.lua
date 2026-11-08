@@ -3,7 +3,6 @@
 local M = {}
 local ai_prompts = require("user.plugins.ai.ai_prompts")
 
-
 local default_config = {
 	default_route = vim.env.PREFERRED_AGENT or "pi",
 	prompts = ai_prompts.defaults,
@@ -35,13 +34,6 @@ local default_config = {
 				cmd = "gemini",
 				kind = "pane",
 				split = "horizontal",
-				shell = false,
-			},
-			opencode = {
-				label = "OpenCode",
-				cmd = "opencode",
-				kind = "pane",
-				split = "horizontal", -- horizontal split -> pane opens on the right
 				shell = false,
 			},
 			pi = {
@@ -89,9 +81,7 @@ local function ensure_wiremux()
 end
 
 local function get_route_definition(name)
-	return state.options.targets
-		and state.options.targets.definitions
-		and state.options.targets.definitions[name]
+	return state.options.targets and state.options.targets.definitions and state.options.targets.definitions[name]
 end
 
 local function set_current_route(name)
@@ -157,8 +147,7 @@ end
 -- Find a same-session managed instance for the route whose origin_cwd matches cwd.
 local function find_cwd_instance(instances, route, cwd, session_id)
 	for _, inst in ipairs(instances) do
-		if inst.target == route and inst.origin_cwd == cwd
-			and (not session_id or inst.session_id == session_id) then
+		if inst.target == route and inst.origin_cwd == cwd and (not session_id or inst.session_id == session_id) then
 			return inst
 		end
 	end
@@ -182,9 +171,13 @@ end
 -- Returns a wiremux.Pane object, or nil.
 local function find_unmanaged_pane_running(route, st)
 	local def = get_route_definition(route)
-	if not def or not def.cmd then return nil end
+	if not def or not def.cmd then
+		return nil
+	end
 	local exe = def.cmd:match("^(%S+)")
-	if not exe then return nil end
+	if not exe then
+		return nil
+	end
 	exe = vim.fn.fnamemodify(exe, ":t")
 
 	local managed_ids = {}
@@ -232,9 +225,13 @@ end
 -- the route's process are adopted. Returns false when nothing is found — wiremux.send()
 -- handles creation via its on_definition callback.
 local function ensure_route_instance(route)
-	if not route or route == "" then return false end
+	if not route or route == "" then
+		return false
+	end
 	local backend = get_backend()
-	if not backend or not backend.state then return false end
+	if not backend or not backend.state then
+		return false
+	end
 	local st = backend.state.get()
 	local cwd = vim.fn.getcwd()
 
@@ -253,7 +250,9 @@ local function ensure_route_instance(route)
 	if unmanaged then
 		local ok, tmux_state = pcall(require, "wiremux.backend.tmux.state")
 		if ok then
-			if tmux_state.adopt(unmanaged, st, route) then return true end
+			if tmux_state.adopt(unmanaged, st, route) then
+				return true
+			end
 		end
 	end
 
@@ -513,57 +512,105 @@ function M.get_keymaps()
 	return {
 		normal = {
 			{ "<leader>a", group = "Wiremux + composition" },
-			{ "<leader>ai", function()
-				require("vantage").compose()
-			end, desc = "toggle composition" },
+			{
+				"<leader>ai",
+				function()
+					require("vantage").compose()
+				end,
+				desc = "toggle composition",
+			},
 			{ "<leader>ao", M.toggle_target, desc = "show/hide route target" },
 			{ "<leader>aq", M.close_target, desc = "close target" },
 			{ "<leader>af", group = "file refs → composition" },
 			{ "<leader>afe", ref_from_buffers, desc = "ref buffers → composition" },
-			{ "<leader>aff", function()
-				require(ai_context).add_current_buffer_to_chat()
-			end, desc = "ref current file (aff) → composition" },
-			{ "<leader>afp", function()
-				require(ai_context).add_parent_path_file_to_chat()
-			end, desc = "ref path file → composition" },
+			{
+				"<leader>aff",
+				function()
+					require(ai_context).add_current_buffer_to_chat()
+				end,
+				desc = "ref current file (aff) → composition",
+			},
+			{
+				"<leader>afp",
+				function()
+					require(ai_context).add_parent_path_file_to_chat()
+				end,
+				desc = "ref path file → composition",
+			},
 			{ "<leader>afr", ref_from_repo_root, desc = "ref from repo → composition" },
 			{ "<leader>aft", ref_from_git_tracked, desc = "ref git files → composition" },
 			{ "<leader>afd", ref_from_git_changed, desc = "ref unstaged → composition" },
 			{ "<leader>afD", ref_from_git_branch_diff, desc = "ref vs base → composition" },
 			{ "<leader>afC", ref_from_git_conflicts, desc = "ref conflicts → composition" },
-			{ "<leader>ae", function()
-				context_to_composition("Instruction")
-			end, desc = "instruction → composition" },
-			{ "<leader>a?", function()
-				context_to_composition("Question")
-			end, desc = "question → composition" },
-			{ "<leader>as", function()
-				require("user.snacks.ai_skills").pick_to_composition()
-			end, desc = "skill → composition" },
+			{
+				"<leader>ae",
+				function()
+					context_to_composition("Instruction")
+				end,
+				desc = "instruction → composition",
+			},
+			{
+				"<leader>a?",
+				function()
+					context_to_composition("Question")
+				end,
+				desc = "question → composition",
+			},
+			{
+				"<leader>as",
+				function()
+					require("user.snacks.ai_skills").pick_to_composition()
+				end,
+				desc = "skill → composition",
+			},
 			{ "<leader>ap", pick_prompt, desc = "canned prompt → composition" },
-			{ "<leader>am", function()
-				require("user.snacks.ai_actions").append_memo_to_composition()
-			end, desc = "instructions → composition" },
+			{
+				"<leader>am",
+				function()
+					require("user.snacks.ai_actions").append_memo_to_composition()
+				end,
+				desc = "instructions → composition",
+			},
 			{ "<leader>aw", M.select_route, desc = "select route" },
 		},
 		visual = {
 			{ "<leader>a", group = "Wiremux + composition" },
-			{ "<leader>ai", function()
-				require("vantage").compose()
-			end, desc = "toggle composition" },
+			{
+				"<leader>ai",
+				function()
+					require("vantage").compose()
+				end,
+				desc = "toggle composition",
+			},
 			{ "<leader>af", group = "file refs → composition" },
-			{ "<leader>aff", function()
-				require(ai_context).add_visual_range_to_chat()
-			end, desc = "ref line range (aff) → composition" },
-			{ "<leader>ae", function()
-				context_to_composition("Instruction")
-			end, desc = "instruction + range → composition" },
-			{ "<leader>a?", function()
-				context_to_composition("Question")
-			end, desc = "question + range → composition" },
-			{ "<leader>am", function()
-				require("user.snacks.ai_actions").append_memo_to_composition()
-			end, desc = "instructions + range → composition" },
+			{
+				"<leader>aff",
+				function()
+					require(ai_context).add_visual_range_to_chat()
+				end,
+				desc = "ref line range (aff) → composition",
+			},
+			{
+				"<leader>ae",
+				function()
+					context_to_composition("Instruction")
+				end,
+				desc = "instruction + range → composition",
+			},
+			{
+				"<leader>a?",
+				function()
+					context_to_composition("Question")
+				end,
+				desc = "question + range → composition",
+			},
+			{
+				"<leader>am",
+				function()
+					require("user.snacks.ai_actions").append_memo_to_composition()
+				end,
+				desc = "instructions + range → composition",
+			},
 		},
 		shared = {},
 	}

@@ -1,11 +1,8 @@
 # ~/.config/scute/config.yaml
-# Fallback config used for machines without a dedicated scute-<machine>.yml
-# (see mods/shell.nix, which symlinks based on MACHINE_NAME). Providers used
-# by prompts (env vars override these).
+# Mise links this file; edits are live.
 providers:
-  - name: ollama
-    baseUrl: http://localhost:11434
   - name: openai
+  - name: anthropic
 
 clipboardCommand: "auto"
 # Shell keybindings in universal syntax (rendered by scute init)
@@ -16,5 +13,9 @@ clipboardCommand: "auto"
 #   generate: [] # disable if you do not want a binding
 
 promptDefaults:
-  provider: openai
-  model: gpt-5.4
+  provider: anthropic
+  model: claude-haiku-4-5
+  # Haiku 4.5 caps output at 64000 tokens; DEFAULT_MAX_TOKENS (128000) exceeds
+  # that and causes Anthropic to reject the request, so scute silently
+  # returns no suggestion. Keep this well under the cap.
+  maxTokens: 4096

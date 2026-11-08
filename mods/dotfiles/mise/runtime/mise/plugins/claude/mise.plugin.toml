@@ -1,0 +1,4 @@
+[package-manager]
+requires = ["claude"]
+supports_version_pins = false
+os = ["macos", "linux"]

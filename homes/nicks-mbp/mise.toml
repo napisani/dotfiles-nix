@@ -1,0 +1,12 @@
+include = ["dotfiles/mise/roles/personal-desktop.toml", "dotfiles/mise/roles/omniwm.toml"]
+
+[bootstrap.packages]
+"brew-cask:docker-desktop" = { os = "macos" }
+
+[env]
+PET_ADDL_SNIPPETS = "{{ env.HOME }}/.config/pet/nick-mbp-snippets.toml"
+
+[dotfiles]
+# OmniWM replaces this file from its GUI; keep the declarative target writable.
+# Includes cannot declare dotfiles, so the omniwm role leaves it to each host.
+"~/.config/omniwm/settings.toml" = { source = "~/.config/mise/dotfiles/omniwm-settings.toml", mode = "copy" }

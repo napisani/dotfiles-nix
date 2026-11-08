@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+for runtime in "${MISE_MIGRATION_PYTHON:-}" python python3 "/etc/profiles/per-user/${USER}/bin/python3"; do
+  if [ -n "$runtime" ] && command -v "$runtime" >/dev/null 2>&1 && "$runtime" -c 'import tomllib' >/dev/null 2>&1; then
+    if [ "${1:-}" = test ]; then
+      shift
+      exec "$runtime" -m unittest discover -s "$root" -p 'test_*.py' "$@"
+    fi
+    exec "$runtime" "$root/migration.py" "$@"
+  fi
+done
+printf '%s\n' 'Python 3.11+ is required; set MISE_MIGRATION_PYTHON to the existing Nix interpreter before switching.' >&2
+exit 1

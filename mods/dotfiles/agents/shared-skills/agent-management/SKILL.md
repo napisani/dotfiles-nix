@@ -1,293 +1,143 @@
 ---
 name: agent-management
-description: How to declaratively add, change, or remove AI coding agent assets in this Home Manager repo. Use before editing config.agents, mods/agents, mods/internal tooling, agent skills, MCP servers, native plugins/packages, RTK hooks, shared instructions, or supporting reconciliation scripts.
+description: Manage agent settings, MCP, skills, instructions, packages and RTK in this dotfiles repo. Use before changing mise app declarations, skill preparation, RTK setup, shared-file writers or native package hooks.
 ---
 
-# Managing agent configuration declaratively
+# Agent configuration
 
-`config.agents` is the public desired-state interface for Claude Code, Codex,
-Pi, OpenCode, shared skills, instructions and providers. Shared choices live in
-public `mods/` modules; host overrides live in `homes/`. Private adapters under
-`mods/internal/` translate that policy into native files and installer operations.
-npm/uv selections are separate, under `nativeTools.*` in `mods/native-tools.nix`.
+## Choose the owner first
 
-Read these for architectural context:
+- **Prebuilt user CLIs/runtimes, configuration and deployment:** `mods/dotfiles/mise/config.toml`,
+  `mise/apps/` native fragments, and `homes/<machine>/mise.toml` overlays.
+- **Artifact builds:** public Nix modules own monorepo tools through local
+  `path:` inputs, base userland and documented exceptions. Portable mise runtimes
+  prepare skills and app settings; skills and RTK resources are not Nix-built.
+- **Runtime state and secrets:** applications. Shared files use native merges
+  or app-aware writers, never whole-file templates.
 
-- `docs/adr/0003-declarative-agent-configuration-interface.md` — public interface
-- `docs/adr/0001-per-agent-modules.md` — independent native adapters
-- `docs/adr/0002-layered-asset-management.md` — ownership mechanisms
+Before lifecycle/ownership changes, read
+`docs/contracts/declarative-tooling.md`; before deployment/cleanup, read
+`docs/contracts/mise-cutover.md`. ADR 0004 supersedes the former
+Nix application-settings interface. `config.agents` no longer exists.
 
-## The rule that matters
+## Change native app configuration
 
-**Declarations belong above adapters.** Put common desired state in
-`mods/agents/default.nix`; make host-specific additions in `homes/home-*.nix`
-or a configuration file explicitly imported there, such as
-`homes/nicks-loancrate-mbp/agents.nix`. Do not put selections in
-`mods/internal/agents/{claude,codex,pi,opencode}.nix`; those files are adapters.
+Find its native fragment/template under `mods/dotfiles/mise/apps/`.
+MCP maps use each application's native shape in `common/` or `work/`;
+Pi settings, script approvals, Claude settings and npm authentication live beside
+those profiles. Add only environment references, never literal credentials.
 
-Adapters remain independent. Do not create a shared installer that accepts an
-agent ID and branches on it. Sharing an agent-blind utility is fine; sharing
-cross-agent installation policy is not.
+Mise merges plain settings natively, including work-host Loancrate settings.
+The Deno writer `mods/dotfiles/mise/runtime/configure-apps.ts` reads authored
+files for removal-sensitive policies and preserves app-written siblings and manual
+hooks. Its `@std/toml` dependency is vendored and pinned in `deno.lock`.
+MCP maps and script approvals are owned wholesale, so promote needed manual
+entries before applying. Native additive merges cannot implement revocation.
+File history/recovery capture is disabled because merge targets can contain
+credentials. Native merges write in place; see the contract before changing that.
+Pi's `settings.json` includes app-written `packages`: preserve them.
 
-## Public interface
+For authored files, add a mise dotfile declaration. Pi themes/extensions use
+`symlink-each` directory entries; test/spec files are excluded.
+Whole-file templates are appropriate only when the entire destination is owned.
+Use data-only template reads: mise status/diff can render templates too.
 
-The resolved configuration is under `config.agents`:
+Keep the core portable. Standalone bootstrap links its sources and plugins;
+`runtime:prepare` installs the locked uv environment without a Nix fragment.
+The host TOML's `vars.agent_profile` selects common/work writer and skill inputs.
+Native INI merges own npmrc and preserve unmanaged authentication/registry keys.
 
-```nix
-agents = {
-  instructions = ".../agents/AGENTS.md";
+Host overlays are linked as global `config.local.toml`, which can override the
+main global file. Pinned mise's `conf.d` entries have lower precedence.
+Dotfile source paths are not template-rendered; use explicit paths through the
+bootstrap `~/.config/mise/dotfiles` source link.
 
-  skills = {
-    shared = [
-      "tdd"
-      "context7"
-      { name = "brainstorming"; manualOnly = true; }
-    ];
-    perAgent.pi = [ ];
-  };
+## Prepare skills and initialize RTK
+`mods/agents/skills.json` declares source paths, common/work selections, required
+rewrites and manual-only intent. Remote revisions belong in native
+`[bootstrap.repos]` with exact commits; local sources stay in the monorepo.
+Use the dependency workflow and audit changed upstream skill content.
 
-  claude = {
-    mcpServers = { };
-    pluginMarketplaces = [ ];
-    plugins = [ ];
-    settings = { };
-  };
+`skills:prepare` runs offline as a dependency of `apps:configure`. Missing/stale repositories
+preserve the last good view (empty on first run); dirty checkouts, origin mismatches
+and invalid available content fail. `skills:sync` fetches sources then applies the
+skill group through the configuration task. `sys-update apply` and
+`sys-update skills` propagate its failures. Preparation validates source
+revisions and metadata, stages complete directories, adds native Codex/Pi
+controls, and emits Claude overrides. Unmodified local skills remain live;
+transformed content is refreshed on the next apply, without a rebuild.
+Native groups deploy and revoke owned links while preserving manual neighbors.
 
-  codex.mcpServers = { };
-  pi = {
-    mcpServers = { };
-    packages = [ ];
-  };
-  opencode.mcpServers = { };
-};
+`rtk:setup` resolves the pinned mise executable and uses upstream Claude/Pi/Codex
+initializers. It rejects links and modified RTK files, disables custom-filter
+trust, and never runs during activation. Writers own Workmux hooks, not RTK hooks.
+Before the first setup or an RTK upgrade, follow the explicit ownership handoff
+in `docs/contracts/mise-cutover.md#skills-and-rtk-cutover`. Preserve
+the existing Homebrew executable unless its cleanup is separately approved.
+
+## Native packages
+
+Tools and extension packages are independent mise declarations:
+
+```toml
+[tools]
+"npm:@scope/cli" = "1.2.3"
+
+[bootstrap.packages]
+"claude:plugin@marketplace" = "latest"
+"pi:npm:some-extension" = "1.2.3"
+"pi:git:github.com/owner/repo" = "v1.2.3"
 ```
 
-Inspect the fully merged value instead of reconstructing it from files:
+Quote every tool key. Registry/aqua/GitHub, npm and pipx versions belong to
+`mise-tools`, `npm-tools` and `python-tools` dependency domains respectively.
+Tool-pin updates regenerate checkout-owned core/host lockfiles and native
+sidecars; after manual edits run `scripts/lock-mise-fleet.sh`. Keep lockfile
+symlink targets present; do not symlink sidecar directories separately.
+
+Use existing tool backends, including `pipx:<package>` for Python CLIs; Lua
+plugins only handle native extension lifecycles. Use exact npm versions or
+explicit Git refs. Marketplace sources belong in native Claude settings;
+hooks register missing requested repos before install/upgrade. Inventory probes
+are bounded; mutations retain native no-timeout behavior.
+
+## Apply and retire
 
 ```sh
-cd pub/dotfiles-nix
-nix eval --json \
-  '.#darwinConfigurations.nicks-mbp.config.home-manager.users.nick.agents'
+mise -C "$HOME" run skills:sync
+mise -C "$HOME" bootstrap --only dotfiles
+mise -C "$HOME" bootstrap dotfiles status
+mise -C "$HOME" bootstrap packages status
+mise -C "$HOME" bootstrap packages prune --manager pi --dry-run
 ```
 
-## Skill catalog versus skill selection
+Use `mise -C "$HOME" run apps:configure` for managed-key reconciliation, skill
+preparation and provider setup. Native dotfiles apply handles declared links and
+merges; the post-tools bootstrap hook runs the complete configuration task.
+`sys-update apply` stops on failure. Runtime/plugin and authored data edits need
+no Nix switch; system build inputs do.
 
-`mods/agents/skills.nix` is a pure name-to-source catalog. It says where skill
-content comes from and nothing else:
+Managed-key removal follows the writer's contract. Stale skill-group links are
+removed by native apply. Plain top-level dotfile omission leaves its applied
+link: explicitly retire owned paths with native `mode = "absent"` or reviewed
+`unapply` before removing the declaration.
 
-```nix
-{
-  tdd = pinned inputs.mattpocock-skills "skills/engineering/tdd";
-  agent-management = local "agents/shared-skills/agent-management";
-}
-```
+Package pruning is explicit: name `claude` or `pi`; the default
+package prune targets Homebrew. Ordinary tools use `mise prune --tools`.
+Preexisting packages remain unowned; other trusted configs can retain packages.
+Preserve legacy ledgers and native data. Interrupted installation can remain unowned. Use native semantics, not another
+ownership/retry/recovery engine.
 
-`config.agents.skills` decides where a registered skill is installed and
-whether it is manual-only. Plain strings are coerced to
-`{ name = "..."; manualOnly = false; }`, so only manual-only selections need
-the expanded form. `skill-files.nix` resolves and validates selections, then
-emits `home.file` entries or native manual-only patches.
+## Verify
 
-### Add a pinned community skill
-
-1. Add a content-only flake input in `flake.nix` and update `flake.lock`.
-2. Register its name and source in `mods/agents/skills.nix`:
-   `name = pinned "<flake-input-name>" "<path/in/repo>";`.
-3. Select the name in `mods/agents/shared-skills.nix` (every agent) or in a
-   host configuration via `skills.shared` or `skills.perAgent.<agent>`.
-
-Verify the source path against the pinned input tree:
+From the monorepo root:
 
 ```sh
-p=$(nix eval --impure --raw --expr \
-  '(builtins.getFlake (toString ./.)).inputs.some-skills.outPath')
-find "$p" -name SKILL.md
+nix flake check ./pub/dotfiles-nix --all-systems --no-build
 ```
 
-### Add a repo-local skill
-
-1. Add the skill directory under `mods/dotfiles/agents/shared-skills/` or an
-   appropriate agent-local location.
-2. Register it with `local` in `mods/agents/skills.nix`.
-3. Select it through `config.agents.skills`.
-
-Unpatched local skills remain out-of-store symlinks, so edits are live.
-Agents that need generated native patches use tracked source snapshots instead;
-those copies need a rebuild after edits because build sandboxes cannot read the
-live checkout. New skill files require `git add` before flake evaluation.
-
-### Make a skill manual-only
-
-Expand that skill's selection and colocate the policy:
-
-```nix
-{ name = "brainstorming"; manualOnly = true; }
-```
-
-The adapters realize that intent natively:
-
-- Claude: `settings.json` `skillOverrides`
-- Pi: `disable-model-invocation: true` in a patched `SKILL.md`
-- Codex: `agents/openai.yaml` with implicit invocation disabled
-- OpenCode: unsupported upstream; do not assume the declaration is enforceable
-
-## Native agent declarations
-
-Keep native shapes under the corresponding agent in a profile. Duplication
-between agents is acceptable when their formats genuinely differ.
-
-### Add an MCP server
-
-Add it to `agents.<agent>.mcpServers`. For a work-only server, put it in
-`homes/nicks-loancrate-mbp/agents.nix`; do not add `condition = isLoancrateMac` inside an
-adapter.
-
-Claude/Pi adapters own their JSON key wholesale, Codex owns its TOML key
-wholesale, and OpenCode merges the desired map into its generated config.
-Hand-added entries under those managed keys do not survive activation.
-
-### Add a Claude plugin
-
-Declare marketplace sources in `agents.claude.pluginMarketplaces` and plugin
-specs in `agents.claude.plugins`. The Claude adapter handles registration,
-managed-only pruning, and state tracking.
-
-### Add a Pi package
-
-Declare its native source spec in `agents.pi.packages`. The Pi adapter prunes
-only package specs previously installed by this mechanism.
-
-### Add a global npm tool (including agent CLIs)
-
-npm and uv are peer domains, not agent configuration. Select an exact version
-in `mods/native-tools.nix`:
-
-```nix
-nativeTools.npm.tools."@scope/package" = "1.2.3";
-```
-
-Mutable tags and ranges are not valid desired state. Update the declared version
-explicitly when refreshing upstream.
-
-## Ownership layers
-
-Adapters choose the mechanism based on who else writes the target:
-
-- **Layer 0 — only Nix writes it:** `home.file`; used for skill links and other
-  declarative files. Home Manager provides revocation and rollback.
-- **Layer 1 — Nix and the tool write one config file:** activation-time managed
-  key replacement. Sibling keys survive; hand-added values under the managed
-  key do not.
-- **Layer 2 — a native installer owns opaque state:** CLI reconciler plus
-  tracked ownership. It must prune only previously managed assets, record
-  success only after validation, repair unhealthy state, and skip expensive
-  work when healthy and unchanged.
-
-These layers are adapter internals, not fields in `config.agents`.
-
-## Revocation
-
-Deleting desired state must remove only the corresponding managed asset:
-
-- Skill link: Home Manager removes it.
-- MCP/config entry: the adapter rewrites its managed key without it.
-- Plugin/package: tracked ownership tells the reconciler what it may uninstall.
-
-Never prune all native inventory merely because it is absent from Nix; that
-would remove manually installed assets. Do not add a second list of removed
-packages: deleting the declaration is sufficient for previously tracked assets.
-Missing state starts with no ownership; legacy state formats retain their
-recorded ownership, but hard-coded migration seeds are not used.
-
-## Convergence, repair, and update
-
-A normal switch converges declared state and must not query registries or invoke
-installers when local inventory is healthy and unchanged. Freshness is an
-explicit operation, not part of convergence.
-
-Claude/Pi/npm/uv share `scripts/lib/reconcile-installs.js`, which records success and
-retry state per asset. Adapters provide native local health probes; inspection
-uncertainty is not automatically treated as a missing installation. Keep
-activation code generation-bound through `mods/internal/native-scripts.nix`; referencing
-`homeManagerRelPath` for these installers can silently run stale code from a
-different checkout. Shared instructions and RTK resources are now Home Manager
-files; instruction edits need a rebuild. Local skills/extensions and editable
-Python sources stay live; Python dependency metadata changes trigger reinstall.
-TOML dependencies are Nix-packaged, never bootstrapped into the mutable checkout.
-
-Adapters register commands in the internal `globalToolOperations` option.
-`mods/internal/global-tools.nix` derives activation entries and the CLI from one validated
-named-dependency plan (`after` orders operations; it does not gate on success).
-Keep independent files in separate operations and project same-file edits before
-writing once. Register `nativeManagedFiles` from the exact `home.file` keys an
-adapter creates, never by scanning a global path prefix. Keep commands
-strict (nonzero on failure); only activation's dispatcher soft-fails them.
-
-```sh
-global-tools status                # read-only native/config/link checks
-global-tools repair                # native repair + writable config convergence
-global-tools repair pi-packages    # one component
-global-tools update                # mutable Claude plugin refresh only
-```
-
-These use the installed generation's declarations, not an arbitrary checkout.
-`global-tools repair` reports broken Home Manager links but does not recreate them;
-restore Nix-owned files with a switch.
-RTK is selected with `agents.<agent>.rtk.enable` and generated from
-`agents.rtkPackage` in isolated Nix builds. Never reintroduce live `rtk init`
-activation against the now-immutable instruction files.
-
-Native npm/uv declarations live separately under `nativeTools.npm` and
-`nativeTools.uv`, selected in `mods/native-tools.nix`. Their scripts and
-tests live under `mods/internal/{npm,uv}/scripts/`; neither depends on agent enablement.
-Retain the removal-only legacy Vocal path and old-state readers until all hosts
-have migrated and the supported rollback window has closed; do not seed ownership
-from untracked inventory. Follow `docs/contracts/global-tools-migrations.md` for
-per-host read-only MCP audits and RTK reproducibility checks on upgrades.
-
-```sh
-# Reinstall/repair the currently declared assets.
-GLOBAL_TOOLS_FORCE_REPAIR=1 darwin-rebuild switch --flake .
-
-# Refresh mutable Claude plugins explicitly.
-GLOBAL_TOOLS_UPDATE=1 darwin-rebuild switch --flake .
-```
-
-Global npm tool versions (`nativeTools.npm.tools`) and Pi packages
-(`agents.pi.packages`, each `npm:<name>@<version>` or `git:<repo>@<tag|commit>`)
-are exact pins; the next switch installs only changed ones. Skills are pinned by
-`flake.lock`. In the monorepo, check and move all of them from the root:
-`make deps-check DOMAIN=npm-tools|pi|skills`, then
-`make deps-update DOMAIN=<domain> [ITEMS="<name> …"]`, which also regenerates
-dependent locks. A standalone clone edits the declarations by hand and uses
-`nix flake update <input>` for skills.
-
-## Verification
-
-Run from the dotfiles flake, not the monorepo root:
-
-```sh
-cd pub/dotfiles-nix
-nix flake check
-system=$(nix eval --impure --raw --expr builtins.currentSystem)
-nix build ".#checks.${system}.agent-config-resolved" --no-link
-```
-
-`nix flake check` forces merged activation values, serializes desired state,
-and runs `native-install-contract`: subprocess fixtures against the actual
-immutable script bundle plus generation-binding assertions for every host.
-The checks are exposed equally on all managed systems. `global-tools-config` runs
-actual config commands with only their HOME paths redirected into a sandbox;
-`rtk-runtime` builds and checks the Nix-owned resources.
-Foreign-platform checks can be evaluated with `nix flake check --all-systems
---no-build`; runtime execution still requires a builder for that platform.
-
-For adapter scripts, run the adjacent Node test directly:
-
-```sh
-node --test mods/internal/agents/scripts/<adapter>.test.cjs
-```
-
-New files must be staged before Nix flakes can see them. After activation, read
-the aggregated agent convergence report; a successful Home Manager switch does
-not by itself prove every soft-failing native installer converged.
+This evaluates all hosts, not their runtime behavior. Follow
+`mods/dotfiles/mise/runtime/mise/README.md` for actual-mise disposable-profile tests and
+`checks/fixtures/config-writers.cjs` for configuration deployment. Keep existing
+managed-key, privacy, idempotence, malformed-input and ownership tests.
+No real host activation or active-profile native operations without approval.

@@ -1,0 +1,8 @@
+[tools]
+"helm" = "4.3.1"
+
+[bootstrap.packages]
+"brew-cask:slack" = { os = "macos" }
+"brew-cask:discord" = { os = "macos" }
+"brew-cask:cryptomator" = { os = "macos" }
+"brew-cask:bambu-studio" = { os = "macos" }

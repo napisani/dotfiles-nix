@@ -1,0 +1,29 @@
+{
+  "bde": {
+    "url": "https://bde.dsci.loancrate.dev/mcp"
+  },
+  "datadog": {
+    "url": "https://mcp.datadoghq.com/api/unstable/mcp-server/mcp"
+  },
+  "figma": {
+    "oauth": {
+      "scope": "mcp:connect"
+    },
+    "url": "https://mcp.figma.com/mcp"
+  },
+  "gmail": {
+    "url": "https://gmailmcp.googleapis.com/mcp/v1"
+  },
+  "linear": {
+    "url": "https://mcp.linear.app/mcp"
+  },
+  "notion": {
+    "url": "https://mcp.notion.com/mcp"
+  },
+  "posthog": {
+    "url": "https://mcp.posthog.com/mcp"
+  },
+  "sentry": {
+    "url": "https://mcp.sentry.dev/mcp"
+  }
+}

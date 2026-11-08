@@ -1,0 +1,51 @@
+[tools]
+"postgres" = { version = "18.6", os = ["macos/arm64"] }
+"awscli" = "2.39.3"
+"pulumi" = "3.273.0"
+"actionlint" = "1.7.12"
+"coder" = "2.38.5"
+"github:buildkite/cli" = "3.67.0"
+"github:conductorone/cone" = "0.0.45"
+
+[vars]
+agent_profile = "work"
+
+[env]
+PET_ADDL_SNIPPETS = "{{ env.HOME }}/.config/pet/loancrate-mbp-snippets.toml"
+
+[bootstrap.repos]
+"~/.local/share/dotfiles/skill-sources/lc-script-skills" = { url = "https://github.com/napisani/lc-script", ref = "5d151e37bb56672ad5aa4890ff6c0d3fecd8ec0e" }
+
+[bootstrap.hooks.pre-defaults]
+run = 'sh {{ vars.dotfiles_root | quote }}/mise/runtime/mise/check-omniwm-handoff.sh /Applications/OmniWM.app/Contents/MacOS/OmniWM "$HOME/Library/LaunchAgents/org.nix-community.home.omniwm.plist"'
+
+[bootstrap.macos.launchd.agents.omniwm]
+program = "/Applications/OmniWM.app/Contents/MacOS/OmniWM"
+run_at_load = true
+keep_alive = true
+stdout_path = "/tmp/omniwm.log"
+stderr_path = "/tmp/omniwm.err.log"
+
+[bootstrap.packages]
+"brew-cask:omniwm" = { os = "macos/arm64" }
+"brew:ghostscript" = { os = "macos/arm64" }
+"brew:graphicsmagick" = { os = "macos/arm64" }
+"brew:pango" = { os = "macos/arm64" }
+"brew:poppler" = { os = "macos/arm64" }
+"brew:cocoapods" = { os = "macos/arm64" }
+"brew-cask:slack" = { os = "macos" }
+"brew-cask:docker-desktop" = { os = "macos" }
+"brew-cask:1password" = { os = "macos" }
+"brew-cask:linear" = { os = "macos" }
+"brew-cask:loom" = { os = "macos" }
+"brew-cask:notion" = { os = "macos" }
+"brew-cask:yubico-authenticator" = { os = "macos" }
+"brew-cask:ngrok" = { os = "macos" }
+"brew-cask:codex-app" = { os = "macos" }
+"brew-cask:chatgpt" = { os = "macos" }
+"brew-cask:session-manager-plugin" = { os = "macos" }
+"brew-cask:android-studio" = { os = "macos" }
+"brew-cask:zulu@17" = { os = "macos" }
+
+"claude:lc@lc" = "latest"
+"claude:code@lc" = "latest"

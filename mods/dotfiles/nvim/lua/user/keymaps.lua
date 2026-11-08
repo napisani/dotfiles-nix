@@ -8,13 +8,6 @@ vim.g.mapleader = " "
 vim.keymap.set("n", "<S-l>", ":bnext<CR>", opts)
 vim.keymap.set("n", "<S-h>", ":bprevious<CR>", opts)
 
--- Visual --
--- this used to work before opencode.nvim
--- Stay in indent mode
--- keymap("v", "<", "<gv", opts)
--- keymap("v", ">", ">gv", opts)
-
--- Stay in indent mode (fixed) works with opencode.nvim
 vim.keymap.set("v", ">", function()
 	vim.cmd("normal! >")
 	vim.cmd("normal! gv")

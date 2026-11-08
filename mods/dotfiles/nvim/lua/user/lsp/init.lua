@@ -1,9 +1,3 @@
-require("user.lsp.mason")
-require("mason-nvim-dap").setup({
-	lazy = false,
-	ensure_installed = { "python", "lldb", "chrome", "js", "delve" },
-})
-
 require("user.lsp.attach").setup()
 
 local inline_group = vim.api.nvim_create_augroup("user_lsp_inline_completion", { clear = true })

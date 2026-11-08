@@ -1,0 +1,31 @@
+# Rollout decisions for the work ARM MacBook. Published: no addresses or personal data.
+flake_name = "Nicks-Loancrate-MacBook-Pro"
+checkout = "~/code/monorepo/pub/dotfiles-nix"
+agent_profile = "work"
+# The controller reaches this host through a Host alias in its own ~/.ssh/config.
+controller = "maclab"
+ssh_alias = "nicks-loancrate-mbp"
+
+[casks]
+transfer = "all"
+# These installers need a macOS approval the agent cannot give; failures go to the wrap-up list.
+needs_approval = ["karabiner-elements", "tailscale-app", "docker-desktop", "stats"]
+
+[data]
+protected = []
+regenerable = []
+
+[services]
+# Stopped while casks transfer because they hold protected files open.
+quiesce = [
+  { domain = "gui", label = "org.pqrs.service.agent.karabiner_console_user_server" },
+  { domain = "gui", label = "org.pqrs.service.agent.karabiner_session_monitor" },
+  { domain = "gui", label = "org.pqrs.service.agent.Karabiner-Core-Service-rev2" },
+  { domain = "gui", label = "org.pqrs.service.agent.Karabiner-Menu" },
+  { domain = "gui", label = "org.pqrs.service.agent.Karabiner-NotificationWindow" },
+  { domain = "system", label = "org.pqrs.service.daemon.Karabiner-Core-Service" },
+  { domain = "system", label = "org.pqrs.service.daemon.Karabiner-VirtualHIDDevice-Daemon" },
+]
+quit_apps = ["Docker"]
+
+[exceptions]

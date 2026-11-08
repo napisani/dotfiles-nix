@@ -3,7 +3,7 @@ sys-update() {
 	local action="${1:-help}"
 	[ $# -eq 0 ] || shift
 	case "$action" in
-	help | -h | --help | brew | nvim | claude | tools)
+	help | -h | --help | apply | rtk | brew | nvim | claude | skills | tools)
 		if [ $# -ne 0 ]; then
 			echo "sys-update $action: unexpected arguments; see sys-update help" >&2
 			return 2
@@ -27,24 +27,30 @@ Arguments pass through to scripts/deps.ts. Pin updates support --allow,
 --dry-run, and --no-verify; list and check support --json.
 These commands require a monorepo checkout. They never activate Nix.
 
+Apply configuration:
+  apply                         Switch Nix if present, bootstrap userland, sync skills
+                                Initial ownership transfer requires the migration harness
+  rtk                           Explicit guarded RTK integration initialization
+
 Native tools and plugin locks:
-  brew                          Update, upgrade, and clean Homebrew packages
+  brew                          Upgrade declared Homebrew packages through mise
+  skills                        Fetch pinned skill sources, prepare and deploy them
   nvim                          Sync Neovim plugins and rewrite lazy-lock.json
-  claude                        Refresh Claude plugins through global-tools
+  claude                        Refresh Claude plugins through mise
   tools                         Run brew, nvim, and claude; report every failure
 
-Activation and cleanup are separate:
-  nixswitch                     Apply the current configuration
+System-only activation and cleanup:
+  nixswitch                     Apply only the current Nix system configuration
   nixswitchup                   Pull configuration changes, then apply them
   nixclean                      Delete old Nix generations and optimize the store
 
-Example: sys-update pins nix-core, review the diff, then run nixswitch.
+Example: sys-update pins nix-core, review the diff, then run sys-update apply.
 update-interactive walks through all of the above, one yes/no question each.
 HELP
 		;;
 	list | check | pins)
 		local dotfiles
-		dotfiles=$(sh_dotfiles_dir)
+		dotfiles=$(sh_dotfiles_dir) || return
 		(
 			cd -- "$dotfiles/../.." || return
 			if [ ! -x scripts/deps.ts ]; then
@@ -58,25 +64,55 @@ HELP
 			esac
 		)
 		;;
-	brew | nvim | claude)
+	apply)
+		local dotfiles environment
+		dotfiles=$(sh_dotfiles_dir) || return
+		if [ -z "${MACHINE_NAME:-}" ] || [ ! -r "$dotfiles/homes/$MACHINE_NAME/mise.toml" ]; then
+			echo 'sys-update apply: load the login profile for a supported machine first' >&2
+			return 2
+		fi
+		if [ ! -x "$dotfiles/bootstrap.sh" ]; then
+			echo 'sys-update apply: bootstrap.sh is unavailable in this checkout' >&2
+			return 127
+		fi
+		if sh_have darwin-rebuild || sh_have nixos-rebuild; then
+			nixswitch || return
+		fi
+		"$dotfiles/bootstrap.sh" "$MACHINE_NAME" || return
+		"$HOME/.local/bin/mise" -C "$HOME" run skills:sync || return
+		environment=$("$HOME/.local/bin/mise" env --shell bash) || return
+		eval "$environment" || return
+		hash -r
+		;;
+	brew | nvim | claude | skills | rtk)
 		local tool="$action"
-		[ "$action" != claude ] || tool=global-tools
+		[ "$action" = nvim ] || tool=mise
 		if ! sh_have "$tool"; then
 			echo "sys-update $action: $tool is not installed; skipping" >&2
 			return 0
 		fi
 		case "$action" in
 		brew)
-			echo '==> Updating Homebrew packages'
-			brew update && brew upgrade && brew cleanup
+			echo '==> Updating declared Homebrew packages through mise'
+			local manager failed=0
+			for manager in brew brew-cask; do
+				mise -C "$HOME" bootstrap packages upgrade --manager "$manager" || failed=1
+			done
+			return "$failed"
 			;;
 		nvim)
 			echo '==> Updating Neovim plugins'
 			nvim --headless '+Lazy! sync' +qa
 			;;
+		skills)
+			mise -C "$HOME" run skills:sync
+			;;
+		rtk)
+			mise -C "$HOME" run rtk:setup
+			;;
 		claude)
 			echo '==> Updating Claude plugins'
-			global-tools update claude-plugins
+			mise -C "$HOME" bootstrap packages upgrade --manager claude
 			;;
 		esac
 		;;
@@ -186,7 +222,7 @@ sh_update_pin_domains() {
 sh_update_pin_impact() {
 	case "$1" in
 	nix-core)
-		echo '    Impact: Moves the shared Nix foundation (nixpkgs, home-manager, nix-darwin) to its latest revisions in flake.lock. Once activated, this can change the version of most Nix-installed software and the system modules.'
+		echo '    Impact: Moves the shared Nix foundation (nixpkgs, nix-darwin) to its latest revisions in flake.lock. Once activated, this can change the version of most Nix-installed software and the system modules.'
 		;;
 	flake-tools)
 		echo '    Impact: Moves the tools this config builds from their own source repositories (for example proctmux and secret_inject) to their latest revisions in flake.lock. They rebuild from the newer source when activated.'
@@ -195,10 +231,10 @@ sh_update_pin_impact() {
 		echo '    Impact: Moves the agent skill repositories to their latest revisions in flake.lock. Skills are instructions your coding agents follow, so this can change agent behavior once activated; read the diff first.'
 		;;
 	npm-tools)
-		echo '    Impact: Raises the exact versions in mods/native-tools.nix for global npm command-line tools, including the Pi CLI itself. Applies newer minor and patch versions the update policy allows; majors and any held packages stay held. These are not Pi extensions or Claude plugins.'
+		echo '    Impact: Raises the exact versions of global npm command-line tools in the mise [tools] table, including the Pi CLI itself. Applies newer minor and patch versions the update policy allows; majors and any held packages stay held. These are not Pi extensions or Claude plugins.'
 		;;
 	pi)
-		echo '    Impact: Raises the pinned Pi extension packages in mods/agents/default.nix (npm versions, git tags or commits) where the update policy allows; held packages stay held. Extensions run code inside Pi and can change how it behaves, so read the diff first. This does not update the Pi CLI.'
+		echo '    Impact: Raises the pinned Pi extension packages in the mise [bootstrap.packages] table (npm versions, git tags or commits) where the update policy allows; held packages stay held. Extensions run code inside Pi and can change how it behaves, so read the diff first. This does not update the Pi CLI.'
 		;;
 	*)
 		echo "    Impact: Updates the dotfiles-nix pins in the $1 domain within its update policy. Run sys-update list to see what it contains."
@@ -258,11 +294,11 @@ HELP
 	local IFS=$' \t\n'
 	local dotfiles branch upstream domains domain step bin note rc
 	local failures='' stage_result='' pins_blocked='' activation_blocked='' activation_failed=0
-	dotfiles=$(sh_dotfiles_dir)
+	dotfiles=$(sh_dotfiles_dir) || return
 	printf 'update-interactive: configuration checkout %s\nEvery step defaults to no; press Enter to skip it.\n' "$dotfiles"
 
 	if [ ! -d "$dotfiles" ]; then
-		echo "Skipping configuration steps: $dotfiles is not a directory (set DOTFILES_HOME_MANAGER_DIR)."
+		echo "Skipping configuration steps: $dotfiles is not a directory (set DOTFILES_DIR)."
 		pins_blocked='the configuration checkout is missing'
 		activation_blocked=$pins_blocked
 	elif ! sh_have git; then
@@ -321,35 +357,35 @@ HELP
 	if [ -d "$dotfiles" ] && sh_have git; then
 		sh_update_stage 'Review changes (read-only)' "    Impact: Shows every tracked change in the checkout, including edits you made before this run, and lists untracked paths. It stages, commits and applies nothing.
     Runs: git status --short, git diff --stat, and git diff against HEAD for the whole checkout.
-    Read changed skills and Pi packages (flake.lock skill sources, mods/agents/default.nix) before activating: they install new agent instructions and code." \
+    Read changed skills and Pi packages (flake.lock skill sources, mods/dotfiles/mise/config.toml) before activating: they install new agent instructions and code." \
 			sh_update_review_changes "$dotfiles" || return
 	fi
 
 	if [ -n "$activation_blocked" ]; then
-		echo "Skipping activation: $activation_blocked. Resolve it, review the diff, then run nixswitch yourself."
+		echo "Skipping activation: $activation_blocked. Resolve it, review the diff, then run sys-update apply yourself."
 	elif ! sh_have darwin-rebuild && ! sh_have nixos-rebuild; then
 		echo 'Skipping activation: neither darwin-rebuild nor nixos-rebuild is installed.'
 	else
 		sh_update_stage 'Activate configuration' "    Impact: Applies the checkout as it is now, so earlier pin changes take effect here: Nix-managed packages, npm tools, skills, Pi packages and Claude plugins move to the recorded versions, and system settings or services can change. It does not restart your editors or agent sessions.
-    Scope: nixswitch applies the current $dotfiles checkout with sudo (--no-update-lock-file). It does not pull, so this is not nixswitchup." \
-			nixswitch || return
+    Scope: sys-update apply switches the current $dotfiles checkout with sudo (--no-update-lock-file), then runs standalone bootstrap and skills:sync. It does not pull or initialize RTK." \
+			sys-update apply || return
 		[ "$stage_result" != failed ] || activation_failed=1
 	fi
 
 	for step in brew nvim claude; do
 		bin=$step
-		[ "$step" != claude ] || bin=global-tools
+		[ "$step" = nvim ] || bin=mise
 		if ! sh_have "$bin"; then
 			echo "Skipping $step: $bin is not installed."
 			continue
 		fi
 		case "$step" in
-		brew) note='    Impact: Updates Homebrew formulae and casks (GUI apps) right now, then removes old versions and cached downloads. Casks that update themselves are skipped because --greedy is not used. Running apps may need a relaunch. Not pinned, so nothing changes in the checkout.
-    Scope: Homebrew: brew update, brew upgrade, then brew cleanup.' ;;
+		brew) note='    Impact: Upgrades declared formulae and mise-owned casks. Homebrew-owned casks still need the reviewed migration. Does not prune or clean up unrelated packages. Running apps may need a relaunch.
+    Scope: mise bootstrap packages upgrade for brew and brew-cask.' ;;
 		nvim) note='    Impact: Updates, installs and removes Neovim plugins right now and rewrites mods/dotfiles/nvim/lazy-lock.json in the checkout. Open editors are not restarted; they keep the plugin code already loaded but may load newer files later, so restart them.
     Scope: Neovim plugins: Lazy! sync.' ;;
 		claude) note='    Impact: Refreshes the Claude plugin marketplaces and updates the plugins this config declares, right now. It does not update the Claude CLI itself. Running Claude sessions may need a plugin reload or restart to use the new versions. Not pinned, so nothing changes in the checkout.
-    Scope: Claude plugins through global-tools.' ;;
+    Scope: Claude plugins through mise.' ;;
 		esac
 		sh_update_stage "Native tool: $step" "$note" sys-update "$step" || return
 	done
@@ -372,7 +408,7 @@ sh_complete_sys_update() {
 		local candidate
 		while IFS= read -r candidate; do
 			COMPREPLY+=("$candidate")
-		done < <(compgen -W 'help list check pins brew nvim claude tools' -- "${COMP_WORDS[1]}")
+		done < <(compgen -W 'help list check pins apply rtk brew nvim claude skills tools' -- "${COMP_WORDS[1]}")
 	fi
 }
 if sh_have complete; then

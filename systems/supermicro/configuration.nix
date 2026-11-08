@@ -19,7 +19,13 @@ let
   bluetoothReset = pkgs.writeShellApplication {
     name = "supermicro-bluetooth-reset";
     runtimeInputs = with pkgs; [
-      bluez coreutils gnugrep kmod kubectl systemd util-linux
+      bluez
+      coreutils
+      gnugrep
+      kmod
+      kubectl
+      systemd
+      util-linux
     ];
     text = builtins.readFile ./scripts/reset-bluetooth.sh;
   };
@@ -104,13 +110,6 @@ in
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ../../mods/system-packages.nix
-    # ../mods/shell.nix
-    # ../mods/git.nix
-    # ../mods/gh.nix
-    # ../mods/rust.nix
-    # ../mods/javascript.nix
-    # ../mods/golang.nix
-    # ../mods/neovim.nix
   ];
   networking.nameservers = [
     "8.8.8.8"
@@ -179,13 +178,21 @@ in
   # socket. BlueZ and Avahi remain host-owned services; the pod only consumes
   # their D-Bus APIs.
   environment.systemPackages = [ bluetoothReset ];
-  security.sudo.extraRules = [{
-    users = [ "nick" ];
-    commands = [
-      { command = "/run/current-system/sw/bin/supermicro-bluetooth-reset preserve"; options = [ "NOPASSWD" ]; }
-      { command = "/run/current-system/sw/bin/supermicro-bluetooth-reset clear"; options = [ "NOPASSWD" ]; }
-    ];
-  }];
+  security.sudo.extraRules = [
+    {
+      users = [ "nick" ];
+      commands = [
+        {
+          command = "/run/current-system/sw/bin/supermicro-bluetooth-reset preserve";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "/run/current-system/sw/bin/supermicro-bluetooth-reset clear";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
 
   hardware.bluetooth = {
     enable = true;
@@ -245,8 +252,7 @@ in
   ];
 
   # Cache provisioning must not land on the root filesystem beneath ZFS.
-  systemd.services.systemd-tmpfiles-setup.unitConfig.RequiresMountsFor =
-    "/media/storage";
+  systemd.services.systemd-tmpfiles-setup.unitConfig.RequiresMountsFor = "/media/storage";
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.nick = {

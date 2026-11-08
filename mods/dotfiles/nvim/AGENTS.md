@@ -38,18 +38,19 @@ lazy.nvim -- all plugins defined in `lua/user/lazy.lua`.
 
 ### Dual LSP Architecture
 - **Top-level `lsp/` directory**: Native `vim.lsp.config()` server configs (auto-loaded by Neovim 0.11+). Each file returns a table with server settings, root_markers, filetypes, etc.
-- **`lua/user/lsp/`**: Orchestration layer -- mason setup (`mason.lua`), LspAttach keymaps (`attach.lua` + `keymaps.lua`), code actions (`actions.lua`).
-- **`lsp/init.lua`** (at `lua/user/lsp/init.lua`): Calls `vim.lsp.enable()` for all servers.
+- **`lua/user/lsp/`**: Lifecycle gating (`lifecycle.lua`), server selection (`registry.lua`), LspAttach keymaps (`attach.lua` + `keymaps.lua`), code actions (`actions.lua`).
+- **Tool ownership**: mise declarations in `../mise/config.toml` install servers and adapters; Lua only configures them. Python adapter and debuggee interpreters are independent.
 
 ### Initialization Order
 ```
 init.vim
   -> user/init.lua
+    -> user/runtime (mise shims, stable Python provider, Ruby disabled)
     -> exrc_manager.source_local_config()  (.nvim.lua project config)
     -> user/options
     -> user/keymaps
     -> user/lazy (lazy.nvim bootstrap + plugin specs)
-    -> user/lsp (mason, attach, vim.lsp.enable)
+    -> user/lsp (attach, lifecycle hooks)
     -> plugin_registry loop (setup() on each module)
     -> whichkey/whichkey (aggregates all keymaps)
     -> user/autocommands
@@ -151,6 +152,6 @@ Auto-formats via `BufWritePost` autocmd using efm LSP. Auto-detects formatters p
      },
    }
    ```
-2. **Add to `vim.lsp.enable()`** call in `lua/user/lsp/init.lua`
-3. **Add to mason `ensure_installed`** in `lua/user/lsp/mason.lua`
+2. **Add to `configured`** in `lua/user/lsp/registry.lua`
+3. **Declare and lock the tool** in `../mise/config.toml` through the monorepo-deps workflow; verify a real attachment, not just executable discovery
 4. **Optionally add per-server keymaps** in `lua/user/lsp/keymaps.lua` under `M.per_server`

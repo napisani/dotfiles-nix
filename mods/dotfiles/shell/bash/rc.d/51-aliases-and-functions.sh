@@ -74,8 +74,8 @@ function dns-clear() {
     return 1
   fi
 }
-# pet: Change to the Home Manager configuration directory
-alias cdhomeman='cd "${DOTFILES_HOME_MANAGER_DIR:-$HOME/.config/home-manager}"'
+# pet: Change to the dotfiles configuration directory
+alias cdhomeman='cd "$(sh_dotfiles_dir)"'
 
 # capture the output of a command so it can be retrieved with ret
 # pet: Capture command output for later retrieval
@@ -220,11 +220,6 @@ function color-test {
   }'
 }
 
-# Git helpers (temp-git-clone, project-root-dir, cdpr, gitcm, gita, …): see 0070_git.bashrc.
-# Do not redefine them here—0110 loads after 0070 and would shadow the worktree-safe versions.
-# Old aliases that used to live here shadowed 0070:
-#   gitcm — 0070 defines gitcm() (prompt or first arg as message); was alias 'git commit -m'
-#   gita  — 0070 defines gita='git add'; was alias 'git add .' — use: gita .   or   git add .
 
 # diff two files in WebStorm
 # pet: Compare two files in WebStorm

@@ -1,0 +1,23 @@
+# Rollout decisions for the Intel maclab, already migrated: a rollout here is a catch-up.
+flake_name = "maclab"
+checkout = "~/code/monorepo/pub/dotfiles-nix"
+agent_profile = "common"
+controller = "maclab"
+ssh_alias = "maclab"
+
+[casks]
+transfer = "all"
+needs_approval = ["karabiner-elements", "tailscale-app", "stats"]
+
+[data]
+protected = []
+regenerable = []
+
+[services]
+quiesce = [
+  { domain = "gui", label = "xyz.napisani.maclab-tdarr" },
+]
+quit_apps = []
+
+[exceptions]
+docker-desktop = "Application-managed on maclab; its declaration is omitted, not removed."

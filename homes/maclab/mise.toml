@@ -1,0 +1,4 @@
+include = ["dotfiles/mise/roles/personal-desktop.toml"]
+
+[env]
+PET_ADDL_SNIPPETS = "{{ env.HOME }}/.config/pet/maclab-snippets.toml"

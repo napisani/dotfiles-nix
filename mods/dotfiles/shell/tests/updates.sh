@@ -11,8 +11,8 @@ trap 'rm -rf "$tmp"' EXIT
 export CALL_LOG="$tmp/calls"
 export DEPS_STATUS=0
 repo="$tmp/monorepo with spaces"
-export DOTFILES_HOME_MANAGER_DIR="$repo/pub/dotfiles-nix"
-mkdir -p "$DOTFILES_HOME_MANAGER_DIR" "$repo/scripts"
+export DOTFILES_DIR="$repo/pub/dotfiles-nix"
+mkdir -p "$DOTFILES_DIR" "$repo/scripts"
 cat >"$repo/scripts/deps.ts" <<'DEPS'
 #!/usr/bin/env bash
 printf 'deps\ncwd=%s\n' "$PWD" >> "$CALL_LOG"
@@ -37,10 +37,10 @@ exit "$gc_status"
 GC
 chmod +x "$tmp/bin/nix-collect-garbage"
 
-available='darwin-rebuild brew nvim global-tools'
+available='darwin-rebuild brew nvim mise'
 export switch_status=0
 git_status=0
-brew_failure=''
+brew_status=0
 nvim_status=0
 claude_status=0
 export gc_status=0
@@ -64,17 +64,16 @@ git() {
 	record git "$@"
 	return "$git_status"
 }
-brew() {
-	record brew "$@"
-	[ "$1" != "$brew_failure" ] || return 42
-}
 nvim() {
 	record nvim "$@"
 	return "$nvim_status"
 }
-global-tools() {
-	record global-tools "$@"
-	return "$claude_status"
+mise() {
+	record mise "$@"
+	case "${*: -1}" in
+	claude) return "$claude_status" ;;
+	brew) return "$brew_status" ;;
+	esac
 }
 nix() { record nix "$@"; }
 
@@ -157,12 +156,12 @@ chmod +x "$repo/scripts/deps.ts"
 original_pwd=$PWD
 expect_status 0 nixswitch --verbose
 assert_calls "sudo darwin-rebuild switch --show-trace --no-update-lock-file --flake .# --verbose
-cwd=$DOTFILES_HOME_MANAGER_DIR"
+cwd=$DOTFILES_DIR"
 [ "$PWD" = "$original_pwd" ]
 expect_status 0 nixswitchup
 assert_calls "git pull
 sudo darwin-rebuild switch --show-trace --no-update-lock-file --flake .#
-cwd=$DOTFILES_HOME_MANAGER_DIR"
+cwd=$DOTFILES_DIR"
 [ "$PWD" = "$original_pwd" ]
 switch_status=43
 expect_status 43 nixswitch
@@ -174,8 +173,8 @@ assert_calls 'git pull'
 git_status=0
 available=nixos-rebuild
 expect_status 0 nixswitch
-assert_calls "sudo nixos-rebuild --show-trace --no-update-lock-file --flake .#test-host switch --impure
-cwd=$DOTFILES_HOME_MANAGER_DIR"
+assert_calls "sudo nixos-rebuild --show-trace --no-update-lock-file --flake .#test-host switch
+cwd=$DOTFILES_DIR"
 available=''
 expect_status 127 nixswitch
 assert_calls ''
@@ -190,24 +189,29 @@ expect_status 45 nixclean
 assert_calls 'nix-collect-garbage -d'
 gc_status=0
 
-available='brew nvim global-tools'
+available='brew nvim mise'
+expect_status 0 sys-update skills
+assert_calls "mise -C $HOME run skills:sync"
+expect_status 2 sys-update skills unexpected
+assert_calls ''
 expect_status 0 sys-update tools
-assert_calls 'brew update
-brew upgrade
-brew cleanup
+assert_calls "mise -C $HOME bootstrap packages upgrade --manager brew
+mise -C $HOME bootstrap packages upgrade --manager brew-cask
 nvim --headless +Lazy! sync +qa
-global-tools update claude-plugins'
-brew_failure=update
+mise -C $HOME bootstrap packages upgrade --manager claude"
+brew_status=42
 nvim_status=46
 claude_status=47
-expect_status 42 sys-update brew
-assert_calls 'brew update'
+expect_status 1 sys-update brew
+assert_calls "mise -C $HOME bootstrap packages upgrade --manager brew
+mise -C $HOME bootstrap packages upgrade --manager brew-cask"
 expect_status 46 sys-update nvim
 expect_status 47 sys-update claude
 expect_status 1 sys-update tools
-assert_calls 'brew update
+assert_calls "mise -C $HOME bootstrap packages upgrade --manager brew
+mise -C $HOME bootstrap packages upgrade --manager brew-cask
 nvim --headless +Lazy! sync +qa
-global-tools update claude-plugins'
+mise -C $HOME bootstrap packages upgrade --manager claude"
 grep -q 'failed: brew nvim claude' "$tmp/stderr"
 available=''
 expect_status 0 sys-update tools

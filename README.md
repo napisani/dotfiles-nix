@@ -1,174 +1,121 @@
 # Dotfiles.nix
 
-Dotfiles, powered by [Nix](https://nixos.org/nix/) and [home-manager](https://github.com/rycee/home-manager).
+Nix owns system configuration and base packages; portable mise owns user tools
+and configuration. Home Manager is not required.
 
 ## Where to edit your setup
 
-**Shared choices go in `mods/`; machine differences go in `homes/`.
-You do not need to read installer code to change your setup.**
+- Shared tools and package selections: [mise/config.toml](mods/dotfiles/mise/config.toml).
+- Hosts: `homes/<machine>/mise.toml`; each becomes global `config.local.toml`
+  and includes shared roles from [mise/roles/](mods/dotfiles/mise/roles/).
+  Dotfile entries stay in host files: mise rejects them in includes.
+- App settings and managed-key fragments: [mise/apps/](mods/dotfiles/mise/apps/).
+  Keep credentials in native app state or environment references.
+- Skills: [skills.json](mods/agents/skills.json), with source pins in mise
+  repository declarations. Shared instructions and authored links remain live.
+- Runtime helpers and native plugins: [mise/runtime/](mods/dotfiles/mise/runtime/).
+  The configuration writer is Deno with a vendored, locked `@std/toml`.
+- Nix tooling, prerequisites and retained monorepo builds:
+  [base-packages.nix](mods/base-packages.nix). NixOS base utilities:
+  [system-packages.nix](mods/system-packages.nix).
+- OS configuration and macOS preferences: `systems/`.
+- Authored shell, Neovim and Karabiner configuration: `mods/dotfiles/`.
 
-- **npm/uv packages, including Scute:** [`mods/native-tools.nix`](mods/native-tools.nix).
-- **Shared agent skills, settings, MCP and packages:** [`mods/agents/default.nix`](mods/agents/default.nix).
-  Add skill sources to [`mods/agents/skills.nix`](mods/agents/skills.nix) and select shared ones in
-  [`mods/agents/shared-skills.nix`](mods/agents/shared-skills.nix).
-- **Common local models:** [`mods/model-runtimes.nix`](mods/model-runtimes.nix).
-- **One machine:** its `homes/home-*.nix`. The Loancrate home explicitly imports
-  [`homes/nicks-loancrate-mbp/agents.nix`](homes/nicks-loancrate-mbp/agents.nix)
-  and declares its npm authentication and model overrides itself.
-- **Nix-installed programs:** [`mods/base-packages.nix`](mods/base-packages.nix);
-  sibling flake inputs are wired in `flake.nix` and `lib/builders.nix`.
-- **Shell/editor configuration and authored agent assets:** `mods/dotfiles/`.
-  Intentionally live links remain live; store-backed content requires a switch.
+The system builders select one package set per host: 26.05 for Intel maclab,
+unstable for ARM Macs and Linux. Local monorepo programs retain their Nix builds;
+replacing project dev shells or splitting repositories is a separate migration.
 
-`homes/profiles/` composes shared/platform modules; it no longer hides package,
-agent or model selections. `mods/internal/` contains option schemas, native
-adapters, installer scripts/tests, and shared `global-tools` machinery. Edit it
-only to change **how** configuration is realized. Installer code is bound to the
-installed generation, not executed from your mutable checkout.
+## Bootstrap and apply
 
-Routine workflow: edit configuration → validate → switch. Use `global-tools status`
-to inspect the installed generation, or `global-tools repair [component]` for
-native repair. Neither reads unswitched configuration edits or repairs Nix-owned
-links. See the [lifecycle contract](docs/contracts/declarative-tooling.md) for details.
-
-Google Workspace access for agents uses `gog` and its shared skills.
-See [Google account setup](docs/gog.md) for OAuth authorization and read-only
-verification commands.
-
-## Updating and applying your setup
-
-Run `sys-update` for help, or press Tab after `sys-update ` to discover its commands.
-Dependency commands use the monorepo's `scripts/deps.ts` from any directory:
+Use the monorepo checkout for system builds; its flake inputs reference sibling
+projects. The userland bootstrap uses standalone mise >=2026.11.2 and needs no
+Nix-generated fragment or Home Manager session variables.
 
 ```sh
-sys-update list                 # list every dependency domain and its pins
-sys-update check                # check the dotfiles project's pins
-sys-update pins nix-core        # update and verify one domain, without switching
-sys-update pins pi              # update pinned Pi packages
+cd pub/dotfiles-nix
+./bootstrap.sh --only dotfiles,tools
+mise -C "$HOME" run skills:sync
 ```
 
-Checks and pin updates default to `--project dotfiles-nix`. Pass another
-`--project NAME` to change the scope. Review the diff and any changed agent
-content before applying it with `nixswitch`. Standalone clones can still apply
-configuration, but dependency commands require the monorepo checkout.
+The machine defaults from the hostname map in `mods/dotfiles/shell/bash/lib/machine.sh`;
+pass one explicitly (`./bootstrap.sh maclab`) for any directory under `homes/`.
+Bootstrap refuses conflicting source/config links. It preserves matching links
+and checks their ancestors on retries. Migrate an existing Home Manager installation with the
+[fleet rollout runbook](mise-migration/README.md) instead.
 
-`sys-update brew`, `sys-update nvim`, and `sys-update claude` call their native updaters.
-`sys-update tools` runs all three, skips tools that are absent, and reports failures
-without stopping the remaining updates. Neovim sync rewrites `lazy-lock.json`;
-Homebrew packages and Claude plugins are unpinned.
+`sys-update apply` validates the source and machine, switches the system when its
+rebuild command exists, bootstraps userland, synchronizes skills in HOME, then
+refreshes the caller's current-project mise environment and command cache.
+Failures stop subsequent steps. It works without Nix; project overrides remain
+active. `nixswitch` is only a system switch and never updates pins or bootstraps
+userland. RTK initialization remains the explicit `sys-update rtk` operation.
 
-Activation and cleanup remain separate:
-
-- `nixswitch` applies the current configuration without updating pins.
-- `nixswitchup` pulls configuration changes, then applies them.
-- `nixclean` deletes old Nix generations and optimizes the store.
-
-`update-interactive` walks through all of this with a yes/no question per
-step (Enter means no). Each step first says what it changes and when that
-takes effect, then shows its command and scope. Order:
-
-1. Pull the checkout with `git pull --ff-only`. It runs first because pin
-   updates dirty the tree, and it never merges, rebases, or autostashes.
-2. Optionally run `sys-update check`, then `sys-update pins DOMAIN` for each
-   domain that `sys-update list --json` reports under `pub/dotfiles-nix`.
-   Majors stay held. A failed pull or pin update skips activation.
-3. Review the whole checkout read-only: `git status --short` (untracked paths
-   are listed, never read), `git diff --stat`, and the full tracked `git diff`
-   against HEAD. Read changed skills and Pi packages before activating.
-4. Activate with `nixswitch`. Pulling already happened, so `nixswitchup`
-   would only pull a second time.
-5. Update `brew`, `nvim`, and `claude` one at a time, after activation so
-   `global-tools` is the new generation's and `nvim` rewrites a tracked
-   lockfile only after the pull. Never `sys-update tools`.
-6. Optionally `nixclean`, which deletes old rollback generations. It is
-   skipped after a failed activation.
-
-Failures are reported with their scope, later steps still run, and the exit
-status is 1 if any action failed. End of input aborts the run.
-
-## How to use (Linux)
-
-
-
-nix-channel --add https://github.com/nix-community/home-manager/archive/release-24.05.tar.gz home-manager
-nix-channel --update
-nixos-rebuild --flake .#supermicro switch
-
-## How to use (Mac)
-
-1. Install Nix:
-```bash
-sh <(curl -L https://nixos.org/nix/install)
-
-# install home manager
-nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-# nix-channel --add https://github.com/nix-community/home-manager/archive/release-24.05.tar.gz home-manager
-nix-channel --update
-
-nix-shell '<home-manager>' -A install
-
-# install homebrew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```sh
+mise -C "$HOME" bootstrap --only dotfiles
+mise -C "$HOME" bootstrap dotfiles status
+mise -C "$HOME" bootstrap packages status
+sys-update apply
 ```
 
-2. Get this flake onto the machine. Two ways to do it, depending on where you're applying from:
+Package pruning and GUI ownership transfers are explicit operations, never
+inferred from installed inventory. Bootstrap's normal package selection covers
+Claude/Pi plugins; first GUI transfers go through the reviewed harness.
+See the [ownership contract](docs/contracts/declarative-tooling.md) and
+[cutover notes](docs/contracts/mise-cutover.md).
 
-   **Standalone clone** (anyone cloning just this repo):
-   ```bash
-   mkdir ~/.config && cd ~/.config && \
-   git clone https://github.com/napisani/dotfiles-nix.git home-manager && cd home-manager
-   ```
+## Editor and desktop
 
-   **From the napisani/monorepo checkout** (this flake lives at `pub/dotfiles-nix/` there and gets
-   mirrored to this repo on every push to `main`):
-   ```bash
-   mkdir -p ~/code && cd ~/code && \
-   git clone git@github.com:napisani/monorepo.git && cd monorepo/pub/dotfiles-nix
-   ```
-   Each host's flake config sets its own `homeManagerRelPath` (see `flake.nix`/`lib/builders.nix`)
-   so out-of-store symlinks and the `nixswitch*` functions resolve to wherever you actually checked
-   this out — no extra config needed beyond cloning to the expected path for that host.
+Mise installs Neovim, LSP servers and DAP adapters. `nvim:prepare` creates the
+locked pynvim environment outside the checkout; Neovim selects that interpreter,
+disables Ruby and puts mise shims on PATH for GUI launches. nil remains a Nix
+system tool. Mason is not a second installer; existing Mason data and plugin
+locks are preserved during migration.
 
-3. one-time build of the  `darwin-rebuild` binary
-```bash
-export MY_HOST=nick-mb
-nix build  --extra-experimental-features "nix-command flakes" .#darwinConfigurations.$MY_HOST.system
-```
-4. Then apply the nix flake:
-```bash
-./result/sw/bin/darwin-rebuild switch --flake ./.#
-```
-5. set the shell 
-go to the 'settings' app -> then go to 'users and groups' -> right click on your user and click "advanced settings".
-finally, set the shell to the last `bash` option
+OmniWM is a native cask on the two ARM Mac profiles. Native mise LaunchAgents
+preserve KeepAlive, RunAtLoad and log destinations under `dev.mise.omniwm`.
+The pre-defaults hook refuses a remaining Home Manager agent or plist. Direct
+launchd subcommands bypass bootstrap hooks: perform first ownership transfer
+through the harness, which preserves and retires the old agent before applying
+the new one. maclab and Supermicro do not enable OmniWM.
 
-6. Open tmux with `tmux` and install plugins using `<leader> + I`
-7. Open tmux with `tmux` and install finger/thumbs using `<leader>+space` - choose 'compile'
-8. Open new vim with command `nvim`. Let the plugins install, ignore all of the errors.
-9. Reopen neovim and run the following commands:
-```
-:Lazy
-:TSUpdate
-:MasonUpdate
-:Copilot
+PostgreSQL is a work-profile mise tool, not an automatically started service.
+Existing clusters are not relocated or upgraded by the package declaration.
+
+## Updates and verification
+
+```sh
+sys-update list
+sys-update check
+sys-update pins nix-core
+sys-update pins mise-tools
+sys-update skills
 ```
 
-10. doppler auth and gh auth
-```bash
-# allow doppler to install a new version - then follow the instructions to login
-sudo doppler login
+Pin updates do not activate configuration. Inspect changed agent content before
+applying. Tool pins and native lock sidecars cover the selected fleet platforms;
+after manual pin edits run `scripts/lock-mise-fleet.sh`. Homebrew casks and Claude
+plugins are deliberately unpinned; Neovim plugin updates rewrite `lazy-lock.json`.
 
-# follow the instructions to login
-gh auth login
+`update-interactive` offers pull, pin updates, review, `sys-update apply`, then
+native application updates. Cleanup is a separate opt-in and is skipped after
+failed activation. Never clean generations needed by an active migration.
 
-# install the copilot extension
-gh extension install github/gh-copilot
+From the monorepo root:
+
+```sh
+make check FILTER=dotfiles-nix
+make lint FILTER=dotfiles-nix
 ```
 
-Helpful github issue thread for diagnosing any initial Karabiner problems:
-```
-https://github.com/LnL7/nix-darwin/issues/564
-```
+The project `mise.toml` also exposes `test:portable-runtime`,
+`test:editor-lsp` and `test:postgres`. LSP acceptance without Nix reports nil as
+a separate check; pass `--nil /path/to/nil` to `tests/editor-lsp.py` to test it.
+GUI lifecycle fixtures do not certify a live desktop deployment. Follow the
+[fleet rollout runbook](mise-migration/README.md) for backups, cask transfers,
+verification and the user's wrap-up list.
+
+For Google OAuth setup use [docs/gog.md](docs/gog.md). Authentication belongs in
+native protected flows, not captured terminal or browser logs.
 
 ## homelab disk configuration 
 1. setup the two 18tb drives using zfs

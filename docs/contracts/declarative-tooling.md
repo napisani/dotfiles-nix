@@ -1,217 +1,257 @@
 # Declarative tooling: architecture and operations
 
-The agent configuration architecture is defined by:
+## Owners
 
-- [ADR 0003](../adr/0003-declarative-agent-configuration-interface.md): typed
-  desired state and profile composition
-- [ADR 0001](../adr/0001-per-agent-modules.md): independent native adapters
-- [ADR 0002](../adr/0002-layered-asset-management.md): ownership and
-  revocation mechanisms
+| Resource | Owner |
+|---|---|
+| OS/services, fonts, NixOS base userland, Nix tooling, login Bash, Mac GnuPG and retained monorepo builds | Nix |
+| macOS preferences | nix-darwin |
+| User CLIs/runtimes, Mac base userland, Neovim/provider/LSP/DAP tools and authored configuration | Portable mise |
+| nil language server | Nix system packages |
+| GUI applications and native libraries | Mise native package declarations, after reviewed ownership transfer |
+| Docker Desktop installation and CLI integration on maclab (approved compatibility exception) | Docker Desktop / operator |
+| Runtime state, credentials and settings outside managed keys | Applications |
 
-## Public desired state
+Home Manager is absent from the builders and inputs. Each host has one selected
+system package set; Intel maclab retains the last Intel-compatible Nix release.
+The [roadmap](../superpowers/plans/2026-11-05-nix-boundary-roadmap-plan.md) records
+implementation and deployment evidence separately. Evaluation does not prove
+activation.
 
-`config.agents` is the interface for reviewing and changing a host's agent
-configuration. It contains:
+## Declarations and deployment
 
-- enabled agents and their native MCP/settings declarations;
-- selected shared and per-agent skill names plus manual-only policy;
-- shared instruction source and per-agent `rtk.enable` selections;
-- shared provider endpoints/models;
-- Claude marketplaces/plugins and Pi packages.
+- `mods/dotfiles/mise/config.toml`: shared tools, native packages, repository pins,
+  dotfiles and tasks. No Nix-generated configuration fragment is required.
+- `homes/<machine>/mise.toml`: host policy, linked as global `config.local.toml`.
+  It includes shared roles from `mods/dotfiles/mise/roles/` through the
+  `~/.config/mise/dotfiles` link.
+- `mods/dotfiles/mise/apps/`: native desired settings/MCP, authentication
+  references, approvals and instruction templates.
+- `mods/agents/skills.json`: source paths, selections, required rewrites and
+  manual-only intent. Remote commits live in mise repository declarations.
+- `mods/dotfiles/mise/runtime/`: the Deno configuration writer with its vendored,
+  locked dependency, native plugins and the locked uv environment. Preparation
+  runs with mise-selected Deno/Python, not Nix wrappers.
 
-Shared agent choices live in `mods/agents/default.nix`. Host differences are
-explicit in `homes/home-*.nix`; the Loancrate host imports
-`homes/nicks-loancrate-mbp/agents.nix`. Native-tool choices live in
-`mods/native-tools.nix`, with npm registry policy declared by the host.
-Implementation modules never select host profiles. `homes/profiles/` only
-composes shared/platform modules.
+`bootstrap.sh [MACHINE]` installs official standalone mise >=2026.11.2, checks
+collisions and links the five global config/source/lock destinations plus native
+Claude/Pi plugins. Matching links survive retries; changed or symlinked ancestors
+and a remaining `conf.d/nix.toml` require review.
 
-The fully merged value is inspectable with `nix eval`. Each managed system
-exports `checks.<system>.agent-config-resolved`, which serializes every host's
-configuration so evaluation coverage is symmetric across architectures. The
-separate `native-tools-resolved` check serializes npm/uv declarations for all
-hosts; npm tools are not hidden in an agent-config artifact.
+The post-tools task prepares dependencies, skills and the dedicated Neovim Python
+provider, then reconciles application settings. Skills pending fetch retain the
+last-good view (empty on first installation); dirty sources or invalid available
+metadata fail. `skills:sync` explicitly fetches repositories and reapplies the
+prepared view. Local authored links remain live and manual neighbors survive.
 
-## Catalogs, profiles, and adapters
+`sys-update apply` switches the system when available, bootstraps userland and
+synchronizes skills in HOME. It stops on failure and refreshes the caller's
+current-project environment afterward. `nixswitch` is a pure system switch.
+There is no soft-failing Home Manager installer dispatcher. RTK initialization
+is separate and explicit.
 
-- `mods/agents/skills.nix` is a pure skill name-to-source catalog. It contains
-  no machine, agent-selection, or manual-only policy.
-- `mods/internal/agents/skill-files.nix` validates selected names, resolves catalog
-  sources, and provides agent-blind rendering/patching utilities.
-- Public `mods/` modules own shared choices; `homes/` owns host overrides.
-  `mods/internal/` contains implementation modules and their scripts/tests.
-- `mods/internal/agents/{claude,codex,pi,opencode}.nix` are independent adapters. Each
-  translates only its portion of `config.agents` into native state.
-- `nativeTools.npm` and `nativeTools.uv` are peer domains alongside agent
-  configuration. `mods/native-tools.nix` selects shared tools; the host selects
-  registry policy. `mods/internal/npm.nix` and `mods/internal/uv.nix` own realization.
-  Disabling agents does not change either domain's declarations or installation.
-- Their scripts/tests live under `mods/internal/{npm,uv}/scripts/`, not agents.
-- `mods/internal/global-tools.nix` dispatches adapter-owned commands for activation
-  and the `global-tools` CLI. It has no native installer policy or ownership ledger.
+Mise owns Neovim and its LSP/DAP tools rather than Mason. The provider environment
+is outside the checkout; Neovim disables Ruby and adds mise shims itself for GUI
+launches. System-owned nil is tested separately from Nix-free editor acceptance.
 
-There is no universal capability schema. Native MCP/plugin/package shapes stay
-under their agent. Duplication is preferable when agent APIs genuinely differ.
-A shared utility may accept caller-supplied paths or data, but must not branch
-on agent identity or own cross-agent policy.
+OmniWM settings remain a writable copy. Its ARM-host cask and native mise
+LaunchAgent preserve RunAtLoad, KeepAlive and logs. The native label is
+`dev.mise.omniwm`; the migration harness preserves and retires the legacy
+`org.nix-community.home.omniwm` plist/job before applying it. A bootstrap
+preflight rejects remaining legacy ownership. Direct part commands bypass hooks,
+so they are not a safe substitute for the first reviewed handoff.
 
-## Ownership layers
+### Shared files are not templates
 
-Every realized asset is assigned by who else writes its target:
+Only wholly owned inputs and instructions use whole-file rendering.
+Native `merge = true` edits manage Claude extra settings, Pi settings, the
+remote relay, Codex feature flags, work-host Loancrate settings and npmrc (INI). npmrc preserves unmanaged
+registry/authentication keys and literal environment-variable references. Edit keys end with an id, for example
+`"~/.pi/agent/settings.json/settings"`; `template = "tera"` renders a merge
+source. Objects merge recursively, arrays/scalars replace, and omitted keys
+remain. Pi-written `packages` and other app-owned siblings survive. New targets
+use `permissions = "0600"`; existing file permissions are preserved.
 
-- **Layer 0 — only Nix writes it.** Skills, commands, Pi extensions/themes, and
-  the `~/.agents/skills` store use `home.file`. Pinned content comes from flake
-  inputs; repo-local content uses out-of-store symlinks. Home Manager provides
-  revocation and rollback. Composed instructions, RTK resources generated in
-  isolated Nix builds also belong here. RTK's
-  package comes from `agents.rtkPackage`, not a Homebrew install.
-- **Layer 1 — Nix and the tool share a config file.** Claude `mcpServers`, Codex
-  `mcp_servers`, Pi `mcpServers`, and similar settings use activation-time
-  managed-key replacement. Nix owns the managed key wholesale; sibling keys
-  survive, but hand-added entries under the managed key do not.
-- **Layer 2 — a native installer owns opaque state.** Claude plugins, Pi
-  packages, npm tools, and uv tools use the tool's CLI. Stateful
-  reconcilers may uninstall only assets recorded as managed by Nix.
+Custom writers remain for whole-map MCP replacement, script-approval
+revocation, Workmux hook/Claude skill-override replacement, Codex managed-hook state,
+and transitional Pi skill-path retirement. The cutover notes define when that
+retirement writer can be removed.
+Removing a declared MCP server, script approval or skill override removes it
+from the managed map. Native merge alone cannot implement that policy.
+Malformed source/target JSON or TOML fails before that file is changed.
 
-These layers are adapter implementation details, not public option fields.
+Native merges write in place, not atomically; apply while applications are not
+rewriting those files. There is no cross-file transaction. The remaining
+writers use atomic replacement. This native-write trade-off is intentional.
 
-## Required invariants
+`[settings.history].enabled = false` prevents mise from capturing credentials
+in file history or temporary recovery preimages, including interrupted applies.
+This disables owned-file history too; existing history is not deleted.
+Do not re-enable it without reviewing shared merge targets and recovery storage.
+Package ownership/pruning remains mise-owned and independent of file history.
 
-- **Revocable:** removing desired state removes the corresponding managed asset
-  on the next activation.
-- **Ownership-safe:** Layer 2 pruning never removes user-installed inventory.
-- **Convergent:** failed operations are retried; success state is recorded only
-  after native validation.
-- **Repairable:** unhealthy managed assets are repaired even when declaration
-  fingerprints are unchanged.
-- **Efficient:** healthy unchanged state performs no installer or registry work.
-- **Corruption-safe:** unreadable ownership state never authorizes destructive
-  cleanup.
-- **Inspectable:** unsupported intent produces an evaluation error or warning,
-  rather than being silently ignored.
-- **System-symmetric:** checks and option evaluation cover every managed system
-  equally unless a documented platform limitation makes that impossible.
+Authored fragments contain references such as `${NODE_AUTH_TOKEN}`, not
+credentials. Templates use data-only reads and JSON encoding, never `exec()`;
+native status/diff can render them. A shared-file diff may display app-written
+secrets: inspect locally rather than copying it into logs. Other trusted configs
+can change settings or use effectful templates; this is not sandboxing.
 
-## Machine identity
+TOML, native app fragments and ordinary linked file edits need no Nix switch.
+Apply configuration with `mise -C "$HOME" bootstrap --only dotfiles`.
+Use `mise -C "$HOME" run apps:configure` for writer reconciliation and provider preparation.
+Runtime and plugin sources are portable; only system/build-input changes require a Nix switch.
 
-Host files explicitly select tooling overrides. `machineRoles` remains available
-for other shared/platform configuration; it is distinct from
-`MACHINE_NAME`, a hand-maintained shell-runtime variable, and from the
-flake-declared hostname. Renaming a host must not silently remove role policy.
+Native group apply removes stale owned skill links. For a top-level dotfile,
+omitting its declaration leaves its existing link; explicitly retire it with
+`mode = "absent"` or review native `unapply` before removing its declaration.
+Never blanket-delete unknown files or add a parallel ownership ledger.
 
-## Model runtimes
+Global tool resolution uses `locked = true` with `locked_scopes = ["global"]`;
+project configurations keep their own lock policy. No active feature requires
+`experimental = true`.
 
-`mods/model-runtimes.nix` supplies the shared lightweight model selection.
-`mods/internal/model-runtimes.nix` executes those declarations without selecting
-models or inspecting machine roles. Individual
-`homes/home-*.nix` modules override it and declare custom model bases/parameters.
-Custom models retain the existing creation-only behavior: removing their
-configuration does not automatically prune the resulting native model. `agents.providers.ollama` instead describes the endpoint
-and model IDs exposed to agent adapters; the common and Loancrate profiles
-choose the appropriate remote or local endpoint.
+## Native operations
 
-## Native installation is intentional
-
-Keep npm and uv as general-purpose native installation paths. Agent-native
-configuration and frequent package updates likewise remain adapter-owned; moving
-these installations into Nix packages is not the simplification goal. Nix owns
-the declarations, generation-bound scripts and activation trigger, while native
-adapters own installation mechanics. Nix-owned resources such as RTK files
-remain unchanged.
-
-Scute is installed from the npm registry as the exact version declared in
-`mods/native-tools.nix`. Its Bun launcher uses the Nix-provided Bun runtime, while
-the npm reconciler owns installation, repair, updates, and revocation.
-
-SQLit is no longer selected. Its previously recorded uv ownership is sufficient
-for uninstall on the next convergence of the new generation; no special removal
-list or migration branch is needed. Editable toolbox discovery and the ability
-to declare other uv registry tools remain available.
-
-## Reconciliation and update modes
-
-Global npm tools, Pi packages, uv tools, and Claude plugins use state-aware
-reconcilers. All four share the agent-blind per-asset engine in
-`mods/internal/scripts/lib/reconcile-installs.js`; their adapters own native
-commands and health probes. Each successful asset retains its own progress, so
-one failed sibling does not reinstall everything. Removed declarations are
-pruned from recorded ownership, without a separately maintained removal list.
-Missing state never grants ownership of undeclared native installations.
-
-Healthy unchanged activation uses only local inspection: npm package metadata
-and executable links, Pi's user inventory and package artifacts, and offline uv
-receipts/interpreter inventories. These are installation-integrity checks, not
-exhaustive transitive dependency validation. Unknown inspection fails visibly
-instead of triggering an install loop; explicit repair can reinstall declared
-assets, but cannot override corrupt ownership state. Atomic, content-aware
-state writes and per-state-file locks protect progress and avoid mtime churn.
-
-Vocal (the Neovim dictation plugin) and its Python runtime have been removed;
-dictation is now the Hex app. The uv adapter retains removal-only support for
-previously tracked Vocal requirements; it leaves the legacy environment and
-unmanaged packages intact, and creates no new installations or repair state.
-
-Editable Python tools hash dependency metadata (`pyproject.toml` and `uv.lock`),
-not source files. Code edits stay live without reinstalling. All tooling installer
-scripts, including the model installer, use the immutable `mods/internal/native-scripts.nix` bundle belonging to the
-installed generation—not an unrelated mutable checkout. TOML dependencies and
-Workmux hook templates are also generation-bound; activation never bootstraps
-npm dependencies into the checkout.
-
-`GLOBAL_TOOLS_FORCE_REPAIR=1` forces reinstall/repair without changing desired state.
-`GLOBAL_TOOLS_UPDATE=1` explicitly refreshes Claude marketplaces/plugins, the
-only unpinned operation. Global npm tool versions and Pi packages are pinned in
-their declarations and change only when those declarations change; in the
-monorepo, `make deps-check DOMAIN=npm-tools` (or `pi`) reports newer versions and
-`make deps-update` rewrites the declarations.
-
-## Operations
+Use `-C "$HOME"` for host defaults rather than the current project's overrides:
 
 ```sh
-global-tools status                # local inspection; does not mutate user state
-global-tools status claude-settings # settings and RTK hooks; claude-mcp checks MCP
-global-tools apply                 # normal convergence for the installed generation
-global-tools repair                # force native repair; reapply writable config
-global-tools repair pi-packages    # one component
-global-tools update                # explicit mutable Claude plugin refresh
+mise -C "$HOME" ls --current
+mise -C "$HOME" bootstrap packages status
+mise -C "$HOME" install
+mise -C "$HOME" bootstrap packages apply
+
+mise -C "$HOME" bootstrap packages upgrade --manager claude
+mise -C "$HOME" bootstrap packages upgrade --manager pi
 ```
 
-The CLI and activation execute the same generated command files, in the same
-order. Named `after` dependencies are validated for unknown IDs and cycles;
-independent operations have deterministic name order. Dependencies specify order,
-not success prerequisites. There is no "skip B if A failed" dependency mode;
-if that need arises, design an explicit success-gating contract rather than
-changing `after` semantics. Activation records failures and continues; the CLI
-returns nonzero if any component fails. The report uses the same registry.
+Quote every `[tools]` key. Generic dependency families are `mise-tools`
+(registry/aqua/GitHub/Go/conda and tagged GitHub HTTP scripts, including Claude and Codex), `npm-tools` and `python-tools`
+(`pipx:`); TPM uses `mise-repos`, and application extensions use `pi`.
+Move pins with `make deps-update DOMAIN=<family> PROJECT=dotfiles-nix`.
+Tool-pin updates automatically run the native fleet-lock task before verification.
+A standalone clone edits TOML and runs `scripts/lock-mise-fleet.sh`.
 
-Independent files have separate operations (`claude-mcp`, `claude-settings`,
-`claude-loancrate`, `codex-hooks`, `codex-config`, `pi-mcp`, `pi-settings`,
-`pi-models`, `npm-config`). Same-file changes are projected together before
-writing. A malformed file cannot block repair of an unrelated file.
+`mise.lock` beside the core TOML and each host's `mise.local.lock` are checkout-owned.
+`mise lock -g --platform macos-arm64,macos-x64,linux-x64` updates the current host;
+`scripts/lock-mise-fleet.sh` applies that command to all four configurations in a
+disposable HOME. Existing file symlinks are preserved. Keep their targets present:
+a dangling link is replaced by native mise. Dependency sidecars remain beside the
+resolved target, so do not add a separate symlink for the sidecar directory.
+Commit native `.mise/locks/` sidecars with their lockfile. Binary entries require
+URLs/checksums for their selected fleet platforms; pipx entries carry native uv locks. Native
+npm shell-out records exact top-level versions but does not lock transitives.
+Lock resolution is not proof of foreign-platform execution.
+`sys-update claude` delegates to the Claude upgrade command above.
+`sys-update brew` upgrades declared `brew` and `brew-cask` packages through
+mise; it does not prune or clean up unrelated Homebrew packages. The Homebrew
+installation stays on disk, and casks it still owns need a reviewed transfer.
+Use native application diagnostics or explicit reinstall/upgrade commands for
+damage beyond these local presence/version checks; there is no repair engine.
 
-`globalToolOperations` is shared infrastructure, not an agent option. Historical
-`agents-nix` state paths remain for compatibility, but legacy `AGENTS_*`
-activation overrides are retired. Use `GLOBAL_TOOLS_*` instead; the CLI clears
-inherited repair/update overrides in status mode.
+**Package pruning is explicit**, not part of a switch or package apply. Preview before
+confirming removal:
 
-`files` checks only explicitly registered managed links, including skills,
-instructions and RTK. Adapters register the exact keys they declare, never
-all files found under an agent's path prefix.
-Only a Home Manager switch can restore those links; `global-tools repair` does not
-reimplement linking or run a switch. Native checks are bounded local probes,
-not proof that every extension can start or every transcription succeeds.
-Config checks project each adapter's merge without writing; existing overlay
-semantics still preserve native/manual fields outside managed keys.
+```sh
+mise -C "$HOME" prune --tools --dry-run
+mise -C "$HOME" prune --tools --yes
+mise -C "$HOME" bootstrap packages prune --manager claude --dry-run
+mise -C "$HOME" bootstrap packages prune --manager claude --yes
+```
 
-RTK no longer runs during activation. Its native assets are generated with the
-pinned `agents.rtkPackage` (currently 0.45.0), linked by Home Manager, and its
-Claude hook is merged into writable settings. Instruction references are
-composed once. Repo-local skills and user extension sources remain live links;
-shared instruction edits now require a rebuild, deliberately.
+Repeat package prune for `pi` as needed. Always name
+the manager: the default bootstrap package prune targets Homebrew.
 
-Keep legacy state readers and removal-only Vocal cleanup until all four hosts
-have migrated and the supported rollback window has closed. Record evidence in
-[the migration gates](global-tools-migrations.md), including per-host MCP audits
-and RTK upgrade reproducibility checks. Missing state never grants ownership. Shared Claude marketplace
-registrations are installation inputs: removing a plugin does not delete a
-marketplace containing manually installed plugins.
+Normal mise semantics apply. Projects can override global tool versions; other
+trusted tracked configs can retain tools/packages. This configuration does not
+strip inherited mise settings or isolate ownership from the user's other configs.
+The login profile uses native `mise env` so child scripts inherit real tool
+paths rather than paying shim startup per command. Interactive shells retain
+stock activation for directory changes; shims remain the bootstrap/GUI fallback.
+Launchd jobs with independent environments can use `mise exec -- <command>` for
+loop-heavy work. There are no fixed host launchers. Native package
+plugins manage user-global application state even when invoked from a project.
+
+## Package behavior
+
+**Agent executables.** Existing aqua backends install Claude Code and Codex;
+Pi keeps its existing npm backend. These are tool declarations, distinct from
+extension package plugins. Initial Claude/Codex pins match the versions recorded
+in local Homebrew metadata; Homebrew cask declarations are removed. No package
+plugin is used to install these executables.
+
+**npm CLIs.** The built-in npm backend owns separate versioned prefixes. Native
+npm retains npmrc registry/authentication behavior. Trusted pinned tools enable
+build scripts with `allow_builds` and the native npm compatibility argument.
+Normal shims and `mise exec` select versions and preserve caller cwd/arguments.
+
+**Python.** Install globally available, isolated CLIs with mise's built-in
+`pipx:<package>` tool backend and an explicit version. There is no custom
+editable installer, toolbox auto-discovery or system-Python mutation.
+
+**Claude.** Only user-scoped plugins are managed. Versions are `latest`; declare
+marketplace sources through native Claude settings. Before install/upgrade,
+the plugin lists registered marketplaces and adds missing requested GitHub repos
+from `extraKnownMarketplaces`; there is no second source list. Upgrade then
+refreshes only requested marketplaces and their plugins. Existing/manual
+marketplaces are not removed. Inventory probes have a 120-second timeout;
+install, upgrade and uninstall use the native no-timeout default. Removal uses `--keep-data`, but Claude
+can still delete plugin options/secrets from its secure store on last-scope
+uninstall. Cutover never automatically reinstalls existing plugins.
+
+**Pi.** Stable identities exclude the version/ref:
+
+```toml
+[bootstrap.packages]
+"pi:npm:some-package" = "1.2.3"
+"pi:git:github.com/owner/repo" = "v1.2.3"
+```
+
+Only exact npm versions or explicit Git refs are used. Native Pi actions run in
+HOME's user scope; bare `pi update` is never used. Native npm-root finalization
+follows package mutations to repair shared peer resolution. npm `allowScripts`
+is mise-owned application configuration, not a lifecycle input. After changing approvals,
+explicitly refresh Pi packages if their installation work needs rerunning.
+
+## Ownership and limitations
+
+RTK initialization is explicit: `mise -C "$HOME" run rtk:setup`. It resolves
+`aqua:rtk-ai/rtk` through mise and initializes Claude, Pi and Codex with custom-filter
+trust disabled. Shared-file writers preserve RTK hooks; instruction templates keep
+the upstream `RTK.md` references. The task rejects links and non-stock RTK files
+before real initialization. See [cutover notes](mise-cutover.md#skills-and-rtk-cutover).
+
+Mise claims missing-to-installed transitions. Preexisting packages remain
+unowned, including old reconciler installations; removing declarations does not
+uninstall those packages. First package status can create mise's own tracking,
+migration marker and empty cache directories; it does not mutate packages.
+Concurrent applies serialize native mutations, but a queued plan may replay
+an install after the first apply completes.
+
+No local ownership importer, retry journal, lock or recovery engine supplements
+mise. An interrupted first install can finish natively before ownership is
+recorded; retry may leave it unowned, and later prune preserves it. This accepted
+native behavior has a regression test.
+
+Keep legacy ledgers and installations intact; see the
+[cutover notes](mise-cutover.md). Neither a switch nor an ownership
+record proves application startup, a complete dependency closure, transactional
+rollback or fleet deployment. Keep native manager executables available until
+their final package prune has completed.
+
+Mise must be at least 2026.11.2, enforced by the global `min_version`.
+The official standalone installation owns the executable; Nix neither packages
+nor launches it during activation.
+Evaluation is not proof of Intel compilation or Intel/Linux runtime behavior.
+
+## Verification
+
+`checks/native-installs.nix` asserts system/userland ownership and Home Manager's
+absence. Portable behavior runs through the project's `mise run test`: native
+mise, isolated HOME directories, a loopback registry, writer/credential/privacy
+checks, bootstrap, shell, skill and migration fixtures. Cold runtime, LSP/DAP and
+PostgreSQL acceptance have explicit tasks. LaunchAgent tests use fake launchctl
+and deny the real executable with a macOS sandbox.
+
+See `mods/dotfiles/mise/runtime/mise/README.md`. Evaluate all systems with
+`nix flake check --all-systems --no-build`; activation requires explicit
+host-specific authorization and separate live functional evidence.

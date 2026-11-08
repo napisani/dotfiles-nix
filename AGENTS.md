@@ -1,223 +1,93 @@
-# Agent Guidelines for Nix/Home-Manager Dotfiles
+# Dotfiles agent guidelines
 
-## Overview
+## Ownership
 
-This repository is a **Nix flake** for configuring and managing multiple systems (macOS via nix-darwin and NixOS). It contains:
-1. **Root project**: Nix flake for system/package configuration and dotfile management
-2. **Sub-project: Karabiner** - Keyboard configuration at `./mods/dotfiles/karabiner`
-3. **Sub-project: Neovim** - Editor configuration at `./mods/dotfiles/nvim`
+- Nix configures systems and base packages. `systems/` holds OS policy;
+  `mods/base-packages.nix` holds shared Nix tooling and the retained local
+  monorepo builds. `mods/system-packages.nix` adds NixOS base utilities.
+- nix-darwin owns macOS preferences. Keep the narrow Spotlight hotkey edit:
+  replacing its entire defaults dictionary destroys unrelated user bindings.
+- Portable mise owns user tools, editor providers, agent configuration and
+  deployment. Shared declarations are in `mods/dotfiles/mise/config.toml`;
+  host overlays are `homes/<machine>/mise.toml`, which include shared roles from
+  `mods/dotfiles/mise/roles/`. Roles cannot declare dotfiles.
+- Home Manager is not a deployment layer. Keep user configuration out of system
+  activation. `nixswitch` switches only Nix; `sys-update apply` orchestrates the
+  system switch, standalone bootstrap and HOME-scoped skill synchronization.
+- The shell profile derives `DOTFILES_DIR` from the canonical mise source link.
+  `mods/dotfiles/shell/bash/lib/machine.sh` maps hostnames to machine names for
+  both the profile and `bootstrap.sh`; a machine is any `homes/<machine>/`.
 
-Each sub-project has its own AGENTS.md, conventions, and build processes. Read the relevant sub-project AGENTS.md before making changes.
+Before ownership changes, read `docs/contracts/declarative-tooling.md` and
+`mise-migration/README.md`. Before editing agent assets or reconciliation, read
+`mods/dotfiles/agents/shared-skills/agent-management/SKILL.md`.
 
-### Related homelab subdirectory
+## Editing
 
-This repository is auto-published from `pub/dotfiles-nix/` in
-[`napisani/monorepo`](https://github.com/napisani/monorepo), which also owns
-`priv/kube-home-lab/` — the private subdirectory that owns Kubernetes desired
-state, diagnostics, and the GitOps reconcile implementation (there is no
-longer a standalone `napisani/kube-home-lab` repo). This repository/
-subdirectory owns the Supermicro NixOS host, systemd scheduling, and host
-prerequisites; the Supermicro host's `gitops-sync` timer clones the monorepo
-directly and runs the reconciler from `priv/kube-home-lab/`.
+- App fragments: `mods/dotfiles/mise/apps/`. Shared mutable JSON/TOML files use
+  managed-key writers, not whole-file templates. Preserve credentials and sibling
+  keys; keep secrets out of tracked fragments and diagnostics.
+- Runtime implementation: `mods/dotfiles/mise/runtime/`; native package plugins
+  live under `runtime/mise/plugins/`. Keep host selection in host overlays.
+- Skills: `mods/agents/skills.json` plus pinned mise repository declarations.
+  Preserve live authored links. Missing source checkouts defer to the last-good
+  view; invalid or dirty sources fail rather than silently replacing it.
+- RTK initialization is the explicit `rtk:setup` task, not a switch side effect.
+- Tool pin edits require `scripts/lock-mise-fleet.sh` and lock coverage checks.
+  Follow the monorepo dependency workflow; never update every flake input at once.
+- Shell changes require `mods/dotfiles/shell/OWNERSHIP.md` and its smoke tests.
+- Neovim changes require `mods/dotfiles/nvim/AGENTS.md`. Mise owns Neovim, its
+  dedicated Python provider and LSP/DAP tools; nil remains a Nix system package.
+  Preserve plugin locks unless a plugin update is explicitly requested.
+- Karabiner source is `mods/dotfiles/karabiner/`. Run `deno task build` there and
+  include its generated `../karabiner.json` and Look catalog changes. Generation
+  writes beside its source; deployment remains mise's job. Never replace the
+  user's config as a side effect of generation.
 
-Before changing Supermicro GitOps behavior, read the monorepo's
-[system map](https://github.com/napisani/monorepo/blob/main/docs/system-map.md)
-and
-[GitOps contract](https://github.com/napisani/monorepo/blob/main/docs/contracts/gitops-sync.md),
-then inspect `priv/kube-home-lab/` there (only visible from inside the
-monorepo, since it's private and no longer mirrored standalone). If you're
-working from the monorepo, coordinate both sides as a single commit or a
-small set of commits rather than cross-repo branches/PRs.
+## Validation
 
-### Workarounds and upstream tracking
+From the monorepo root run `make check FILTER=dotfiles-nix` and
+`make lint FILTER=dotfiles-nix`. The project's `mise.toml` defines portable tests,
+lock checks, cold runtime, editor LSP and PostgreSQL acceptance commands.
+Native GUI lifecycle fixtures must not activate the real desktop services.
 
-Temporary bug workarounds (Neovim, nvim-treesitter, Nix overlays/package overrides, etc.) and notes on what to revisit when upstream fixes land are documented in [`WORKAROUNDS.md`](./WORKAROUNDS.md) at the repository root. Update that file when adding or removing hacks.
+Evaluate all hosts and dry-build their system outputs:
 
----
+| Host | Output |
+|---|---|
+| Personal ARM Mac | `darwinConfigurations.nicks-mbp.system` |
+| Work ARM Mac | `darwinConfigurations.Nicks-Loancrate-MacBook-Pro.system` |
+| Intel maclab | `darwinConfigurations.maclab.system` |
+| Supermicro | `nixosConfigurations.supermicro.config.system.build.toplevel` |
 
-## Machine Inventory
+Use `nix flake check ./pub/dotfiles-nix --all-systems --no-build` and
+`nix build --dry-run --no-link ./pub/dotfiles-nix#OUTPUT`. Stage new source files
+before Nix evaluation. Format edited Nix files and run focused tests first.
+Activation requires explicit user authorization for the particular host; a
+passing dry build does not prove deployment or application functionality.
 
-| Hostname | Platform | Architecture | System Type | Build Command (dry-run) |
-|---|---|---|---|---|
-| nicks-mbp | macOS | aarch64-darwin | Personal MacBook Pro | `nix build .#darwinConfigurations.nicks-mbp.system --dry-run` |
-| Nicks-Loancrate-MacBook-Pro | macOS | aarch64-darwin | Work MacBook (Loancrate) | `nix build .#darwinConfigurations.Nicks-Loancrate-MacBook-Pro.system --dry-run` |
-| maclab | macOS | x86_64-darwin | Mac lab machine | `nix build .#darwinConfigurations.maclab.system --dry-run` |
-| supermicro | NixOS | x86_64-linux | Homelab server | `nix build .#nixosConfigurations.supermicro.config.system.build.toplevel --dry-run` |
+## Migration safety
 
-**IMPORTANT**: Do NOT run actual build/switch commands (`darwin-rebuild switch`, `nixos-rebuild switch`) - only validate with `--dry-run`.
+While a rollout is live, change declarations only through the runbook's
+branch-sharing rules in `mise-migration/README.md`. Retain backups and failed checks. The harness preserves
+retired Home Manager generations as backup GC roots and leaves general Nix
+profiles (including Tdarr) alone. OmniWM's legacy agent must be retired before
+mise installs its `dev.mise.omniwm` agent. Direct launchd subcommands bypass
+bootstrap hooks: use the reviewed harness for an ownership handoff.
 
----
+Keep package cleanup explicit. Never infer ownership from an installed package,
+remove manual data, or use zap/force/GC to bypass an incomplete migration.
+System evaluation, isolated fixtures and live functional verification are separate
+pieces of evidence; report what was actually exercised.
 
-## Root Project: Nix/Home-Manager Configuration
+## Supermicro and workarounds
 
-### Build & Test Commands
-- **Validate**: Use the build command from machine inventory with `--dry-run`
-- **Format Nix files**: `nix fmt <file>.nix`
-- **Lint Nix files**: `statix check .`
-- **Check flake metadata**: `nix flake metadata`
+Before changing GitOps, read the monorepo's `docs/system-map.md` and
+`docs/contracts/gitops-sync.md`, then inspect `priv/kube-home-lab/`. Supermicro
+owns scheduling and prerequisites; the private subtree owns desired Kubernetes
+state and reconciliation. Preserve its `nix develop` entry point until the
+separate project-shell migration is approved.
 
-### Code Style & Conventions
-- **Language**: Nix expression language
-- **Formatting**: `nixfmt-classic`, 2-space indentation
-- **File organization**: `mods/` for shared modules, `homes/` for per-machine user configs, `systems/` for system configs, `lib/` for builder functions
-- **Imports**: Relative paths (e.g., `../../mods/neovim.nix`)
-- **Package preferences**: Prefer `pkgs-unstable` for most packages
-- **Naming**: kebab-case for files (e.g., `base-packages.nix`)
-- **Comments**: Inline comments for non-obvious configurations or workarounds
-
-### Architecture Patterns
-
-#### Maintenance layout
-
-- Shared selections: public `mods/` modules (`native-tools.nix`, `agents/default.nix`, `model-runtimes.nix`).
-- Host differences: `homes/home-*.nix`, or data modules explicitly imported there.
-- `homes/profiles/` composes common/platform modules, not hidden tool selections.
-- `mods/internal/` contains option schemas, adapters, installer scripts and tests.
-  Do not put machine-selection policy there or add installer code to `mods/dotfiles/`.
-- `mods/dotfiles/` contains authored shell/editor/agent files; intentionally live links remain live.
-- Installer implementation changes require a rebuild/switch because execution is generation-bound.
-
-Start with the [README editing guide](./README.md#where-to-edit-your-setup).
-
-### Builder Pattern
-`lib/builders.nix` provides `mkDarwinSystem` and `mkNixOSSystem` that automatically wire up:
-- Base system profiles (e.g., `darwin-base.nix`)
-- Home-manager with `extraSpecialArgs` (pkgs-unstable, custom flake inputs)
-- Profile layering: `common.nix` + platform profile + per-machine home module
-
-#### Profile Layering
-**System level**: `darwin-base.nix` (all Macs) -> `darwin-{personal,work,maclab}.nix` (per-machine)
-
-**Home level**: `common.nix` (all machines) -> `darwin.nix` (all Macs) -> `home-<machine>.nix` (per-machine)
-
-#### Symlink Strategy (User Preference)
-Dotfiles are symlinked from `mods/dotfiles/` using `mkOutOfStoreSymlink` for live editability. This is intentional -- edits to dotfiles take effect immediately without Nix rebuild. The `shell.nix` module uses a `mkSym` helper to create these symlinks concisely.
-
-Shell files and native atuin/git/gh configuration follow the same rule: `mods/shell.nix` declares each destination directly with `mkOutOfStoreSymlink`. Before touching anything under `mods/dotfiles/shell/`, or adding a `programs.<tool>` that would also generate shell config, read [`mods/dotfiles/shell/OWNERSHIP.md`](./mods/dotfiles/shell/OWNERSHIP.md). It records the ownership boundaries, fragment sequencing contract, and load-order hazards.
-
-Run `mods/dotfiles/shell/tests/smoke.sh` after shell-init changes; use `--simulate mods/dotfiles/shell` to check the checkout before activating Home Manager.
-
-When Nix rebuild IS needed:
-- Adding/removing packages
-- Changing module imports
-- Modifying Nix expressions
-
-When Nix rebuild is NOT needed:
-- Editing an asset declared with `mkSym`/`mkForcedSym`
-- Editing Neovim configuration through its out-of-store link
-- Editing Karabiner TS sources (run `deno task build`, not a Nix rebuild)
-
-A raw `source = ./dotfiles/...` is store-backed and does require a rebuild;
-choose that form deliberately for immutable or machine-selected assets.
-
-#### Language Modules
-Language tooling in `mods/languages/` aggregated by `all.nix`. Imported by both `base-packages.nix` (shell use) and `neovim.nix` (extraPackages). Languages: JavaScript/TypeScript, Python, Go, Java, C++, Lua, Nix, Bash, Elixir.
-
-#### Activation Hooks
-`mods/internal/uv.nix` and `mods/internal/npm.nix` use home-manager activation hooks to install tools via `uv tool install` and `npm install -g` for packages not easily packaged in Nix.
-
-#### Custom Flake Inputs
-Several of the user's own projects are consumed as flake inputs: `procmux`, `proctmux`, `stackman`, `secret_inject`, and `animal_rescue`. Stackman is sourced from the `pub/stackman` subdirectory of the monorepo rather than a standalone repository.
-
-### Common Gotchas
-- The `nil` flake input was recently removed -- the Nix LSP comes from `pkgs-unstable.nil` in `languages/nix.nix`
-- `home-supermicro.nix` has its own independent module imports (doesn't layer through `common.nix` the same way as Darwin machines)
-- Machine differentiation uses `MACHINE_NAME` session variable
-- Several inputs could benefit from `nixpkgs.follows` but this hasn't been added yet to avoid potential build breakage
-
----
-
-## Sub-Project: Karabiner Keyboard Configuration
-
-**Location**: `./mods/dotfiles/karabiner`
-
-**See also**: Karabiner's own README.md for symlink chain and troubleshooting
-
-### Build & Test Commands
-```bash
-# Build (from karabiner/ directory)
-deno task build
-
-# Reload
-karabiner-reload.sh
-
-# Full restart if reload doesn't work
-osascript -e 'quit app "Karabiner-Elements"' && sleep 1 && open -a 'Karabiner-Elements'
-```
-
-### Code Style & Conventions
-- **Language**: TypeScript with Deno runtime
-- **Formatting**: `deno fmt`
-- **Naming**: kebab-case for files (e.g., `cap-modifier.ts`, `window-layer.ts`)
-- **Exports**: Rule arrays (e.g., `export const layerRules = [...]`)
-- **Imports**: Import karabiner.ts library; always include `../polyfill.ts` first in index.ts
-
-### Architecture Patterns
-- **Generated config**: TypeScript sources generate `karabiner.json` one level up from `karabiner/`
-- **Symlink managed by Nix**: `~/.config/karabiner/karabiner.json` -> generated file
-- **Edit-generate-reload workflow**: Modify TS -> `deno task build` -> reload (no Nix rebuild)
-
-### Active Modules (in rule priority order)
-1. `cap-modifier.ts` -- Caps Lock as variable-based layer (hjkl arrows, Ctrl+key, screenshots)
-2. `modifier-swap.ts` -- Per-app Cmd/Ctrl/Fn swapping (terminal vs GUI apps)
-3. `layers.ts` -- Simlayers: `a`=delimiters, `d`=arrows, `l`=symbols, `n`=numbers, `s`=ctrl
-4. `window-layer.ts` -- Tab as dual-role window manager key (OmniWM)
-5. Inline escape->grave rule in `index.ts`
-
-### Support Files
-- `polyfill.ts` -- CJS require() shim for karabiner.ts npm package in Deno
-- `leader-utils.ts` -- `exitLeader()` helper (used by cap-modifier.ts)
-
-### Adding New Rules
-1. Create/edit a file in `src/` (kebab-case)
-2. Export rules array: `export const myRules = [rule(...).manipulators([...])]`
-3. Import in `src/index.ts`
-4. Add to `writeToProfile()` array
-5. Run `deno task build && karabiner-reload.sh`
-
-### Important Notes
-- **Output**: `$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/karabiner.json` (NOT inside karabiner/ dir)
-- DO NOT manually edit `~/.config/karabiner/karabiner.json` -- breaks symlink
-- Commit both TypeScript sources AND generated JSON
-- Broken symlink: run `darwin-rebuild switch --flake .#<hostname>` to restore
-
----
-
-## Sub-Project: Neovim Configuration
-
-**Location**: `./mods/dotfiles/nvim`
-
-**See also**: `./mods/dotfiles/nvim/AGENTS.md` for detailed Neovim-specific guidelines
-
-### Build & Test Commands
-```bash
-# Test module loading
-nvim --headless -c "lua require('user.plugins.category.name')" -c "qa"
-
-# Test keymap discovery
-nvim --headless -c "lua local p = require('user.whichkey.plugins'); print(vim.inspect(p.get_all_plugin_keymaps()))" -c "qa"
-
-# Full health check
-nvim --headless -c "checkhealth" -c "qa"
-```
-
-### Key Architecture Points (see nvim/AGENTS.md for full details)
-- **Plugin registry** (`plugin_registry.lua`): single source of truth for module loading and keymap discovery
-- **Dual LSP architecture**: `lsp/` dir for native `vim.lsp.config()` server configs, `lua/user/lsp/` for orchestration
-- **Snacks.nvim** replaces Telescope as the picker framework
-- **Which-key v3**: keymaps aggregated from multiple sources in `whichkey/whichkey.lua`
-- **EFM LSP**: format-on-save with auto-detection of formatters per project
-
----
-
-## General Guidelines
-
-### When Working on This Repository
-1. **Identify the scope**: Determine if you're working on Nix configs, Karabiner, or Neovim
-2. **Follow sub-project conventions**: Each has different languages, tools, and patterns
-3. **Read the sub-project AGENTS.md**: Neovim and Karabiner have their own detailed guides
-4. **Test appropriately**: Use the correct build/test commands for each sub-project
-5. **Rebuild when needed**:
-   - Nix changes -> validate with dry-run build
-   - Karabiner changes -> `deno task build` + reload
-   - Neovim changes -> no rebuild needed (live reloadable via symlink)
+Record upstream workarounds and their removal conditions in `WORKAROUNDS.md`.
+Keep project-shell replacement, the mono backend and repository splitting on
+separately approved tracks.

@@ -1,0 +1,23 @@
+{
+  "defaultModel": "claude-sonnet-5-5",
+  "defaultProvider": "claude-bridge",
+  "defaultThinkingLevel": "high",
+  "extensions": [
+    {{ (vars.monorepo_root ~ "/pub/vantage-nvim/server/src/neovim/runtime/adjacent/extension.ts") | json_encode }},
+    {{ (vars.monorepo_root ~ "/pub/pi-surface/extension/index.ts") | json_encode }}
+  ],
+  "openaiReasoningMode": {
+    "fast": false
+  },
+  "surface": {
+    "browser": {
+      "args": [
+        "{url}"
+      ],
+      "command": {{ (env.HOME ~ "/shell_scripts/pi-surface-browser.sh") | json_encode }}
+    }
+  },
+  "theme": "kanagawa-dragon",
+  "transport": "sse",
+  "tuiMode": "regular"
+}

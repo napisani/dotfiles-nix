@@ -9,16 +9,17 @@ Modify keyboard mappings in `src/` directory
 
 ### 2. Generate karabiner.json
 ```bash
-cd "$DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/karabiner"
-deno run -A polyfill.ts > ../karabiner.json
+cd "$(sh_dotfiles_dir)/mods/dotfiles/karabiner"
+deno task build
 ```
+
+The build writes `../karabiner.json` and regenerates `../look-sources/window-management.toml`
+from the shared window action catalog. Commit both. Reload Look with `Cmd+Shift+;` afterwards.
 
 ### 3. Reload Karabiner to apply changes
 ```bash
 karabiner-reload.sh
 ```
-
-The build also regenerates `../look-sources/window-management.toml` from the shared window action catalog. Home Manager links that file into `~/.look/sources/`; reload Look with `Cmd+Shift+;` after rebuilding.
 
 Alternatively, use the full app restart method:
 ```bash
@@ -27,20 +28,10 @@ osascript -e 'quit app "Karabiner-Elements"' && sleep 1 && open -a 'Karabiner-El
 
 ## How it Works
 
-- The generated `karabiner.json` is symlinked from `~/.config/karabiner/karabiner.json`
-- The symlink is managed by home-manager in `mods/shell.nix` (lines 77-79)
-- Uses `mkOutOfStoreSymlink` to point directly to `mods/dotfiles/karabiner.json`
-- This allows editing the generated file without rebuilding home-manager
-- **Important**: The symlink goes through Nix store intermediates but ultimately resolves to this dotfiles directory
-
-## Symlink Chain
-
-```
-~/.config/karabiner/karabiner.json 
-  → /nix/store/...-home-manager-files/.config/karabiner/karabiner.json
-    → /nix/store/...-hm_karabiner.json
-      → $DOTFILES_HOME_MANAGER_DIR/mods/dotfiles/karabiner.json
-```
+- mise's `[dotfiles]` table links `~/.config/karabiner/karabiner.json` to the generated
+  `mods/dotfiles/karabiner.json` through `~/.config/mise/dotfiles`, so a rebuild takes effect
+  without re-applying anything.
+- Generation only writes beside its source; it never replaces the deployed link.
 
 ## Troubleshooting
 
@@ -48,7 +39,7 @@ osascript -e 'quit app "Karabiner-Elements"' && sleep 1 && open -a 'Karabiner-El
 
 1. **Run the reload script**: `karabiner-reload.sh`
    - This restarts the Karabiner console user server
-   
+
 2. **If reload script doesn't work**, restart Karabiner-Elements completely:
    ```bash
    osascript -e 'quit app "Karabiner-Elements"' && sleep 1 && open -a 'Karabiner-Elements'
@@ -57,31 +48,20 @@ osascript -e 'quit app "Karabiner-Elements"' && sleep 1 && open -a 'Karabiner-El
 3. **Verify the symlink is correct**:
    ```bash
    ls -la ~/.config/karabiner/karabiner.json
-   # Should show: lrwxr-xr-x ... -> /nix/store/.../karabiner.json
+   # Should show: ... -> ~/.config/mise/dotfiles/karabiner.json
    ```
 
-4. **If symlink is broken or missing**, rebuild home-manager:
+4. **If the link is missing**, re-apply the dotfiles:
    ```bash
-   nixswitch
+   mise -C ~ dot apply '~'
    ```
 
-### Symlink was accidentally replaced with a regular file
+### The link was replaced with a regular file
 
-If you see `~/.config/karabiner/karabiner.json` as a regular file instead of a symlink:
-
-1. Remove the file:
-   ```bash
-   rm ~/.config/karabiner/karabiner.json
-   ```
-
-2. Rebuild home-manager to restore the symlink:
-   ```bash
-   nixswitch
-   ```
+Karabiner's settings UI can save over the link. Compare the file with the generated one, move it
+aside, then re-apply the dotfiles with `mise -C ~ dot apply '~'`.
 
 ## Notes
 
 - **Do NOT** run `touch ~/.config/karabiner/karabiner.json` - this will break the symlink
-- No need to run `nixswitch` after regenerating karabiner.json (only after fixing broken symlinks)
-- The symlink configuration is in `mods/shell.nix`, checked out wherever `$DOTFILES_HOME_MANAGER_DIR` points
 - Karabiner watches the config file but may need manual reload via `karabiner-reload.sh`

@@ -7,7 +7,7 @@ nixswitch() (
 	if sh_have darwin-rebuild; then
 		sudo darwin-rebuild switch --show-trace --no-update-lock-file --flake .# "$@"
 	elif sh_have nixos-rebuild; then
-		sudo nixos-rebuild --show-trace --no-update-lock-file --flake ".#$(hostname -s)" switch --impure "$@"
+		sudo nixos-rebuild --show-trace --no-update-lock-file --flake ".#$(hostname -s)" switch "$@"
 	else
 		echo "nixswitch: neither darwin-rebuild nor nixos-rebuild is installed" >&2
 		return 127

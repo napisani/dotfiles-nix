@@ -25,8 +25,14 @@ vim.g.maplocalleader = ";"
 vim.g.nvim_dadbod_bg_port = "4545"
 vim.g.nvim_dadbod_bg_log_file = "/tmp/nvim-dadbod-dbg.log"
 
-local vantage_dir = "/Users/nick/code/monorepo/pub/vantage-nvim"
-local scrollbacktamer_dir = "/Users/nick/code/monorepo/pub/scrollbacktamer.nvim"
+local source = assert(
+	vim.uv.fs_realpath(vim.env.HOME .. "/.config/mise/dotfiles"),
+	"Run dotfiles bootstrap before loading local Neovim plugins"
+)
+-- Local plugins remain sibling projects until the repository split.
+local projects_dir = vim.fs.normalize(source .. "/../../..")
+local vantage_dir = projects_dir .. "/vantage-nvim"
+local scrollbacktamer_dir = projects_dir .. "/scrollbacktamer.nvim"
 
 -- Setup lazy.nvim
 require("lazy").setup({
@@ -73,12 +79,6 @@ require("lazy").setup({
 
 		-- LSP
 		{ "neovim/nvim-lspconfig" },
-		-- simple to use language server installer
-		{
-			"williamboman/mason.nvim",
-			build = ":MasonUpdate", -- :MasonUpdate updates registry contents
-		},
-		{ "williamboman/mason-lspconfig.nvim" },
 
 		-- TODO come back and see if i still need this
 		{
@@ -89,7 +89,7 @@ require("lazy").setup({
 			event = "LspAttach",
 			config = function()
 				require("tiny-code-action").setup({
-					backend = "delta",
+					backend = "vim",
 				})
 			end,
 		},
@@ -174,7 +174,6 @@ require("lazy").setup({
 			"rcarriga/nvim-dap-ui",
 			dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },
 		},
-		{ "jayp0521/mason-nvim-dap.nvim" },
 
 		{ "theHamsta/nvim-dap-virtual-text" },
 
@@ -316,7 +315,9 @@ require("lazy").setup({
 								vim.notify("vantage.nvim: backend rebuild complete", vim.log.levels.INFO)
 							else
 								vim.notify(
-									"vantage.nvim: backend rebuild failed (exit " .. code .. "), run :Lazy build vantage.nvim",
+									"vantage.nvim: backend rebuild failed (exit "
+										.. code
+										.. "), run :Lazy build vantage.nvim",
 									vim.log.levels.ERROR
 								)
 							end

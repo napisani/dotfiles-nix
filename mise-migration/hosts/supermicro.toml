@@ -1,0 +1,21 @@
+# Rollout decisions for the NixOS server. Published: no addresses or personal data.
+flake_name = "supermicro"
+checkout = "~/code/monorepo/pub/dotfiles-nix"
+agent_profile = "common"
+controller = "maclab"
+ssh_alias = "supermicro"
+
+[casks]
+transfer = []
+needs_approval = []
+
+[data]
+protected = []
+regenerable = []
+
+[services]
+quiesce = []
+quit_apps = []
+
+[exceptions]
+gitops-sync = "Supermicro's gitops-sync timer keeps using `nix develop`; verify only checks it still runs."

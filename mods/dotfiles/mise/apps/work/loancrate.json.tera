@@ -1,0 +1,7 @@
+{
+  "team_repos": {
+    "lc": {{ (env.HOME ~ "/code/loancrate/loancrate") | json_encode }}
+  },
+  "user_prefix": "nick",
+  "work_root": {{ (env.HOME ~ "/Work") | json_encode }}
+}

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-omniwmctl="${OMNIWMCTL:-/etc/profiles/per-user/nick/bin/omniwmctl}"
+omniwmctl="${OMNIWMCTL:-/Applications/OmniWM.app/Contents/MacOS/omniwmctl}"
 direction="${1:?usage: omniwm-workspace-move-adjacent.sh next|prev}"
-workspace_data="$($omniwmctl query workspaces --format json --fields number,is-current)"
+workspace_data="$("$omniwmctl" query workspaces --format json --fields number,is-current)"
 target="$({
   OMNIWM_DIRECTION="$direction" OMNIWM_WS_JSON="$workspace_data" /usr/bin/env python3 <<'PY'
 import json

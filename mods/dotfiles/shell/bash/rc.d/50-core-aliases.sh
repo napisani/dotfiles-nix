@@ -1,10 +1,4 @@
-# Core aliases — previously programs.bash.shellAliases in mods/shell.nix.
-#
-# Reproduced exactly, including `ls --color`, which is a GNU coreutils flag.
-# That works today because coreutils is installed from nixpkgs on every host and
-# shadows BSD ls; on a machine with only BSD ls this alias breaks `ls`. Left
-# as-is because changing it is a behavior change, not a port — see
-# ../../OWNERSHIP.md "Known rough edges".
+# Color flags require GNU tools ahead of BSD utilities on PATH.
 
 # pet: Open files with Neovim
 alias vim='nvim'

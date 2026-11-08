@@ -13,9 +13,15 @@ shell_dir = Path(__file__).resolve().parents[1]
 hook = shell_dir / "bash/rc.d/40-secret-inject.sh"
 fixture_value = "synthetic fixture value"
 
+template = (shell_dir.parent / "mise/apps/secret-inject.json.tera").read_text()
+selection, body = template.split("{% endif %}", 1)
+assert selection == (
+    '{% if vars.agent_profile == "work" %}{% set doppler = "loancrate" %}'
+    '{% else %}{% set doppler = "personal" %}'
+)
+
 for name in ("loancrate", "personal"):
-    config_path = shell_dir.parent / f"{name}_secret_inject.json"
-    config = json.loads(config_path.read_text())
+    config = json.loads(body.replace("{{ doppler }}", name))
     assert config["profiles"]["shell"] == {"exclude": [], "overwrite": True}
     assert set(config["sources"]) == {"doppler"}
     assert config["sources"]["doppler"]["credential"] == {

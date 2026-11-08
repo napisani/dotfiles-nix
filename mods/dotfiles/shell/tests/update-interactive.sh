@@ -32,14 +32,26 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 export CALL_LOG="$tmp/calls"
 repo="$tmp/monorepo with spaces"
-export DOTFILES_HOME_MANAGER_DIR="$repo/pub/dotfiles-nix"
-mkdir -p "$DOTFILES_HOME_MANAGER_DIR" "$repo/scripts" "$tmp/elsewhere"
+export DOTFILES_DIR="$repo/pub/dotfiles-nix"
+export HOME="$tmp/home" MACHINE_NAME=maclab
+mkdir -p "$DOTFILES_DIR/homes/maclab" "$repo/scripts" "$tmp/elsewhere" "$HOME/.local/bin"
+printf '[vars]\n' >"$DOTFILES_DIR/homes/maclab/mise.toml"
+cat >"$DOTFILES_DIR/bootstrap.sh" <<'BOOTSTRAP'
+#!/bin/sh
+printf 'bootstrap %s\n' "$*" >> "$CALL_LOG"
+BOOTSTRAP
+cat >"$HOME/.local/bin/mise" <<'MISE'
+#!/bin/sh
+printf 'mise %s\n' "$*" >> "$CALL_LOG"
+[ "$1" != env ] || printf ':\n'
+MISE
+chmod +x "$DOTFILES_DIR/bootstrap.sh" "$HOME/.local/bin/mise"
 
 # Domains span projects. Only rows under pub/dotfiles-nix belong to the project
 # that sys-update pins is scoped to; the rest must never be offered.
 cat >"$tmp/list.json" <<'LIST'
 [
-  {"domain": "pi", "mechanism": "annotated-pins", "item": "p", "location": "pub/dotfiles-nix/mods/agents/default.nix"},
+  {"domain": "pi", "mechanism": "annotated-pins", "item": "p", "location": "pub/dotfiles-nix/mods/dotfiles/mise/config.toml"},
   {"domain": "app:proctmux", "mechanism": "flake-inputs", "item": "a", "location": "pub/proctmux"},
   {"domain": "skills", "mechanism": "flake-inputs", "item": "s", "location": "priv/kube-home-lab"},
   {"domain": "skills", "mechanism": "flake-inputs", "item": "s", "location": "pub/dotfiles-nix"},
@@ -48,7 +60,7 @@ cat >"$tmp/list.json" <<'LIST'
   {"domain": "nix-core", "mechanism": "flake-inputs", "item": "n", "location": "pub/dotfiles-nix"},
   {"domain": "homelab-images", "mechanism": "annotated-pins", "item": "h", "location": "priv/kube-home-lab/src/x.ts"},
   {"domain": "decoy-prefix", "mechanism": "annotated-pins", "item": "d", "location": "pub/dotfiles-nixish/x.nix"},
-  {"domain": "npm-tools", "mechanism": "annotated-pins", "item": "t", "location": "pub/dotfiles-nix/mods/native-tools.nix"},
+  {"domain": "npm-tools", "mechanism": "annotated-pins", "item": "t", "location": "pub/dotfiles-nix/mods/dotfiles/mise/config.toml"},
   {"domain": "flake-tools", "mechanism": "flake-inputs", "item": "f", "location": "pub/dotfiles-nix"},
   {"domain": "github-actions", "mechanism": "annotated-pins", "item": "g", "location": ".github/workflows/a.yml"}
 ]
@@ -87,7 +99,7 @@ source "$script_dir/../bash/rc.d/56-update-functions.sh"
 
 record() { printf '%s\n' "$*" >>"$CALL_LOG"; }
 sh_have() {
-	case " ${AVAILABLE:-darwin-rebuild brew nvim global-tools jq git} " in
+	case " ${AVAILABLE:-darwin-rebuild brew nvim mise jq git} " in
 	*" $1 "*) return 0 ;;
 	*) return 1 ;;
 	esac
@@ -105,18 +117,21 @@ darwin-rebuild() {
 }
 nixos-rebuild() { record nixos-rebuild "$@"; }
 hostname() { printf 'test-host\n'; }
-brew() {
-	record brew "$@"
-	if [ "${BREW_INTERRUPT:-0}" = 1 ]; then kill -INT "$$"; fi
-	[ "$1" != "${BREW_FAIL:-}" ] || return 42
-}
+brew() { record brew "$@"; }
 nvim() {
 	record nvim "$@"
 	return "${NVIM_STATUS:-0}"
 }
-global-tools() {
-	record global-tools "$@"
-	return "${CLAUDE_STATUS:-0}"
+mise() {
+	record mise "$@"
+	case "${!#}" in
+	brew)
+		if [ "${BREW_INTERRUPT:-0}" = 1 ]; then kill -INT "$$"; fi
+		[ "${BREW_FAIL:-}" != upgrade ] || return 42
+		;;
+	claude) return "${CLAUDE_STATUS:-0}" ;;
+	esac
+	return 0
 }
 nix() { record nix "$@"; }
 nix-collect-garbage() {
@@ -207,11 +222,14 @@ no_destructive_git() {
 # Escape text for printf %b, since command substitution strips raw newlines.
 yes_all=$(printf 'y\\n%.0s' {1..40})
 no_all=$(printf '\\n%.0s' {1..40})
-dot=$DOTFILES_HOME_MANAGER_DIR
+dot=$DOTFILES_DIR
 sw_line='sudo darwin-rebuild switch --show-trace --no-update-lock-file --flake .#'
 sw="$sw_line
 darwin-rebuild switch --show-trace --no-update-lock-file --flake .#
-cwd=$dot"
+cwd=$dot
+bootstrap maclab
+mise -C $HOME run skills:sync
+mise env --shell bash"
 check="deps cwd=$repo check --project dotfiles-nix"
 pre="git -C $dot rev-parse --abbrev-ref HEAD
 git -C $dot rev-parse --abbrev-ref @{u}"
@@ -228,11 +246,10 @@ review="git --no-pager -C $dot rev-parse --show-toplevel
 git --no-pager -C $repo status --short
 git --no-pager -C $repo diff --stat HEAD
 git --no-pager -C $repo diff --no-ext-diff HEAD"
-tools="brew update
-brew upgrade
-brew cleanup
+tools="mise -C $HOME bootstrap packages upgrade --manager brew
+mise -C $HOME bootstrap packages upgrade --manager brew-cask
 nvim --headless +Lazy! sync +qa
-global-tools update claude-plugins"
+mise -C $HOME bootstrap packages upgrade --manager claude"
 clean="nix-collect-garbage -d
 nix store optimise
 sudo nix-collect-garbage -d
@@ -316,7 +333,7 @@ run_merged
 expect_described 'Pull configuration' 'without rebuilding Nix'
 expect_described 'Pull configuration' 'Live-linked shell and editor files'
 expect_described 'Check pins (read-only)' 'changes no pin and installs nothing'
-expect_described 'Update pins: nix-core' 'nixpkgs, home-manager, nix-darwin'
+expect_described 'Update pins: nix-core' 'nixpkgs, nix-darwin'
 expect_described 'Update pins: flake-tools' 'from their own source repositories'
 expect_described 'Update pins: skills' 'instructions your coding agents follow'
 expect_described 'Update pins: skills' 'read the diff first'
@@ -342,8 +359,8 @@ expect_described 'Review changes (read-only)' 'stages, commits and applies nothi
 expect_described 'Review changes (read-only)' 'skills and Pi packages'
 expect_described 'Activate configuration' 'earlier pin changes take effect here'
 expect_described 'Activate configuration' 'does not restart your editors or agent sessions'
-expect_described 'Native tool: brew' 'casks (GUI apps)'
-expect_described 'Native tool: brew' '--greedy is not used'
+expect_described 'Native tool: brew' 'mise-owned casks'
+expect_described 'Native tool: brew' 'Does not prune or clean up unrelated packages'
 expect_described 'Native tool: nvim' 'lazy-lock.json'
 expect_described 'Native tool: nvim' 'may load newer files later'
 expect_described 'Native tool: claude' 'does not update the Claude CLI itself'
@@ -366,7 +383,7 @@ reject_text 'app:proctmux'
 reject_text 'homelab-images'
 reject_text 'decoy-prefix'
 reject_text 'github-actions'
-expect_text 'not nixswitchup'
+expect_text 'does not pull or initialize RTK'
 for opts in 'set -e' 'set -euo pipefail'; do
 	run "$yes_all" HARNESS_OPTS="$opts"
 	expect_status 0
@@ -422,20 +439,20 @@ run "$yes_all" BREW_INTERRUPT=1
 expect_status 130
 expect_calls "$head_calls
 $sw
-brew update" 'interrupt'
+mise -C $HOME bootstrap packages upgrade --manager brew" 'interrupt'
 
 # Failure continuation under errexit callers, with a nonzero aggregate.
 for opts in 'set -e' 'set -euo pipefail'; do
 	run "$yes_all" HARNESS_OPTS="$opts" FAIL_DOMAIN=skills FAIL_STATUS=2 BREW_FAIL=upgrade NVIM_STATUS=46
 	expect_status 1
 	expect_calls "$head_calls
-brew update
-brew upgrade
+mise -C $HOME bootstrap packages upgrade --manager brew
+mise -C $HOME bootstrap packages upgrade --manager brew-cask
 nvim --headless +Lazy! sync +qa
-global-tools update claude-plugins
+mise -C $HOME bootstrap packages upgrade --manager claude
 $clean" "continues after failures ($opts)"
 	expect_text 'Update pins: skills: exit 2'
-	expect_text 'Native tool: brew: exit 42'
+	expect_text 'Native tool: brew: exit 1'
 	expect_text 'Native tool: nvim: exit 46'
 	expect_text 'Skipping activation'
 	reject_call 'darwin-rebuild'
@@ -451,7 +468,7 @@ expect_status 1
 expect_text 'Activate configuration: exit 43'
 expect_text 'Skipping cleanup'
 reject_call 'nix-collect-garbage'
-expect_call 'global-tools update claude-plugins'
+expect_call "mise -C $HOME bootstrap packages upgrade --manager claude"
 
 # Failed pull: pin updates (stale checkout) and activation are skipped.
 run "$yes_all" PULL_STATUS=44
@@ -484,20 +501,27 @@ reject_call 'darwin-rebuild'
 # Unavailable stages explain themselves and are never offered.
 run "$yes_all" AVAILABLE='git jq'
 expect_status 0
-expect_text 'brew is not installed'
+expect_text 'Skipping brew: mise is not installed'
 expect_text 'nvim is not installed'
-expect_text 'global-tools is not installed'
+expect_text 'mise is not installed'
 expect_text 'neither darwin-rebuild nor nixos-rebuild'
-reject_call '^(sudo darwin|brew|nvim|global-tools|nixos)'
+reject_call '^(sudo darwin|brew|nvim|mise|nixos)'
 run "$yes_all" NO_UPSTREAM=1
 expect_status 0
 expect_text 'no upstream'
 reject_call 'pull --ff-only'
 
-# NixOS hosts activate through nixos-rebuild, once.
-run "$yes_all" AVAILABLE='nixos-rebuild brew nvim global-tools jq git'
+# Native package updates must not depend on the Homebrew executable.
+run "$yes_all" AVAILABLE='darwin-rebuild nvim mise jq git'
 expect_status 0
-expect_call 'sudo nixos-rebuild --show-trace --no-update-lock-file --flake .#test-host switch --impure'
+expect_call "mise -C $HOME bootstrap packages upgrade --manager brew"
+expect_call "mise -C $HOME bootstrap packages upgrade --manager brew-cask"
+reject_call '^brew '
+
+# NixOS hosts activate through nixos-rebuild, once.
+run "$yes_all" AVAILABLE='nixos-rebuild brew nvim mise jq git'
+expect_status 0
+expect_call 'sudo nixos-rebuild --show-trace --no-update-lock-file --flake .#test-host switch'
 
 # Review surfaces the existing user edits and the skills/Pi reminder.
 run "$yes_all"

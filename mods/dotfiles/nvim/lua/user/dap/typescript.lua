@@ -26,35 +26,29 @@ local function with_js_debug(config)
 	}, config)
 end
 
-dap.adapters["pwa-node"] = {
-  type = "server",
-  host = "localhost",
-  port = "${port}",
-  executable = {
-    command = "js-debug-adapter",
-    args = { "${port}" },
-  },
-}
+local function js_adapter(callback)
+	local result = vim.system({
+		vim.fn.expand("~/.local/bin/mise"),
+		"where",
+		"github:microsoft/vscode-js-debug",
+	}, { text = true }):wait(10000)
+	assert(result.code == 0, "Native JS debugger is unavailable; run sys-update apply")
+	local server = vim.trim(result.stdout) .. "/src/dapDebugServer.js"
+	assert(vim.fn.filereadable(server) == 1, "Native JS debugger module is missing")
+	callback({
+		type = "server",
+		host = "127.0.0.1",
+		port = "${port}",
+		executable = {
+			command = "node",
+			args = { server, "${port}", "127.0.0.1" },
+		},
+	})
+end
 
-dap.adapters["pwa-chrome"] = {
-  type = "server",
-  host = "localhost",
-  port = "${port}",
-  executable = {
-    command = "js-debug-adapter",
-    args = { "${port}" },
-  },
-}
-
-dap.adapters["node-terminal"] = {
-  type = "server",
-  host = "localhost",
-  port = "${port}",
-  executable = {
-    command = "js-debug-adapter",
-    args = { "${port}" },
-  },
-}
+for _, name in ipairs({ "pwa-node", "pwa-chrome", "node-terminal" }) do
+	dap.adapters[name] = js_adapter
+end
 
 local js_based_langs = {
   "javascript",

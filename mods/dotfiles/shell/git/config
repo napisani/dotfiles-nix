@@ -1,4 +1,4 @@
-# ~/.config/git/config — previously generated from programs.git in mods/git.nix.
+# Local overrides belong in local-include; authentication stays app-owned.
 #
 # Transcribed from the generated file so the settings are identical, with three
 # deliberate changes:

@@ -1,0 +1,15 @@
+{
+  "editorMode": "vim",
+  "extraKnownMarketplaces": {
+    "visual-explainer-marketplace": {
+      "source": {
+        "repo": "nicobailon/visual-explainer",
+        "source": "github"
+      }
+    }{% if vars.agent_profile == "work" %},
+    "lc": { "source": { "source": "github", "repo": "loancrate/org-claude-skills" } }{% endif %}
+  },
+  "permissions": {
+    "defaultMode": "auto"
+  }
+}

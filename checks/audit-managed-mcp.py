@@ -6,10 +6,9 @@ from pathlib import Path
 import tomllib
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("declarations", type=Path, help="JSON exported from the host's config.agents")
+parser.add_argument("declarations", type=Path, help="Mise app profile directory containing the native *-mcp.json declarations")
 parser.add_argument("--home", required=True, type=Path, help="home belonging to that host")
 args = parser.parse_args()
-declared = json.loads(args.declarations.read_text())
 reports = []
 code = 0
 for agent, relative, key in [
@@ -17,13 +16,10 @@ for agent, relative, key in [
     ("codex", ".codex/config.toml", "mcp_servers"),
     ("pi", ".pi/agent/mcp.json", "mcpServers"),
 ]:
-    spec = declared.get(agent, {})
-    if not declared.get("enable", True) or not spec.get("enable", True):
-        continue
     file = args.home / relative
     report = {"agent": agent, "file": str(file)}
     try:
-        expected = spec.get("mcpServers", {})
+        expected = json.loads((args.declarations / f"{agent}-mcp.json").read_text())
         if not file.exists():
             report["status"] = "missing"
         else:

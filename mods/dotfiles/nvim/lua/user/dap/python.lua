@@ -1,7 +1,5 @@
 local dap = require("dap")
 local utils = require("user.utils")
--- DAP python
--- you must first: `pip install debugpy` into you current venv
 
 local function dap_root()
 	return utils.get_dap_root()
@@ -9,9 +7,7 @@ end
 
 dap.adapters.python = {
 	type = "executable",
-	-- command = 'path/to/virtualenvs/debugpy/bin/python';
-	command = utils.python_path(),
-	args = { "-m", "debugpy.adapter" },
+	command = "debugpy-adapter",
 }
 dap.adapters.generic_remote = function(callback, config)
 	local dap_conn_str = vim.fn.input("DAP server (empty cancels): ", "127.0.0.1:9001")
@@ -56,7 +52,7 @@ dap.configurations.python = {
 		name = "Launch file - auto-detect python",
 		request = "launch",
 		program = "${file}",
-		pythonPath = utils.python_path(),
+		pythonPath = utils.python_path,
 		justMyCode = false,
 		env = {
 			PYTHONPATH = ".",
@@ -66,7 +62,7 @@ dap.configurations.python = {
 	{
 		type = "python",
 		name = "flask",
-		pythonPath = utils.python_path(),
+		pythonPath = utils.python_path,
 		request = "launch",
 		module = "flask",
 		justMyCode = false,
@@ -84,6 +80,7 @@ dap.configurations.python = {
 	{
 		name = "dagster dev",
 		type = "python",
+		pythonPath = utils.python_path,
 		request = "launch",
 		module = "dagster",
 		args = {

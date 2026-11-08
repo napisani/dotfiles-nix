@@ -1,18 +1,8 @@
 --- Shared formatting for AI action entries.
 --
--- Deliberately thin. Two things used to be duplicated here and drift apart:
---
---   1. The `@`-reference format. This module previously carried two emitters of
---      its own (`@path:42` and `@path lines 1-2`) while Vantage emitted a third
---      (`@path line 42` / `@path lines 1-2`). Vantage's prompt buffer is what
---      *parses* `@`-refs, so Vantage owns the format and everything here routes
---      through `vantage.format_reference`.
---   2. Entry assembly (ref + fenced selection + labeled body), which existed
---      both here and inline in `ai_actions.lua`. There is now one `build_entry`.
---
--- Context capture also lived here once. It is Vantage's `context()` now, which
--- additionally handles live visual selections that a plain Lua visual keymap
--- cannot get from the '< / '> marks.
+-- Vantage's prompt buffer parses `@`-references, so references go through
+-- `vantage.format_reference` and selection context through Vantage's
+-- `context()`, which also handles live visual selections.
 ---@module user.snacks.ai_actions.common
 
 local M = {}

@@ -4,6 +4,11 @@
 
 **Date:** 2026-09-04
 
+**Package selection/execution superseded by:** [ADR 0004](0004-global-mise-lifecycles.md).
+Nix still owns agent configuration; native package selections now live in normal
+mise TOML. Package options and execution-plane examples below are historical,
+not the current API. Use the [lifecycle contract](../contracts/declarative-tooling.md).
+
 ## Context
 
 The agent configuration is declarative in the broad sense—Nix ultimately
@@ -96,10 +101,6 @@ agents = {
     };
   };
 
-  providers.ollama = {
-    baseUrl = "https://ollama.example/v1";
-    models = [ "example-small:latest" ];
-  };
 
   claude = {
     enable = true;

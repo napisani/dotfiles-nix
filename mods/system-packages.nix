@@ -10,15 +10,27 @@ in
 {
   environment.systemPackages = with pkgs; [
     tmux
+    coreutils
+    gnugrep
+    gnused
+    gnumake
+    tree
+    ncdu
+    gnupg
     unzip
     wget
+    watch
+    luajit
+    luarocks
+    bash-completion
+    git
+    gcc
     kubectl
     kubekill
-    opencode
     # for fixing the backup disk occasionally
     hfsprogs
     restic
-    nfs-utils  # mount/umount NFS shares for restic backup
+    nfs-utils # mount/umount NFS shares for restic backup
   ];
 
 }

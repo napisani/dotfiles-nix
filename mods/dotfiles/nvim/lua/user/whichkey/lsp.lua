@@ -24,7 +24,6 @@ table.insert(normal_mappings, {
 })
 table.insert(normal_mappings, { "<leader>lc", "<Plug>ContextCommentaryLine", desc = "(c)omment" })
 table.insert(normal_mappings, { "<leader>lR", "<cmd>:LspRestart<cr>", desc = "(R)estart LSPs" })
-table.insert(normal_mappings, { "<leader>ld", "<cmd>MermaidRenderOpen<cr>", desc = "(d)raw mermaid" })
 table.insert(normal_mappings, { "<leader>lm", "<cmd>RenderMarkdown toggle<cr>", desc = "(m)arkdown render toggle" })
 table.insert(normal_mappings, {
 	"<leader>lw",

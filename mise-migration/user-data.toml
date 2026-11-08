@@ -1,0 +1,97 @@
+# User data every rollout backs up before changing a host. Cask paths come from
+# installed Homebrew metadata; they are backup inputs, never zap targets.
+# Regenerable paths are never copied and never touched.
+[regenerable]
+paths = ["Library/Caches", "Library/Logs", "Library/Saved Application State", "Library/Android/sdk", "Library/Containers/com.docker.docker/Data/vms", ".cache", ".npm/_cacache", ".npm/_logs"]
+
+[apps.claude]
+paths = [".claude", ".claude.json"]
+credentials = [".claude/.credentials.json"]
+
+[apps.codex]
+paths = [".codex"]
+credentials = [".codex/auth.json"]
+
+[apps.pi]
+paths = [".pi"]
+credentials = [".pi/agent/auth.json"]
+
+[apps.opencode]
+paths = [".config/opencode", ".local/share/opencode", ".local/state/opencode", ".cache/opencode"]
+credentials = [".local/share/opencode/auth.json"]
+
+[apps.shell]
+paths = [".local/share/atuin", ".config/atuin", ".local/share/gh", ".config/omniwm", ".local/state/agents-nix", ".local/state/nix-models"]
+credentials = [".ssh", ".gnupg", ".local/share/atuin/key", ".local/share/atuin/session", ".aws", ".kube", ".docker/config.json", ".config/gh/hosts.yml", ".npmrc", ".config/.secret_inject.json"]
+
+[apps."1password"]
+paths = ["Library/Application Scripts/2BUA8C4S2C.com.1password*","Library/Application Scripts/2BUA8C4S2C.com.agilebits","Library/Application Scripts/com.1password.1password-launcher","Library/Application Scripts/com.1password.browser-support","Library/Application Support/1Password","Library/Application Support/Arc/User Data/NativeMessagingHosts/com.1password.1password.json","Library/Application Support/CrashReporter/1Password*","Library/Application Support/Google/Chrome Beta/NativeMessagingHosts/com.1password.1password.json","Library/Application Support/Google/Chrome Canary/NativeMessagingHosts/com.1password.1password.json","Library/Application Support/Google/Chrome Dev/NativeMessagingHosts/com.1password.1password.json","Library/Application Support/Google/Chrome/NativeMessagingHosts/com.1password.1password.json","Library/Application Support/Microsoft Edge Beta/NativeMessagingHosts/com.1password.1password.json","Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/com.1password.1password.json","Library/Application Support/Microsoft Edge Dev/NativeMessagingHosts/com.1password.1password.json","Library/Application Support/Microsoft Edge/NativeMessagingHosts/com.1password.1password.json","Library/Application Support/Mozilla/NativeMessagingHosts/com.1password.1password.json","Library/Application Support/Vivaldi/NativeMessagingHosts/com.1password.1password.json","Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.1password.1password.sfl*","Library/Containers/2BUA8C4S2C.com.1password.browser-helper","Library/Containers/com.1password.1password*","Library/Containers/com.1password.browser-support","Library/Group Containers/2BUA8C4S2C.com.1password","Library/Group Containers/2BUA8C4S2C.com.agilebits","Library/Logs/1Password","Library/Preferences/com.1password.1password.plist","Library/Preferences/group.com.1password.plist","Library/Saved Application State/com.1password.1password.savedState"]
+
+[apps."android-studio"]
+paths = [".android","AndroidStudioProjects","Library/Android","Library/Android/sdk","Library/Application Support/Google/AndroidStudio2026.2","Library/Caches/Google/AndroidStudio2026.2","Library/Logs/Google/AndroidStudio2026.2","Library/Preferences/com.android.Emulator.plist","Library/Preferences/com.google.android.studio.plist","Library/Saved Application State/com.google.android.studio.savedState"]
+
+[apps."hex"]
+paths = [".config/hex","Library/Application Support/hex","Library/Caches/anomaly.hex","Library/HTTPStorages/anomaly.hex","Library/Preferences/anomaly.hex.plist","Library/Saved Application State/anomaly.hex.savedState"]
+
+[apps."bitwarden"]
+paths = ["Library/Application Support/Bitwarden","Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.bitwarden.desktop.sfl*","Library/Caches/com.bitwarden.desktop","Library/Caches/com.bitwarden.desktop.ShipIt","Library/Logs/Bitwarden","Library/Preferences/ByHost/com.bitwarden.desktop.ShipIt.*.plist","Library/Preferences/com.bitwarden.desktop.helper.plist","Library/Preferences/com.bitwarden.desktop.plist","Library/Saved Application State/com.bitwarden.desktop.savedState"]
+
+[apps."brave-browser"]
+paths = ["Library/Application Support/BraveSoftware","Library/Application Support/BraveSoftware/Brave-Browser","Library/Caches/BraveSoftware","Library/Caches/BraveSoftware/Brave-Browser","Library/Caches/com.brave.Browser","Library/HTTPStorages/com.brave.Browser","Library/Preferences/com.brave.Browser.plist","Library/Saved Application State/com.brave.Browser.savedState"]
+
+[apps."caffeine"]
+paths = ["Library/Application Support/com.intelliscapesolutions.caffeine","Library/Caches/com.intelliscapesolutions.caffeine","Library/HTTPStorages/com.intelliscapesolutions.caffeine.binarycookies","Library/Preferences/com.intelliscapesolutions.caffeine.plist"]
+
+[apps."chatgpt"]
+paths = [".codex","Library/Application Scripts/*.com.openai.sky.CUAService","Library/Application Support/Codex","Library/Application Support/OpenAI/Codex","Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.openai.codex.sfl*","Library/Application Support/com.openai.codex","Library/Caches/Codex","Library/Caches/com.openai.codex","Library/Caches/com.openai.sky.CUAService","Library/Group Containers/*.com.openai.sky.CUAService","Library/HTTPStorages/com.openai.codex","Library/HTTPStorages/com.openai.codex.binarycookies","Library/HTTPStorages/com.openai.sky.CUAService","Library/HTTPStorages/com.openai.sky.CUAService.binarycookies","Library/Logs/com.openai.codex","Library/Preferences/com.openai.codex.plist","Library/Preferences/com.openai.sky.CUAService.cli.plist","Library/Preferences/com.openai.sky.CUAService.plist","Library/Saved Application State/com.openai.codex.savedState"]
+
+[apps."codex-app"]
+paths = [".codex","Library/Application Support/Codex","Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.openai.codex.sfl*","Library/Caches/com.openai.codex","Library/HTTPStorages/com.openai.codex","Library/HTTPStorages/com.openai.codex.binarycookies","Library/Logs/com.openai.codex","Library/Preferences/com.openai.codex.plist","Library/Saved Application State/com.openai.codex.savedState"]
+
+[apps."docker-desktop"]
+paths = [".docker","Library/Application Scripts/com.docker.helper","Library/Application Scripts/group.com.docker","Library/Application Support/Docker Desktop","Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.docker.helper.sfl*","Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.electron.dockerdesktop.sfl*","Library/Application Support/com.bugsnag.Bugsnag/com.docker.docker","Library/Application Support/docker-secrets-engine","Library/Caches/Docker Desktop","Library/Caches/KSCrashReports","Library/Caches/KSCrashReports/Docker","Library/Caches/com.docker.docker","Library/Caches/com.plausiblelabs.crashreporter.data","Library/Caches/com.plausiblelabs.crashreporter.data/com.docker.docker","Library/Caches/docker-secrets-engine","Library/Containers/com.docker.docker","Library/Containers/com.docker.helper","Library/Group Containers/group.com.docker","Library/HTTPStorages/com.docker.docker","Library/HTTPStorages/com.docker.docker.binarycookies","Library/Logs/Docker Desktop","Library/Preferences/com.docker.docker.plist","Library/Preferences/com.electron.docker-frontend.plist","Library/Preferences/com.electron.dockerdesktop.plist","Library/Saved Application State/com.electron.docker-frontend.savedState","Library/Saved Application State/com.electron.dockerdesktop.savedState"]
+
+[apps."karabiner-elements"]
+paths = [".config/karabiner",".local/share/karabiner","Library/Application Scripts/org.pqrs.Karabiner-VirtualHIDDevice-Manager","Library/Application Support/Karabiner-Elements","Library/Caches/org.pqrs.Karabiner-Elements.Updater","Library/Containers/org.pqrs.Karabiner-VirtualHIDDevice-Manager","Library/HTTPStorages/org.pqrs.Karabiner-Elements.Settings","Library/Preferences/org.pqrs.Karabiner-Elements.Updater.plist"]
+
+[apps."kitty"]
+paths = [".config/kitty","Library/Caches/kitty","Library/Preferences/kitty","Library/Preferences/net.kovidgoyal.kitty.plist","Library/Saved Application State/net.kovidgoyal.kitty.savedState"]
+
+[apps."linear"]
+paths = ["Library/Application Support/Linear","Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.linear.sfl*","Library/Caches/com.linear","Library/Caches/com.linear.ShipIt","Library/Preferences/com.linear.plist","Library/Saved Application State/com.linear.savedState"]
+
+[apps."look"]
+paths = [".look","Library/Application Support/Look","Library/Caches/noah-code.Look","Library/HTTPStorages/noah-code.Look","Library/HTTPStorages/noah-code.Look.binarycookies","Library/Preferences/noah-code.Look.plist"]
+
+[apps."loom"]
+paths = ["Library/Application Support/Loom","Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.loom.desktop.sfl*","Library/Logs/Loom","Library/Preferences/com.loom.desktop.plist","Library/Saved Application State/com.loom.desktop.savedState"]
+
+[apps."ngrok"]
+paths = [".ngrok3","Library/Application Support/ngrok"]
+
+[apps."notion"]
+paths = ["Library/Application Support/Caches/notion-updater","Library/Application Support/Notion","Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/notion.id.sfl*","Library/Caches/notion.id*","Library/Logs/Notion","Library/Preferences/ByHost/notion.id.*","Library/Preferences/notion.id.*","Library/Saved Application State/notion.id.savedState","Library/WebKit/notion.id"]
+
+[apps."obsidian"]
+paths = ["Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/md.obsidian.sfl*","Library/Application Support/obsidian","Library/Preferences/md.obsidian.plist","Library/Saved Application State/md.obsidian.savedState"]
+
+[apps."session-manager-plugin"]
+paths = []
+
+[apps."slack"]
+paths = ["Library/Application Scripts/com.tinyspeck.slackmacgap","Library/Application Support/Slack","Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.tinyspeck.slackmacgap.sfl*","Library/Caches/com.tinyspeck.slackmacgap*","Library/Containers/com.tinyspeck.slackmacgap*","Library/Cookies/com.tinyspeck.slackmacgap.binarycookies","Library/Group Containers/*.com.tinyspeck.slackmacgap","Library/Group Containers/*.slack","Library/HTTPStorages/com.tinyspeck.slackmacgap*","Library/Logs/Slack","Library/Preferences/ByHost/com.tinyspeck.slackmacgap.ShipIt.*.plist","Library/Preferences/com.tinyspeck.slackmacgap*","Library/Saved Application State/com.tinyspeck.slackmacgap.savedState","Library/WebKit/com.tinyspeck.slackmacgap"]
+
+[apps."stats"]
+paths = ["Library/Application Scripts/RP2S87B72W.eu.exelban.Stats.widgets","Library/Application Scripts/eu.exelban.Stats.LaunchAtLogin","Library/Application Scripts/eu.exelban.Stats.Widgets","Library/Application Support/Stats","Library/Caches/eu.exelban.Stats","Library/Containers/eu.exelban.Stats.LaunchAtLogin","Library/Containers/eu.exelban.Stats.Widgets","Library/Cookies/eu.exelban.Stats.binarycookies","Library/Group Containers/RP2S87B72W.eu.exelban.Stats.widgets","Library/Group Containers/eu.exelban.Stats.widgets","Library/HTTPStorages/eu.exelban.Stats","Library/Preferences/eu.exelban.Stats.plist"]
+
+[apps."tailscale-app"]
+paths = ["Library/Application Scripts/*.io.tailscale.ipn.macsys","Library/Application Scripts/group.W5364U7YZB.io.tailscale.shared","Library/Application Scripts/io.tailscale.ipn.macsys","Library/Application Scripts/io.tailscale.ipn.macsys.login-item-helper","Library/Application Scripts/io.tailscale.ipn.macsys.share-extension","Library/Application Scripts/io.tailscale.ipn.macsys.widgets","Library/Caches/io.tailscale.ipn.macsys","Library/Containers/Tailscale","Library/Containers/io.tailscale.ipn.macos.network-extension","Library/Containers/io.tailscale.ipn.macsys","Library/Containers/io.tailscale.ipn.macsys.login-item-helper","Library/Containers/io.tailscale.ipn.macsys.share-extension","Library/Containers/io.tailscale.ipn.macsys.widgets","Library/Group Containers/*.io.tailscale.ipn.macsys","Library/Group Containers/group.W5364U7YZB.io.tailscale.shared","Library/HTTPStorages/io.tailscale.ipn.macsys","Library/HTTPStorages/io.tailscale.ipn.macsys.binarycookies","Library/Preferences/io.tailscale.ipn.macsys.plist"]
+
+[apps."terminal-browser"]
+paths = [".agents/skills/terminal-browser",".cache/terminal-browser-*",".claude/skills/terminal-browser",".codex/skills/terminal-browser",".cursor/skills/terminal-browser",".gemini/skills/terminal-browser",".local/share/terminal-browser-*",".local/state/terminal-browser",".local/state/terminal-browser-*"]
+
+[apps."yubico-authenticator"]
+paths = ["Library/Application Scripts/com.yubico.yubioath","Library/Containers/com.yubico.yubioath"]
+
+[apps."zulu@17"]
+paths = ["Library/Saved Application State/com.azul.zulu.17*.java.savedState"]

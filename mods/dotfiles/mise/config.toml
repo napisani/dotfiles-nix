@@ -1,0 +1,267 @@
+min_version = "2026.11.2"
+
+[vars]
+dotfiles_root = "{{ config_source | canonicalize | dirname | dirname }}"
+monorepo_root = "{{ vars.dotfiles_root | dirname | dirname | dirname | dirname }}"
+agent_profile = "common"
+remote_pi_relay = "https://remote-pi.napisani.xyz"
+
+[env]
+PREFERRED_AGENT = "pi"
+REMOTE_PI_RELAY = "{{ vars.remote_pi_relay }}"
+SECRET_INJECT_PROFILE = "shell"
+
+[settings]
+all_compile = false
+locked = true
+locked_scopes = ["global"]
+lockfile = true
+lockfile_platforms = ["macos-arm64", "macos-x64", "linux-x64"]
+
+# Shared merge targets may contain credentials, including recovery preimages.
+[settings.history]
+enabled = false
+
+[settings.npm]
+package_manager = "npm"
+shell_out = true
+
+[tools]
+"aqua:neovim/neovim" = "0.12.6"
+"go:golang.org/x/tools/gopls" = "0.22.0"
+"lua-language-server" = "3.18.2"
+"npm:vscode-langservers-extracted" = "4.10.0"
+"npm:@tailwindcss/language-server" = "0.16.0"
+"npm:bash-language-server" = "5.6.0"
+"npm:yaml-language-server" = "1.23.0"
+"npm:@vtsls/language-server" = "0.3.0"
+"pipx:basedpyright" = "1.39.8"
+"zls" = "0.17.0"
+"github:mattn/efm-langserver" = "0.0.56"
+"go:github.com/go-delve/delve/cmd/dlv" = "1.26.3"
+"pipx:debugpy" = "1.8.21"
+"github:microsoft/vscode-js-debug" = { version = "1.117.0", asset_pattern = "js-debug-dap-*.tar.gz", strip_components = 1 }
+"node" = "24.21.0"
+"python" = "3.12.15"
+"go" = "1.26.10"
+"deno" = "2.9.7"
+"bun" = "1.4.2"
+"zig" = "0.17.0"
+"java" = "temurin-11.0.32+101"
+"ruff" = "0.17.2"
+"uv" = "0.13.4"
+"black" = "26.5.1"
+"stylua" = "2.6.0"
+"shellcheck" = "0.11.0"
+"shfmt" = "3.14.1"
+"gofumpt" = "0.12.0"
+"go:golang.org/x/tools/cmd/goimports" = "0.44.0"
+"atuin" = { version = "18.24.2", os = ["macos/arm64", "linux"] }
+"conda:atuin" = { version = "18.24.5", os = ["macos/x64"] }
+"conda:btop" = "1.4.8"
+"conda:statix" = "0.5.8"
+"direnv" = "2.38.2"
+"tmux" = "3.7c"
+"http:fff" = { version = "2.2", url = "https://raw.githubusercontent.com/dylanaraps/fff/{{version}}/fff" }
+"conda:coreutils" = { version = "9.12", os = ["macos"] }
+"conda:grep" = { version = "3.12", os = ["macos"] }
+"conda:sed" = { version = "4.10", os = ["macos"] }
+"conda:make" = { version = "4.4.1", os = ["macos"] }
+"conda:wget" = { version = "1.25.0", os = ["macos"] }
+"conda:tree" = { version = "2.3.2", os = ["macos"] }
+"conda:ncdu" = { version = "2.9.2", os = ["macos"] }
+"conda:unzip" = { version = "6.0", os = ["macos"] }
+"conda:watch" = { version = "4.0.6", os = ["macos"] }
+"conda:luajit" = { version = "2.1.1744318430", os = ["macos"] }
+"conda:luarocks" = { version = "3.13.0", os = ["macos"] }
+"conda:bash-completion" = { version = "2.11", os = ["macos"] }
+"conda:git" = { version = "2.56.0", os = ["macos"] }
+"prettier" = "3.9.10"
+"oxlint" = "1.88.0"
+"cspell" = "9.7.0"
+"cmake" = "4.4.4"
+"gradle" = "8.14.4"
+"npm:eslint_d" = "15.0.3"
+"npm:nodemon" = "3.1.14"
+"npm:typescript" = "7.0.2"
+"npm:fixjson" = "1.1.2"
+"pipx:mypy" = "2.1.0"
+"pipx:isort" = "8.0.1"
+"pipx:flake8" = "7.3.0"
+"pipx:yapf" = "0.43.0"
+"bat" = "0.26.1"
+"ripgrep" = "15.2.0"
+"fd" = "10.5.0"
+"k9s" = "0.51.0"
+"lazydocker" = "0.25.2"
+"tree-sitter" = "0.26.11"
+"git-lfs" = "3.8.0"
+"jq" = "1.8.2"
+"pipx:yq" = "3.4.3"
+"fzf" = "0.74.5"
+"gh" = "2.103.2"
+"starship" = "1.27.0"
+"github:DopplerHQ/cli" = "3.77.0"
+"github:knqyf263/pet" = "1.0.1"
+"github:openclaw/gogcli" = "0.47.0"
+"github:raine/workmux" = "0.1.278"
+"aqua:anthropics/claude-code" = "2.1.308"
+"aqua:openai/codex" = "0.164.0"
+"aqua:rtk-ai/rtk" = "1.1.0"
+# Both options are needed across the native npm versions on these hosts.
+"npm:@earendil-works/pi-coding-agent" = { version = "1.4.0", allow_builds = true, npm_args = "--ignore-scripts=false" }
+"npm:@agentclientprotocol/claude-agent-acp" = { version = "0.97.0", allow_builds = true, npm_args = "--ignore-scripts=false" }
+"npm:@zed-industries/codex-acp" = { version = "0.16.0", allow_builds = true, npm_args = "--ignore-scripts=false" }
+"npm:@playwright/cli" = { version = "0.1.22", allow_builds = true, npm_args = "--ignore-scripts=false" }
+
+[bootstrap.hooks.post-tools]
+run = "{{ mise_bin | quote }} -C {{ env.HOME | quote }} run apps:configure"
+
+[tasks."runtime:prepare"]
+description = "Install the locked skill-preparation environment"
+run = "uv sync --locked --project {{ vars.dotfiles_root | quote }}/mise/runtime --python \"$({{ mise_bin | quote }} which python)\""
+
+[tasks."nvim:prepare"]
+description = "Install the locked Python provider in a checkout-independent environment"
+run = """
+python="$({{ mise_bin | quote }} which python)" || exit
+UV_PROJECT_ENVIRONMENT="${XDG_DATA_HOME:-$HOME/.local/share}/dotfiles/nvim-python" uv sync --locked --project {{ vars.dotfiles_root | quote }}/nvim/python --python "$python"
+"""
+
+[tasks."skills:prepare"]
+description = "Validate pinned sources and prepare skills offline"
+depends = ["runtime:prepare"]
+run = """
+uv run --locked --project {{ vars.dotfiles_root | quote }}/mise/runtime --python "$({{ mise_bin | quote }} which python)" python {{ vars.dotfiles_root | quote }}/mise/runtime/mise/skills-prepare.py --catalog {{ vars.dotfiles_root | quote }}/../agents/skills.json --root {{ vars.monorepo_root | quote }} --config {{ env.HOME | quote }}/.config/mise/config.toml --config {{ env.HOME | quote }}/.config/mise/config.local.toml --profile {{ vars.agent_profile | quote }}
+"""
+
+[tasks."apps:configure"]
+description = "Reconcile managed agent fields and skill links without replacing app state"
+depends = ["skills:prepare", "nvim:prepare"]
+run = [
+  "deno run --frozen --cached-only --config {{ vars.dotfiles_root | quote }}/mise/runtime/deno.json --allow-read --allow-write --allow-env=HOME,RECONCILE_MODE {{ vars.dotfiles_root | quote }}/mise/runtime/configure-apps.ts {{ vars.dotfiles_root | quote }} {{ vars.agent_profile | quote }} {{ env.HOME | quote }}/.local/share/dotfiles/skills/claude-overrides.json",
+  "{{ mise_bin | quote }} -C {{ env.HOME | quote }} dot apply '~'",
+  "{{ mise_bin | quote }} completion bash --install",
+]
+
+[tasks."skills:sync"]
+description = "Fetch pinned skill sources, prepare and deploy their group"
+run = [
+  "{{ mise_bin | quote }} -C {{ env.HOME | quote }} bootstrap repos apply",
+  "{{ mise_bin | quote }} -C {{ env.HOME | quote }} run apps:configure",
+]
+
+[tasks."rtk:setup"]
+description = "Initialize upstream RTK after its guarded ownership handoff"
+run = "node {{ vars.dotfiles_root | quote }}/mise/runtime/mise/rtk-setup.cjs {{ mise_bin | quote }}"
+
+[dotfile_groups.agent-assets]
+root = "~/.local/share/dotfiles/skills/links"
+target = "~"
+mode = "symlink-each"
+
+[bootstrap.repos]
+"~/.local/share/dotfiles/skill-sources/ai-ready-skills" = { url = "https://github.com/johnpapa/ai-ready", ref = "c251292d2aaf264cd21ac624a98dc34a8baa6150" }
+"~/.local/share/dotfiles/skill-sources/pstack" = { url = "https://github.com/cursor/plugins", ref = "519d36aa98955bf680db01bcde5fdfba686dc901" }
+"~/.local/share/dotfiles/skill-sources/superpowers" = { url = "https://github.com/obra/superpowers", ref = "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b" }
+"~/.local/share/dotfiles/skill-sources/addyosmani-agent-skills" = { url = "https://github.com/addyosmani/agent-skills", ref = "aeac41d4d005999432bb7312f7ff06383a91d59d" }
+"~/.local/share/dotfiles/skill-sources/mattpocock-skills" = { url = "https://github.com/mattpocock/skills", ref = "59db609eb1e18aaf59b63284d0e52255aff0c63c" }
+"~/.local/share/dotfiles/skill-sources/intellectronica-agent-skills" = { url = "https://github.com/intellectronica/agent-skills", ref = "9b0e00ad1b941165e2506545bbfddafa34cf2cb8" }
+"~/.local/share/dotfiles/skill-sources/anthropic-skills" = { url = "https://github.com/anthropics/skills", ref = "dbd4588f9e1033efb41dad4bef2f7947c8993d44" }
+"~/.local/share/dotfiles/skill-sources/gogcli-skills" = { url = "https://github.com/openclaw/gogcli", ref = "b8298ae6fd5335ddebc4bc8594e3b09aa3020ab4" }
+"~/.local/share/dotfiles/skill-sources/softaworks-agent-toolkit" = { url = "https://github.com/softaworks/agent-toolkit", ref = "3027f20f3181758385a1bb8c022d4041dfb4de84" }
+"~/.local/share/dotfiles/skill-sources/no-ai-slop" = { url = "https://github.com/petergyang/no-ai-slop", ref = "000650b156983f5159695b441477f4e63b25dc85" }
+"~/.local/share/dotfiles/skill-sources/playwright-cli-skills" = { url = "https://github.com/microsoft/playwright-cli", ref = "b1a5903c5b633b8c9f843ad7b629c2a78437040c" }
+"~/.local/share/dotfiles/skill-sources/wshobson-agents" = { url = "https://github.com/wshobson/agents", ref = "0874a27b17a22e2b7c2e2bcd725768e0803cad06" }
+"~/.local/share/dotfiles/skill-sources/patricio0312rev-skills" = { url = "https://github.com/patricio0312rev/skills", ref = "79ea6af485698b31060b63f0066f712560757b29" }
+"~/.local/share/dotfiles/skill-sources/humanlayer-skills" = { url = "https://github.com/humanlayer/skills", ref = "653b6411c1f70c275a18e37673b042ff99f67ceb" }
+"~/.local/share/dotfiles/skill-sources/deepwiki-rs-skills" = { url = "https://github.com/sopaco/deepwiki-rs", ref = "27dbd3ed74535213e7c40be8abcdcec4145bebf2" }
+"~/.local/share/dotfiles/skill-sources/builderio-skills" = { url = "https://github.com/nicobailon/visual-explainer", ref = "5f378868e0ea745a6284b51e710c390f0c76f72c" }
+"~/.local/share/dotfiles/skill-sources/deepagents" = { url = "https://github.com/langchain-ai/deepagents", ref = "3413029245643eb9915b506def3e4817af548f0e" }
+"~/.local/share/dotfiles/skill-sources/workmux-skills" = { url = "https://github.com/raine/workmux", ref = "23c09d88a1bce1b63c2d894439bb79915dd71901" }
+"~/.tmux/plugins/tpm" = { url = "https://github.com/tmux-plugins/tpm", ref = "e261deb1b47614eed3400089ce7197dc68acc4eb" }
+
+[bootstrap.packages]
+"brew-cask:kitty" = { os = "macos" }
+"brew-cask:terminal-browser" = { os = "macos" }
+"brew-cask:bitwarden" = { os = "macos" }
+"brew-cask:caffeine" = { os = "macos" }
+"brew-cask:brave-browser" = { os = "macos" }
+"brew-cask:tailscale-app" = { os = "macos" }
+"brew-cask:obsidian" = { os = "macos" }
+"brew-cask:stats" = { os = "macos" }
+"brew-cask:karabiner-elements" = { os = "macos" }
+"brew-cask:look" = { os = "macos" }
+"brew-cask:anomalyco/tap/hex" = { os = "macos/arm64" }
+
+"claude:visual-explainer@visual-explainer-marketplace" = "latest"
+
+# claude-agent-sdk-pi and pi-blackhole require incompatible pre-1.0 Pi APIs.
+"pi:npm:@ayulab/pi-rewind" = "0.4.6"
+"pi:git:github.com/nicobailon/pi-subagents" = "v0.78.0"
+"pi:npm:@datspike/pi-inline-slash-extension" = "0.2.1"
+"pi:npm:@ff-labs/pi-fff" = "0.11.0"
+"pi:npm:@juicesharp/rpiv-btw" = "2.15.0"
+"pi:npm:@eko24ive/pi-ask" = "1.2.0"
+"pi:npm:@lincoln504/pi-research" = "1.7.23"
+"pi:npm:pi-vim" = "0.14.2"
+"pi:npm:pi-web-access" = "0.45.0"
+"pi:npm:remote-pi" = "0.7.0"
+"pi:npm:pi-claude-bridge" = "0.9.3"
+"pi:npm:pi-goal" = "0.1.7"
+"pi:npm:pi-cache-graph" = "1.0.2"
+# Local extensions resolve the native SDK through Pi's shared npm root.
+"pi:npm:@earendil-works/pi-tui" = "1.0.4"
+"pi:git:github.com/nicobailon/visual-explainer" = "5f378868e0ea745a6284b51e710c390f0c76f72c"
+
+[dotfiles]
+"~/.claude/CLAUDE.md" = { source = "~/.config/mise/dotfiles/mise/apps/claude-instructions.md.tera", mode = "template" }
+"~/.codex/AGENTS.md" = { source = "~/.config/mise/dotfiles/mise/apps/codex-instructions.md.tera", mode = "template" }
+"~/.npmrc/settings" = { source = "~/.config/mise/dotfiles/mise/apps/common/npmrc.tera", merge = true, format = "ini", template = "tera", permissions = "0600" }
+"~/.bashrc" = { source = "~/.config/mise/dotfiles/shell/bash/bashrc", mode = "symlink" }
+"~/.bash_profile" = { source = "~/.config/mise/dotfiles/shell/bash/bash_profile", mode = "symlink" }
+"~/.profile" = { source = "~/.config/mise/dotfiles/shell/bash/profile", mode = "symlink" }
+"~/.inputrc" = { source = "~/.config/mise/dotfiles/shell/inputrc", mode = "symlink" }
+"~/.config/shell" = { source = "~/.config/mise/dotfiles/shell", mode = "symlink" }
+"~/.config/direnv/lib/use_flake.sh" = { source = "~/.config/mise/dotfiles/direnv/lib/use_flake.sh", mode = "symlink" }
+"~/.config/atuin/config.toml" = { source = "~/.config/mise/dotfiles/shell/atuin/config.toml", mode = "symlink" }
+"~/.config/gh/config.yml" = { source = "~/.config/mise/dotfiles/shell/gh/config.yml", mode = "symlink" }
+"~/.config/workmux/config.yaml" = { source = "~/.config/mise/dotfiles/workmux-config.yaml", mode = "symlink" }
+"~/.config/git/config" = { source = "~/.config/mise/dotfiles/shell/git/config", mode = "symlink" }
+"~/.config/git/ignore" = { source = "~/.config/mise/dotfiles/shell/git/ignore", mode = "symlink" }
+"~/.config/git/local-include" = { source = "~/.config/mise/dotfiles/shell/git/local-include", mode = "symlink" }
+"~/.config/pet" = { source = "~/.config/mise/dotfiles/pet", mode = "symlink" }
+"~/.config/mcphub/servers.json" = { source = "~/.config/mise/dotfiles/mcphub-servers.json", mode = "symlink" }
+"~/.aerospace.toml" = { source = "~/.config/mise/dotfiles/.aerospace.toml", mode = "symlink", variants = [{ os = "macos" }] }
+"~/Library/Application Support/com.mitchellh.ghostty/config" = { source = "~/.config/mise/dotfiles/ghostty-config", mode = "symlink", variants = [{ os = "macos" }] }
+"~/toolbox" = { source = "~/.config/mise/dotfiles/toolbox", mode = "symlink" }
+"~/shell_scripts" = { source = "~/.config/mise/dotfiles/shell_scripts", mode = "symlink" }
+"~/.config/tmux/tmux.conf" = { source = "~/.config/mise/dotfiles/.tmux.conf", mode = "symlink" }
+"~/.config/karabiner/karabiner.json" = { source = "~/.config/mise/dotfiles/karabiner.json", mode = "symlink", variants = [{ os = "macos" }] }
+"~/.look/config" = { source = "~/.config/mise/dotfiles/look-config", mode = "symlink", variants = [{ os = "macos" }] }
+"~/.look/sources/window-management.toml" = { source = "~/.config/mise/dotfiles/look-sources/window-management.toml", mode = "symlink", variants = [{ os = "macos" }] }
+"~/.look/sources/terminal.toml" = { source = "~/.config/mise/dotfiles/look-sources/terminal.toml", mode = "symlink", variants = [{ os = "macos" }] }
+"~/.look/sources/look.toml" = { source = "~/.config/mise/dotfiles/look-sources/look.toml", mode = "symlink", variants = [{ os = "macos" }] }
+"~/.yabairc" = { source = "~/.config/mise/dotfiles/yabairc", mode = "symlink", variants = [{ os = "macos" }] }
+"~/.config/alacritty/alacritty.toml" = { source = "~/.config/mise/dotfiles/alacritty.toml", mode = "symlink" }
+"~/.config/kitty/kitty.conf" = { source = "~/.config/mise/dotfiles/kitty.conf", mode = "symlink" }
+"~/.ideavimrc" = { source = "~/.config/mise/dotfiles/.ideavimrc", mode = "symlink" }
+"~/.tmux/tokyonight.tmuxtheme" = { source = "~/.config/mise/dotfiles/tokyonight.tmuxtheme", mode = "symlink" }
+"~/.config/discordo/config.toml" = { source = "~/.config/mise/dotfiles/discordo-config.toml", mode = "symlink" }
+"~/Library/Application Support/discordo/config.toml" = { source = "~/.config/mise/dotfiles/discordo-config.toml", mode = "symlink", variants = [{ os = "macos" }] }
+"~/.config/starship.toml" = { source = "~/.config/mise/dotfiles/starship.toml", mode = "symlink" }
+"~/.pi/agent/AGENTS.md" = { source = "~/.config/mise/dotfiles/agents/AGENTS.md", mode = "symlink" }
+"~/.config/scute/config.yaml" = { source = "~/.config/mise/dotfiles/scute.yml", mode = "symlink" }
+"~/.config/.secret_inject.json" = { source = "~/.config/mise/dotfiles/mise/apps/secret-inject.json.tera", mode = "template", permissions = "0600" }
+"~/.pi/agent/extensions" = { source = "~/.config/mise/dotfiles/agents/pi/extensions", mode = "symlink-each", exclude = ["*.test.*", "*.spec.*"] }
+"~/.pi/agent/themes" = { source = "~/.config/mise/dotfiles/agents/pi/themes", mode = "symlink-each" }
+
+"~/.claude/settings.json/settings" = { source = "~/.config/mise/dotfiles/mise/apps/claude-settings.json.tera", merge = true, template = "tera", permissions = "0600" }
+"~/.pi/agent/settings.json/settings" = { source = "~/.config/mise/dotfiles/mise/apps/pi-settings.json.tera", merge = true, template = "tera", permissions = "0600" }
+"~/.pi/remote/config.json/relay" = { source = "~/.config/mise/dotfiles/mise/apps/pi-relay.json.tera", merge = true, template = "tera", permissions = "0600" }
+"~/.codex/config.toml/features" = { source = "~/.config/mise/dotfiles/mise/apps/codex-config.toml", merge = true, permissions = "0600" }
+
+[dotfile_groups.nvim]
+root = "~/.config/mise/dotfiles/nvim"
+target = "~/.config/nvim"
+mode = "symlink-each"

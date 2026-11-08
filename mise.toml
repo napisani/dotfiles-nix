@@ -1,0 +1,65 @@
+min_version = "2026.11.2"
+
+# The tasks' own toolchain; versions match the global core config.
+[tools]
+"node" = "24.21.0"
+"python" = "3.12.15"
+"uv" = "0.13.4"
+"deno" = "2.9.7"
+"aqua:rtk-ai/rtk" = "1.1.0"
+"jq" = "1.8.2"
+"shellcheck" = "0.11.0"
+"shfmt" = "3.14.1"
+
+[settings]
+lockfile = true
+
+[env]
+MISE_BIN = "{{ mise_bin }}"
+MISE_TEST_BINARY = "{{ mise_bin }}"
+DOTFILES_SOURCE = "{{ config_root }}/mods/dotfiles"
+CONFIG_WRITER_RUNTIME = "{{ config_root }}/mods/dotfiles/mise/runtime"
+
+[tasks."test:dependencies"]
+description = "Install locked test dependencies using the active Python runtime"
+run = 'uv sync --locked --project mods/dotfiles/mise/runtime'
+
+[tasks.test]
+description = "Run portable bootstrap, migration, writer, skill and plugin contracts"
+depends = ["test:dependencies", "lock:check"]
+run = [
+  'uv run --locked --project mods/dotfiles/mise/runtime python -m unittest discover -s tests -p "test_*.py"',
+  'uv run --locked --project mods/dotfiles/mise/runtime python -m unittest discover -s mise-migration -p test_migration.py',
+  'uv run --locked --project mods/dotfiles/mise/runtime python checks/fixtures/skills-prepare.py',
+  'deno test --frozen --cached-only --config mods/dotfiles/mise/runtime/deno.json --allow-read --allow-write --allow-env --allow-run mods/dotfiles/mise/runtime/configure-apps.test.ts',
+  'rtk="$({{ mise_bin | quote }} which rtk --tool aqua:rtk-ai/rtk)" && RTK_TEST_BINARY="$rtk" NPM_COMMAND="${NPM_COMMAND:-$(command -v npm)}" node --test mods/dotfiles/mise/runtime/mise/tests/*.test.cjs checks/fixtures/config-writers.cjs checks/fixtures/rtk-setup.cjs',
+  'TEST_PYTHON="$(uv run --locked --project mods/dotfiles/mise/runtime python -c "import sys; print(sys.executable)")" node checks/fixtures/audit-managed-mcp.cjs checks/audit-managed-mcp.py',
+  'bash mods/dotfiles/shell/tests/profile-path.sh',
+  'bash mods/dotfiles/shell/tests/login-boundary.sh',
+  'bash mods/dotfiles/shell/tests/updates.sh',
+  'bash mods/dotfiles/shell/tests/apply.sh',
+  'bash mods/dotfiles/shell/tests/update-interactive.sh',
+]
+
+[tasks."lock:check"]
+description = "Check native lock coverage for every declared fleet platform"
+run = 'uv run --locked --project mods/dotfiles/mise/runtime python scripts/check-mise-locks.py'
+
+[tasks."test:portable-runtime"]
+description = "Cold-test native runtime and source sync; retain the disposable HOME as evidence"
+run = 'uv run --locked --project mods/dotfiles/mise/runtime python tests/portable-runtime.py --mise {{ mise_bin | quote }}'
+
+[tasks."test:editor-lsp"]
+description = "Attach every configured server using pinned plugins; retain protocol evidence"
+run = 'uv run --locked --project mods/dotfiles/mise/runtime python tests/editor-lsp.py --mise {{ mise_bin | quote }} --evidence "$(mktemp -d)/lsp"'
+
+[tasks."test:postgres"]
+description = "Test installed work-profile PostgreSQL using an isolated Unix-socket cluster"
+run = 'prefix="$({{ mise_bin | quote }} where postgres)" && uv run --locked --project mods/dotfiles/mise/runtime python tests/postgres.py --prefix "$prefix" --evidence "$(mktemp -d)/postgres"'
+
+[tasks.lint]
+description = "Check bootstrap shell safety and formatting"
+run = [
+  'shellcheck -x -s sh bootstrap.sh mods/dotfiles/shell/bash/lib/machine.sh mods/dotfiles/mise/runtime/mise/check-omniwm-handoff.sh',
+  'shfmt -d bootstrap.sh mods/dotfiles/shell/bash/lib/machine.sh mods/dotfiles/mise/runtime/mise/check-omniwm-handoff.sh',
+]

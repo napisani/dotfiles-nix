@@ -1,0 +1,2 @@
+{{ read_file(path=env.HOME ~ "/.config/mise/dotfiles/agents/AGENTS.md") }}
+@{{ env.HOME }}/.codex/RTK.md

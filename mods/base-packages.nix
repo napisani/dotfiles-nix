@@ -1,72 +1,37 @@
 {
   lib,
-  config,
   pkgs,
-  pkgs-unstable,
-  procmux,
-  secret_inject,
-  tmux_picker,
-  mushy_lint,
-  animal_rescue,
-  proctmux,
-  stackman,
+  inputs,
   ...
 }:
 let
-  languagePackages = import ./languages/all.nix { inherit pkgs pkgs-unstable; };
   inherit (pkgs.stdenv.hostPlatform) system;
 in
 {
-
-  home.packages =
-    with pkgs-unstable;
-    languagePackages
-    ++ [
-      tmux
-      pkgs.bashInteractive
-      bat
-      btop
-      coreutils
-      gnupg
-      gnugrep
-      gnumake
-      ripgrep
-      tree
-      watch
-      wget
-      #postman
-      doppler
-      pet
-      # Tree-sitter CLI for nvim-treesitter :TSInstall / parser builds (same role as brew tree-sitter-cli)
-      tree-sitter
-      ncdu
-      git-lfs
-      # ngrok
-      fd
-    ]
-    # Intel's Nix package set has gogcli 0.11; maclab uses Homebrew instead.
-    ++ lib.optionals (system != "x86_64-darwin") [ fff gogcli ]
-    ++ [
-
-      # search for packages on nixos
-      nix-search-cli
-
-      secret_inject.packages.${system}.default
-      tmux_picker.packages.${system}.default
-      mushy_lint.packages.${system}.default
-      animal_rescue.packages.${system}.default
-      proctmux.packages.${system}.default
-      stackman.packages.${system}.default
-      # tmuxp
-      nodemon
-      mise
-
-      k9s
-
-      lazysql
-      lazydocker
-      # bitwarden-cli
-
-    ];
-
+  environment.systemPackages = [
+    pkgs.bashInteractive
+    pkgs.nil
+    pkgs.nixfmt
+    pkgs.nix-search-cli
+  ]
+  ++ map (name: inputs.${name}.packages.${system}.default) [
+    "secret_inject"
+    "tmux_picker"
+    "mushy_lint"
+    "animal_rescue"
+    "proctmux"
+    "stackman"
+    "scute"
+  ]
+  # Conda GnuPG's default pinentry executable is absent on macOS.
+  ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
+    pkgs.gnupg
+    pkgs.man
+    pkgs.ncurses
+  ];
+  environment.extraOutputsToInstall = [ "man" ];
+  environment.pathsToLink = [
+    "/share/man"
+    "/share/terminfo"
+  ];
 }

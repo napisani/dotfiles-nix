@@ -1,4 +1,4 @@
-# Mirrors kitty.conf. Alacritty is no longer installed; this config is kept as a fallback.
+# Mirrors kitty.conf. Alacritty is not installed; this config is a fallback.
 
 [[keyboard.bindings]]
 action = "ReceiveChar"

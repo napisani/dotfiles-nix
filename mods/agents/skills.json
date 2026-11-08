@@ -1,0 +1,777 @@
+{
+  "sources": {
+    "dotfiles": {
+      "path": "pub/dotfiles-nix/mods/dotfiles"
+    },
+    "ai-ready-skills": {
+      "repo": "~/.local/share/dotfiles/skill-sources/ai-ready-skills"
+    },
+    "pstack": {
+      "repo": "~/.local/share/dotfiles/skill-sources/pstack"
+    },
+    "superpowers": {
+      "repo": "~/.local/share/dotfiles/skill-sources/superpowers"
+    },
+    "addyosmani-agent-skills": {
+      "repo": "~/.local/share/dotfiles/skill-sources/addyosmani-agent-skills"
+    },
+    "mattpocock-skills": {
+      "repo": "~/.local/share/dotfiles/skill-sources/mattpocock-skills"
+    },
+    "intellectronica-agent-skills": {
+      "repo": "~/.local/share/dotfiles/skill-sources/intellectronica-agent-skills"
+    },
+    "anthropic-skills": {
+      "repo": "~/.local/share/dotfiles/skill-sources/anthropic-skills"
+    },
+    "gogcli-skills": {
+      "repo": "~/.local/share/dotfiles/skill-sources/gogcli-skills"
+    },
+    "private-skills": {
+      "path": "priv/skills"
+    },
+    "lc-script-skills": {
+      "repo": "~/.local/share/dotfiles/skill-sources/lc-script-skills"
+    },
+    "softaworks-agent-toolkit": {
+      "repo": "~/.local/share/dotfiles/skill-sources/softaworks-agent-toolkit"
+    },
+    "mushy_lint": {
+      "path": "pub/mushy-lint"
+    },
+    "no-ai-slop": {
+      "repo": "~/.local/share/dotfiles/skill-sources/no-ai-slop"
+    },
+    "playwright-cli-skills": {
+      "repo": "~/.local/share/dotfiles/skill-sources/playwright-cli-skills"
+    },
+    "proctmux": {
+      "path": "pub/proctmux"
+    },
+    "secret_inject": {
+      "path": "pub/secret_inject"
+    },
+    "wshobson-agents": {
+      "repo": "~/.local/share/dotfiles/skill-sources/wshobson-agents"
+    },
+    "patricio0312rev-skills": {
+      "repo": "~/.local/share/dotfiles/skill-sources/patricio0312rev-skills"
+    },
+    "humanlayer-skills": {
+      "repo": "~/.local/share/dotfiles/skill-sources/humanlayer-skills"
+    },
+    "deepwiki-rs-skills": {
+      "repo": "~/.local/share/dotfiles/skill-sources/deepwiki-rs-skills"
+    },
+    "pi-surface-skills": {
+      "path": "pub/pi-surface/skills"
+    },
+    "vantage-nvim-skills": {
+      "path": "pub/vantage-nvim"
+    },
+    "builderio-skills": {
+      "repo": "~/.local/share/dotfiles/skill-sources/builderio-skills"
+    },
+    "deepagents": {
+      "repo": "~/.local/share/dotfiles/skill-sources/deepagents"
+    },
+    "workmux-skills": {
+      "repo": "~/.local/share/dotfiles/skill-sources/workmux-skills"
+    }
+  },
+  "skills": {
+    "address-pr-feedback": {
+      "source": "dotfiles",
+      "path": "agents/shared-skills/address-pr-feedback",
+      "sharedDirectory": true
+    },
+    "agent-management": {
+      "source": "dotfiles",
+      "path": "agents/shared-skills/agent-management",
+      "sharedDirectory": true
+    },
+    "ai-ready": {
+      "source": "ai-ready-skills",
+      "path": "skills/ai-ready"
+    },
+    "architect": {
+      "source": "pstack",
+      "path": "pstack/skills/architect"
+    },
+    "arena": {
+      "source": "pstack",
+      "path": "pstack/skills/arena"
+    },
+    "blast-radius": {
+      "source": "pstack",
+      "path": "pstack/skills/blast-radius"
+    },
+    "brainstorming": {
+      "source": "superpowers",
+      "path": "skills/brainstorming"
+    },
+    "classify": {
+      "source": "dotfiles",
+      "path": "agents/shared-skills/classify",
+      "sharedDirectory": true
+    },
+    "code-simplification": {
+      "source": "addyosmani-agent-skills",
+      "path": "skills/code-simplification"
+    },
+    "codebase-design": {
+      "source": "mattpocock-skills",
+      "path": "skills/engineering/codebase-design"
+    },
+    "context7": {
+      "source": "intellectronica-agent-skills",
+      "path": "skills/context7"
+    },
+    "create-verification-skill": {
+      "source": "pstack",
+      "path": "pstack/skills/create-verification-skill"
+    },
+    "diagnosing-bugs": {
+      "source": "mattpocock-skills",
+      "path": "skills/engineering/diagnosing-bugs"
+    },
+    "doc-coauthoring": {
+      "source": "anthropic-skills",
+      "path": "skills/doc-coauthoring"
+    },
+    "domain-modeling": {
+      "source": "mattpocock-skills",
+      "path": "skills/engineering/domain-modeling"
+    },
+    "frontend-design": {
+      "source": "anthropic-skills",
+      "path": "skills/frontend-design"
+    },
+    "gog": {
+      "source": "gogcli-skills",
+      "path": ".agents/skills/gog"
+    },
+    "gog-docs": {
+      "source": "gogcli-skills",
+      "path": ".agents/skills/gog-docs"
+    },
+    "gog-drive": {
+      "source": "gogcli-skills",
+      "path": ".agents/skills/gog-drive"
+    },
+    "gog-sheets": {
+      "source": "gogcli-skills",
+      "path": ".agents/skills/gog-sheets"
+    },
+    "grill-me": {
+      "source": "mattpocock-skills",
+      "path": "skills/productivity/grill-me"
+    },
+    "grill-with-docs": {
+      "source": "mattpocock-skills",
+      "path": "skills/engineering/grill-with-docs"
+    },
+    "grilling": {
+      "source": "mattpocock-skills",
+      "path": "skills/productivity/grilling"
+    },
+    "handoff": {
+      "source": "mattpocock-skills",
+      "path": "skills/productivity/handoff"
+    },
+    "how": {
+      "source": "pstack",
+      "path": "pstack/skills/how"
+    },
+    "improve-codebase-architecture": {
+      "source": "mattpocock-skills",
+      "path": "skills/engineering/improve-codebase-architecture"
+    },
+    "loancrate-analyze-agent-self-improve-trend": {
+      "source": "private-skills",
+      "path": "loancrate-analyze-agent-self-improve-trend"
+    },
+    "loancrate-babysit-pr": {
+      "source": "private-skills",
+      "path": "loancrate-babysit-pr"
+    },
+    "loancrate-babysit-pr-stop": {
+      "source": "private-skills",
+      "path": "loancrate-babysit-pr-stop"
+    },
+    "loancrate-create-pr": {
+      "source": "private-skills",
+      "path": "loancrate-create-pr"
+    },
+    "loancrate-create-split-prs": {
+      "source": "private-skills",
+      "path": "loancrate-create-split-prs"
+    },
+    "loancrate-download-documents": {
+      "source": "lc-script-skills",
+      "path": "skills/loancrate-download-documents"
+    },
+    "loancrate-eval-model-candidates-ci": {
+      "source": "lc-script-skills",
+      "path": "skills/loancrate-eval-model-candidates-ci"
+    },
+    "loancrate-lc-script": {
+      "source": "lc-script-skills",
+      "path": "skills/loancrate-lc-script"
+    },
+    "loancrate-ob-pricing-regression-test": {
+      "source": "lc-script-skills",
+      "path": "skills/loancrate-ob-pricing-regression-test"
+    },
+    "loancrate-pr-maintainer": {
+      "source": "private-skills",
+      "path": "loancrate-pr-maintainer"
+    },
+    "loancrate-prepare-perf-impact": {
+      "source": "private-skills",
+      "path": "loancrate-prepare-perf-impact"
+    },
+    "loancrate-project-prioritization": {
+      "source": "private-skills",
+      "path": "loancrate-project-prioritization"
+    },
+    "loancrate-refresh-perf-scoreboard": {
+      "source": "private-skills",
+      "path": "loancrate-refresh-perf-scoreboard"
+    },
+    "loancrate-review-filters-interview": {
+      "source": "dotfiles",
+      "path": "agents/shared-skills/loancrate-review-filters-interview",
+      "sharedDirectory": true
+    },
+    "loancrate-review-policy-engine-interview": {
+      "source": "dotfiles",
+      "path": "agents/shared-skills/loancrate-review-policy-engine-interview",
+      "sharedDirectory": true
+    },
+    "loancrate-run-local-agent-eval": {
+      "source": "lc-script-skills",
+      "path": "skills/loancrate-run-local-agent-eval"
+    },
+    "loancrate-standup-prep": {
+      "source": "private-skills",
+      "path": "loancrate-standup-prep"
+    },
+    "loancrate-weekly-project-update-draft": {
+      "source": "private-skills",
+      "path": "loancrate-weekly-project-update-draft"
+    },
+    "loancrate-weekly-update-draft": {
+      "source": "private-skills",
+      "path": "loancrate-weekly-update-draft"
+    },
+    "loancrate-with-workmux-stack-handoff": {
+      "source": "private-skills",
+      "path": "loancrate-with-workmux-stack-handoff"
+    },
+    "maintain-verification-skill": {
+      "source": "pstack",
+      "path": "pstack/skills/maintain-verification-skill"
+    },
+    "merge-parent-into-branch": {
+      "source": "dotfiles",
+      "path": "agents/shared-skills/merge-parent-into-branch",
+      "sharedDirectory": true
+    },
+    "mermaid-diagrams": {
+      "source": "softaworks-agent-toolkit",
+      "path": "dist/plugins/mermaid-diagrams/skills/mermaid-diagrams"
+    },
+    "multi-valued-review": {
+      "source": "private-skills",
+      "path": "multi-valued-review"
+    },
+    "mushy-lint-rule-config": {
+      "source": "mushy_lint",
+      "path": ".agents/skills/mushy-lint-rule-config"
+    },
+    "mushy-lint-run-review": {
+      "source": "mushy_lint",
+      "path": ".agents/skills/mushy-lint-run-review"
+    },
+    "mvr-suggestions": {
+      "source": "private-skills",
+      "path": "mvr-suggestions"
+    },
+    "neovim-project-config": {
+      "source": "private-skills",
+      "path": "neovim-project-config"
+    },
+    "no-ai-slop": {
+      "source": "no-ai-slop",
+      "path": "skills/no-ai-slop"
+    },
+    "ob-note": {
+      "source": "dotfiles",
+      "path": "agents/shared-skills/ob-note",
+      "sharedDirectory": true
+    },
+    "playwright-cli": {
+      "source": "playwright-cli-skills",
+      "path": "skills/playwright-cli"
+    },
+    "proctmux-config": {
+      "source": "proctmux",
+      "path": "skills/proctmux-config"
+    },
+    "prompt-engineering-patterns": {
+      "source": "wshobson-agents",
+      "path": "plugins/llm-application-dev/skills/prompt-engineering-patterns"
+    },
+    "prototype": {
+      "source": "mattpocock-skills",
+      "path": "skills/engineering/prototype"
+    },
+    "rebase-from-parent": {
+      "source": "dotfiles",
+      "path": "agents/shared-skills/rebase-from-parent",
+      "sharedDirectory": true
+    },
+    "rfc-generator": {
+      "source": "patricio0312rev-skills",
+      "path": "architecture/rfc-generator"
+    },
+    "secret-inject": {
+      "source": "secret_inject",
+      "path": "skills/secret-inject"
+    },
+    "show-me": {
+      "source": "humanlayer-skills",
+      "path": "plugins/show-me/skills/show-me"
+    },
+    "skill-creator": {
+      "source": "anthropic-skills",
+      "path": "skills/skill-creator"
+    },
+    "smart-docs": {
+      "source": "deepwiki-rs-skills",
+      "path": "skills/smart-docs"
+    },
+    "stackman-rebase-conflicts": {
+      "source": "dotfiles",
+      "path": "agents/shared-skills/stackman-rebase-conflicts",
+      "sharedDirectory": true
+    },
+    "summarize-session": {
+      "source": "dotfiles",
+      "path": "agents/shared-skills/summarize-session",
+      "sharedDirectory": true
+    },
+    "surface-code-review": {
+      "source": "pi-surface-skills",
+      "path": "surface-code-review"
+    },
+    "surface-forge-solution": {
+      "source": "pi-surface-skills",
+      "path": "surface-forge-solution"
+    },
+    "surface-plan-large-change": {
+      "source": "pi-surface-skills",
+      "path": "surface-plan-large-change"
+    },
+    "surface-pr-feedback": {
+      "source": "pi-surface-skills",
+      "path": "surface-pr-feedback"
+    },
+    "systematic-debugging": {
+      "source": "superpowers",
+      "path": "skills/systematic-debugging"
+    },
+    "tdd": {
+      "source": "mattpocock-skills",
+      "path": "skills/engineering/tdd"
+    },
+    "teach": {
+      "source": "pstack",
+      "path": "pstack/skills/teach"
+    },
+    "tech-spec": {
+      "source": "dotfiles",
+      "path": "agents/shared-skills/tech-spec",
+      "sharedDirectory": true
+    },
+    "terminal-forge-solution": {
+      "source": "dotfiles",
+      "path": "agents/shared-skills/terminal-forge-solution",
+      "sharedDirectory": true
+    },
+    "typescript-best-practices": {
+      "source": "pstack",
+      "path": "pstack/skills/typescript-best-practices",
+      "replacements": [
+        {
+          "from": "\ndisable-model-invocation: true\n",
+          "to": "\n"
+        }
+      ]
+    },
+    "unslop": {
+      "source": "pstack",
+      "path": "pstack/skills/unslop",
+      "replacements": [
+        {
+          "from": "\ndisable-model-invocation: true\n",
+          "to": "\n"
+        }
+      ]
+    },
+    "vantage-author-diff-tour": {
+      "source": "vantage-nvim-skills",
+      "path": "skills/vantage-author-diff-tour"
+    },
+    "vantage-author-walkthrough": {
+      "source": "vantage-nvim-skills",
+      "path": "skills/vantage-author-walkthrough"
+    },
+    "vantage-distill-session": {
+      "source": "vantage-nvim-skills",
+      "path": "skills/vantage-distill-session"
+    },
+    "visual-explainer": {
+      "source": "builderio-skills",
+      "path": "plugins/visual-explainer"
+    },
+    "web-research": {
+      "source": "deepagents",
+      "path": "libs/code/examples/skills/web-research"
+    },
+    "why": {
+      "source": "pstack",
+      "path": "pstack/skills/why"
+    },
+    "wizard": {
+      "source": "mattpocock-skills",
+      "path": "skills/engineering/wizard"
+    },
+    "workmux-coordinator": {
+      "source": "workmux-skills",
+      "path": "skills/coordinator",
+      "replacements": [
+        {
+          "from": "name: coordinator",
+          "to": "name: workmux-coordinator"
+        },
+        {
+          "from": "/merge",
+          "to": "/workmux-merge"
+        }
+      ]
+    },
+    "workmux-merge": {
+      "source": "workmux-skills",
+      "path": "skills/merge",
+      "replacements": [
+        {
+          "from": "name: merge",
+          "to": "name: workmux-merge"
+        }
+      ]
+    },
+    "workmux-open-pr": {
+      "source": "workmux-skills",
+      "path": "skills/open-pr",
+      "replacements": [
+        {
+          "from": "name: open-pr",
+          "to": "name: workmux-open-pr"
+        }
+      ]
+    },
+    "workmux-rebase": {
+      "source": "workmux-skills",
+      "path": "skills/rebase",
+      "replacements": [
+        {
+          "from": "name: rebase",
+          "to": "name: workmux-rebase"
+        }
+      ]
+    },
+    "workmux-reference": {
+      "source": "workmux-skills",
+      "path": "skills/workmux",
+      "replacements": [
+        {
+          "from": "name: workmux",
+          "to": "name: workmux-reference"
+        },
+        {
+          "from": "\"/workmux add ...\"",
+          "to": "\"/workmux-reference add ...\""
+        },
+        {
+          "from": "/worktree",
+          "to": "/workmux-worktree"
+        },
+        {
+          "from": "/coordinator",
+          "to": "/workmux-coordinator"
+        },
+        {
+          "from": "/merge",
+          "to": "/workmux-merge"
+        },
+        {
+          "from": "/rebase",
+          "to": "/workmux-rebase"
+        },
+        {
+          "from": "/open-pr",
+          "to": "/workmux-open-pr"
+        }
+      ]
+    },
+    "workmux-worktree": {
+      "source": "workmux-skills",
+      "path": "skills/worktree",
+      "replacements": [
+        {
+          "from": "name: worktree",
+          "to": "name: workmux-worktree"
+        },
+        {
+          "from": "/worktree",
+          "to": "/workmux-worktree"
+        },
+        {
+          "from": "/merge",
+          "to": "/workmux-merge"
+        }
+      ]
+    },
+    "writing-for-agents": {
+      "source": "mattpocock-skills",
+      "path": "skills/productivity/writing-for-agents"
+    }
+  },
+  "profiles": {
+    "common": [
+      "skill-creator",
+      "doc-coauthoring",
+      "frontend-design",
+      {
+        "manualOnly": true,
+        "name": "prompt-engineering-patterns"
+      },
+      "context7",
+      "code-simplification",
+      {
+        "manualOnly": true,
+        "name": "ai-ready"
+      },
+      {
+        "manualOnly": true,
+        "name": "brainstorming"
+      },
+      {
+        "manualOnly": true,
+        "name": "systematic-debugging"
+      },
+      "diagnosing-bugs",
+      "handoff",
+      "grill-me",
+      "grilling",
+      "grill-with-docs",
+      "writing-for-agents",
+      {
+        "manualOnly": true,
+        "name": "wizard"
+      },
+      "improve-codebase-architecture",
+      "codebase-design",
+      "tdd",
+      "domain-modeling",
+      {
+        "manualOnly": true,
+        "name": "prototype"
+      },
+      {
+        "manualOnly": true,
+        "name": "architect"
+      },
+      {
+        "manualOnly": true,
+        "name": "blast-radius"
+      },
+      {
+        "manualOnly": true,
+        "name": "how"
+      },
+      {
+        "manualOnly": true,
+        "name": "teach"
+      },
+      {
+        "manualOnly": true,
+        "name": "create-verification-skill"
+      },
+      {
+        "manualOnly": true,
+        "name": "maintain-verification-skill"
+      },
+      {
+        "manualOnly": true,
+        "name": "why"
+      },
+      {
+        "manualOnly": true,
+        "name": "arena"
+      },
+      "typescript-best-practices",
+      "unslop",
+      "proctmux-config",
+      "secret-inject",
+      {
+        "manualOnly": true,
+        "name": "mushy-lint-rule-config"
+      },
+      {
+        "manualOnly": true,
+        "name": "mushy-lint-run-review"
+      },
+      "vantage-distill-session",
+      "vantage-author-walkthrough",
+      "vantage-author-diff-tour",
+      "playwright-cli",
+      "gog",
+      "gog-docs",
+      "gog-sheets",
+      "gog-drive",
+      "web-research",
+      "mermaid-diagrams",
+      {
+        "manualOnly": true,
+        "name": "workmux-worktree"
+      },
+      {
+        "manualOnly": true,
+        "name": "workmux-coordinator"
+      },
+      {
+        "manualOnly": true,
+        "name": "workmux-merge"
+      },
+      {
+        "manualOnly": true,
+        "name": "workmux-rebase"
+      },
+      {
+        "manualOnly": true,
+        "name": "workmux-open-pr"
+      },
+      {
+        "manualOnly": true,
+        "name": "workmux-reference"
+      },
+      {
+        "manualOnly": true,
+        "name": "no-ai-slop"
+      },
+      "show-me",
+      "visual-explainer",
+      {
+        "manualOnly": true,
+        "name": "multi-valued-review"
+      },
+      {
+        "manualOnly": true,
+        "name": "mvr-suggestions"
+      },
+      {
+        "manualOnly": true,
+        "name": "neovim-project-config"
+      },
+      {
+        "manualOnly": true,
+        "name": "rfc-generator"
+      },
+      {
+        "manualOnly": true,
+        "name": "smart-docs"
+      },
+      "address-pr-feedback",
+      "agent-management",
+      {
+        "manualOnly": true,
+        "name": "classify"
+      },
+      "terminal-forge-solution",
+      {
+        "manualOnly": true,
+        "name": "surface-forge-solution"
+      },
+      {
+        "manualOnly": true,
+        "name": "surface-code-review"
+      },
+      {
+        "manualOnly": true,
+        "name": "surface-pr-feedback"
+      },
+      {
+        "manualOnly": true,
+        "name": "surface-plan-large-change"
+      },
+      "ob-note",
+      "rebase-from-parent",
+      "merge-parent-into-branch",
+      "stackman-rebase-conflicts",
+      {
+        "manualOnly": true,
+        "name": "summarize-session"
+      },
+      "tech-spec"
+    ],
+    "work": [
+      "loancrate-with-workmux-stack-handoff",
+      "loancrate-standup-prep",
+      "loancrate-analyze-agent-self-improve-trend",
+      "loancrate-weekly-update-draft",
+      "loancrate-weekly-project-update-draft",
+      "loancrate-project-prioritization",
+      "loancrate-refresh-perf-scoreboard",
+      {
+        "manualOnly": true,
+        "name": "loancrate-pr-maintainer"
+      },
+      {
+        "manualOnly": true,
+        "name": "loancrate-babysit-pr"
+      },
+      {
+        "manualOnly": true,
+        "name": "loancrate-babysit-pr-stop"
+      },
+      {
+        "manualOnly": true,
+        "name": "loancrate-create-pr"
+      },
+      {
+        "manualOnly": true,
+        "name": "loancrate-create-split-prs"
+      },
+      {
+        "manualOnly": true,
+        "name": "loancrate-prepare-perf-impact"
+      },
+      {
+        "manualOnly": true,
+        "name": "loancrate-review-policy-engine-interview"
+      },
+      {
+        "manualOnly": true,
+        "name": "loancrate-review-filters-interview"
+      },
+      "loancrate-lc-script",
+      "loancrate-eval-model-candidates-ci",
+      "loancrate-ob-pricing-regression-test",
+      "loancrate-run-local-agent-eval",
+      "loancrate-download-documents"
+    ]
+  }
+}

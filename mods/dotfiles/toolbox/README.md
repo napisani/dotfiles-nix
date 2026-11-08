@@ -1,9 +1,9 @@
 # toolbox
 
 Personal CLI utilities and shell replacements, scoped to this dotfiles repo.
-Two tiers depending on complexity. Both end up as plain commands on PATH.
-Standard-library scripts can run directly with Python; dependency-bearing tools
-use uv for isolation.
+Standard-library scripts run directly with Python. Dependency-bearing scripts
+can use standard uv inline dependencies; packaged CLIs use mise's built-in
+`pipx` backend, not a custom editable installer.
 
 ## PR checkouts
 
@@ -51,58 +51,9 @@ import httpx
 
 ---
 
-## Tier 2 — Multi-module packages
+## Packaged Python CLIs
 
-For tools that grow beyond a single file: multiple modules, shared utilities,
-or heavier dependency trees.
-
-**Location:** a subdirectory with a `pyproject.toml`
-
-```
-toolbox/
-  my-tool/
-    pyproject.toml
-    src/
-      my_tool/
-        __init__.py
-        cli.py
-        utils.py
-```
-
-**`pyproject.toml` minimum:**
-
-```toml
-[project]
-name = "my-tool"
-version = "0.1.0"
-requires-python = "==3.12"
-dependencies = ["click", "httpx"]
-
-[project.scripts]
-my-tool = "my_tool.cli:main"
-```
-
-**Activation:** `home-manager switch` — the activation script in `uvx.nix`
-auto-discovers any subdirectory with a `pyproject.toml` and runs:
-
-```bash
-uv tool install --editable ~/toolbox/my-tool
-```
-
-This places `my-tool` in `~/.local/bin` (already on PATH). Because it is an
-editable install, edits to source files are reflected immediately with no
-reinstall needed. Adding or changing dependencies requires re-running
-`home-manager switch` (or `uv tool install --editable ~/toolbox/my-tool`
-directly).
-
----
-
-## Choosing a tier
-
-| | Tier 1 | Tier 2 |
-|---|---|---|
-| Single file | yes | no |
-| Multiple modules | no | yes |
-| Edit → run | instant | instant (editable) |
-| New dep | edit file header | edit pyproject.toml + switch |
-| Command name | `my-script.py` (or alias) | clean name from entry point |
+Declare an explicit version under `[tools]` in `mise/config.toml`, using
+`"pipx:<package>" = "<version>"`. Mise provides an isolated installation and
+normal shims. Nothing auto-discovers toolbox subdirectories, and no command
+mutates system Python. Local development environments stay project-local.

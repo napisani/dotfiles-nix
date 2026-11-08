@@ -2,7 +2,6 @@
 #
 # Bash reads this (not ~/.bashrc) for login shells, so it has to pull in both:
 # the environment from ~/.profile, then the interactive setup from ~/.bashrc.
-# Identical in shape to what home-manager generated, deliberately.
 
 # shellcheck disable=SC1091
 [ -r "$HOME/.profile" ] && . "$HOME/.profile"

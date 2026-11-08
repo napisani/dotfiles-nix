@@ -15,7 +15,14 @@ sh_have() {
 
 # The dotfiles checkout every update and activation command operates on.
 sh_dotfiles_dir() {
-	printf '%s\n' "${DOTFILES_HOME_MANAGER_DIR:-$HOME/code/monorepo/pub/dotfiles-nix}"
+	if [ -n "${DOTFILES_DIR:-}" ]; then
+		printf '%s\n' "$DOTFILES_DIR"
+	elif [ -d "$HOME/.config/mise/dotfiles" ]; then
+		(CDPATH='' cd -P -- "$HOME/.config/mise/dotfiles/../.." && pwd -P)
+	else
+		echo 'Dotfiles source missing; run bootstrap.sh or set DOTFILES_DIR.' >&2
+		return 1
+	fi
 }
 
 # Source a file only if it's readable. Returns success either way, so a missing
@@ -39,19 +46,21 @@ sh_source_first() {
 	return 1
 }
 
-# Prepend to PATH, but only once and only if the directory exists.
-#
-# Idempotence matters: the old 0050_shell.bashrc prepended unconditionally from
-# .bashrc, so every nested interactive shell added another copy — the pre-change
-# baseline had $HOME/.local/bin, $HOME/shell_scripts and $HOME/toolbox in PATH
-# three times each.
+# Nix and Homebrew can seed PATH before this profile sets tool precedence.
 sh_path_prepend() {
-	local dir="$1"
+	local dir="$1" remaining="$PATH" entry result="$1"
 	[ -d "$dir" ] || return 0
-	case ":$PATH:" in
-	*":$dir:"*) return 0 ;;
-	esac
-	PATH="$dir:$PATH"
+	while :; do
+		entry=${remaining%%:*}
+		if [ -n "$entry" ] && [ "$entry" != "$dir" ]; then
+			result="$result:$entry"
+		fi
+		case "$remaining" in
+		*:*) remaining=${remaining#*:} ;;
+		*) break ;;
+		esac
+	done
+	PATH="$result"
 	export PATH
 }
 

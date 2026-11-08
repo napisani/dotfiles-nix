@@ -1,3 +1,4 @@
+require("user.runtime")
 require("user.compat")
 
 -- Enable secure external rc files
@@ -34,7 +35,6 @@ end
 require("user.whichkey.whichkey")
 
 
-require("user.mermaid").setup()
 
 -- Autocommands load after which-key
 require("user.autocommands")

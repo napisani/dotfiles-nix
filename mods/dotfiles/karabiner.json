@@ -4444,7 +4444,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command focus left"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command focus left"
                   }
                 ],
                 "conditions": [
@@ -4467,7 +4467,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command focus down"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command focus down"
                   }
                 ],
                 "conditions": [
@@ -4490,7 +4490,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command focus up"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command focus up"
                   }
                 ],
                 "conditions": [
@@ -4513,7 +4513,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command focus right"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command focus right"
                   }
                 ],
                 "conditions": [
@@ -4536,7 +4536,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace next"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace next"
                   }
                 ],
                 "conditions": [
@@ -4559,7 +4559,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace prev"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace prev"
                   }
                 ],
                 "conditions": [
@@ -4667,7 +4667,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move left"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move left"
                   }
                 ],
                 "conditions": [
@@ -4690,7 +4690,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move down"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move down"
                   }
                 ],
                 "conditions": [
@@ -4713,7 +4713,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move up"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move up"
                   }
                 ],
                 "conditions": [
@@ -4736,7 +4736,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move right"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move right"
                   }
                 ],
                 "conditions": [
@@ -4759,7 +4759,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move left"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move left"
                   }
                 ],
                 "conditions": [
@@ -4782,7 +4782,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move up"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move up"
                   }
                 ],
                 "conditions": [
@@ -4805,7 +4805,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move down"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move down"
                   }
                 ],
                 "conditions": [
@@ -4828,7 +4828,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move right"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move right"
                   }
                 ],
                 "conditions": [
@@ -4897,7 +4897,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command toggle-focused-window-floating"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command toggle-focused-window-floating"
                   }
                 ],
                 "conditions": [
@@ -4920,7 +4920,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command toggle-fullscreen"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command toggle-fullscreen"
                   }
                 ],
                 "conditions": [
@@ -4943,7 +4943,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command toggle-column-tabbed"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command toggle-column-tabbed"
                   }
                 ],
                 "conditions": [
@@ -4966,7 +4966,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command toggle-workspace-layout"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command toggle-workspace-layout"
                   }
                 ],
                 "conditions": [
@@ -4989,7 +4989,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command open-command-palette"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command open-command-palette"
                   }
                 ],
                 "conditions": [
@@ -5012,7 +5012,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command focus previous"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command focus previous"
                   }
                 ],
                 "conditions": [
@@ -5035,7 +5035,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command toggle-overview"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command toggle-overview"
                   }
                 ],
                 "conditions": [
@@ -5058,7 +5058,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command toggle-quake-terminal"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command toggle-quake-terminal"
                   }
                 ],
                 "conditions": [
@@ -5081,7 +5081,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command balance-sizes"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command balance-sizes"
                   }
                 ],
                 "conditions": [
@@ -5130,7 +5130,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command close-focused-window"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command close-focused-window"
                   }
                 ],
                 "conditions": [
@@ -5158,7 +5158,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 1"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace 1"
                   }
                 ],
                 "conditions": [
@@ -5181,7 +5181,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 2"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace 2"
                   }
                 ],
                 "conditions": [
@@ -5204,7 +5204,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 3"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace 3"
                   }
                 ],
                 "conditions": [
@@ -5227,7 +5227,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 4"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace 4"
                   }
                 ],
                 "conditions": [
@@ -5250,7 +5250,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 5"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace 5"
                   }
                 ],
                 "conditions": [
@@ -5278,7 +5278,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 1"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move-to-workspace 1"
                   }
                 ],
                 "conditions": [
@@ -5301,7 +5301,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 2"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move-to-workspace 2"
                   }
                 ],
                 "conditions": [
@@ -5324,7 +5324,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 3"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move-to-workspace 3"
                   }
                 ],
                 "conditions": [
@@ -5347,7 +5347,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 4"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move-to-workspace 4"
                   }
                 ],
                 "conditions": [
@@ -5370,7 +5370,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 5"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move-to-workspace 5"
                   }
                 ],
                 "conditions": [
@@ -5398,7 +5398,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command set-container-primary-span -10%"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command set-container-primary-span -10%"
                   }
                 ],
                 "conditions": [
@@ -5421,7 +5421,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command set-container-primary-span +10%"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command set-container-primary-span +10%"
                   }
                 ],
                 "conditions": [
@@ -5449,7 +5449,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command set-window-secondary-span -10%"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command set-window-secondary-span -10%"
                   }
                 ],
                 "conditions": [
@@ -5477,7 +5477,7 @@
                 },
                 "to": [
                   {
-                    "shell_command": "/etc/profiles/per-user/nick/bin/omniwmctl command set-window-secondary-span +10%"
+                    "shell_command": "/Applications/OmniWM.app/Contents/MacOS/omniwmctl command set-window-secondary-span +10%"
                   }
                 ],
                 "conditions": [

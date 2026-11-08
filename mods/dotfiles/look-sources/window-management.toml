@@ -3,32 +3,32 @@
 [window-manager-focus-left]
 name = "Tab + H — Focus window left"
 aliases = ["window manager","omniwm","w","Tab + H","focus","left"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command focus left"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command focus left"]
 
 [window-manager-focus-down]
 name = "Tab + J — Focus window down"
 aliases = ["window manager","omniwm","w","Tab + J","focus","down"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command focus down"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command focus down"]
 
 [window-manager-focus-up]
 name = "Tab + K — Focus window up"
 aliases = ["window manager","omniwm","w","Tab + K","focus","up"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command focus up"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command focus up"]
 
 [window-manager-focus-right]
 name = "Tab + L — Focus window right"
 aliases = ["window manager","omniwm","w","Tab + L","focus","right"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command focus right"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command focus right"]
 
 [window-manager-workspace-next]
 name = "Tab + N — Switch to next workspace"
 aliases = ["window manager","omniwm","w","Tab + N","workspace","next"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace next"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace next"]
 
 [window-manager-workspace-prev]
 name = "Tab + P — Switch to previous workspace"
 aliases = ["window manager","omniwm","w","Tab + P","workspace","previous"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace prev"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace prev"]
 
 [window-manager-dictation]
 name = "Tab + V — Dictate while held"
@@ -48,42 +48,42 @@ do = ["open -na kitty"]
 [window-manager-move-left]
 name = "Tab + Q + H — Move window left"
 aliases = ["window manager","omniwm","w","Tab + Q + H","move","window","left"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move left"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move left"]
 
 [window-manager-move-down]
 name = "Tab + Q + J — Move window down"
 aliases = ["window manager","omniwm","w","Tab + Q + J","move","window","down"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move down"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move down"]
 
 [window-manager-move-up]
 name = "Tab + Q + K — Move window up"
 aliases = ["window manager","omniwm","w","Tab + Q + K","move","window","up"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move up"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move up"]
 
 [window-manager-move-right]
 name = "Tab + Q + L — Move window right"
 aliases = ["window manager","omniwm","w","Tab + Q + L","move","window","right"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move right"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move right"]
 
 [window-manager-join-left]
 name = "Tab + Q + Y — Join or expel window to the left"
 aliases = ["window manager","omniwm","w","Tab + Q + Y","join","window","left"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move left"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move left"]
 
 [window-manager-join-up]
 name = "Tab + Q + U — Join or expel window above"
 aliases = ["window manager","omniwm","w","Tab + Q + U","join","window","up"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move up"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move up"]
 
 [window-manager-join-down]
 name = "Tab + Q + I — Join or expel window below"
 aliases = ["window manager","omniwm","w","Tab + Q + I","join","window","down"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move down"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move down"]
 
 [window-manager-join-right]
 name = "Tab + Q + O — Join or expel window to the right"
 aliases = ["window manager","omniwm","w","Tab + Q + O","join","window","right"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move right"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move right"]
 
 [window-manager-move-workspace-next]
 name = "Tab + Q + N — Move window to next workspace"
@@ -98,97 +98,97 @@ do = ["$HOME/shell_scripts/omniwm-workspace-move-adjacent.sh prev"]
 [window-manager-workspace-1]
 name = "Tab + 1 — Switch to workspace 1"
 aliases = ["window manager","omniwm","w","Tab + 1","workspace","switch","1"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 1"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace 1"]
 
 [window-manager-move-workspace-1]
 name = "Tab + Q + 1 — Move window to workspace 1"
 aliases = ["window manager","omniwm","w","Tab + Q + 1","workspace","move","1"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 1"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move-to-workspace 1"]
 
 [window-manager-workspace-2]
 name = "Tab + 2 — Switch to workspace 2"
 aliases = ["window manager","omniwm","w","Tab + 2","workspace","switch","2"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 2"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace 2"]
 
 [window-manager-move-workspace-2]
 name = "Tab + Q + 2 — Move window to workspace 2"
 aliases = ["window manager","omniwm","w","Tab + Q + 2","workspace","move","2"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 2"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move-to-workspace 2"]
 
 [window-manager-workspace-3]
 name = "Tab + 3 — Switch to workspace 3"
 aliases = ["window manager","omniwm","w","Tab + 3","workspace","switch","3"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 3"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace 3"]
 
 [window-manager-move-workspace-3]
 name = "Tab + Q + 3 — Move window to workspace 3"
 aliases = ["window manager","omniwm","w","Tab + Q + 3","workspace","move","3"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 3"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move-to-workspace 3"]
 
 [window-manager-workspace-4]
 name = "Tab + 4 — Switch to workspace 4"
 aliases = ["window manager","omniwm","w","Tab + 4","workspace","switch","4"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 4"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace 4"]
 
 [window-manager-move-workspace-4]
 name = "Tab + Q + 4 — Move window to workspace 4"
 aliases = ["window manager","omniwm","w","Tab + Q + 4","workspace","move","4"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 4"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move-to-workspace 4"]
 
 [window-manager-workspace-5]
 name = "Tab + 5 — Switch to workspace 5"
 aliases = ["window manager","omniwm","w","Tab + 5","workspace","switch","5"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command switch-workspace 5"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command switch-workspace 5"]
 
 [window-manager-move-workspace-5]
 name = "Tab + Q + 5 — Move window to workspace 5"
 aliases = ["window manager","omniwm","w","Tab + Q + 5","workspace","move","5"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command move-to-workspace 5"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command move-to-workspace 5"]
 
 [window-manager-toggle-float]
 name = "Tab + Q + Space — Toggle floating window"
 aliases = ["window manager","omniwm","w","Tab + Q + Space","float","floating","window"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command toggle-focused-window-floating"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command toggle-focused-window-floating"]
 
 [window-manager-toggle-fullscreen]
 name = "Tab + Q + Z — Toggle fullscreen"
 aliases = ["window manager","omniwm","w","Tab + Q + Z","fullscreen","window"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command toggle-fullscreen"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command toggle-fullscreen"]
 
 [window-manager-toggle-column-tabbed]
 name = "Tab + Q + B — Toggle Niri column tabbed"
 aliases = ["window manager","omniwm","w","Tab + Q + B","layout","column","tabbed"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command toggle-column-tabbed"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command toggle-column-tabbed"]
 
 [window-manager-toggle-workspace-layout]
 name = "Tab + Q + S — Toggle workspace layout"
 aliases = ["window manager","omniwm","w","Tab + Q + S","layout","niri","dwindle"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command toggle-workspace-layout"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command toggle-workspace-layout"]
 
 [window-manager-command-palette]
 name = "Tab + Q + C — Open OmniWM command palette"
 aliases = ["window manager","omniwm","w","Tab + Q + C","command","palette"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command open-command-palette"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command open-command-palette"]
 
 [window-manager-focus-previous]
 name = "Tab + Q + A — Focus previous window"
 aliases = ["window manager","omniwm","w","Tab + Q + A","focus","previous","last"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command focus previous"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command focus previous"]
 
 [window-manager-toggle-overview]
 name = "Tab + Q + V — Toggle window overview"
 aliases = ["window manager","omniwm","w","Tab + Q + V","overview","windows"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command toggle-overview"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command toggle-overview"]
 
 [window-manager-toggle-quake-terminal]
 name = "Tab + Q + T — Toggle Quake terminal"
 aliases = ["window manager","omniwm","w","Tab + Q + T","terminal","quake","ghostty"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command toggle-quake-terminal"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command toggle-quake-terminal"]
 
 [window-manager-balance-sizes]
 name = "Tab + Q + G — Balance window sizes"
 aliases = ["window manager","omniwm","w","Tab + Q + G","layout","balance","sizes"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command balance-sizes"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command balance-sizes"]
 
 [window-manager-minimize-window]
 name = "Tab + Q + M — Minimize window"
@@ -198,25 +198,25 @@ do = ["osascript -e 'tell application \"System Events\" to keystroke \"m\" using
 [window-manager-close-window]
 name = "Tab + Q + X — Close window"
 aliases = ["window manager","omniwm","w","Tab + Q + X","window","close","quit"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command close-focused-window"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command close-focused-window"]
 
 [window-manager-resize-shrink-primary]
 name = "Tab + Q + - — Shrink container primary span"
 aliases = ["window manager","omniwm","w","Tab + Q + -","resize","shrink","primary","span"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command set-container-primary-span -10%"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command set-container-primary-span -10%"]
 
 [window-manager-resize-grow-primary]
 name = "Tab + Q + = — Grow container primary span"
 aliases = ["window manager","omniwm","w","Tab + Q + =","resize","grow","primary","span"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command set-container-primary-span +10%"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command set-container-primary-span +10%"]
 
 [window-manager-resize-shrink-secondary]
 name = "Tab + Q + Shift + - — Shrink window secondary span"
 aliases = ["window manager","omniwm","w","Tab + Q + Shift + -","resize","shrink","secondary","span"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command set-window-secondary-span -10%"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command set-window-secondary-span -10%"]
 
 [window-manager-resize-grow-secondary]
 name = "Tab + Q + Shift + = — Grow window secondary span"
 aliases = ["window manager","omniwm","w","Tab + Q + Shift + =","resize","grow","secondary","span"]
-do = ["/etc/profiles/per-user/nick/bin/omniwmctl command set-window-secondary-span +10%"]
+do = ["/Applications/OmniWM.app/Contents/MacOS/omniwmctl command set-window-secondary-span +10%"]
 

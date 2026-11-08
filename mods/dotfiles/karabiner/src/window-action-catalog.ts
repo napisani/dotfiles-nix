@@ -7,7 +7,7 @@ export type WindowAction = {
   lookCommand?: string;
 };
 
-const omniwmctl = "/etc/profiles/per-user/nick/bin/omniwmctl";
+const omniwmctl = "/Applications/OmniWM.app/Contents/MacOS/omniwmctl";
 // The cask puts no `hex` on PATH; the app bundle's executable is the control CLI.
 const hex = "/Applications/Hex.app/Contents/MacOS/hex";
 const adjacentWorkspaceScript =

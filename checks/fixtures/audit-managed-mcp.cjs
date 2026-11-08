@@ -3,8 +3,10 @@ const assert = require('node:assert/strict');
 const {spawnSync} = require('node:child_process');
 const root = fs.mkdtempSync(path.join(os.tmpdir(),'mcp-audit-'));
 try {
-  const declarations = path.join(root,'declared.json');
-  fs.writeFileSync(declarations, JSON.stringify({claude:{mcpServers:{keep:{command:'desired'}}}}));
+  const declarations = path.join(root,'declared');
+  fs.mkdirSync(declarations);
+  fs.writeFileSync(path.join(declarations,'claude-mcp.json'), JSON.stringify({keep:{command:'desired'}}));
+  for (const agent of ['codex','pi']) fs.writeFileSync(path.join(declarations,`${agent}-mcp.json`), '{}');
   const config = path.join(root,'.claude.json');
   fs.writeFileSync(config, JSON.stringify({oauthToken:'NEVER-PRINT-THIS', mcpServers:{keep:{command:'edited'},manual:{token:'ALSO-PRIVATE'}}}));
   const before = fs.readFileSync(config,'utf8'), mtime = fs.statSync(config).mtimeMs;

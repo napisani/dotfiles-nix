@@ -183,7 +183,6 @@ was closed, navigation uses another non-Diffview tab or creates an editing tab.
 `<leader>lR` → leaf: restart all attached LSP servers  
 `<leader>lc` → [nv] leaf: toggle comment on current line or selection  
 `<leader>lC` → leaf: toggle AI inline code suggestions on or off for the editor session
-`<leader>ld` → leaf: render the current Mermaid diagram file to SVG and open a browser-based pan/zoom viewer
 `<leader>lm` → leaf: toggle markdown rendering (preview rendered output inline)  
 `<leader>lw` → leaf: toggle line wrap in current window
 
@@ -296,7 +295,7 @@ Merge conflict resolution (contextual inside a diff/merge view):
 
 `<leader>a` → domain: control the **Wiremux** target pane and **PromptBuilder** — a single **horizontal** split (opens **below** the current window, height capped to a fraction of the screen), markdown-syntax scratch buffer (tag `prompt_builder`) where you assemble `@` references and freeform text. At most one PromptBuilder buffer exists; new material **appends** to it. Nothing here talks to the agent by itself except **`ao` / `aq` / `aw` / `av`** and **`<C-g>` inside PromptBuilder** (see below)  
 `<leader>a` → contract: after a **send** to the agent (including from PromptBuilder via `<C-g>`) or after **`ao`** toggle / focus, the **Wiremux target pane** gets focus so the reply is visible. Staging keys (`af*`, `ae`, `a?`, `as`, `ap`, `am`) only update PromptBuilder until you `<C-g>` there; **`ai`** is different: it only opens or focuses PromptBuilder and appends no text
-`<leader>a` → note: route (target) is per-session and defaults to the `pi` pane for the current working directory; available coding-agent routes include OpenCode, Claude Code, Codex, Cursor Agent, Gemini, and Pi
+`<leader>a` → note: route (target) is per-session and defaults to the `pi` pane for the current working directory; available coding-agent routes include Claude Code, Codex, Cursor Agent, Gemini, and Pi
 
 **Direct to Wiremux (not PromptBuilder)**  
 `<leader>aq` → [n] leaf: close the current route target  
@@ -322,7 +321,7 @@ Merge conflict resolution (contextual inside a diff/merge view):
 `<leader>a?` → [n] [v] leaf: same, but Snacks title *Question* and a **Question:** line in the appended block
 
 **`as` — skill callout to PromptBuilder**
-`<leader>as` → [n] leaf: pick an AI skill from the shared skill list (`~/.agents/skills` plus the current repo's `.agents/skills`); append the active Wiremux route's skill callout (`/skill name` for opencode, `/name` for claude, `$name` for codex, `/skill:name` for pi) to PromptBuilder for editing, then `<C-g>` to send
+`<leader>as` → [n] leaf: pick an AI skill from the shared skill list (`~/.agents/skills` plus the current repo's `.agents/skills`); append the active Wiremux route's skill callout (`/name` for claude, `$name` for codex, `/skill:name` for pi) to PromptBuilder for editing, then `<C-g>` to send
 
 **Canned and submit**  
 `<leader>ap` → [n] leaf: pick a **canned prompt** from the library; the template (with `{file}` / `{this}` / `{selection}` expanded where possible) is **appended** to PromptBuilder for you to edit, then `<C-g>` to send
@@ -332,7 +331,7 @@ Merge conflict resolution (contextual inside a diff/merge view):
 
 **Inside a PromptBuilder buffer**  
 `@…` → [i] leaf: blink file completion uses `@` as the draft trigger; accepting a file replaces the `@…` token with `@relative/path/to/file`
-`$…` → [i] leaf: blink skill completion always uses `$` as the draft trigger; accepting a skill replaces the `$…` token with the active Wiremux route's callout (`/skill name` for opencode, `/name` for claude, `$name` for codex, `/skill:name` for pi)
+`$…` → [i] leaf: blink skill completion always uses `$` as the draft trigger; accepting a skill replaces the `$…` token with the active Wiremux route's callout (`/name` for claude, `$name` for codex, `/skill:name` for pi)
 `<C-g>` → [n] [i] leaf: send the **entire** buffer as one message to Wiremux **with submit**, then wipe the PromptBuilder buffer  
 
 ---

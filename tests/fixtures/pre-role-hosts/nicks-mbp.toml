@@ -1,0 +1,23 @@
+[tools]
+"helm" = "4.3.1"
+
+[bootstrap.hooks.pre-defaults]
+run = 'sh {{ vars.dotfiles_root | quote }}/mise/runtime/mise/check-omniwm-handoff.sh /Applications/OmniWM.app/Contents/MacOS/OmniWM "$HOME/Library/LaunchAgents/org.nix-community.home.omniwm.plist"'
+
+[bootstrap.macos.launchd.agents.omniwm]
+program = "/Applications/OmniWM.app/Contents/MacOS/OmniWM"
+run_at_load = true
+keep_alive = true
+stdout_path = "/tmp/omniwm.log"
+stderr_path = "/tmp/omniwm.err.log"
+
+[bootstrap.packages]
+"brew-cask:omniwm" = { os = "macos/arm64" }
+"brew-cask:slack" = { os = "macos" }
+"brew-cask:discord" = { os = "macos" }
+"brew-cask:cryptomator" = { os = "macos" }
+"brew-cask:docker-desktop" = { os = "macos" }
+"brew-cask:bambu-studio" = { os = "macos" }
+
+[env]
+PET_ADDL_SNIPPETS = "{{ env.HOME }}/.config/pet/nick-mbp-snippets.toml"

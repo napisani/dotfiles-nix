@@ -18,83 +18,7 @@
 
   security.pam.services.sudo_local.touchIdAuth = true;
 
-  homebrew = {
-    enable = true;
-    global.brewfile = true;
-    onActivation = {
-      upgrade = false;
-      # Homebrew 5 requires --force/--force-cleanup or HOMEBREW_ASK for
-      # `brew bundle install --cleanup`. nix-darwin currently emits --cleanup
-      # without those flags, so keep activation non-interactive and avoid
-      # cleanup during system switches.
-      cleanup = "none";
-      autoUpdate = false;
-    };
-
-    masApps = {
-      Xcode = 497799835;
-    };
-
-    # Base casks that all Macs should have
-    casks = [
-      "kitty"
-      # Its own `setup` links the agent skill per agent (the Codex copy is a
-      # different variant), so the skill is deliberately not in the Nix catalog.
-      "terminal-browser"
-      # "ungoogled-chromium"
-      "bitwarden"
-      "caffeine"
-      # "firefox@developer-edition"
-      "brave-browser"
-      "tailscale-app"
-      "obsidian"
-      "stats"
-      "karabiner-elements"
-      "claude-code"
-      "codex"
-      "look"
-    ]
-    # Hex's cask is arm64-only, so the Intel Mac (maclab) cannot run it.
-    ++ lib.optional pkgs.stdenv.hostPlatform.isAarch64 "anomalyco/tap/hex";
-
-    # Base brews that all Macs should have
-    brews = [
-      # "procmux"
-      "opencode"
-      "raine/workmux/workmux"
-      "ollama"
-    ];
-
-    taps = [
-      # "napisani/procmux"
-      # "homebrew/cask-versions"
-      {
-        name = "kunkka19xx/tap";
-        trusted = true;
-      }
-      {
-        name = "mongodb/brew";
-        trusted = true;
-      }
-      {
-        name = "raine/workmux";
-        trusted = true;
-      }
-    ]
-    ++ lib.optional pkgs.stdenv.hostPlatform.isAarch64 {
-      name = "anomalyco/tap";
-      trusted = true;
-    };
-  };
-
-  environment = {
-    shells = [ pkgs.bash ];
-    systemPackages = with pkgs; [
-      bashInteractive
-      coreutils
-      gnugrep
-    ];
-  };
+  environment.shells = [ pkgs.bash ];
 
   fonts.packages = [
     pkgs.nerd-fonts.meslo-lg
@@ -102,9 +26,9 @@
     pkgs.nerd-fonts.symbols-only
   ];
 
+  # CustomUserPreferences replaces the entire hotkey dictionary, including
+  # unrelated user bindings; plutil preserves those entries and key parameters.
   system.activationScripts.postActivation.text = lib.mkAfter ''
-    # Disable Spotlight Cmd+Space (64) and Cmd+Option+Space (65)
-    # so they don't conflict with app launchers (e.g. Look, Alfred, Raycast).
     USER_HOME="$(dscl . -read /Users/${config.system.primaryUser} NFSHomeDirectory | awk '{print $2}')"
     /usr/bin/plutil -replace AppleSymbolicHotKeys.64.enabled -bool NO \
       "$USER_HOME/Library/Preferences/com.apple.symbolichotkeys.plist" 2>/dev/null || true
