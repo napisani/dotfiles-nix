@@ -22,7 +22,7 @@ Never ask up front whether to write an RFC. The user can request or withdraw one
 
 ## The terminal
 
-Every question goes through the terminal's structured ask-question tool (e.g. `ask_user_question`, Claude Code's `AskUserQuestion`). If it is missing, say so and stop rather than asking in prose.
+Every question goes through the terminal's structured ask-question tool (e.g. Pi's `ask_user`, Claude Code's `AskUserQuestion`). If it is missing, say so and stop rather than asking in prose.
 
 ## How to ask
 

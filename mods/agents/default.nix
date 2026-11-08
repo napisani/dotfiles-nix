@@ -101,7 +101,7 @@
         "npm:@datspike/pi-inline-slash-extension@0.2.1"
         "npm:@ff-labs/pi-fff@0.11.0"
         "npm:@juicesharp/rpiv-btw@2.15.0"
-        "npm:@juicesharp/rpiv-ask-user-question@2.15.0"
+        "npm:@eko24ive/pi-ask@1.2.0"
         "npm:@lincoln504/pi-research@1.7.23"
         "npm:pi-vim@0.14.2"
         "npm:pi-web-access@0.45.0"
