@@ -3,6 +3,7 @@ set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 subject="$script_dir/../pi-surface-browser.sh"
+relay="$(cd -- "$script_dir/.." && pwd)/pi-surface-browser-relay.py"
 tmp="$(mktemp -d "${TMPDIR:-/tmp}/pi-surface-browser-test.XXXXXX")"
 trap 'rm -rf "$tmp"' EXIT
 
@@ -74,7 +75,7 @@ browsers "%9" "$url"
 TEST_WINDOWS='@1\t\n' run
 check "with no window for the page it creates and marks one" \
 	"$lookup
-tmux new-window -P -F #{window_id} -t \$1: -n surface:review terminal-browser open $url
+tmux new-window -P -F #{window_id} -t \$1: -n surface:review python3 $relay terminal-browser open $url
 tmux set-option -w -t @9 @pi_surface_page review"
 
 TEST_WINDOWS='@1\t\n@7\treview\n' TEST_PANES='%9\n' run
@@ -106,7 +107,7 @@ browsers "%9" "$url"
 TEST_WINDOWS='@7\tforge\n' run
 check "another page in the same session gets its own window" \
 	"$lookup
-tmux new-window -P -F #{window_id} -t \$1: -n surface:review terminal-browser open $url
+tmux new-window -P -F #{window_id} -t \$1: -n surface:review python3 $relay terminal-browser open $url
 tmux set-option -w -t @9 @pi_surface_page review"
 
 # Another session's windows are not in this session's list-windows output, so a
@@ -115,7 +116,7 @@ browsers "%50" "$url"
 TEST_WINDOWS='@1\t\n' run
 check "another session's browser is not reused" \
 	"$lookup
-tmux new-window -P -F #{window_id} -t \$1: -n surface:review terminal-browser open $url
+tmux new-window -P -F #{window_id} -t \$1: -n surface:review python3 $relay terminal-browser open $url
 tmux set-option -w -t @9 @pi_surface_page review"
 
 browsers "%50" "$url"
@@ -123,7 +124,7 @@ TEST_WINDOWS='@7\treview\n' TEST_PANES='%9\n' run
 check "a window whose browser has gone is respawned" \
 	"$lookup
 tmux list-panes -t @7 -F #{pane_id}
-tmux respawn-pane -k -t %9 terminal-browser open $url
+tmux respawn-pane -k -t %9 python3 $relay terminal-browser open $url
 tmux select-window -t @7"
 
 echo "pi-surface browser: ok"

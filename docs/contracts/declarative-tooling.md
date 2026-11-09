@@ -29,9 +29,9 @@ activation.
   references, approvals and instruction templates.
 - `mods/agents/skills.json`: source paths, selections, required rewrites and
   manual-only intent. Remote commits live in mise repository declarations.
-- `mods/dotfiles/mise/runtime/`: the Deno configuration writer with its vendored,
-  locked dependency, native plugins and the locked uv environment. Preparation
-  runs with mise-selected Deno/Python, not Nix wrappers.
+- `mods/dotfiles/mise/runtime/`: the Python configuration writer, native plugins
+  and the locked uv environment both run in. Preparation runs with mise-selected
+  Python, not Nix wrappers.
 
 `bootstrap.sh [MACHINE]` installs official standalone mise >=2026.11.2, checks
 collisions and links the five global config/source/lock destinations plus native

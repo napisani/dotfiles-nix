@@ -1,14 +1,14 @@
-// Node has no TOML parser; reuse the runtime's vendored @std/toml through Deno.
+// Node has no TOML parser; reuse the writer runtime's locked Python TOML packages.
 const path = require("node:path");
 const { execFileSync } = require("node:child_process");
 
-const config = path.resolve(__dirname, "../../mods/dotfiles/mise/runtime/deno.json");
+const runtime = path.resolve(__dirname, "../../mods/dotfiles/mise/runtime");
 
 function convert(operation, input) {
-  const program = `import * as toml from "@std/toml";
-const input = await new Response(Deno.stdin.readable).text();
-console.log(${operation === "parse" ? "JSON.stringify(toml.parse(input))" : "toml.stringify(JSON.parse(input))"});`;
-  return execFileSync("deno", ["eval", "--frozen", "--cached-only", "--config", config, program], {
+  const program = `import json, sys, tomllib, tomli_w
+text = sys.stdin.read()
+sys.stdout.write(${operation === "parse" ? "json.dumps(tomllib.loads(text))" : "tomli_w.dumps(json.loads(text))"})`;
+  return execFileSync("uv", ["run", "--locked", "--project", runtime, "python", "-c", program], {
     input, encoding: "utf8",
   });
 }

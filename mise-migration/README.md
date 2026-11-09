@@ -137,7 +137,7 @@ Up to three migration sessions push fixes to `origin/mise` concurrently.
 ## After every host has migrated
 
 - Delete the transitional Pi skill-path retirement from
-  `mods/dotfiles/mise/runtime/configure-apps.ts` (`applyPiSkillPaths`, its
+  `mods/dotfiles/mise/runtime/configure_apps.py` (`apply_pi_skill_paths`, its
   `pi-skill-paths.json` input and tests) once Pi settings on every host no
   longer list the retired paths.
 - Catch maclab up to the final commit with `rollout` in catch-up mode.

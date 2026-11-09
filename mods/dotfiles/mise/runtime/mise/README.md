@@ -25,7 +25,7 @@ owns package tracking and explicit pruning. Executables use built-in tool
 backends; Python CLIs use isolated pipx environments.
 
 Native merges handle additive settings and preserve app-written siblings.
-`../configure-apps.ts` (Deno) handles whole-map revocation, managed hooks and
+`../configure_apps.py` handles whole-map revocation, managed hooks and
 transitional skill-path retirement. Fragments live in `mise/apps/`; host policy
 lives in `homes/<machine>/mise.toml`. Authentication stays in app state or literal
 environment references. File history is disabled to avoid credential-bearing
@@ -49,8 +49,8 @@ mise run test:portable-runtime
 mise run test:editor-lsp
 ```
 
-`test` installs locked test dependencies, validates fleet locks, runs Python,
-Deno and Node contracts, and exercises all four host overlays against native mise.
+`test` installs locked test dependencies, validates fleet locks, runs Python
+and Node contracts, and exercises all four host overlays against native mise.
 It covers privacy, idempotence, interrupted applies, source handoffs, shared
 settings, revocation and shell ordering. RTK's real upstream initialization is
 required in the isolated fixture. Package CLI and loopback registry fakes cannot

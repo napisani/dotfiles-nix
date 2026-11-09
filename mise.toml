@@ -31,9 +31,11 @@ run = [
   'uv run --locked --project mods/dotfiles/mise/runtime python -m unittest discover -s tests -p "test_*.py"',
   'uv run --locked --project mods/dotfiles/mise/runtime python -m unittest discover -s mise-migration -p test_migration.py',
   'uv run --locked --project mods/dotfiles/mise/runtime python checks/fixtures/skills-prepare.py',
-  'deno test --frozen --cached-only --config mods/dotfiles/mise/runtime/deno.json --allow-read --allow-write --allow-env --allow-run mods/dotfiles/mise/runtime/configure-apps.test.ts',
+  'uv run --locked --project mods/dotfiles/mise/runtime python -B -m unittest discover -s mods/dotfiles/mise/runtime -p test_configure_apps.py',
   'rtk="$({{ mise_bin | quote }} which rtk --tool aqua:rtk-ai/rtk)" && RTK_TEST_BINARY="$rtk" NPM_COMMAND="${NPM_COMMAND:-$(command -v npm)}" node --test mods/dotfiles/mise/runtime/mise/tests/*.test.cjs checks/fixtures/config-writers.cjs checks/fixtures/rtk-setup.cjs',
   'TEST_PYTHON="$(uv run --locked --project mods/dotfiles/mise/runtime python -c "import sys; print(sys.executable)")" node checks/fixtures/audit-managed-mcp.cjs checks/audit-managed-mcp.py',
+  'uv run --locked --project mods/dotfiles/mise/runtime python -B -m unittest discover -s mods/dotfiles/shell_scripts/tests -p pi_surface_browser_relay_test.py',
+  'bash mods/dotfiles/shell_scripts/tests/pi-surface-browser_test.sh',
   'bash mods/dotfiles/shell/tests/profile-path.sh',
   'bash mods/dotfiles/shell/tests/login-boundary.sh',
   'bash mods/dotfiles/shell/tests/updates.sh',
@@ -61,5 +63,6 @@ run = 'prefix="$({{ mise_bin | quote }} where postgres)" && uv run --locked --pr
 description = "Check bootstrap shell safety and formatting"
 run = [
   'shellcheck -x -s sh bootstrap.sh mods/dotfiles/shell/bash/lib/machine.sh mods/dotfiles/mise/runtime/mise/check-omniwm-handoff.sh',
-  'shfmt -d bootstrap.sh mods/dotfiles/shell/bash/lib/machine.sh mods/dotfiles/mise/runtime/mise/check-omniwm-handoff.sh',
+  'shellcheck mods/dotfiles/shell_scripts/pi-surface-browser.sh mods/dotfiles/shell_scripts/tests/pi-surface-browser_test.sh',
+  'shfmt -d bootstrap.sh mods/dotfiles/shell/bash/lib/machine.sh mods/dotfiles/mise/runtime/mise/check-omniwm-handoff.sh mods/dotfiles/shell_scripts/pi-surface-browser.sh mods/dotfiles/shell_scripts/tests/pi-surface-browser_test.sh',
 ]

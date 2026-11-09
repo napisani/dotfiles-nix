@@ -31,10 +31,11 @@ session="$(tmux display-message -p ${TMUX_PANE:+-t "$TMUX_PANE"} '#{session_id}'
 
 # Window names get renamed; this option marks the windows this script owns.
 page_option="@pi_surface_page"
+relay="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/pi-surface-browser-relay.py"
 
 new_window() {
 	local window
-	window="$(tmux new-window -P -F '#{window_id}' -t "$session:" -n "surface:$page" terminal-browser open "$url")"
+	window="$(tmux new-window -P -F '#{window_id}' -t "$session:" -n "surface:$page" python3 "$relay" terminal-browser open "$url")"
 	tmux set-option -w -t "$window" "$page_option" "$page"
 }
 
@@ -66,7 +67,7 @@ match="$(terminal-browser ls --all --json | jq -r \
 
 if [[ -z "$match" ]]; then
 	# The window outlived its browser; start one in its first pane.
-	tmux respawn-pane -k -t "${panes%%$'\n'*}" terminal-browser open "$url"
+	tmux respawn-pane -k -t "${panes%%$'\n'*}" python3 "$relay" terminal-browser open "$url"
 	tmux select-window -t "$window"
 	exit 0
 fi

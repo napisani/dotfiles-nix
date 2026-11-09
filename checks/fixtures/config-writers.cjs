@@ -9,7 +9,6 @@ const { test } = require("node:test");
 const source = process.env.DOTFILES_SOURCE || path.resolve(__dirname, "../../mods/dotfiles");
 const mise = process.env.MISE_TEST_BINARY || "mise";
 const toml = require("./toml.cjs");
-const denoDirectory = path.dirname(require("node:child_process").execFileSync("deno", ["eval", "console.log(Deno.execPath())"], { encoding: "utf8" }).trim());
 
 function write(file, content) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -67,7 +66,7 @@ function fixture(t, machine = "nicks-loancrate-mbp", withWriters = true) {
     ...process.env,
     HOME: home,
     // Fixture mise runs enable no tools, so pass the test runtimes' own directories.
-    PATH: `${path.dirname(process.execPath)}:${denoDirectory}:${process.env.PATH}`,
+    PATH: `${path.dirname(process.execPath)}:${process.env.PATH}`,
     XDG_CONFIG_HOME: path.join(home, ".config"),
     XDG_DATA_HOME: path.join(home, ".local/share"),
     XDG_STATE_HOME: path.join(home, ".local/state"),
@@ -79,8 +78,8 @@ function fixture(t, machine = "nicks-loancrate-mbp", withWriters = true) {
     MISE_SYSTEM_CONFIG_DIR: path.join(root, "system"),
     MISE_YES: "1",
     MISE_ENABLE_TOOLS: "",
-    // Deno's cache is not application state; keep it out of HOME snapshots.
-    DENO_DIR: path.join(root, "deno"),
+    // uv's cache is not application state; keep it out of HOME snapshots.
+    UV_CACHE_DIR: process.env.UV_CACHE_DIR || path.join(os.homedir(), ".cache/uv"),
     // Native macOS package managers write fixed system paths, not the fixture HOME.
     MISE_SYSTEM_PACKAGES_MANAGERS: "claude,pi",
     NO_COLOR: "1",
@@ -97,7 +96,7 @@ function fixture(t, machine = "nicks-loancrate-mbp", withWriters = true) {
   }
   function writers(status = false) {
     const profile = toml.parse(fs.readFileSync(path.join(config, "config.local.toml"), "utf8")).vars?.agent_profile || "common";
-    return spawnSync("deno", ["run", "--frozen", "--cached-only", "--config", path.join(dotfiles, "mise/runtime/deno.json"), "--allow-read", "--allow-write", "--allow-env", path.join(dotfiles, "mise/runtime/configure-apps.ts"), dotfiles, profile, path.join(assetResources, "claude/skill-overrides.json")], {
+    return spawnSync("uv", ["run", "--locked", "--project", path.join(dotfiles, "mise/runtime"), "python", path.join(dotfiles, "mise/runtime/configure_apps.py"), dotfiles, profile, path.join(assetResources, "claude/skill-overrides.json")], {
       cwd: home, env: { ...env, RECONCILE_MODE: status ? "status" : "apply" }, encoding: "utf8",
     });
   }

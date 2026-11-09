@@ -139,7 +139,7 @@ uv run --locked --project {{ vars.dotfiles_root | quote }}/mise/runtime --python
 description = "Reconcile managed agent fields and skill links without replacing app state"
 depends = ["skills:prepare", "nvim:prepare"]
 run = [
-  "deno run --frozen --cached-only --config {{ vars.dotfiles_root | quote }}/mise/runtime/deno.json --allow-read --allow-write --allow-env=HOME,RECONCILE_MODE {{ vars.dotfiles_root | quote }}/mise/runtime/configure-apps.ts {{ vars.dotfiles_root | quote }} {{ vars.agent_profile | quote }} {{ env.HOME | quote }}/.local/share/dotfiles/skills/claude-overrides.json",
+  "uv run --locked --project {{ vars.dotfiles_root | quote }}/mise/runtime --python \"$({{ mise_bin | quote }} which python)\" python {{ vars.dotfiles_root | quote }}/mise/runtime/configure_apps.py {{ vars.dotfiles_root | quote }} {{ vars.agent_profile | quote }} {{ env.HOME | quote }}/.local/share/dotfiles/skills/claude-overrides.json",
   "{{ mise_bin | quote }} -C {{ env.HOME | quote }} dot apply '~'",
   "{{ mise_bin | quote }} completion bash --install",
 ]

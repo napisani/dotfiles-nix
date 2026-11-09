@@ -80,14 +80,17 @@ for (const [name, binary] of [['fixture', undefined], ['upstream', native]]) {
     const workmux = { Stop: [{ hooks: [{ type: 'command', command: 'workmux set-window-status done' }] }] };
     write(claudeSource, JSON.stringify(workmux));
     write(codexSource, JSON.stringify(workmux));
-    const writers = `import { applyClaudeSettings, applyCodexHooks, ConfigWriter } from ${JSON.stringify(path.join(runtime, 'configure-apps.ts'))};
-const writer = new ConfigWriter();
-const read = (file) => JSON.parse(Deno.readTextFileSync(file));
-applyClaudeSettings(writer, ${JSON.stringify(h.file('.claude/settings.json'))}, read(${JSON.stringify(claudeSource)}), {});
-applyCodexHooks(writer, ${JSON.stringify(h.file('.codex/hooks.json'))}, read(${JSON.stringify(codexSource)}));`;
+    const writers = `import json, sys
+from pathlib import Path
+sys.path.insert(0, ${JSON.stringify(runtime)})
+from configure_apps import ConfigWriter, apply_claude_settings, apply_codex_hooks
+writer = ConfigWriter()
+read = lambda file: json.loads(Path(file).read_text())
+apply_claude_settings(writer, Path(${JSON.stringify(h.file('.claude/settings.json'))}), read(${JSON.stringify(claudeSource)}), {})
+apply_codex_hooks(writer, Path(${JSON.stringify(h.file('.codex/hooks.json'))}), read(${JSON.stringify(codexSource)}))`;
     for (let i = 0; i < 2; i++) {
-      success(spawnSync('deno', ['eval', '--frozen', '--cached-only', '--config', path.join(runtime, 'deno.json'), writers], {
-        env: { ...h.env, DENO_DIR: path.join(h.home, '..', 'deno') }, encoding: 'utf8',
+      success(spawnSync('uv', ['run', '--locked', '--project', runtime, 'python', '-c', writers], {
+        env: { ...h.env, UV_CACHE_DIR: process.env.UV_CACHE_DIR || path.join(os.homedir(), '.cache/uv') }, encoding: 'utf8',
       }));
     }
     for (const agent of ['claude', 'codex']) {

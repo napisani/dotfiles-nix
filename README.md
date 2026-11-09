@@ -30,7 +30,7 @@ in the repository; application-owned settings and credentials stay in the app.
 - Skills: [skills.json](mods/agents/skills.json), with source pins in mise
   repository declarations. Shared instructions and authored links remain live.
 - Runtime helpers and native plugins: [mise/runtime/](mods/dotfiles/mise/runtime/).
-  The configuration writer is Deno with a vendored, locked `@std/toml`.
+  The configuration writer is Python in the locked uv environment.
 - Nix tooling, prerequisites and retained monorepo builds:
   [base-packages.nix](mods/base-packages.nix). NixOS base utilities:
   [system-packages.nix](mods/system-packages.nix).

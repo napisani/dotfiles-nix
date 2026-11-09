@@ -14,12 +14,14 @@ This document lists **temporary fixes** applied in this flake (Neovim config, Ni
 6. [fff.nvim binary (lazy.nvim build hook)](#fffnvim-binary-lazyvim-build-hook)
 7. [Pi extensions: `claude-agent-sdk-pi` peer-dep conflict](#pi-extensions-claude-agent-sdk-pi-peer-dep-conflict)
 8. [Pi `claude-bridge` CLI model resolution](#pi-claude-bridge-cli-model-resolution)
-9. [`npm config set prefix` vs. immutable `~/.npmrc`](#npm-config-set-prefix-vs-immutable-npmrc)
-10. [OmniWM focused-border rendering](#omniwm-focused-border-rendering)
-11. [Atuin e2e checks in the Darwin build sandbox](#atuin-e2e-checks-in-the-darwin-build-sandbox)
-12. [Darwin flake check vs. Linux `rtk` build](#darwin-flake-check-vs-linux-rtk-build)
-13. [GnuPG pinentry on macOS](#gnupg-pinentry-on-macos)
-14. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
+9. [Pi `ask_user` from the remote-pi phone app](#pi-ask_user-from-the-remote-pi-phone-app)
+10. [`npm config set prefix` vs. immutable `~/.npmrc`](#npm-config-set-prefix-vs-immutable-npmrc)
+11. [OmniWM focused-border rendering](#omniwm-focused-border-rendering)
+12. [Atuin e2e checks in the Darwin build sandbox](#atuin-e2e-checks-in-the-darwin-build-sandbox)
+13. [Darwin flake check vs. Linux `rtk` build](#darwin-flake-check-vs-linux-rtk-build)
+14. [GnuPG pinentry on macOS](#gnupg-pinentry-on-macos)
+15. [Future improvements (consolidation and monitoring)](#future-improvements-consolidation-and-monitoring)
+16. [Pi-surface terminal-browser flicker inside tmux](#pi-surface-terminal-browser-flicker-inside-tmux)
 
 ---
 
@@ -281,6 +283,34 @@ now binds the canonical source link explicitly and rejects conflicting links;
 runtime commands derive their source from that link. Disposable source-handoff
 and collision tests cover this boundary. Native mise owns package lifecycle state;
 there is no Nix activation dispatcher.
+
+---
+
+## Pi-surface terminal-browser flicker inside tmux
+
+| Item | Detail |
+|------|--------|
+| **Location** | `mods/dotfiles/shell_scripts/pi-surface-browser.sh`, `pi-surface-browser-relay.py`, and their tests under `shell_scripts/tests/`. |
+| **Symptom** | Hovering and selecting text on a surface page flickers in terminal-browser 0.15.3 under tmux 3.7c and kitty 0.50. The same page is smooth directly in kitty. |
+| **Verified trigger** | The browser passes its image commands through tmux but sends its synchronized-update markers (`CSI ?2026h/l`) unwrapped. In the controlled hover test, tmux repeatedly redrew the entire Unicode image-placeholder grid: roughly 55 MB of terminal output and 6.2 million placeholder cells. Forwarding only those markers through tmux reduced output to roughly 0.8 MB and 104,000 cells; the user confirmed smooth rendering, full-window content and working scrolling. These counts exclude image pixels transferred through shared memory. The regression's upstream version boundary is not established. |
+| **Workaround** | The surface launcher starts the browser through a Python standard-library PTY relay. Only top-level begin/end markers are wrapped in tmux passthrough, so kitty handles image batching directly. Image commands, existing passthrough envelopes, other control-string payloads and input bytes are preserved. The relay forwards terminal dimensions and resize/termination signals, restores terminal modes, and propagates the browser's exit status. No vendor packages or global tmux/browser settings are modified. |
+| **Scope** | New and respawned surface browser panes use the relay. Existing browsers are reused without being killed or reloaded solely to migrate them; quit an old browser and reopen the surface page to enable the relay. Python 3 is already managed by mise. Plain browser invocations remain unchanged. |
+| **Verification** | From this directory, run `python3 -B -m unittest discover -s mods/dotfiles/shell_scripts/tests -p pi_surface_browser_relay_test.py` and `bash mods/dotfiles/shell_scripts/tests/pi-surface-browser_test.sh`. Both are included in `mise run test`. A real surface review page under the full tmux configuration also passed user checks for hovering, selection and scrolling; 120 automated hover moves sent no placeholder cells. Pane resizing was checked on the synthetic page. |
+| **Remove when** | An upstream terminal-browser/tmux combination batches these image updates without full-grid redraws. Compare the same page inside tmux with and without the relay, then remove the helper and its two launcher call sites after unwrapped rendering is smooth. |
+
+---
+
+## Pi `ask_user` from the remote-pi phone app
+
+| Item | Detail |
+|------|--------|
+| **Location** | `mods/dotfiles/agents/pi/extensions/remote-pi-ask-text-answer.js` and its adjacent `.test.cjs` test. |
+| **Symptom** | While a phone-attached Pi session runs `@eko24ive/pi-ask`'s `ask_user`, the phone shows the raw tool card and `unsupported_type: unknown server type`, no form appears, and its input becomes "Steer current response…" with nothing taking effect. The session is stuck until the question is answered at the desktop. |
+| **Root cause** | `remote-pi` 0.7.0 bridges pi-ask to the phone as an `extension_ui_request` frame, but the App Store and Play builds (1.2.0) predate upstream PR #64 and cannot decode it. Tracked upstream in `jacobaraujo7/remote_pi#183` and `#117`. The desktop extension, pi-ask and the relay are already at their latest releases. |
+| **Workaround (current)** | The extension tracks pi-ask flows through `pi.events` and, while one is pending, answers it from a phone message (any non-interactive `input`). A single question takes the whole reply: an option number, label or value, else custom text. A multi question takes a list (`1,3`, `1 3` or labels). Several questions take one line each, in order. `cancel` cancels the flow. The reply reaches the agent as a short `(ask_user answered from phone: …)` message so remote-pi marks the phone's steer consumed. Anything it cannot map, or that pi-ask rejects, falls through to Pi's normal steering and warns on the desktop. |
+| **Known limit** | The phone still shows the raw tool card, so answer by the option order and labels in it. The old app also shows `unsupported_type` for the bridge's "Clarification resolved" frame. A phone reply sent while a flow is pending is always treated as an answer, including a message from another extension. |
+| **How to verify** | Run `node --test mods/dotfiles/agents/pi/extensions/remote-pi-ask-text-answer.test.cjs`. End to end, have the agent call `ask_user` in a phone-attached session and reply with an option number from the phone. |
+| **Remove when** | A phone app build that renders `extension_ui_request` is installed. Confirm by running `ask_user` from the phone with this extension disabled. |
 
 ---
 

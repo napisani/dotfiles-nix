@@ -236,24 +236,24 @@ conda_deps = [
 ]
 
 [[tools.pulumi]]
-version = "3.273.0"
+version = "3.254.0"
 backend = "aqua:pulumi/pulumi"
-specifiers = ["3.273.0"]
+specifiers = ["3.254.0"]
 
 [tools.pulumi."platforms.linux-x64"]
-checksum = "sha256:ec08f86671fd58f0a186540e1cee00066393beaf5c6716b0075f690919800432"
-url = "https://github.com/pulumi/pulumi/releases/download/v3.273.0/pulumi-v3.273.0-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/pulumi/pulumi/releases/assets/685615955"
+checksum = "sha256:b2167c093b0ebfc918456d070abde0e740a276c3e6dc0a13684bc74306364c22"
+url = "https://github.com/pulumi/pulumi/releases/download/v3.254.0/pulumi-v3.254.0-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/pulumi/pulumi/releases/assets/487203146"
 provenance = "cosign"
 
 [tools.pulumi."platforms.macos-arm64"]
-checksum = "sha256:e47239e0fbfc6602c22f1c298abc4758a23fb1c0a37a69348cbebe6eccb817f8"
-url = "https://github.com/pulumi/pulumi/releases/download/v3.273.0/pulumi-v3.273.0-darwin-arm64.tar.gz"
-url_api = "https://api.github.com/repos/pulumi/pulumi/releases/assets/685614955"
+checksum = "sha256:1fe555f2ee50cf3da01219071902d0940d646198792193a5a24aed90176e40e3"
+url = "https://github.com/pulumi/pulumi/releases/download/v3.254.0/pulumi-v3.254.0-darwin-arm64.tar.gz"
+url_api = "https://api.github.com/repos/pulumi/pulumi/releases/assets/487202994"
 provenance = "cosign"
 
 [tools.pulumi."platforms.macos-x64"]
-checksum = "sha256:ce6be877da705f622750427b5c1bbf1f9b188eb37d1d175ebedbfab1745b4191"
-url = "https://github.com/pulumi/pulumi/releases/download/v3.273.0/pulumi-v3.273.0-darwin-x64.tar.gz"
-url_api = "https://api.github.com/repos/pulumi/pulumi/releases/assets/685615132"
+checksum = "sha256:b2b8767ccc6918484e3430669bf618c8bf9debcf49ca2c5453b6b69ddfd223ed"
+url = "https://github.com/pulumi/pulumi/releases/download/v3.254.0/pulumi-v3.254.0-darwin-x64.tar.gz"
+url_api = "https://api.github.com/repos/pulumi/pulumi/releases/assets/487203063"
 provenance = "cosign"

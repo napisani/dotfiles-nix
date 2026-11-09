@@ -332,6 +332,11 @@
       "path": "agents/shared-skills/rebase-from-parent",
       "sharedDirectory": true
     },
+    "reduce-entropy": {
+      "source": "dotfiles",
+      "path": "agents/shared-skills/reduce-entropy",
+      "sharedDirectory": true
+    },
     "rfc-generator": {
       "source": "patricio0312rev-skills",
       "path": "architecture/rfc-generator"
@@ -377,6 +382,10 @@
     "surface-pr-feedback": {
       "source": "pi-surface-skills",
       "path": "surface-pr-feedback"
+    },
+    "surface-reduce-entropy": {
+      "source": "pi-surface-skills",
+      "path": "surface-reduce-entropy"
     },
     "systematic-debugging": {
       "source": "superpowers",
@@ -560,6 +569,14 @@
       },
       "context7",
       "code-simplification",
+      {
+        "manualOnly": true,
+        "name": "reduce-entropy"
+      },
+      {
+        "manualOnly": true,
+        "name": "surface-reduce-entropy"
+      },
       {
         "manualOnly": true,
         "name": "ai-ready"

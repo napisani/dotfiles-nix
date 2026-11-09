@@ -28,9 +28,9 @@ Pi settings, script approvals, Claude settings and npm authentication live besid
 those profiles. Add only environment references, never literal credentials.
 
 Mise merges plain settings natively, including work-host Loancrate settings.
-The Deno writer `mods/dotfiles/mise/runtime/configure-apps.ts` reads authored
+The Python writer `mods/dotfiles/mise/runtime/configure_apps.py` reads authored
 files for removal-sensitive policies and preserves app-written siblings and manual
-hooks. Its `@std/toml` dependency is vendored and pinned in `deno.lock`.
+hooks. It runs in the locked uv environment, with `tomli-w` pinned in `uv.lock`.
 MCP maps and script approvals are owned wholesale, so promote needed manual
 entries before applying. Native additive merges cannot implement revocation.
 File history/recovery capture is disabled because merge targets can contain
