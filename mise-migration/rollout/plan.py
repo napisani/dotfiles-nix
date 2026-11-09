@@ -4,8 +4,10 @@ Only links into /nix/store or the checkout are removed. Anything else in the
 way of a mise target is moved under the run directory, never deleted.
 """
 
+import hashlib
 import os
 import shutil
+import time
 import tomllib
 from pathlib import Path
 
@@ -150,8 +152,12 @@ def retire_agent(label):
     target = f"gui/{os.getuid()}/{label}"
     if run(["launchctl", "print", target], check=False).returncode == 0:
         run(["launchctl", "bootout", target])
-    if run(["launchctl", "print", target], check=False).returncode == 0:
-        raise RolloutError(f"launch agent is still loaded: {label}")
+    # bootout returns before launchd finishes removing the job.
+    for _ in range(30):
+        if run(["launchctl", "print", target], check=False).returncode != 0:
+            return
+        time.sleep(1)
+    raise RolloutError(f"launch agent is still loaded: {label}")
 
 
 def apply_plan(plan, run_dir, home, checkout):
@@ -160,8 +166,9 @@ def apply_plan(plan, run_dir, home, checkout):
     done = run_dir / "actions"
     done.mkdir(parents=True, exist_ok=True)
     results = []
-    for index, item in enumerate(plan["actions"]):
-        receipt = done / f"{index:04d}.json"
+    for item in plan["actions"]:
+        key = hashlib.sha256(f"{item['action']}\0{item['path']}".encode()).hexdigest()[:16]
+        receipt = done / f"{key}.json"
         if receipt.exists():
             results.append(read_json(receipt))
             continue

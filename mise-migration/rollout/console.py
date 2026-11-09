@@ -18,7 +18,7 @@ from pathlib import Path
 from .common import RolloutError, read_json, run, write_json
 
 SESSION = "migration"
-PINNED = ["python3", "bash", "tmux", "git", "nix", "darwin-rebuild", "nixos-rebuild"]
+PINNED = ["bash", "tmux", "git", "nix", "darwin-rebuild", "nixos-rebuild"]
 # A keepalive longer than this would hold administrator rights unattended overnight.
 MAX_WINDOW_HOURS = 12
 
@@ -33,7 +33,9 @@ while [[ ! -e "$run/end-privileged-session" ]]; do
 	remaining=$((deadline - $(date +%s)))
 	(( remaining > 0 )) || break
 	(( remaining > 60 )) && remaining=60
-	sleep "$remaining"
+	# A background sleep lets the TERM trap fire at once instead of after the sleep.
+	sleep "$remaining" &
+	wait $!
 	[[ -e "$run/end-privileged-session" ]] && break
 	(( $(date +%s) < deadline )) || break
 	sudo -n -v || exit 1
@@ -46,8 +48,12 @@ set -euo pipefail
 umask 077
 run={run}
 if [[ -e "$run/privileged-session.ready" ]]; then
-	echo 'A privileged session was already started for this run; inspect it first.' >&2
-	exit 1
+	if kill -0 "$(cat "$run/keepalive.pid" 2>/dev/null)" 2>/dev/null; then
+		echo 'This run already has a live privileged session.' >&2
+		exit 1
+	fi
+	mv "$run/privileged-session.ready" "$run/privileged-session.ready.$(date +%s)"
+	rm -f "$run/end-privileged-session"
 fi
 started=0
 trap 'if [[ $started != 1 ]]; then sudo -k; fi' EXIT
@@ -74,8 +80,9 @@ def pin_toolchain(run_dir):
     """Records each old-generation tool and roots its store path in the run directory."""
     pinned = {}
     (Path(run_dir) / "toolchain").mkdir(parents=True, exist_ok=True)
-    for name in PINNED:
-        found = shutil.which(name)
+    # `run` already chose an interpreter new enough for the harness; macOS's own python3 is not.
+    candidates = {"python3": sys.executable, **{name: shutil.which(name) for name in PINNED}}
+    for name, found in candidates.items():
         if not found:
             continue
         real = Path(found).resolve()
@@ -130,9 +137,10 @@ def send(run_dir, text):
     run([*command, "send-keys", "-t", SESSION, "Enter"])
 
 
-def attach_command(run_dir, ssh_alias):
-    remote = f"{shlex.quote(tmux(run_dir))} -S {shlex.quote(str(socket(run_dir)))} attach -t {SESSION}"
-    return f"ssh -t {ssh_alias} {shlex.quote(remote)}"
+def attach_command(run_dir, ssh_alias=None):
+    """The command that attaches to the console: on the host itself, or over SSH from the controller."""
+    local = f"{shlex.quote(tmux(run_dir))} -S {shlex.quote(str(socket(run_dir)))} attach -t {SESSION}"
+    return f"ssh -t {ssh_alias} {shlex.quote(local)}" if ssh_alias else local
 
 
 def privileges(run_dir):
@@ -210,7 +218,8 @@ def create(run_dir, host, estimate_minutes, ssh_alias):
     write_json(state_file, state)
     attach = attach_command(run_dir, ssh_alias)
     instructions = (
-        f"From the controller run: {attach}\n"
+        f"On this host run: {attach_command(run_dir)}\n"
+        f"or from the controller: {attach}\n"
         f"then in the console run: bash {shlex.quote(str(run_dir / 'start-privileged-session.sh'))}\n"
     )
     (run_dir / "ATTACH.txt").write_text(instructions)

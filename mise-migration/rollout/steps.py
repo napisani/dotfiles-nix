@@ -52,11 +52,19 @@ class Context:
 
     def env(self):
         """The console's PATH plus the paths that exist after the switch, with standalone mise first."""
-        directories = [str(self.home / ".local/bin"), *os.environ.get("PATH", "").split(":"),
+        # System tools come first: mise's cask steps call BSD-only flags (`ln -h`) by name, and a
+        # migrated shell's PATH puts GNU coreutils ahead of them.
+        directories = [str(self.home / ".local/bin"), "/usr/bin", "/bin", "/usr/sbin", "/sbin",
+                       *os.environ.get("PATH", "").split(":"),
                        "/run/current-system/sw/bin", "/nix/var/nix/profiles/default/bin",
-                       "/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", "/usr/sbin", "/sbin"]
+                       "/opt/homebrew/bin", "/usr/local/bin"]
         path = ":".join(dict.fromkeys(d for d in directories if d))
-        return {**os.environ, "HOME": str(self.home), "PATH": with_homebrew_ruby(path), "HOMEBREW_NO_AUTOREMOVE": "1"}
+        return {
+            **os.environ, "HOME": str(self.home), "PATH": with_homebrew_ruby(path), "HOMEBREW_NO_AUTOREMOVE": "1",
+            # brew otherwise runs `sudo --reset-timestamp` at startup, discarding the console's
+            # deliberately cached credentials, so its next sudo prompts and the run stalls.
+            "HOMEBREW_SUDO_CHECKED": "1",
+        }
 
     def wrapup(self, item, instructions):
         record = self.run_dir / "wrapup.json"
@@ -111,7 +119,10 @@ def step_plan(ctx):
 
 def step_backup(ctx):
     saved = data.backup(ctx.run_dir, ctx.home, ctx.host)
-    result = {"entries": len(saved["entries"]), "method": saved["method"]}
+    result = {"entries": len(saved["entries"]), "method": saved["method"], "skipped": saved.get("skipped", {})}
+    if result["skipped"]:
+        ctx.wrapup("Files not backed up", f"{len(result['skipped'])} system-protected files could not be cloned "
+                   "and were left untouched in place; see steps/04-backup.json.")
     if ctx.host.macos:
         result["local_snapshot"] = data.local_snapshot()
     else:
@@ -141,6 +152,13 @@ def step_switch(ctx):
 
 def step_bootstrap(ctx):
     env = ctx.env()
+    # Apps such as Karabiner recreate their config once its old link is gone.
+    late = [item for item in make_plan(ctx.host, ctx.home)["actions"] if item["action"] == "move-aside"]
+    moved = apply_plan({"actions": late}, ctx.run_dir / "pre-bootstrap", ctx.home, ctx.host.live_checkout)
+    for item in moved:
+        if item["outcome"] == "moved":
+            ctx.wrapup(f"Moved {item['path']}", "Recreated by an app before bootstrap; the copy is under "
+                       f"{ctx.run_dir / 'pre-bootstrap/moved' / item['path']}.")
     run(["/bin/sh", ctx.host.checkout / "bootstrap.sh", ctx.host.name], env=env, cwd=ctx.home,
         capture=False, timeout=7200)
     mise = ctx.home / ".local/bin/mise"
@@ -259,8 +277,19 @@ def transfer_cask(ctx, name, native, homebrew):
         if dry.returncode:
             raise RolloutError(f"dry-run failed; Homebrew copy kept: {(dry.stderr or dry.stdout).strip()[-300:]}")
         run([ctx.brew, "uninstall", "--cask", homebrew[token]], env=env, timeout=1800)
-    run([ctx.mise, "-C", ctx.home, "bootstrap", "packages", "apply", name], env=env, timeout=3600)
-    return "transferred" if token in homebrew else "installed"
+    apply = [ctx.mise, "-C", ctx.home, "bootstrap", "packages", "apply", name]
+    failure = None
+    for _ in range(2):
+        result = run(apply, env=env, timeout=3600, check=False)
+        if result.returncode == 0:
+            return "transferred" if token in homebrew else "installed"
+        failure = (result.stderr or result.stdout).strip()[-300:]
+    full_token = homebrew.get(token, name.split(":", 1)[1])
+    run([ctx.brew, "install", "--cask", full_token], env=env, timeout=3600)
+    ctx.wrapup(f"Cask {token} kept with Homebrew",
+               f"mise failed twice ({failure}); installed through Homebrew instead. Retry with "
+               f"`mise -C ~ bootstrap packages apply {name}` after `brew uninstall --cask {full_token}`.")
+    return "kept with Homebrew after mise failed"
 
 
 def step_casks(ctx):
@@ -273,11 +302,13 @@ def step_casks(ctx):
     results = {}
     for name in ctx.host.casks():
         receipt = ctx.run_dir / "casks" / f"{cask_token(name)}.json"
-        if receipt.exists():
+        if receipt.exists() and read_json(receipt)["status"] == "ok":
             results[name] = read_json(receipt)
             continue
         try:
             outcome = {"status": "ok", "detail": transfer_cask(ctx, name, native, homebrew)}
+            if outcome["detail"].startswith("kept with Homebrew") and ctx.host.needs_approval(name):
+                ctx.wrapup(f"Approve {cask_token(name)}", APPROVAL.format(app=cask_token(name), name=name))
         except RolloutError as error:
             outcome = {"status": "failed", "detail": str(error)[-400:]}
             if ctx.host.needs_approval(name):
@@ -339,7 +370,9 @@ def step_restore(ctx):
 
 
 def step_verify(ctx):
-    results = checks.verify(ctx.host, ctx.home, ctx.home / ".local/bin/mise")
+    kept = {path.stem for path in (ctx.run_dir / "casks").glob("*.json")
+            if read_json(path).get("detail", "").startswith("kept with Homebrew")}
+    results = checks.verify(ctx.host, ctx.home, ctx.home / ".local/bin/mise", kept_with_homebrew=kept)
     failed = [r for r in results if r["status"] == "fail"]
     for result in results:
         if result["status"] == "warn":
@@ -416,6 +449,7 @@ def rollout(ctx):
             exit_file.write_text("skip\n")
             continue
         started = time.time()
+        exit_file.unlink(missing_ok=True)
         prefix.with_suffix(".started").write_text(datetime.now(timezone.utc).isoformat() + "\n")
         print(f"==> {name}", flush=True)
         try:
@@ -461,7 +495,8 @@ def write_report(ctx):
     if state.get("start_commit") and (root / ".git").exists():
         fixes = output(["git", "-C", root, "log", "--oneline", f"{state['start_commit']}..HEAD"], check=False)
         lines += ["", "## Code fixes during the run", ""] + ([f"- {line}" for line in fixes.splitlines()] or ["- none"])
-    lines += ["", "## Manual repairs", "", "Record any repairs made by hand here.", ""]
+    repairs = read_json(ctx.run_dir / "manual-repairs.json", [])
+    lines += ["", "## Manual repairs", ""] + ([f"- {repair}" for repair in repairs] or ["- none"]) + [""]
     lines += ["## Wrap-up list for the user", ""]
     items = read_json(ctx.run_dir / "wrapup.json", [])
     lines += [f"- **{item['item']}**: {item['instructions']}" for item in items] or ["- nothing"]

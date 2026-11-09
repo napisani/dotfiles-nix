@@ -34,7 +34,10 @@ def main():
     work.mkdir(parents=True)
     plugins = work / "plugins"
     plugins.mkdir()
-    env = {**os.environ, "XDG_STATE_HOME": str(work / "state 'quoted'")}
+    # Neovim state goes to the evidence directory; mise keeps its trust records in its own state.
+    mise_state = os.environ.get("MISE_STATE_DIR") or os.path.join(
+        os.environ.get("XDG_STATE_HOME", os.path.expanduser("~/.local/state")), "mise")
+    env = {**os.environ, "XDG_STATE_HOME": str(work / "state 'quoted'"), "MISE_STATE_DIR": mise_state}
     lock = json.loads((source / "lazy-lock.json").read_text())
     with (work / "plugins.log").open("w") as log:
         for name, repository in [

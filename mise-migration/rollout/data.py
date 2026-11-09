@@ -32,6 +32,11 @@ PROTECTED_PREFIXES = [
 ]
 
 
+# Files apps delete in normal operation. Restoring a stale SQLite journal beside a
+# newer database can corrupt it, and stale lock or session files block apps.
+EPHEMERAL = ["*-wal", "*-shm", "*-journal", "*/Singleton*", "*/.in_use/*", ".claude/sessions/*", "*.log", "*.log.*", "*/log/*"]
+
+
 def manifest(host):
     """Protected path patterns, credentials and regenerable patterns for a host."""
     data = tomllib.loads((HARNESS / "user-data.toml").read_text())
@@ -170,34 +175,46 @@ def estimate(home, host, timeout=900):
 
 
 def backup(run_dir, home, host):
-    """Backs up protected data once per run; an existing backup is kept as is."""
+    """Backs up protected data once per run; an existing backup is kept as is.
+
+    An interrupted backup resumes, keeping what it already copied. Files the
+    system refuses to clone (container-manager metadata) are listed, not fatal.
+    """
     run_dir, home = Path(run_dir), Path(home)
     record = run_dir / "backup/backup.json"
     if record.exists():
         return read_json(record)
     files = run_dir / "backup/files"
-    if files.exists():
-        raise RolloutError(f"incomplete earlier backup at {files}; review and move it aside")
-    files.mkdir(parents=True, mode=0o700)
+    files.mkdir(parents=True, mode=0o700, exist_ok=True)
     entries = walk(home, manifest(host))
+    skipped = {}
     for relative, entry in entries.items():
         target = files / relative
+        if target.exists() or target.is_symlink():
+            continue
         target.parent.mkdir(parents=True, exist_ok=True)
         if entry["kind"] == "directory":
-            target.mkdir(exist_ok=True)
+            target.mkdir()
         elif entry["kind"] == "link":
             target.symlink_to(entry["target"])
         else:
-            clone(home / relative, target)
+            try:
+                clone(home / relative, target)
+            except OSError as error:
+                skipped[relative] = error.strerror or str(error)
+                continue
             os.utime(target, ns=(entry["mtime_ns"], entry["mtime_ns"]), follow_symlinks=False)
     for relative, entry in reversed(list(entries.items())):
         if entry["kind"] == "directory":
             os.chmod(files / relative, entry["mode"])
+    for relative in skipped:
+        del entries[relative]
     result = {
         "home": str(home),
         "created": datetime.now(timezone.utc).isoformat(),
         "method": "apfs-clone" if sys.platform == "darwin" else "copy",
         "entries": entries,
+        "skipped": skipped,
     }
     write_json(record, result)
     return result
@@ -241,6 +258,11 @@ def compare_and_restore(run_dir, home, *, apply=True):
     for relative, entry in saved["entries"].items():
         path = home / relative
         kind = entry["kind"]
+        if any(fnmatch.fnmatchcase(relative, pattern) for pattern in EPHEMERAL):
+            continue
+        # The run removes Home Manager's links on purpose; they are not user data.
+        if kind == "link" and (entry["target"].startswith("/nix/store/") or entry["target"].startswith(str(home / "code/"))):
+            continue
         exists = path.exists() or path.is_symlink()
         if kind == "directory":
             if not exists:

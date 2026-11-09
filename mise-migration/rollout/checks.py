@@ -44,6 +44,7 @@ def stage_mise(directory, version):
     target = Path(directory) / "mise"
     if target.exists():
         return target
+    Path(directory).mkdir(parents=True, exist_ok=True)
     installer = Path(directory) / "install.sh"
     run(["curl", "-fsSL", "https://mise.jdx.dev/install.sh", "-o", installer], timeout=120)
     run(["sh", installer], env={**os.environ, "MISE_VERSION": version, "MISE_INSTALL_PATH": str(target)},
@@ -228,7 +229,7 @@ def rehearse(host, home, mise, estimate):
     }
 
 
-def verify(host, home, mise):
+def verify(host, home, mise, kept_with_homebrew=frozenset()):
     """Full verification on a migrated host; warnings are cosmetic, failures block acceptance."""
     home = Path(home)
     env = {**os.environ, "HOME": str(home)}
@@ -240,7 +241,11 @@ def verify(host, home, mise):
         results.append(check(name, status, (result.stdout + result.stderr).strip()[-600:]))
         return result
 
-    command("dotfiles", [mise, "-C", home, "dot", "status", "--missing"])
+    dotfiles = command("dotfiles", [mise, "-C", home, "dot", "status", "--missing"])
+    differing = [line for line in (dotfiles.stdout + dotfiles.stderr).splitlines() if "differs" in line]
+    # Apps rewrite their copy-mode settings (OmniWM); that drift is expected.
+    if dotfiles.returncode and differing and all("  copy  " in line for line in differing):
+        results[-1]["status"] = "warn"
     approvals = set(host.decisions.get("casks", {}).get("needs_approval", []))
     status = command("bootstrap", [mise, "-C", home, "bootstrap", "status", "--missing"],
                      warn_only=bool(approvals))
@@ -251,6 +256,7 @@ def verify(host, home, mise):
     command("completion", ["bash", "-lic", "_completion_loader mise 2>/dev/null; complete -p mise"],
             warn_only=True)
     command("tmux", ["sh", "-c", "tmux -L mise-verify new-session -d true && tmux -L mise-verify kill-server; :"])
+    command("trust-project", [mise, "trust", host.checkout / "mise.toml"])
     command("editor-lsp", [mise, "-C", host.checkout, "run", "test:editor-lsp"], timeout=1800)
     command("python-provider", [mise, "-C", home, "exec", "--", "nvim", "--headless", "-u", "NONE", "-l",
                                 host.checkout / "tests/nvim-runtime.lua", host.checkout / "mods/dotfiles/nvim"])
@@ -261,7 +267,7 @@ def verify(host, home, mise):
         command("gitops-sync-last-run", ["systemctl", "show", "gitops-sync.service",
                                          "-p", "Result", "-p", "ExecMainExitTimestamp"], warn_only=True)
     if host.macos:
-        results.append(guarded("casks", lambda: casks_owned(host, home, mise)))
+        results.append(guarded("casks", lambda: casks_owned(host, home, mise, kept_with_homebrew)))
     results.append(guarded("skill-links", lambda: skill_links(home)))
     return results
 
@@ -304,7 +310,7 @@ def tool_resolution(host, home, mise):
                  ("outside mise: " + ", ".join(problems[:20])) if problems else f"{len(expected)} tools resolve")
 
 
-def casks_owned(host, home, mise):
+def casks_owned(host, home, mise, kept_with_homebrew=frozenset()):
     status = json.loads(output([mise, "-C", home, "bootstrap", "packages", "status", "--json"],
                                env={**os.environ, "MISE_SYSTEM_PACKAGES_MANAGERS": "brew-cask"}))
     packages = {item["package"]: item for item in status.get("brew-cask", {}).get("packages", [])}
@@ -313,7 +319,7 @@ def casks_owned(host, home, mise):
     for name in host.casks():
         token = name.split(":", 1)[1]
         item = packages.get(token) or packages.get(cask_token(name))
-        if cask_token(name) in exceptions:
+        if cask_token(name) in exceptions or cask_token(name) in kept_with_homebrew:
             continue
         if not item or item.get("state") != "installed" or item.get("managed_by") != "mise":
             missing.append(f"{cask_token(name)}={item.get('state') if item else 'absent'}")

@@ -33,6 +33,8 @@ def run(command, *, check=True, env=None, cwd=None, timeout=None, capture=True, 
         )
     except FileNotFoundError as error:
         raise RolloutError(f"command not found: {command[0]}") from error
+    except subprocess.TimeoutExpired as error:
+        raise RolloutError(f"{' '.join(map(str, command))} timed out after {timeout} s") from error
     if check and result.returncode:
         detail = (result.stderr or result.stdout or "").strip()[-2000:] if capture else ""
         raise RolloutError(f"{' '.join(map(str, command))} exited {result.returncode}: {detail}")

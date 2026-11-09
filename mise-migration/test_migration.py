@@ -128,6 +128,26 @@ class DataTests(Fixture):
         self.assertEqual(again["created"], saved["created"])
         self.assertEqual((self.run_dir / "backup/files/.example/settings.json").read_text(), "{}")
 
+    def test_backup_resumes_and_lists_files_it_cannot_clone(self):
+        self.write(".example/first", "one")
+        self.write(".example/protected", "two")
+        host = self.host([".example"])
+        partial = self.run_dir / "backup/files/.example/first"
+        partial.parent.mkdir(parents=True)
+        partial.write_text("copied earlier")
+        real_clone = data.clone
+
+        def refusing(source, target):
+            if Path(source).name == "protected":
+                raise PermissionError(1, "Operation not permitted")
+            real_clone(source, target)
+
+        with patch.object(data, "clone", refusing):
+            saved = data.backup(self.run_dir, self.home, host)
+        self.assertEqual(partial.read_text(), "copied earlier")
+        self.assertEqual(list(saved["skipped"]), [".example/protected"])
+        self.assertNotIn(".example/protected", saved["entries"])
+
     def test_regenerable_patterns_never_hide_credentials_or_app_roots(self):
         spec = {"credentials": [".aws"], "regenerable": [".aws", "Library/Containers", "Library/Caches"]}
         self.assertFalse(data.regenerable(".aws/credentials", spec))
@@ -161,6 +181,17 @@ class DataTests(Fixture):
         self.assertIn("newer", reasons[".example/newer"])
         self.assertIn("another type", reasons[".example/replaced"])
         self.assertTrue((self.run_dir / "backup/files/.example/missing").exists(), "backups are never removed")
+
+    def test_restore_skips_retired_store_links_and_ephemeral_files(self):
+        (self.home / ".example").mkdir()
+        (self.home / ".example/hm-link").symlink_to(f"{STORE}/x")
+        self.write(".example/db.sqlite-wal", "stale journal")
+        self.write(".example/app/SingletonLock", "lock")
+        data.backup(self.run_dir, self.home, self.host([".example"]))
+        for name in ["hm-link", "db.sqlite-wal", "app/SingletonLock"]:
+            (self.home / ".example" / name).unlink()
+        self.assertEqual(data.compare_and_restore(self.run_dir, self.home)["restored"], [])
+        self.assertFalse((self.home / ".example/db.sqlite-wal").exists())
 
     def test_estimate_reports_unreadable_directories(self):
         locked = self.write(".example/locked/file").parent
@@ -247,6 +278,8 @@ class ConsoleTests(Fixture):
         self.assertIn("attach -t migration", result["attach"])
         pinned = json.loads((self.run_dir / "toolchain.json").read_text())
         self.assertEqual(pinned["tmux"], str(tmux))
+        self.assertEqual(pinned["python3"], str(Path(sys.executable).resolve()))
+        self.assertIn(f"-S {self.run_dir / 'console.sock'} attach", (self.run_dir / "ATTACH.txt").read_text().splitlines()[0])
         start = (self.run_dir / "start-privileged-session.sh").read_text()
         self.assertIn("sudo -v", start)
         self.assertIn("unlock-keychain", start)
@@ -270,6 +303,11 @@ class ConsoleTests(Fixture):
         self.assertIn(["sudo", "-k"], [call["argv"] for call in self.recorded("sudo")])
         (self.run_dir / "end-privileged-session").touch()
         subprocess.run(["bash", script, self.run_dir, str(int(time.time()) + 3600)], check=True, timeout=30)
+        (self.run_dir / "end-privileged-session").unlink()
+        keeper = subprocess.Popen(["bash", script, self.run_dir, str(int(time.time()) + 3600)])
+        time.sleep(1)
+        keeper.terminate()
+        self.assertEqual(keeper.wait(timeout=5), 0, "TERM must stop the keepalive without waiting out its sleep")
 
     def test_privileges_and_close(self):
         self.fake("sudo")
@@ -285,6 +323,23 @@ class ConsoleTests(Fixture):
         self.assertEqual(record["keepalive"], "stopped")
         self.assertEqual(record["sudo"], "invalidated")
         self.assertFalse(console.privileges(self.run_dir)["live"])
+
+    def test_start_script_reauthenticates_only_after_the_keepalive_died(self):
+        self.fake("sudo")
+        self.fake("caffeinate")
+        console.write_scripts(self.run_dir, 60, macos=False)
+        start = self.run_dir / "start-privileged-session.sh"
+        sleeper = subprocess.Popen(["sleep", "60"])
+        self.addCleanup(sleeper.kill)
+        (self.run_dir / "privileged-session.ready").write_text("1")
+        (self.run_dir / "keepalive.pid").write_text(str(sleeper.pid))
+        self.assertNotEqual(subprocess.run(["bash", start], capture_output=True).returncode, 0)
+        sleeper.kill()
+        sleeper.wait()
+        result = subprocess.run(["bash", start], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        os.kill(int((self.run_dir / "keepalive.pid").read_text()), signal.SIGTERM)
+        self.assertGreater(int((self.run_dir / "privileged-session.ready").read_text()), time.time())
 
     def test_send_rejects_multi_line_input(self):
         (self.run_dir / "toolchain.json").write_text("{}")
@@ -428,6 +483,17 @@ class RolloutTests(Fixture):
         self.assertEqual(self.recorded("brew")[0]["autoremove"], "1")
         self.assertNotIn("--zap", self.recorded("brew")[0]["argv"])
 
+    def test_a_cask_mise_cannot_install_goes_back_to_homebrew(self):
+        self.cask_fakes(apply_status=1)
+        ctx = self.context()
+        self.assertEqual(steps.transfer_cask(ctx, "brew-cask:slack", {}, {"slack": "slack"}),
+                         "kept with Homebrew after mise failed")
+        self.assertEqual(steps.transfer_cask(ctx, "brew-cask:ngrok", {}, {}), "kept with Homebrew after mise failed")
+        self.assertEqual(self.recorded("brew")[-1]["argv"], ["brew", "install", "--cask", "ngrok"])
+        applies = [c for c in self.recorded("mise") if "apply" in c["argv"] and "--dry-run" not in c["argv"]]
+        self.assertEqual(len(applies), 4, "each cask is retried once")
+        self.assertIn("Homebrew", json.loads((self.run_dir / "wrapup.json").read_text())[0]["item"])
+
     def test_failed_dry_run_keeps_the_homebrew_copy(self):
         self.cask_fakes(dry_run_status=1)
         with self.assertRaisesRegex(RolloutError, "Homebrew copy kept"):
@@ -442,10 +508,11 @@ class RolloutTests(Fixture):
         with patch.object(type(ctx.host), "casks", lambda host: ["brew-cask:slack", "brew-cask:karabiner-elements"]):
             result = steps.step_casks(ctx)
         self.assertEqual(result["packages"]["brew-cask:slack"]["detail"], "already mise-owned")
-        self.assertEqual(result["packages"]["brew-cask:karabiner-elements"]["status"], "failed")
-        wrapup = json.loads((self.run_dir / "wrapup.json").read_text())
-        self.assertIn("System Settings", wrapup[0]["instructions"])
-        self.assertTrue((self.run_dir / "casks/karabiner-elements.json").exists())
+        self.assertEqual(result["packages"]["brew-cask:karabiner-elements"]["detail"],
+                         "kept with Homebrew after mise failed")
+        wrapup = {item["item"]: item["instructions"] for item in json.loads((self.run_dir / "wrapup.json").read_text())}
+        self.assertIn("System Settings", wrapup["Approve karabiner-elements"])
+        self.assertIn("Cask karabiner-elements kept with Homebrew", wrapup)
 
     def test_cleanup_removes_only_allowlisted_packages_and_links(self):
         self.fake("brew", """

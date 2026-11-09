@@ -50,6 +50,10 @@ if [ -z "${HOMEBREW_PREFIX:-}" ]; then
 	done
 	unset _brew
 fi
+# mise evaluates third-party tap casks (Hex) with Ruby 3+; macOS ships 2.6.
+if [ -n "${HOMEBREW_PREFIX:-}" ]; then
+	sh_path_prepend "$HOMEBREW_PREFIX/Library/Homebrew/vendor/portable-ruby/current/bin"
+fi
 
 # ── PATH ────────────────────────────────────────────────────────────────────
 # Mise uses this cask prefix on Intel too, independently of Homebrew's prefix.
