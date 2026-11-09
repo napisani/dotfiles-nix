@@ -4,7 +4,7 @@
 catches up a host that is already on mise. It runs inside the host's
 **privileged console**, a tmux session where the user authenticated sudo once,
 so a dropped SSH connection never stops it. The agent drives it from the
-**controller** (maclab) over SSH and polls files in the run directory.
+**controller** (nicks-loancrate-mbp) over SSH and polls files in the run directory.
 
 `run` selects a Python 3.11+ interpreter and runs `migration.py` (standard
 library only). Paths below are relative to `pub/dotfiles-nix` unless absolute.
@@ -110,6 +110,8 @@ script runs `sudo -v`, unlocks the login keychain on macOS, starts
 `keepalive-until.sh` (a `sudo -n -v` every 60 seconds until the deadline or
 `R/end-privileged-session`, then `sudo -k`) and `caffeinate -i -w` on macOS.
 The window is twice the preflight's estimate plus an hour, capped at 12 hours.
+The start script refuses other shells: their sudo timestamps cannot authorize
+this console. A failed `sudo -k` fails close instead of certifying invalidation.
 
 Drive the console with `run send`: it types one line with `send-keys -l` and
 sends Enter separately. Never capture the pane while a password prompt could

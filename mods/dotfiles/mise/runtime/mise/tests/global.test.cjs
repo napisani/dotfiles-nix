@@ -373,6 +373,7 @@ test("Pi pins are native mise declarations and preserve unowned packages", (t) =
     PI_INSTALL_STATE: path.join(h.root, "pi-installed"),
     CALL_LOG: path.join(h.root, "calls"),
     NPM_CALL_LOG: path.join(h.root, "npm-calls"),
+    PI_REQUIRE_SAVE_EXACT: "1",
   };
   fs.writeFileSync(native.PI_INSTALL_STATE, "npm:manual\n");
   const npmDir = path.join(h.env.HOME, ".pi/agent/npm");
@@ -392,6 +393,12 @@ test("Pi pins are native mise declarations and preserve unowned packages", (t) =
     h.run(["bootstrap", "packages", "apply", "--manager", "pi"], native),
   );
   assert.equal(npmCalls().length, 1, "healthy apply reran npm finalization");
+  fs.writeFileSync(
+    path.join(npmDir, "node_modules/fixture/package.json"),
+    JSON.stringify({ version: "9.9.9" }),
+  );
+  succeeded(h.run(["bootstrap", "packages", "apply", "--manager", "pi"], native));
+  succeeded(h.run(["bootstrap", "packages", "status", "--missing"], native));
   h.configure('[bootstrap.packages]\n"pi:npm:fixture" = "2.0.0"\n');
   succeeded(
     h.run(["bootstrap", "packages", "apply", "--manager", "pi"], native),
@@ -418,7 +425,7 @@ test("Pi pins are native mise declarations and preserve unowned packages", (t) =
     fs.readFileSync(native.PI_INSTALL_STATE, "utf8"),
     "npm:manual\n",
   );
-  assert.equal(npmCalls().length, 5);
+  assert.equal(npmCalls().length, 6);
   assert.deepEqual(
     JSON.parse(fs.readFileSync(path.join(npmDir, "package.json"))).allowScripts,
     { approved: true },

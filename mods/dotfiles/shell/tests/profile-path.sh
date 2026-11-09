@@ -72,4 +72,25 @@ env -i HOME="$home" USER=mise-path-regression MACHINE_NAME=maclab \
 	done
 	[ "$(cat "$MISE_CALLS")" = 'env --shell bash' ]
 PROBE
+linux_shell="$tmp/linux-shell"
+mkdir -p "$linux_shell/bash/lib"
+printf '%s\n' \
+	'sh_have() { return 1; }' \
+	'sh_path_prepend() { PATH="$1:$PATH"; export PATH; }' \
+	'sh_path_append() { :; }' >"$linux_shell/bash/lib/guards.sh"
+env -i HOME="$home" USER=mise-path-regression HOMEBREW_PREFIX="$tmp/legacy" \
+	SHELL_DOTFILES_DIR="$linux_shell" PROFILE="$shell_dir/bash/profile" \
+	PATH="/run/wrappers/bin:/run/current-system/sw/bin:/usr/bin:/bin" \
+	"$BASH" --noprofile --norc -s <<'PROBE'
+	set -eu
+	uname() { printf 'Linux\n'; }
+	. "$PROFILE"
+	before_wrappers=${PATH%%/run/wrappers/bin*}
+	case ":$before_wrappers:" in
+	*:/run/current-system/sw/bin:*)
+		printf 'NixOS privileged wrappers lost precedence: %s\n' "$PATH" >&2
+		exit 1
+		;;
+	esac
+PROBE
 printf 'Profile command precedence and repeated-login uniqueness passed.\n'

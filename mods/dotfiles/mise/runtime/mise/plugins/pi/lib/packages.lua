@@ -74,7 +74,16 @@ function M.install(packages)
 	end
 	local rows = M.inventory()
 	for _, pkg in ipairs(sources) do
-		command({ rows[pkg.name] and rows[pkg.name].source == pkg.source and "update" or "install", pkg.source })
+		local action = rows[pkg.name] and rows[pkg.name].source == pkg.source and "update" or "install"
+		-- Native Pi update skips pinned npm sources even when their installed version drifted.
+		if pkg.name:match("^npm:") then
+			action = "install"
+		end
+		-- npm's default caret save would let finalization upgrade an exact mise pin.
+		command(
+			{ action, pkg.source },
+			{ env = { npm_config_save_exact = "true" } }
+		)
 	end
 	M.finalize()
 end

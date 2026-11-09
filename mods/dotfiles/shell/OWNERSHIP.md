@@ -104,7 +104,8 @@ editing from `inputrc`. Ordering follows each hook's contract:
   `toolbox` > `shell_scripts` > mise tool directories > stock mise shims > `.local/bin`.
   Mise paths precede the legacy npm prefix; shell scripts and editable
   toolbox commands retain precedence. Writing prepends in the intuitive order
-  inverts precedence.
+  inverts precedence. On NixOS, retain `/run/wrappers/bin` ahead of
+  `/run/current-system/sw/bin`: the latter's raw sudo binary has no setuid bit.
 
 ## Known rough edges
 

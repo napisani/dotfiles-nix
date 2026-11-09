@@ -218,6 +218,26 @@ privileged installers or writes to the real prefix will succeed.
 
 ---
 
+## Homebrew startup resets an attended migration's sudo cache
+
+| Item | Detail |
+|------|--------|
+| **Location** | Installed Homebrew `Library/Homebrew/brew.sh`; rollout console environment |
+| **Symptom** | The keepalive exits with `sudo: a password is required` and a privileged cask uninstall waits for authentication. |
+| **Root cause** | Some Homebrew revisions unconditionally run `sudo --reset-timestamp` and do not recognize the rollout's `HOMEBREW_SUDO_CHECKED` opt-in. |
+| **Workaround** | For the attended run only, preserve the unmodified installed script in the run directory and add `&& -z "${HOMEBREW_SUDO_CHECKED:-}"` to its outer sudo-detection guard. Verify the script has no existing edits, retain the exact diff and hashes, and authenticate again inside the dedicated console. Restore the original script after closing the rollout. Never disable sudo authorization itself. |
+| **Remove when** | Installed Homebrew can preserve an explicitly authorized console timestamp without a local startup-guard patch. |
+
+## Pi npm pins expanding during shared-root finalization
+
+| Item | Detail |
+|------|--------|
+| **Location** | `mods/dotfiles/mise/runtime/mise/plugins/pi/lib/packages.lua` |
+| **Symptom** | A pinned Pi package reports a version mismatch immediately after installation. |
+| **Root cause** | Native Pi npm installs save caret ranges by default. Shared-root `npm install` can then select a newer version to satisfy peers, including for an exact mise declaration. |
+| **Workaround** | Pass `npm_config_save_exact=true` to native Pi package mutations. Reconcile npm sources with `pi install`, because native `pi update` skips pinned npm sources even when the installed version drifted. Repair expanded packages through a scoped native mise package apply; leave unrelated packages and credentials intact. |
+| **Remove when** | Native Pi preserves exact npm requests in the shared-root manifest without the npm environment override. |
+
 ## Pi extensions: `claude-agent-sdk-pi` peer-dep conflict
 
 | Item | Detail |

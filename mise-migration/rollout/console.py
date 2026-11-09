@@ -47,6 +47,12 @@ START = """#!/usr/bin/env bash
 set -euo pipefail
 umask 077
 run={run}
+# Sudo timestamps belong to a terminal, not to the run directory.
+session=${{TMUX-}}
+if [[ ${{session%%,*}} != "$run/console.sock" ]]; then
+	echo "First attach to this run's console using ATTACH.txt; authentication in another shell does not authorize it." >&2
+	exit 1
+fi
 if [[ -e "$run/privileged-session.ready" ]]; then
 	if kill -0 "$(cat "$run/keepalive.pid" 2>/dev/null)" 2>/dev/null; then
 		echo 'This run already has a live privileged session.' >&2
@@ -177,8 +183,13 @@ def close(run_dir):
                 record[name] = "stopped"
             except (OSError, ValueError):
                 record[name] = "not running"
-    record["sudo"] = "invalidated" if run(["sudo", "-k"], check=False).returncode == 0 else "sudo -k failed"
+    invalidation = run(["sudo", "-k"], check=False)
+    record["sudo"] = "invalidated" if invalidation.returncode == 0 else "sudo -k failed"
+    if invalidation.returncode:
+        record["sudo_error"] = (invalidation.stderr or invalidation.stdout).strip()[-300:]
     write_json(run_dir / "privileged-session.closed.json", record)
+    if invalidation.returncode:
+        raise RolloutError(f"sudo -k failed: {record['sudo_error']}")
     return record
 
 

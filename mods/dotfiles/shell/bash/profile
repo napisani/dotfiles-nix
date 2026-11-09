@@ -60,9 +60,9 @@ fi
 if [ "$(uname -s)" = Darwin ]; then
 	sh_path_prepend /opt/homebrew/sbin
 	sh_path_prepend /opt/homebrew/bin
+	# macOS path_helper can put Apple Bash first in inherited login environments.
+	sh_path_prepend /run/current-system/sw/bin
 fi
-# macOS path_helper can put Apple Bash first in inherited login environments.
-sh_path_prepend /run/current-system/sw/bin
 # Editable tools and shell scripts take precedence over package-manager bins.
 sh_path_prepend "$HOME/.local/bin"
 # Mise shims must precede executables left in the legacy shared npm prefix.

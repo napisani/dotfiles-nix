@@ -3,7 +3,7 @@ flake_name = "nicks-mbp"
 checkout = "~/code/monorepo/pub/dotfiles-nix"
 agent_profile = "common"
 # The controller reaches this host through a Host alias in its own ~/.ssh/config.
-controller = "maclab"
+controller = "nicks-loancrate-mbp"
 ssh_alias = "nicks-mbp"
 
 [casks]

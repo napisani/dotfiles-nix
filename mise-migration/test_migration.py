@@ -101,9 +101,15 @@ class CommonTests(Fixture):
         self.assertNotIn("brew-cask:docker-desktop", maclab.casks())
         self.assertNotIn("brew-cask:omniwm", maclab.casks())
         self.assertEqual(load_host("supermicro").casks(), [])
-        for host in ["nicks-mbp", "nicks-loancrate-mbp", "maclab", "supermicro"]:
+        controllers = {
+            "nicks-mbp": "nicks-loancrate-mbp",
+            "nicks-loancrate-mbp": "maclab",
+            "maclab": "maclab",
+            "supermicro": "nicks-loancrate-mbp",
+        }
+        for host, controller in controllers.items():
             decisions = load_host(host).decisions
-            self.assertEqual(decisions["controller"], "maclab")
+            self.assertEqual(decisions["controller"], controller)
             self.assertNotRegex(json.dumps(decisions), r"\d+\.\d+\.\d+\.\d+|fe80:", "addresses stay private")
 
 
@@ -324,6 +330,26 @@ class ConsoleTests(Fixture):
         self.assertEqual(record["sudo"], "invalidated")
         self.assertFalse(console.privileges(self.run_dir)["live"])
 
+    def test_close_does_not_report_success_when_sudo_invalidation_fails(self):
+        self.fake("sudo", "print('timestamp invalidation failed', file=sys.stderr)", status=1)
+        with self.assertRaisesRegex(RolloutError, "sudo -k failed"):
+            console.close(self.run_dir)
+        record = json.loads((self.run_dir / "privileged-session.closed.json").read_text())
+        self.assertEqual(record["sudo"], "sudo -k failed")
+
+    def test_start_script_rejects_authentication_outside_its_console(self):
+        self.fake("sudo")
+        console.write_scripts(self.run_dir, 60, macos=False)
+        start = self.run_dir / "start-privileged-session.sh"
+        for socket in ["", "/another/console.sock,1,0"]:
+            with self.subTest(socket=socket):
+                result = subprocess.run(["bash", start], env={**os.environ, "TMUX": socket},
+                                        capture_output=True, text=True)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("attach to this run's console", result.stderr)
+        self.assertEqual(self.recorded("sudo"), [])
+        self.assertFalse((self.run_dir / "privileged-session.ready").exists())
+
     def test_start_script_reauthenticates_only_after_the_keepalive_died(self):
         self.fake("sudo")
         self.fake("caffeinate")
@@ -333,10 +359,11 @@ class ConsoleTests(Fixture):
         self.addCleanup(sleeper.kill)
         (self.run_dir / "privileged-session.ready").write_text("1")
         (self.run_dir / "keepalive.pid").write_text(str(sleeper.pid))
-        self.assertNotEqual(subprocess.run(["bash", start], capture_output=True).returncode, 0)
+        env = {**os.environ, "TMUX": f"{self.run_dir}/console.sock,1,0"}
+        self.assertNotEqual(subprocess.run(["bash", start], env=env, capture_output=True).returncode, 0)
         sleeper.kill()
         sleeper.wait()
-        result = subprocess.run(["bash", start], capture_output=True, text=True)
+        result = subprocess.run(["bash", start], env=env, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         os.kill(int((self.run_dir / "keepalive.pid").read_text()), signal.SIGTERM)
         self.assertGreater(int((self.run_dir / "privileged-session.ready").read_text()), time.time())
@@ -439,6 +466,47 @@ class RolloutTests(Fixture):
                 steps.step_console(ctx)
             (self.run_dir / "privileged-session.ready").write_text(str(int(time.time()) + 4 * 3600))
             self.assertTrue(steps.step_console(ctx)["live"])
+
+    def test_linux_switch_pauses_gitops_and_restores_timer_on_every_outcome(self):
+        for service_state, rebuild_exit in [("inactive", 0), ("inactive", 1), ("active", 0)]:
+            with self.subTest(service_state=service_state, rebuild_exit=rebuild_exit):
+                commands = []
+
+                def invoke(command, **kwargs):
+                    argv = list(map(str, command))
+                    commands.append(argv)
+                    if "nixos-rebuild" in argv and rebuild_exit:
+                        raise RolloutError("rebuild failed")
+                    return subprocess.CompletedProcess(argv, 0, service_state + "\n", "")
+
+                ctx = self.context("supermicro")
+                with patch.object(steps, "run", side_effect=invoke), patch.object(
+                    steps.shutil, "which", return_value="nixos-rebuild"
+                ):
+                    if service_state == "active" or rebuild_exit:
+                        with self.assertRaises(RolloutError):
+                            steps.step_switch(ctx)
+                    else:
+                        steps.step_switch(ctx)
+                stop = ["sudo", "-n", "systemctl", "stop", "gitops-sync.timer"]
+                start = ["sudo", "-n", "systemctl", "start", "gitops-sync.timer"]
+                self.assertIn(stop, commands)
+                self.assertEqual(commands[-1], start)
+                rebuilds = [argv for argv in commands if "nixos-rebuild" in argv]
+                if service_state == "active":
+                    self.assertEqual(rebuilds, [])
+                else:
+                    self.assertEqual(len(rebuilds), 1)
+                    self.assertLess(commands.index(stop), commands.index(rebuilds[0]))
+
+    def test_macos_switch_does_not_call_systemctl(self):
+        ctx = self.context("nicks-mbp")
+        with patch.object(steps, "run") as invoke, patch.object(
+            steps.shutil, "which", return_value="darwin-rebuild"
+        ):
+            steps.step_switch(ctx)
+        self.assertFalse(any("systemctl" in call.args[0] for call in invoke.call_args_list))
+        self.assertEqual(invoke.call_count, 2)
 
     def test_nix_rtk_hooks_are_retired_with_a_copy(self):
         settings = self.write(".claude/settings.json", json.dumps({"hooks": {"PreToolUse": [

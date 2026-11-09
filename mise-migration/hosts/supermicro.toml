@@ -2,7 +2,7 @@
 flake_name = "supermicro"
 checkout = "~/code/monorepo/pub/dotfiles-nix"
 agent_profile = "common"
-controller = "maclab"
+controller = "nicks-loancrate-mbp"
 ssh_alias = "supermicro"
 
 [casks]

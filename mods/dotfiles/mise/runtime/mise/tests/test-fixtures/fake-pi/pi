@@ -61,7 +61,15 @@ if (command === "remove" && process.env.PI_FAIL_REMOVE === packageSpec) {
   process.exit(1);
 }
 
+if (command === "update" && /^npm:.+@\d/.test(packageSpec)) {
+  process.exit(0);
+}
+
 if (command === "install" || command === "update") {
+  if (process.env.PI_REQUIRE_SAVE_EXACT && process.env.npm_config_save_exact !== "true") {
+    console.error("exact package pins must survive npm finalization");
+    process.exit(1);
+  }
   const packages = installedPackages();
   if (!packages.includes(packageSpec)) {
     const identity = (source) => {

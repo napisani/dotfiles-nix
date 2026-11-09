@@ -61,8 +61,8 @@ class Context:
         path = ":".join(dict.fromkeys(d for d in directories if d))
         return {
             **os.environ, "HOME": str(self.home), "PATH": with_homebrew_ruby(path), "HOMEBREW_NO_AUTOREMOVE": "1",
-            # brew otherwise runs `sudo --reset-timestamp` at startup, discarding the console's
-            # deliberately cached credentials, so its next sudo prompts and the run stalls.
+            # The attended Homebrew startup guard must honor this opt-in; see WORKAROUNDS.md.
+            # Resetting the console's cached credentials stalls privileged cask installers.
             "HOMEBREW_SUDO_CHECKED": "1",
         }
 
@@ -144,7 +144,17 @@ def step_switch(ctx):
     command = pinned.get(rebuild) or shutil.which(rebuild, path=ctx.env()["PATH"]) or rebuild
     run(["sudo", "-n", "true"], env=ctx.env())
     flake = f"{ctx.host.checkout}#{ctx.host.flake_name}"
-    run(["sudo", "-n", "-H", command, "switch", "--flake", flake], env=ctx.env(), capture=False, timeout=7200)
+    try:
+        if not ctx.host.macos:
+            run(["sudo", "-n", "systemctl", "stop", "gitops-sync.timer"], env=ctx.env())
+            active = run(["systemctl", "show", "gitops-sync.service", "--property=ActiveState", "--value"],
+                         env=ctx.env()).stdout.strip()
+            if active not in ("inactive", "failed"):
+                raise RolloutError(f"gitops-sync.service is {active}; wait for it to finish before switching")
+        run(["sudo", "-n", "-H", command, "switch", "--flake", flake], env=ctx.env(), capture=False, timeout=7200)
+    finally:
+        if not ctx.host.macos:
+            run(["sudo", "-n", "systemctl", "start", "gitops-sync.timer"], env=ctx.env())
     after = os.path.realpath("/run/current-system")
     ctx.save_state(system_after=after)
     return {"system": after}
