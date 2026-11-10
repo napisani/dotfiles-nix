@@ -1,21 +1,22 @@
 #!/usr/bin/env bash
-# Reload Karabiner-Elements configuration
-# This script forces Karabiner to reload by restarting the console user server
+# Restart Karabiner-Elements' services so they reload karabiner.json and drop
+# runtime state such as a stale frontmost application or stuck variables.
 
-set -e
+set -euo pipefail
 
-echo "Reloading Karabiner-Elements configuration..."
+gui_domain="gui/$(id -u)"
 
-# Restart the console user server to force config reload
-echo "  → Restarting console user server..."
-launchctl kickstart -k org.pqrs.service.agent.karabiner_console_user_server 2>/dev/null || \
-    ( launchctl stop org.pqrs.service.agent.karabiner_console_user_server 2>/dev/null && \
-      launchctl start org.pqrs.service.agent.karabiner_console_user_server 2>/dev/null ) || true
+echo "Restarting Karabiner-Elements..."
 
-echo ""
-echo "✓ Karabiner reload complete!"
-echo ""
-echo "  Configuration: $HOME/.config/karabiner/karabiner.json"
-echo ""
-echo "  If changes still aren't visible, fully restart Karabiner-Elements:"
-echo "  osascript -e 'quit app \"Karabiner-Elements\"' && sleep 1 && open -a 'Karabiner-Elements'"
+# The root core service grabs the keyboards, so it needs sudo.
+echo "  → core service (root)"
+sudo launchctl kickstart -k system/org.pqrs.service.daemon.Karabiner-Core-Service
+
+for label in \
+	org.pqrs.service.agent.Karabiner-Core-Service-rev2 \
+	org.pqrs.service.agent.Karabiner-Console-User-Server; do
+	echo "  → ${label#org.pqrs.service.agent.}"
+	launchctl kickstart -k "$gui_domain/$label"
+done
+
+echo "✓ Karabiner restarted ($HOME/.config/karabiner/karabiner.json)"
