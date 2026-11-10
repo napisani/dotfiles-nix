@@ -6,8 +6,8 @@ assert(package.loaded["neogit"] == nil, "expected neogit to stay lazy during sta
 assert(vim.fn.exists(":Neogit") == 2, "expected Neogit lazy command to be registered")
 assert(package.loaded["vantage"] == nil, "expected vantage to stay lazy during startup")
 assert(vim.fn.exists(":VantageSetLens") == 2, "expected VantageSetLens lazy command to be registered")
-assert(vim.fn.exists(":VantageQuestion") == 2, "expected VantageQuestion lazy command to be registered")
-assert(vim.fn.exists(":VantageEdit") == 2, "expected VantageEdit lazy command to be registered")
+assert(vim.fn.exists(":VantageAsk") == 2, "expected VantageAsk lazy command to be registered")
+assert(vim.fn.exists(":VantageRequest") == 2, "expected VantageRequest lazy command to be registered")
 assert(vim.fn.exists(":VantageAnnotate") == 2, "expected VantageAnnotate lazy command to be registered")
 
 require("lazy").load({ plugins = { "dadbod-grip.nvim" } })

@@ -66,9 +66,6 @@
     "pi-surface-skills": {
       "path": "pub/pi-surface/skills"
     },
-    "vantage-nvim-skills": {
-      "path": "pub/vantage-nvim"
-    },
     "builderio-skills": {
       "repo": "~/.local/share/dotfiles/skill-sources/builderio-skills"
     },
@@ -429,18 +426,6 @@
         }
       ]
     },
-    "vantage-author-diff-tour": {
-      "source": "vantage-nvim-skills",
-      "path": "skills/vantage-author-diff-tour"
-    },
-    "vantage-author-walkthrough": {
-      "source": "vantage-nvim-skills",
-      "path": "skills/vantage-author-walkthrough"
-    },
-    "vantage-distill-session": {
-      "source": "vantage-nvim-skills",
-      "path": "skills/vantage-distill-session"
-    },
     "visual-explainer": {
       "source": "builderio-skills",
       "path": "plugins/visual-explainer"
@@ -651,9 +636,6 @@
         "manualOnly": true,
         "name": "mushy-lint-run-review"
       },
-      "vantage-distill-session",
-      "vantage-author-walkthrough",
-      "vantage-author-diff-tour",
       "playwright-cli",
       "gog",
       "gog-docs",

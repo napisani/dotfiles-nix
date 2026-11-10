@@ -295,35 +295,13 @@ require("lazy").setup({
 		},
 		{ "Bilal2453/luvit-meta", lazy = true }, -- optional `vim.uv` typings
 
-		-- Inline AI annotations and review lenses
+		-- Review loop with the adjacent Pi agent (Lua only; the Pi side is the
+		-- pi-vantage-nvim extension from the same checkout)
 		{
 			dir = vantage_dir,
 			name = "vantage.nvim",
 			opts = require("user.plugins.ai.vantage").opts,
-			-- lazy.nvim only reruns `build` when the plugin's pinned commit
-			-- changes, so if node_modules ever gets wiped externally (as
-			-- happened once already -- see "Vantage backend exited before
-			-- responding") a no-op `:Lazy update` won't repair it. Detect
-			-- and self-heal on every load instead of relying on that.
-			config = function(plugin, opts)
-				if vim.fn.isdirectory(plugin.dir .. "/node_modules") == 0 then
-					vim.notify("vantage.nvim: node_modules missing, rebuilding backend...", vim.log.levels.WARN)
-					vim.fn.jobstart("npm ci --omit=dev && npm run compile", {
-						cwd = plugin.dir,
-						on_exit = function(_, code)
-							if code == 0 then
-								vim.notify("vantage.nvim: backend rebuild complete", vim.log.levels.INFO)
-							else
-								vim.notify(
-									"vantage.nvim: backend rebuild failed (exit "
-										.. code
-										.. "), run :Lazy build vantage.nvim",
-									vim.log.levels.ERROR
-								)
-							end
-						end,
-					})
-				end
+			config = function(_, opts)
 				require("user.plugins.ai.vantage").configure(opts)
 			end,
 		},

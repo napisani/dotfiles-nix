@@ -23,6 +23,24 @@ local function response_globs(markdown)
 	return globs
 end
 
+local function apply_scope_answer(markdown)
+	local globs, parse_error = response_globs(markdown)
+	if not globs then
+		vim.notify("Vantage scope generation failed: " .. parse_error, vim.log.levels.ERROR)
+		return false
+	end
+	local applied, scope_error = scopes.set_glob_scope(globs)
+	if not applied then
+		vim.notify("Invalid Vantage scope: " .. tostring(scope_error), vim.log.levels.ERROR)
+		return false
+	end
+	vim.notify("Vantage scope set: " .. table.concat(globs, ", "), vim.log.levels.INFO)
+	refresh.refresh_open_nvim_trees()
+	return true
+end
+
+-- Asks the adjacent agent through Vantage, then waits for its answer to land in
+-- the thread; the thread is resolved once the scope is applied.
 local function request_adhoc_scope()
 	local ok, vantage = pcall(require, "vantage")
 	if not ok then
@@ -34,37 +52,41 @@ local function request_adhoc_scope()
 		kind = "scope-description",
 		title = "Describe file scope",
 		on_submit = function(description)
-			vantage.question({
-				runtime = "agent",
-				args = table.concat({
+			local review = require("vantage.review")
+			review.ask({
+				text = table.concat({
 					"Inspect the workspace with read-only tools as needed before choosing the files and paths.",
 					"Translate the user's description into a non-empty JSON array of workspace-relative include globs.",
-					"Return only the JSON array: no Markdown, explanation, code fence, or quotes outside JSON strings.",
+					"Answer with only the JSON array: no Markdown, explanation, code fence, or quotes outside JSON strings.",
 					"Include specific file paths when you can identify them, and add directory globs only when they cover related files involved in the request.",
 					"Each entry may use literals, /, *, **, and ?. Do not use absolute paths, .., braces, or whitespace inside entries.",
 					"The globs must be suitable for ripgrep and Git pathspec glob matching.",
 					"User's scope description:",
 					description,
 				}, "\n\n"),
-				callback = function(err, result)
-					if err then
-						vim.notify("Vantage scope generation failed: " .. tostring(err), vim.log.levels.ERROR)
+			}, function(err, ack)
+				if err then
+					vim.notify("Vantage scope generation failed: " .. tostring(err), vim.log.levels.ERROR)
+					return
+				end
+				local id = ack.threadId
+				local autocmd
+				autocmd = review.on_change(function()
+					local thread = review.thread(id)
+					if not thread or review.statuses.with_agent(thread.status) then
 						return
 					end
-					local globs, parse_error = response_globs(result and result.markdown)
-					if not globs then
-						vim.notify("Vantage scope generation failed: " .. parse_error, vim.log.levels.ERROR)
+					vim.api.nvim_del_autocmd(autocmd)
+					local last = thread.messages[#thread.messages]
+					if thread.status ~= "answered" or not last or last.role ~= "agent" then
+						vim.notify("Vantage scope generation ended as " .. thread.status, vim.log.levels.WARN)
 						return
 					end
-					local applied, scope_error = scopes.set_glob_scope(globs)
-					if not applied then
-						vim.notify("Invalid Vantage scope: " .. tostring(scope_error), vim.log.levels.ERROR)
-						return
+					if apply_scope_answer(last.text) then
+						review.resolve(id, true)
 					end
-					vim.notify("Vantage scope set: " .. table.concat(globs, ", "), vim.log.levels.INFO)
-					refresh.refresh_open_nvim_trees()
-				end,
-			})
+				end)
+			end)
 		end,
 	})
 end

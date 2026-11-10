@@ -120,6 +120,7 @@ was closed, navigation uses another non-Diffview tab or creates an editing tab.
 `<leader>fR` → [nv] leaf: pick from registers  
 `<leader>fp` → [nv] leaf: pick a file by path (from current file's directory)  
 `<leader>fP` → leaf: pick from available pickers (meta-picker)
+`<leader>fT` → [n] leaf: pick a Vantage thread (question, change request, tour request) and open it at its code; see `<leader>v`
 
 ---
 
@@ -188,36 +189,53 @@ was closed, navigation uses another non-Diffview tab or creates an editing tab.
 
 ---
 
-## `<leader>v` — inline AI assistance
+## `<leader>v` — review with the adjacent agent
 
-`<leader>v` → domain: request AI help for the current buffer — annotations, guided edits, questions, guidance lens updates, and watching for edits made outside this editor
-`<leader>v` → contract: normal-mode requests use the current line or visible window as their scope; visual-mode requests use the selected line range
-`<leader>ve` → exception: when a normal-mode edit request runs as a single one-shot model call, it scopes to the whole file rather than the current line, so the model may place changes anywhere in it; delegated-to-agent requests keep the current-line scope
-`<leader>v` → contract: annotation, question, status, search, and session-output commands do not change buffer text; edit commands may change only the requested scope
-`<leader>v` → contract: requests that accept a freeform prompt let the runtime be switched between the full tool-using agent and a single one-shot model call while composing, without re-invoking the command
-`<leader>ve` → contract: all changes from one request apply as a single undo step; a change that cannot be placed unambiguously is reported and skipped rather than guessed at, with the rest still applying; unsaved work is never discarded
-`<leader>v` → note: freeform prompt buffers support slash-skill completion when completion is available
+`<leader>v` → domain: ask the Pi agent running beside this editor about code, queue change requests and send them in rounds, request walkthroughs and diff tours, and annotate code; the agent answers in its own conversation and the answers come back into the editor
+`<leader>v` → contract: normal-mode requests are about the current line; visual-mode requests are about the selected line range; a request outside a workspace file is about the workspace as a whole
+`<leader>v` → contract: questions, explanations, annotations, walkthroughs and diff tours never change files; only change requests ask the agent to edit, and nothing is sent to the agent until the request is submitted
+`<leader>v` → contract: change requests wait as pending until the round is sent; the agent reports each as done, declined or needs-input, and the editor reloads files it changed
+`<leader>v` → contract: cancelling never stops the agent's current work; a request the agent has not seen yet is withdrawn, one it is working on gets a stop notice on its next turn
+`<leader>v` → note: with several agents in the workspace, the first request asks which one and sticks to it; with none, requests say how to start one
+`<leader>v` → note: prompts accept `@` file and `/skill` references, which the agent resolves itself
 
-`<leader>va` → [n] leaf: annotate the current line  
-`<leader>vA` → [n] leaf: annotate the visible window  
-`<leader>vx` → [n] leaf: clear inline annotations from the current buffer  
-`<leader>vl` → [n] leaf: set or replace the guidance lens used by subsequent requests  
-`<leader>vL` → [n] leaf: clear the active guidance lens
-`<leader>ve` → [n] leaf: request an AI edit anywhere in the current file
-`<leader>vE` → [n] leaf: explain the current line without changing buffer text
-`<leader>v?` → [n] leaf: ask an ad hoc question about the current line without changing buffer text
-`<leader>vf` → [n] leaf: run an agentic project search and open curated locations in quickfix
-`<leader>vo` → [n] leaf: show the recent inline AI session output transcript
-`<leader>vs` → [n] leaf: show combined inline AI status, including agent session and adjacent-agent context
-`<leader>vbc` → [n] leaf: cancel the active inline AI request
-`<leader>vbr` → [n] leaf: reset the inline AI agent session when idle
+`<leader>v?` → [n] leaf: ask the agent a question about the current line
+`<leader>vE` → [n] leaf: ask the agent to explain the current line
+`<leader>vr` → [n] leaf: queue a change request for the current line
+`<leader>ve` → [n] leaf: send a change request for the current line now, as its own round
+`<leader>vS` → [n] leaf: send every pending change request to the agent as one round
+`<leader>vR` → [n] leaf: reply to the thread under the cursor, or edit it while it is still pending
+`<leader>vX` → [n] leaf: mark the thread under the cursor resolved (its sign hides), or reopen it
+`<leader>vp` → [n] leaf: peek at the thread on the current line in a float that closes when the cursor moves
+`<leader>vo` → [n] leaf: open a thread's conversation in a bottom split that stays while you move around
+`<leader>vt` → [n] leaf: toggle the thread sidebar listing every thread by status
+`<leader>fT` → [n] leaf: pick any thread in a fuzzy list and open it at its code (listed under `<leader>f`)
+`<leader>va` → [n] leaf: annotate the current line
+`<leader>vA` → [n] leaf: annotate the visible window
+`<leader>vx` → [n] leaf: clear annotations and walkthrough notes
+`<leader>vl` → [n] leaf: set or replace the lens sent with every request
+`<leader>vL` → [n] leaf: clear the lens
+`<leader>vw` → [n] leaf: request a walkthrough of the code; it loads into the quickfix list with notes when it arrives
+`<leader>vC` → [n] leaf: request a diff tour; it opens in the diff view when it arrives
+`<leader>vdc` → [n] leaf: clear tours
+`<leader>vB` → [n] leaf: set the review base (default: the default branch); opening a diff view while connected sets it to that comparison, and closing the view clears it
+`<leader>vF` → [n] leaf: pick a file changed against the review base and open its diff
+`]c` / `[c` → [n] leaf: next / previous stop of the active walkthrough or diff tour; a tour the agent published unasked starts here
+`]t` / `[t` → [n] leaf: next / previous thread in the current file
 `<leader>vm` → [n] leaf: toggle watching the workspace for edits made outside this editor; while on, each changed file opens in the current window with the cursor on its first change
 `<leader>vm` → note: opening a changed file is a normal jump, so the standard jump-back and jump-forward motions walk recent changes and watching binds no keys of its own; it never changes file contents, ignores edits you save yourself, and does not move while you are typing
+`<leader>vs` → [n] leaf: show connection, agent, thread and tour status
+`<leader>vbc` → [n] leaf: cancel the request of the thread under the cursor, or the annotation request in flight
+`<leader>vbr` → [n] leaf: recall the sent round to pending before the agent starts it
+`<leader>vbC` → [n] leaf: find the agent again, choosing among several
+`<leader>v?` → [v] leaf: ask about the selected line range
+`<leader>vE` → [v] leaf: explain the selected line range
+`<leader>vr` → [v] leaf: queue a change request for the selected line range
+`<leader>ve` → [v] leaf: send a change request for the selected line range now
 `<leader>va` → [v] leaf: annotate the selected line range
-`<leader>ve` → [v] leaf: request an AI edit for the selected line range
-`<leader>vE` → [v] leaf: explain the selected line range without changing buffer text
-`<leader>v?` → [v] leaf: ask an ad hoc question about the selected line range without changing buffer text
-`<leader>vf` → [v] leaf: run an agentic project search seeded by the selected line range and open curated locations in quickfix
+`<leader>vw` → [v] leaf: request a walkthrough starting from the selected line range
+
+Inside a thread split: `r` reply (edit while pending), `x` resolve, `Q` answer locations to quickfix, `C` cancel, `gd` go to the code, `q` close. Inside the sidebar: `<CR>` open the thread and show its code, `r` reply, `e` edit, `dd` delete a pending request, `x` resolve, `C` cancel, `S` send the round, `R` recall it, `q` close.
 
 ---
 
@@ -294,7 +312,7 @@ Merge conflict resolution (contextual inside a diff/merge view):
 ## `<leader>a` — Wiremux agent + PromptBuilder (staged context)
 
 `<leader>a` → domain: control the **Wiremux** target pane and **PromptBuilder** — a single **horizontal** split (opens **below** the current window, height capped to a fraction of the screen), markdown-syntax scratch buffer (tag `prompt_builder`) where you assemble `@` references and freeform text. At most one PromptBuilder buffer exists; new material **appends** to it. Nothing here talks to the agent by itself except **`ao` / `aq` / `aw` / `av`** and **`<C-g>` inside PromptBuilder** (see below)  
-`<leader>a` → contract: after a **send** to the agent (including from PromptBuilder via `<C-g>`) or after **`ao`** toggle / focus, the **Wiremux target pane** gets focus so the reply is visible. Staging keys (`af*`, `ae`, `a?`, `as`, `ap`, `am`) only update PromptBuilder until you `<C-g>` there; **`ai`** is different: it only opens or focuses PromptBuilder and appends no text
+`<leader>a` → contract: **`<C-g>`** in PromptBuilder sends the whole buffer to the adjacent Pi agent through the review loop (`<leader>v`), after asking whether it is a question, a queued change request, or a change request sent now; the reply arrives as a thread in the editor. **`ao`** toggles and focuses the Wiremux target pane. Staging keys (`af*`, `ae`, `a?`, `as`, `ap`, `am`) only update PromptBuilder until you `<C-g>` there; **`ai`** is different: it only opens or focuses PromptBuilder and appends no text
 `<leader>a` → note: route (target) is per-session and defaults to the `pi` pane for the current working directory; available coding-agent routes include Claude Code, Codex, Cursor Agent, Gemini, and Pi
 
 **Direct to Wiremux (not PromptBuilder)**  
@@ -332,7 +350,7 @@ Merge conflict resolution (contextual inside a diff/merge view):
 **Inside a PromptBuilder buffer**  
 `@…` → [i] leaf: blink file completion uses `@` as the draft trigger; accepting a file replaces the `@…` token with `@relative/path/to/file`
 `$…` → [i] leaf: blink skill completion always uses `$` as the draft trigger; accepting a skill replaces the `$…` token with the active Wiremux route's callout (`/name` for claude, `$name` for codex, `/skill:name` for pi)
-`<C-g>` → [n] [i] leaf: send the **entire** buffer as one message to Wiremux **with submit**, then wipe the PromptBuilder buffer  
+`<C-g>` → [n] [i] leaf: send the **entire** buffer to the adjacent Pi agent as a workspace thread (question, queued change request, or change request now), then wipe the PromptBuilder buffer once the agent's extension accepts it  
 
 ---
 

@@ -3,7 +3,7 @@
   "defaultProvider": "claude-bridge",
   "defaultThinkingLevel": "high",
   "extensions": [
-    {{ (vars.monorepo_root ~ "/pub/vantage-nvim/server/src/neovim/runtime/adjacent/extension.ts") | json_encode }},
+    {{ (vars.monorepo_root ~ "/pub/vantage-nvim/pi-vantage-nvim/index.ts") | json_encode }},
     {{ (vars.monorepo_root ~ "/pub/pi-surface/extension/index.ts") | json_encode }}
   ],
   "openaiReasoningMode": {
